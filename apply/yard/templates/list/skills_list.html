@@ -21,12 +21,12 @@
 <header><title>This is title</title></header>
 <body >
 
-<ul>
-{% for skill in skills %}
-<li> {{ skill.name }}
 
+
+{% for skill in skills %}
+<small class="badge pull-left bg-red">{{ skill.name }}</small>
+<br>
 {% endfor %}
-<ul>
 </body>
 </html>
 

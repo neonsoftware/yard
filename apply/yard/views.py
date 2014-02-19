@@ -11,7 +11,7 @@ def my_view( req ):
 
 	#a = Artist.objects.all()
 
-    return render( req, 'empty.html', { }  )
+    return render( req, 'my_index.html', { }  )
 
 @csrf_exempt
 def portal_new( request ):

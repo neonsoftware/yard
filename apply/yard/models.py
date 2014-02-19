@@ -16,6 +16,9 @@ class CreatedUpdatedModel(models.Model):
 
 class Skill( models.Model ):
 	name 		= models.CharField(max_length=4096)
+	
+	def __str__( self ) :
+		return self.name
 
 class Portal( CreatedUpdatedModel ):
 	name 		= models.CharField(max_length=4096)
@@ -24,12 +27,18 @@ class Portal( CreatedUpdatedModel ):
 	#countries	= models.CharField(max_length=4096)
 	skills 		= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
 
+	def __str__( self ) :
+		return self.name
+
 class Company( CreatedUpdatedModel ):
 	name 		= models.CharField(max_length=4096)
 	website		= models.CharField(max_length=4096)
 	description	= models.CharField(max_length=4096)
 	skills 		= models.ManyToManyField(Skill, related_name="%(app_label)s_%(class)s_related" )
 	note 		= models.CharField(max_length=4096)
+
+	def __str__( self ) :
+		return self.name
 
 class Application( CreatedUpdatedModel ):
 	portal 		= models.ForeignKey(Portal)
@@ -40,6 +49,9 @@ class Application( CreatedUpdatedModel ):
 	to_call		= models.BooleanField(default=False)
 	to_send_other	= models.BooleanField(default=False)
 	note 		= models.CharField(max_length=4096)
+	
+	def __str__( self ) :
+		return self.company
 
 
 # User
@@ -50,6 +62,9 @@ class Profile( CreatedUpdatedModel ):
 	website = models.URLField(null=True)
 	has_avatar 	= models.BooleanField(default=False)
 	avatar 		= models.CharField(max_length=4096)
+	
+	def __str__( self ) :
+		return self.user
 
 
 class ProfileForm(ModelForm):
