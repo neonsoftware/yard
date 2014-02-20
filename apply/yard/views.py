@@ -1,17 +1,21 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
+from django.forms.models import model_to_dict
 
 from yard.models import Portal, Skill, Application, Company
 from yard.models import PortalForm, SkillForm, ApplicationForm, CompanyForm
 
+import json
 
 @csrf_exempt
 def my_view( req ):
 
 	#a = Artist.objects.all()
 
-    return render( req, 'my_index.html', { }  )
+	return render( req, 'my_index.html', { }  )
 
 @csrf_exempt
 def portal_new( request ):
@@ -44,9 +48,7 @@ def skills_list(request) :
 
 	if request.method == 'GET':
 
-		za_skills = Skill.objects.all()
-
-		return render(request, 'list/skills_list.html', {'skills' : za_skills })
+		return HttpResponse( json.dumps( [ skill.myToObj() for skill in Skill.objects.all() ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 
@@ -56,7 +58,7 @@ def skills_list(request) :
 def skills_detail(request, name) :
 
 	if request.method == 'GET':
-
+				
 		skill = get_object_or_404( Skill, name=name )
 
 		return render(request, 'detail/skill_detail.html', {'skill' : skill })
@@ -66,9 +68,7 @@ def portals_list(request) :
 
 	if request.method == 'GET':
 
-		za_portal = Portal.objects.all()
-
-		return render(request, 'list/portals_list.html', {'portals' : za_portal })
+		return HttpResponse( json.dumps( [ port.myToObj() for port in Portal.objects.all() ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 
@@ -88,31 +88,27 @@ def companies_list(request) :
 
 	if request.method == 'GET':
 
-		za_companies = Company.objects.all()
-
-		return render(request, 'list/companies_list.html', {'companies' : za_companies })
+		return HttpResponse( json.dumps( [ comp.myToObj() for comp in Company.objects.all() ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 
 		return render(request, 'list/skills_list.html', {'skills' : za_skills })
 
 
-def companies_detail(request, name) :
+def companies_detail(request, id) :
 
 	if request.method == 'GET':
 
-		company = get_object_or_404( Company, name=name )
+		company = get_object_or_404( Company, id=id )
 
-		return render(request, 'detail/company_detail.html', {'company' : company })
+		return HttpResponse( json.dumps( company.myToObj() ), content_type="application/json" )
 
 
 def applications_list(request) :
 
 	if request.method == 'GET':
 
-		za_applications = Application.objects.all()
-
-		return render(request, 'list/applications_list.html', {'applications' : za_applications })
+		return HttpResponse( json.dumps( [ app.myToObj() for app in Application.objects.all() ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 
@@ -126,4 +122,33 @@ def applications_detail( request, uuid ) :
 		application = get_object_or_404( Skill, uuid=uuid )
 
 		return render(request, 'detail/application_detail.html', {'application' : application })
+
+
+def api_companies_list(request) :
+
+	if request.method == 'GET':
+
+		za_companies = Company.objects.all()
+
+		return za_companies
+
+	elif request.method == 'POST':
+
+		return []
+
+
+def api_companies_detail(request, name) :
+
+	if request.method == 'GET':
+
+		company = get_object_or_404( Company, name=name )
+
+		return render(request, 'detail/company_detail.html', {'company' : company })
+
+
+
+def angu(request) :
+
+	return render(request, 'angu.html', {})
+
 
