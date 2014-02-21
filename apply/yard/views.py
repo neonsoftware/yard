@@ -43,7 +43,7 @@ def company_new( request ):
 		form = CompanyForm()
 		return render(request, 'forms/simple_form.html', { 'title' : 'Company', 'api' : 'companies','form': form } )
 
-
+@csrf_exempt
 def skills_list(request) :
 
 	if request.method == 'GET':
@@ -52,16 +52,34 @@ def skills_list(request) :
 
 	elif request.method == 'POST':
 
-		return render(request, 'list/skills_list.html', {'skills' : za_skills })
+		#try :
+		
+		print '\tPost = ' , request.POST
+		print '\tBody = ' , request.body
+		#received_data    =       json.loads(request.POST)
+		#received_name    =       received_data['name']
+
+		#print 'New skill : name = ' , received_name
+
+		#s = Skill( name = received_name )
+		##s = SkillForm( received_data )
+
+		#s.save()
+	
+		#except:
+		#	return HttpResponse(content="Input to API not valid for resource addition.", status=400)
 
 
-def skills_detail(request, name) :
+		return HttpResponse(content="Object correctly added. ", status=200 )
+
+
+def skills_detail(request, id) :
 
 	if request.method == 'GET':
 				
-		skill = get_object_or_404( Skill, name=name )
+		skill = get_object_or_404( Skill, id=id )
 
-		return render(request, 'detail/skill_detail.html', {'skill' : skill })
+		return HttpResponse( json.dumps( skill.myToObj() ), content_type="application/json" )
 
 
 def portals_list(request) :
@@ -75,13 +93,13 @@ def portals_list(request) :
 		return render(request, 'list/skills_list.html', {'skills' : za_skills })
 
 
-def portals_detail(request, name) :
+def portals_detail(request, id) :
 
 	if request.method == 'GET':
 
-		portal = get_object_or_404( Portal, name=name )
+		portal = get_object_or_404( Portal, id=id )
 
-		return render(request, 'detail/portal_detail.html', {'portal' : portal })
+		return HttpResponse( json.dumps( portal.myToObj() ), content_type="application/json" )
 
 
 def companies_list(request) :
@@ -115,35 +133,13 @@ def applications_list(request) :
 		return render(request, 'list/skills_list.html', {'skills' : za_skills })
 
 
-def applications_detail( request, uuid ) :
+def applications_detail( request, id ) :
 
 	if request.method == 'GET':
 
-		application = get_object_or_404( Skill, uuid=uuid )
+		application = get_object_or_404( Skill, id=id )
 
-		return render(request, 'detail/application_detail.html', {'application' : application })
-
-
-def api_companies_list(request) :
-
-	if request.method == 'GET':
-
-		za_companies = Company.objects.all()
-
-		return za_companies
-
-	elif request.method == 'POST':
-
-		return []
-
-
-def api_companies_detail(request, name) :
-
-	if request.method == 'GET':
-
-		company = get_object_or_404( Company, name=name )
-
-		return render(request, 'detail/company_detail.html', {'company' : company })
+		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
 
 
 

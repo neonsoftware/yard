@@ -19,11 +19,23 @@
 
 		$scope.orderProp = 'age';
 		//$scope.phones = [{'name':'Pippo', 'website':'www.ciao.com' }];
-		$http.get('/companies/').success(function(data) {
-		  $scope.phones = data;
+		$http.get('/skills/').success(function(data) {
+		  
+			$scope.phones = data;
 			
 			//alert("Got " + $scope.phones );
 		});
+
+
+		$scope.add_skill = function() {
+  			var description = $scope.new_skill.name;
+			alert ( "sending " + $scope.new_skill.name );
+  			$http.post('/skills/', { name: description }).success(function() {
+			alert ( "POst Passed ! " );
+    		$scope.new_skill.name = '';
+			});
+		}
+
 
 	  });
 
@@ -38,13 +50,12 @@
       <div class="span2">
         <!--Sidebar content-->
 
-        Search: <input ng-model="query">
-        Sort by:
-        <select ng-model="orderProp">
-          <option value="name">Alphabetical</option>
-          <option value="age">Newest</option>
-        </select>
-		<p>Age is {% verbatim %} {{orderProp}} {% endverbatim %}</p>
+		<form novalidate class="simple-form">
+      	New skill: <input type="text" ng-model="new_skill.name" /><br />
+      	<button ng-click="add_skill(user)">SAVE</button>
+    	</form>
+
+		<br><br>
 
       </div>
       <div class="span10">

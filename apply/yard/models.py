@@ -29,7 +29,7 @@ class Portal( CreatedUpdatedModel ):
 	skills 		= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
 	
 	def myToObj ( self ):
-		data 			= { "name"	: self.name, "website" : self.name, "description" : self.description }
+		data 			= { "name"	: self.name, "website" : self.website, "description" : self.description }
 		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all()   ]
 		return data
 
