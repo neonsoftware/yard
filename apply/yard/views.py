@@ -56,15 +56,15 @@ def skills_list(request) :
 		
 		print '\tPost = ' , request.POST
 		print '\tBody = ' , request.body
-		#received_data    =       json.loads(request.POST)
-		#received_name    =       received_data['name']
+		received_data    =       json.loads(request.body)
+		received_name    =       received_data['name']
 
-		#print 'New skill : name = ' , received_name
+		print 'New skill : name = ' , received_name
 
-		#s = Skill( name = received_name )
-		##s = SkillForm( received_data )
+		s = Skill( name = received_name )
+		s = SkillForm( received_data )
 
-		#s.save()
+		s.save()
 	
 		#except:
 		#	return HttpResponse(content="Input to API not valid for resource addition.", status=400)
