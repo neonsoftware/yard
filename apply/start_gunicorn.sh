@@ -20,8 +20,7 @@ ADDRESS=127.0.0.1:8000
 
 #GROUP=your_unix_group
 
-cd /Users/showandtell/Documents/yard-project
-
+cd /home/ubuntu/applicationsyard
 source ./venv/bin/activate
 
 #test -d $LOGDIR || mkdir -p $LOGDIR
