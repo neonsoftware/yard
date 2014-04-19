@@ -2,9 +2,9 @@
 
 set -e
 
-LOGFILE=/home/ubuntu/runtime_files/guni/hello.log
+LOGFILE=../../runtime_files/guni/hello.log
 
-ERRORFILE=/home/ubuntu/runtime_files/guni/error.log
+ERRORFILE=../../runtime_files/guni/error.log
 
 LOGDIR=$(dirname $LOGFILE)
 
@@ -20,11 +20,13 @@ ADDRESS=127.0.0.1:8000
 
 #GROUP=your_unix_group
 
-cd /home/ubuntu/applicationsyard
+cd ../..
 source ./venv/bin/activate
 
 #test -d $LOGDIR || mkdir -p $LOGDIR
 cd yard/apply
+
+echo "here"
 
 python manage.py run_gunicorn -w $NUM_WORKERS --bind=$ADDRESS \
 --log-level=debug \
