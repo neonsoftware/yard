@@ -1,0 +1,30 @@
+{
+  "name": "niom",
+  "version": "0.0.0",
+  "authors": [
+    "Super <niom@niom.com>"
+  ],
+  "description": "Beginning",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "libraries",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "alpaca": "*",
+    "angular-gridster": "~0.9.5",
+    "angular-resource": "~1.2.14",
+    "angular-route": "~1.2.14",
+    "angular": "~1.2.14",
+    "bootstrap": "~3.1.1",
+    "font-awesome": "~4.0.3",
+    "ionicons": "~1.4.1",
+    "jquery-ui": "~1.10.4",
+    "jquery": "~2.1.0"
+  }
+}

@@ -1,0 +1,57 @@
+<div class="row">
+	<div class="col-md-12">
+		
+		<div class="well">
+
+			<div class="media" >
+				<a class="pull-left" href="" ng-click="open_device_detail(device)">
+					<img class="media-object" ng-src="{{image_URI_db[image_prefix + current_device.uuid + '/thumbnails/20px.jpg']}}">
+					<!--<img class="media-object" ng-show="{{image_URI_db[image_prefix + current_device.uuid + '-20px.jpg'].length==0}}" src="img/75x75.gif">-->
+				</a>
+				<div class="media-body">
+					<h4 class="media-heading">{{current_device.title}}</h4>
+					<p>Created : {{current_device.created}} </p>
+					<!--<p>A : {{image_URI_db[image_prefix + current_device.uuid + '-20px.jpg']}}</p>
+						<p>A : {{image_URI_db[image_prefix + current_device.uuid + '-20px.jpg'].length>0}}</p>
+					
+						<p>B : {{image_URI_db[image_prefix + current_device.uuid + '-20px.jpg'].length==0}}</p>-->
+					</div>
+				</div>
+			
+				<hr>
+				<ul class="media-list">
+					<li ng-repeat="board in boards">
+						<div class="media"  >
+							<a class="pull-left" href="" ng-click="" >
+								<img class="media-object" ng-src="{{image_URI_db[image_prefix + current_device.uuid + '/thumbnails/20px-board-' + board.id + '.jpg']}}">
+								<!--<img class="media-object" ng-show="{{image_URI_db[image_prefix + current_device.uuid + '-20px.jpg'].length==0}}" src="img/75x75.gif">-->
+							</a>
+							<div class="media-body">
+								<a class="btn btn-primary" ng-click="load_board(board)" >Load</a>
+								<br>
+								<div class="col-md-4 progress" ng-show="board.loading">
+									<div class="progress-bar" style="width: 40%;">
+										
+									</div>
+								</div>
+					
+								<!--<p>A : {{image_URI_db[image_prefix + current_device.uuid + '-20px.jpg']}}</p>
+									<p>A : {{image_URI_db[image_prefix + current_device.uuid + '-20px.jpg'].length>0}}</p>
+					
+									<p>B : {{image_URI_db[image_prefix + current_device.uuid + '-20px.jpg'].length==0}}</p>-->
+								
+				
+								</div>
+							</div>
+						<hr>					
+						</li>
+						
+					</ul>
+			
+			
+
+				</div>
+	
+        
+			</div>
+		</div>

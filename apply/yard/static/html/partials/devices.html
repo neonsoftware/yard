@@ -1,0 +1,24 @@
+<div class="well" >
+    
+    <ul class="media-list">
+        <li class="media" ng-repeat="device in devices">
+            <a class="pull-left" href="" ng-click="open_device_detail(device)">
+                <img class="media-object" ng-show="{{image_URI_db[image_prefix + device.uuid + '/thumbnails/20px.jpg'].length>0}}" ng-src="{{image_URI_db[image_prefix + device.uuid + '/thumbnails/20px.jpg']}}">
+				<img class="media-object" ng-show="{{image_URI_db[image_prefix + device.uuid + '/thumbnails/20px.jpg'].length==0}}" src="img/75x75.gif">
+                    </a>
+            <div class="media-body">
+                <h4 class="media-heading">{{device.title}}</h4>
+                <p>
+                {{device.created}}
+                <a href="" ng-click="open_device_detail(device)">Modify</a>
+                <a href="" ng-click="delete_device(device)">Delete</a>
+                <a href="/devices/{{device.uuid}}/copy">Copy</a>
+                
+                </p>
+            </div>
+        </li>
+    </ul>
+	
+    <a href="#/create" class="btn btn-block btn-primary">CREATE NEW</a>
+    
+</div>

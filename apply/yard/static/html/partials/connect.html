@@ -1,0 +1,31 @@
+<div class="row">
+    <div class="col-md-4">
+        
+
+        <div class="well">
+            
+        <form name="myForm">
+            <label class="control-label">Port</label>
+			
+			<select class="form-control" ng-model="selected_port" ng-options="port for port in ports" required>
+			      <option value="">  choose port  </option>
+			</select>
+            
+            <a class="btn btn-primary btn-block" ng-click="connect_to_port()" >Connect</a>
+            <div class="progress" ng-show="connectionId != -1">
+                <div class="progress-bar" style="width: 40%;"></div>
+            </div>
+            </form>
+                
+        </div>
+        
+        <a class="btn btn-primary btn-block" ng-show="connection_successful" >CONNECT AGAIN</a>
+        
+        <div> </div>
+        
+        <a class="btn btn-primary btn-block" ng-show="connection_successful">CONTINUE</a>
+        
+    </div>
+</div>
+
+
