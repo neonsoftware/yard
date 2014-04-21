@@ -1,7 +1,7 @@
 angular.module('niomApp')
-.controller('ApplicationsListCtrl', function($scope, $http, $resource, $location, Applications )
+.controller('CompaniesListCtrl', function($scope, $http, $resource, $location, Applications )
 {
-	$scope.applications = Applications.query( );
+	$scope.companies = Applications.query( );
    
 	$scope.open_detail = function( device ){ $location.path( '/applications/' + device.uuid ); }
    

@@ -33,7 +33,7 @@ window.routes = {
 	controller: 'SkillsDetailCtrl',
 	requireLogin: true
 },
-'/peces': {
+'/pieces': {
 	templateUrl: 'html/partials/skills_list.html',
 	controller: 'SkillsListCtrl',
 	requireLogin: true
