@@ -2,9 +2,9 @@
 
 set -e
 
-LOGFILE=../../../runtime_files/guni/hello.log
+LOGFILE=../../runtime_files/guni/hello.log
 
-ERRORFILE=../../../runtime_files/guni/error.log
+ERRORFILE=../../runtime_files/guni/error.log
 
 LOGDIR=$(dirname $LOGFILE)
 
