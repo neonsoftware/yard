@@ -1,5 +1,6 @@
 from django.db import models
 from django.forms import ModelForm
+from django.conf.global_settings import LANGUAGES
 
 from django.contrib.auth.models import User
 
@@ -12,6 +13,7 @@ class CreatedUpdatedModel(models.Model):
 	class Meta:
 			abstract = True
 
+
 class Skill( models.Model ):
 	name 		= models.CharField(max_length=4096)
 	
@@ -20,6 +22,31 @@ class Skill( models.Model ):
 
 	def __str__( self ) :
 		return self.name
+
+class PieceCategory( models.Model ):
+	name  		= models.CharField(max_length=40)
+	description	= models.CharField(max_length=100)
+	
+	def myToObj ( self ):
+		return { "id" : self.id , "name": self.name, "description" : self.description }
+
+	def __str__( self ) :
+		return self.name
+
+class Piece( models.Model ):
+	content  	= models.TextField()
+	language    = models.CharField(max_length=7, choices=LANGUAGES)
+	skills 		= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
+	category	= models.ForeignKey(PieceCategory)
+	
+	def myToObj ( self ):
+		data 			= { "id" : self.id , "content"	: self.content, "language"	: self.language, "category" : self.category.id }
+		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all() ]
+		return data
+
+	def __str__( self ) :
+		return self.name
+
 
 class Portal( CreatedUpdatedModel ):
 	name 		= models.CharField(max_length=4096)

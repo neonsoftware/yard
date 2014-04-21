@@ -3,47 +3,49 @@
 
 
 window.routes = {
-'/devices': {
-	templateUrl: 'html/partials/devices.html',
-	controller: 'DevicesListCtrl',
+'/applications/:applicationId': {
+	templateUrl: 'html/partials/applications_detail.html',
+	controller: 'ApplicationsDetailCtrl',
 	requireLogin: true
 },
-'/devices/:deviceId': {
-	templateUrl: 'html/partials/detail.html',
-	controller: 'DevicesDetailCtrl',
+'/applications': {
+	templateUrl: 'html/partials/applications_list.html',
+	controller: 'ApplicationsListCtrl',
 	requireLogin: true
 },
-'/simulate_start': {
-	templateUrl: 'html/partials/simulate_start.html',
-	controller: 'SimulateStartCtrl',
+'/companies': {
+	templateUrl: 'html/partials/companies_list.html',
+	controller: 'CompaniesCtrl',
 	requireLogin: true
 },
-'/simulate/:size_y/:size_x': {
-	templateUrl: 'html/partials/simulate.html',
-	controller: 'SimulateCtrl',
+'/companies/:applicationId': {
+	templateUrl: 'html/partials/companies_detail.html',
+	controller: 'CompaniesCtrl',
 	requireLogin: true
 },
-'/connect': {
-	templateUrl: 'html/partials/connect.html',
-	controller: 'ConnectCtrl',
+'/skills': {
+	templateUrl: 'html/partials/skills_list.html',
+	controller: 'SkillsListCtrl',
 	requireLogin: true
 },
-'/create': {
-	templateUrl: 'html/partials/create.html',
+'/skills/:applicationId': {
+	templateUrl: 'html/partials/skills_detail.html',
+	controller: 'SkillsDetailCtrl',
 	requireLogin: true
 },
-'/devices/:deviceId/load': {
-	templateUrl: 'html/partials/load.html',
-	controller: 'LoadCtrl',
+'/peces': {
+	templateUrl: 'html/partials/skills_list.html',
+	controller: 'SkillsListCtrl',
 	requireLogin: true
 },
-'/upload': {
-	templateUrl: 'html/partials/upload.html',
-	controller: 'UploadCtrl',
+'/pieces/:pieceId': {
+	templateUrl: 'html/partials/skills_detail.html',
+	controller: 'SkillsDetailCtrl',
 	requireLogin: true
 }
 };
 
+//var remoteUrl = 'http://ec2-54-234-247-242.compute-1.amazonaws.com/' ;
 var remoteUrl = 'http://127.0.0.1' ;
 //var remoteUrl = 'http://192.168.0.33' ;
 
@@ -87,8 +89,9 @@ function($routeProvider) {
 	
 	return { url: actualUrl };
 })
-.factory('Devices', ['$resource', function($resource) { return $resource( remoteUrl + '/devices/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT' } } ) ; } ] )
-.factory('Components', ['$resource', function($resource) { return $resource( remoteUrl + '/components/:uuid', {uuid:"@uuid"} ) } ])
+.factory('Applications', ['$resource', function($resource) { return $resource( remoteUrl + '/applications/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT' } } ); } ] )
+.factory('Companies', ['$resource', function($resource) { return $resource( remoteUrl + '/companies/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT' } } ); } ] )
+.factory('Skills', ['$resource', function($resource) { return $resource( remoteUrl + '/skills/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'} } ); } ] )
 .service('SessionService', function(){ 
 	var userIsAuthenticated = false;
 	

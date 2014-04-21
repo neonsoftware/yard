@@ -25,6 +25,10 @@ urlpatterns = patterns('',
 	url(r'portals/new$',  views.portal_new , name ='portal_new' ),
 	url(r'portals/$',  views.portals_list , name ='portals_list' ),
 	url(r'portals/(?P<id>[-\w\d]+)/$',  views.portals_detail , name ='portals_detail' ),
+	url(r'piece/$',  views.pieces_list , name ='pieces_list' ),
+	url(r'piece/(?P<id>[-\w\d]+)/$',  views.pieces_detail , name ='pieces_detail' ),
+	url(r'category/$',  views.categories_list , name ='categories_list' ),
+	url(r'category/(?P<id>[-\w\d]+)/$',  views.categories_detail , name ='categories_detail' ),
 	url(r'angu/$$',  views.angu , name ='angu' ),
 
 )
