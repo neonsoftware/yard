@@ -62,7 +62,7 @@ WSGI_APPLICATION = 'apply.wsgi.application'
 DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.mysql',  # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-    'NAME': 'applicationsyard',                      # Or path to database file if using sqlite3.
+    'NAME': 'yard',                      # Or path to database file if using sqlite3.
     'USER': 'frankie',                      # Not used with sqlite3.
     'PASSWORD': 'frankie',                  # Not used with sqlite3.
     'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
