@@ -1,0 +1,47 @@
+<div class="well" >
+ 
+	<div class="box">
+		<div class="box-header">
+			<h3 class="box-title">Pieces</h3>
+			<div class="box-tools">
+				<div class="input-group">
+					<input type="text" name="table_search" class="form-control input-sm pull-right" style="width: 150px;" placeholder="Search"/>
+					<div class="input-group-btn">
+						<button class="btn btn-sm btn-default"><i class="fa fa-search"></i></button>
+					</div>
+				</div>
+			</div>
+		</div><!-- /.box-header -->
+		<div class="box-body table-responsive no-padding">
+			<table class="table table-hover">
+				<tr>
+					<th>Content</th>
+					<th>Category</th>
+					<th>Language</th>
+					<th>Skills</th>
+				</tr>
+				<tr ng-repeat="piece in pieces">
+					<td> {{ piece.content }} </td>
+					<td> {{ piece.category }} </td>
+					<td> {{ piece.language }} </td>
+					<td> <small class="badge pull-left bg-red" ng-repeat="skill in piece.skills">{{ skill.name }}</small></tr>
+
+			</table>
+		</div><!-- /.box-body -->
+	</div><!-- /.box -->
+
+    
+	<a class="btn btn-block btn-primary" ng-click="create()">CREATE NEW</a>
+	
+
+    
+</div>
+
+	<div class="well" ng-show="in_creation" >
+	  <form action='/pieces/' method='post' >
+		<div> 
+		  <loaded-template myvar="myvar" myhtml="myhtml" />
+		</div>
+		<button type="submit" class="btn btn-primary">Add</button>
+	  </form>
+	</div>

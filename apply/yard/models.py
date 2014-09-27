@@ -38,14 +38,15 @@ class Piece( models.Model ):
 	language    = models.CharField(max_length=7, choices=LANGUAGES)
 	skills 		= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
 	category	= models.ForeignKey(PieceCategory)
+	schema      = models.CharField(max_length=4094)
 	
 	def myToObj ( self ):
-		data 			= { "id" : self.id , "content"	: self.content, "language"	: self.language, "category" : self.category.id }
+		data 			= { "id" : self.id , "content"	: self.content, "language"	: self.language, "category" : self.category.id, "schema" : self.schema }
 		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all() ]
 		return data
 
 	def __str__( self ) :
-		return self.name
+		return self.content
 
 
 class Portal( CreatedUpdatedModel ):
@@ -56,7 +57,7 @@ class Portal( CreatedUpdatedModel ):
 	skills 		= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
 	
 	def myToObj ( self ):
-		data 			= { "name"	: self.name, "website" : self.website, "description" : self.description }
+		data 			= { "id" : self.id, "name"	: self.name, "website" : self.website, "description" : self.description }
 		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all()   ]
 		return data
 
@@ -71,7 +72,7 @@ class Company( CreatedUpdatedModel ):
 	note 		= models.CharField(max_length=4096)
 
 	def myToObj ( self ):
-		data 			= { "name"	: self.name, "website" : self.name, "description" : self.description, "note" : self.note }
+		data 			= { "id" : self.id, "name"	: self.name, "website" : self.name, "description" : self.description, "note" : self.note }
 		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all()   ]
 		return data
 
@@ -88,9 +89,10 @@ class Application( CreatedUpdatedModel ):
 	to_call			= models.BooleanField(default=False)
 	to_send_other	= models.BooleanField(default=False)
 	note 			= models.CharField(max_length=4096)
+	pieces_list    	= models.CharField(max_length=4094)
 	
 	def myToObj ( self ):
-		data = {}
+		data = { "id" : self.id, "created" : self.created.strftime('%Y-%m-%d %H:%M') , "updated" : self.updated.strftime('%Y-%m-%d %H:%M')   }
 		data["portal"] 			= { "id" : self.portal.id, "name" : self.portal.name } 
 		data["company"] 		= { "id" : self.company.id, "name" : self.company.name }
 		data["responded"] 		= self.responded
@@ -99,10 +101,11 @@ class Application( CreatedUpdatedModel ):
 		data["to_send_other"]	= self.to_send_other
 		data["note"]			= self.note
 		data["skills"] 			= [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all()   ]
+		data["list"]			= self.pieces_list
 		return data
 
 	def __str__( self ) :
-		return self.company
+		return self.company.name
 
 
 # User
@@ -152,4 +155,14 @@ class ApplicationForm(ModelForm):
     class Meta:
         model = Application
         fields = ['portal', 'company', 'skills']
+		
+class PieceCategoryForm(ModelForm):
+    class Meta:
+        model = PieceCategory
+        fields = ['name', 'description']
+		
+class PieceForm(ModelForm):
+    class Meta:
+        model = Piece
+        fields = ['language', 'category', 'skills', 'content']
 

@@ -15,12 +15,12 @@ window.routes = {
 },
 '/companies': {
 	templateUrl: 'html/partials/companies_list.html',
-	controller: 'CompaniesCtrl',
+	controller: 'CompaniesListCtrl',
 	requireLogin: true
 },
-'/companies/:applicationId': {
+'/companies/:companyId': {
 	templateUrl: 'html/partials/companies_detail.html',
-	controller: 'CompaniesCtrl',
+	controller: 'CompaniesDetailCtrl',
 	requireLogin: true
 },
 '/skills': {
@@ -28,19 +28,29 @@ window.routes = {
 	controller: 'SkillsListCtrl',
 	requireLogin: true
 },
-'/skills/:applicationId': {
+'/skills/:skillId': {
 	templateUrl: 'html/partials/skills_detail.html',
 	controller: 'SkillsDetailCtrl',
 	requireLogin: true
 },
 '/pieces': {
-	templateUrl: 'html/partials/skills_list.html',
-	controller: 'SkillsListCtrl',
+	templateUrl: 'html/partials/pieces_list.html',
+	controller: 'PiecesListCtrl',
 	requireLogin: true
 },
 '/pieces/:pieceId': {
-	templateUrl: 'html/partials/skills_detail.html',
-	controller: 'SkillsDetailCtrl',
+	templateUrl: 'html/partials/pieces_detail.html',
+	controller: 'PiecesDetailCtrl',
+	requireLogin: true
+},
+'/categories': {
+	templateUrl: 'html/partials/categories_list.html',
+	controller: 'CategoriesListCtrl',
+	requireLogin: true
+},
+'/categories/:categoryId': {
+	templateUrl: 'html/partials/categories_detail.html',
+	controller: 'CategoriesDetailCtrl',
 	requireLogin: true
 }
 };
@@ -49,7 +59,7 @@ window.routes = {
 var remoteUrl = 'http://127.0.0.1' ;
 //var remoteUrl = 'http://192.168.0.33' ;
 
-angular.module('niomApp', [ 'gridster', 'ngRoute' , 'ngResource', 'ui.bootstrap' , 'autoFields', 'ngUpload'])
+angular.module('niomApp', [ 'gridster', 'ngRoute' , 'ngResource', 'ui.bootstrap' , 'autoFields', 'ngUpload', 'ngSanitize'])
 .config(['$routeProvider',
 function($routeProvider) {
 	//this loads up our routes dynamically from the previous object 
@@ -92,6 +102,8 @@ function($routeProvider) {
 .factory('Applications', ['$resource', function($resource) { return $resource( remoteUrl + '/applications/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT' } } ); } ] )
 .factory('Companies', ['$resource', function($resource) { return $resource( remoteUrl + '/companies/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT' } } ); } ] )
 .factory('Skills', ['$resource', function($resource) { return $resource( remoteUrl + '/skills/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'} } ); } ] )
+.factory('Pieces', ['$resource', function($resource) { return $resource( remoteUrl + '/pieces/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'} } ); } ] )
+.factory('Categories', ['$resource', function($resource) { return $resource( remoteUrl + '/categories/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'} } ); } ] )
 .service('SessionService', function(){ 
 	var userIsAuthenticated = false;
 	
@@ -102,5 +114,25 @@ function($routeProvider) {
 	his.getUserAuthenticated = function(){ 
 		return userIsAuthenticated;
 	};
+})
+.directive('loadedTemplate', function ($compile) {
+    return {
+        restrict: "E",
+        template: '',
+        scope: {
+            myvar: "=",
+            myhtml: "="
+        },
+        link: function(scope, elt, attrs) {
+			scope.$watch('myhtml', function(newValue, oldValue) {
+			                if (newValue)
+			                    console.log("I see a data change!");
+					            var element = angular.element(scope.myhtml);
+					            var test = $compile(element)(scope);
+					            elt.append(test);
+			            }, true);
+            
+        }
+    };
 });
 

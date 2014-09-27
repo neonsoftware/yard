@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.http import HttpResponse
 
 from django.views.decorators.csrf import csrf_exempt
@@ -20,40 +21,32 @@ def my_view( req ):
 @csrf_exempt
 def portal_new( request ):
 	if request.method == 'GET':
-		form = PortalForm()
-		return render(request, 'forms/simple_form.html', { 'title' : 'Portal', 'api' : 'portals', 'form': form } )
-
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PortalForm() } ) } ) , content_type="application/json" ) 
+		
 @csrf_exempt
 def skill_new( request ):
 	if request.method == 'GET':
-		form = SkillForm()
-		return render(request, 'forms/simple_form.html', { 'title' : 'Skill', 'api' : 'skills','form': form } )
-
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': SkillForm() } ) } ) , content_type="application/json" ) 
 
 @csrf_exempt
 def application_new( request ):
 	if request.method == 'GET':
-		form = ApplicationForm()
-		return render(request, 'forms/simple_form.html', { 'title' : 'Application', 'api' : 'applications','form': form } )
-
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': ApplicationForm() } ) } ) , content_type="application/json" ) 
 
 @csrf_exempt
 def company_new( request ):
 	if request.method == 'GET':
-		form = CompanyForm()
-		return render(request, 'forms/simple_form.html', { 'title' : 'Company', 'api' : 'companies','form': form } )
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': CompanyForm() } ) } ) , content_type="application/json" ) 
 
 @csrf_exempt
 def piece_new( request ):
 	if request.method == 'GET':
-		form = PieceForm()
-		return render(request, 'forms/simple_form.html', { 'title' : 'Piece', 'api' : 'pieces','form': form } )
-
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PieceForm() } ) } ) , content_type="application/json" ) 
+		
 @csrf_exempt
 def category_new( request ):
 	if request.method == 'GET':
-		form = PieceCategoryForm()
-		return render(request, 'forms/simple_form.html', { 'title' : 'Category', 'api' : 'categories' , 'form': form } )
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PieceCategoryForm()} ) } ) , content_type="application/json" ) 
 
 
 
@@ -67,7 +60,7 @@ def skills_list(request) :
 		print '\tPost = ' , request.POST
 		s = SkillForm( request.POST )
 		s.save()
-		return HttpResponse(content="Object correctly added. ", status=200 )
+		return redirect('/static/index.html#/skills')
 
 def skills_detail(request, id) :
 	if request.method == 'GET':
@@ -85,7 +78,7 @@ def pieces_list(request) :
 		print '\tPost = ' , request.POST
 		p = PieceForm( request.POST )
 		p.save()
-		return HttpResponse(content="Object correctly added. ", status=200 )
+		return redirect('/static/index.html#/pieces')
 
 def pieces_detail(request, id) :
 	if request.method == 'GET':
@@ -105,7 +98,7 @@ def categories_list(request) :
 		print '\tPost = ' , request.POST
 		c = PieceCategoryForm( request.POST )
 		c.save()
-		return HttpResponse(content="Object correctly added. ", status=200 )
+		return redirect('/static/index.html#/categories') 
 
 def categories_detail(request, id) :
 	if request.method == 'GET':
@@ -114,7 +107,7 @@ def categories_detail(request, id) :
 
 
 
-
+@csrf_exempt
 def portals_list(request) :
 	if request.method == 'GET':
 		return HttpResponse( json.dumps( [ port.myToObj() for port in Portal.objects.all() ] ), content_type="application/json" )
@@ -123,7 +116,7 @@ def portals_list(request) :
 		print '\tPost = ' , request.POST
 		p = PortalForm( request.POST )
 		p.save()
-		return HttpResponse(content="Object correctly added. ", status=200 )
+		return redirect('/static/index.html#/portals')
 
 def portals_detail(request, id) :
 
@@ -133,7 +126,7 @@ def portals_detail(request, id) :
 
 
 
-
+@csrf_exempt
 def companies_list(request) :
 	if request.method == 'GET':
 		return HttpResponse( json.dumps( [ comp.myToObj() for comp in Company.objects.all() ] ), content_type="application/json" )
@@ -142,7 +135,7 @@ def companies_list(request) :
 		print '\tPost = ' , request.POST
 		c = CompanyForm( request.POST )
 		c.save()
-		return HttpResponse(content="Object correctly added. ", status=200 )
+		return redirect('/static/index.html#/companies')
 
 def companies_detail(request, id) :
 	if request.method == 'GET':
@@ -152,7 +145,7 @@ def companies_detail(request, id) :
 
 
 
-
+@csrf_exempt
 def applications_list(request) :
 	if request.method == 'GET':
 		return HttpResponse( json.dumps( [ app.myToObj() for app in Application.objects.all() ] ), content_type="application/json" )
@@ -161,10 +154,10 @@ def applications_list(request) :
 		print '\tPost = ' , request.POST
 		a = ApplicationForm( request.POST )
 		a.save()
-		return HttpResponse(content="Object correctly added. ", status=200 )
-
+		return redirect('/static/index.html#/applications')
+		
 def applications_detail( request, id ) :
 	if request.method == 'GET':
-		application = get_object_or_404( Skill, id=id )
+		application = get_object_or_404( Application, id=id )
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
 		

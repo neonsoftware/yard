@@ -1,10 +1,17 @@
 angular.module('niomApp')
-.controller('CompaniesListCtrl', function($scope, $http, $resource, $location, Applications )
+.controller('CompaniesListCtrl', function($scope, $http, $resource, $location, Companies )
 {
-	$scope.companies = Applications.query( );
+	$scope.companies = Companies.query( );
    
-	$scope.open_detail = function( device ){ $location.path( '/applications/' + device.uuid ); }
+	$scope.open_detail = function( device ){ $location.path( '/companies/' + device.uuid ); }
    
-	$scope.delete_application = function(item){ item.$delete( function() {$scope.applications = Applications.query( );}); }
+	$scope.delete_application = function(item){ item.$delete( function() {$scope.companies = Companies.query( );}); }
+	
+	$scope.in_creation	= false;
+	$scope.create 	= function( ) {  
+		$scope.in_creation	 = true; 
+		Companies.get( { 	uuid : "", command:"new" },	function (res) {$scope.myhtml = res.html ;}, function() { alert('Form not found.' )} ) ;
+	}
+	
    
 });

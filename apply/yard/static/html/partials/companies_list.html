@@ -15,20 +15,18 @@
 		<div class="box-body table-responsive no-padding">
 			<table class="table table-hover">
 				<tr>
-					<th>Company</th>
-					<th>Portal</th>
-					<th>Responded</th>
-					<th>Interviewed</th>
-					<th>To call</th>
-					<th>To send data</th>
+					<th>Name</th>
+					<th>Website</th>
+					<th>Description</th>
+					<th>Note</th>
+					<th>Skills</th>
 				</tr>
-				<tr ng-repeat="application in applications">
-					<td> {{ application.company.name }} </td>
-					<td> {{ application.portal.name }} </td>
-					<td> {{ application.responded }} </td>
-					<td> {{ application.interviewed }} </td>
-					<td> {{ application.to_call }} </td>
-					<td> {{ application.to_send_other }} </td>
+				<tr ng-repeat="company in companies">
+					<td> {{ company.name }} </td>
+					<td> {{ company.website }} </td>
+					<td> {{ company.note }} </td>
+					<td> {{ company.description }} </td>
+					<td> {{ company.skills }} </td>
 				</tr>
 
 			</table>
@@ -36,6 +34,19 @@
 	</div><!-- /.box -->
  
     
-	<a href="#/create" class="btn btn-block btn-primary">CREATE NEW</a>
+    
+	<a class="btn btn-block btn-primary" ng-click="create()">CREATE NEW</a>
+	
+
     
 </div>
+
+	<div class="well" ng-show="in_creation" >
+	  <form action='/companies/' method='post' >
+		<div> 
+		  <loaded-template myvar="myvar" myhtml="myhtml" />
+		</div>
+		<button type="submit" class="btn btn-primary">Add</button>
+	  </form>
+	</div>
+	

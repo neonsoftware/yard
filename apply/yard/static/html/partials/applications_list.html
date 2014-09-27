@@ -21,6 +21,7 @@
 					<th>Interviewed</th>
 					<th>To call</th>
 					<th>To send data</th>
+					<th></th>
 				</tr>
 				<tr ng-repeat="application in applications">
 					<td> {{ application.company.name }} </td>
@@ -29,6 +30,8 @@
 					<td> {{ application.interviewed }} </td>
 					<td> {{ application.to_call }} </td>
 					<td> {{ application.to_send_other }} </td>
+					<td> <button class="btn btn-primary" ng-click="open_detail(application)">Update</button> 
+						 <button class="btn btn-primary" ng-click="delete_application(application)">Delete</button> </td>
 				</tr>
 
 			</table>
@@ -36,6 +39,18 @@
 	</div><!-- /.box -->
  
     
-	<a href="#/create" class="btn btn-block btn-primary">CREATE NEW</a>
+	<a class="btn btn-block btn-primary" ng-click="create()">CREATE NEW</a>
+	
+
     
 </div>
+
+	<div class="well" ng-show="in_creation" >
+	  <form action='/applications/' method='post' >
+		<div> 
+		  <loaded-template myvar="myvar" myhtml="myhtml" />
+		</div>
+		<button type="submit" class="btn btn-primary">Add</button>
+	  </form>
+	</div>
+	
