@@ -1,53 +1,76 @@
 <!DOCTYPE html>
 <html ng-app="niomApp" style="overflow-y:scroll;" >
-   <head>
-      <meta charset="UTF-8">
-      <title>ApplicationsYard | Dashboard</title>
-      <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
-      <!-- bootstrap 3.0.2 -->
-      <script src="bower_components/platform/platform.js"> </script>
-      <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
-      <link rel="import" href="bower_components/core-menu/core-menu.html">
-      <link rel="import" href="bower_components/core-item/core-item.html">
-      <link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
-      <link rel="import" href="bower_components/core-drawer-panel/core-drawer-panel.html">
-      <link rel="import" href="bower_components/core-scaffold/core-scaffold.html">
-      <link href='bower_components/bootstrap/dist/css/bootstrap.min.css'     rel="stylesheet" type="text/css" />
-      <link href='bower_components/font-awesome/css/font-awesome.min.css'  rel="stylesheet" type="text/css" />
-      <link href='bower_components/ionicons/css/ionicons.min.css'      rel="stylesheet" type="text/css" />
-      <link href='css/AdminLTE.css'          rel="stylesheet" type="text/css" />
-   </head>
-   <body ng-cloak>
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            ApplicationsYard | Dashboard
+        </title>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+        <!-- bootstrap 3.0.2 -->
+        <script
+            src="bower_components/platform/platform.js"></script>
+        <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
+        <link rel="import" href="bower_components/core-menu/core-menu.html">
+        <link rel="import" href="bower_components/core-item/core-item.html">
+        <link rel="import" href="bower_components/paper-item/paper-item.html">
+        <link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
+        <link rel="import" href="bower_components/core-drawer-panel/core-drawer-panel.html">
+        <link rel="import" href="bower_components/core-scaffold/core-scaffold.html">
+        <link href='bower_components/bootstrap/dist/css/bootstrap.min.css'     rel="stylesheet" type="text/css" />
+        <link href='bower_components/font-awesome/css/font-awesome.min.css'  rel="stylesheet" type="text/css" />
+        <link href='bower_components/ionicons/css/ionicons.min.css'      rel="stylesheet" type="text/css" />
+        <link href='css/AdminLTE.css'          rel="stylesheet" type="text/css" />
+    </head>
+    <body ng-cloak>
+        <core-scaffold>
+            <core-header-panel navigation flex>
+                <core-toolbar id="navheader">
+                    <span>
+                    Menu
+                    </span>
+                </core-toolbar>
+                <core-menu>
+                    <paper-item icon="content-copy" label="Applications">
+                        <a href="index.html#/applications">
+                        </a>
+                    </paper-item>
+                    <paper-item icon="language" label="Companies">
+                        <a href="index.html#/companies">
+                        </a>
+                    </paper-item>
+                    <paper-item icon="drive-site" label="Portals">
+                        <a href="index.html#/portals">
+                        </a>
+                    </paper-item>
+                    <paper-item icon="done-all" label="Skills">
+                        <a href="index.html#/skills">
+                        </a>
+                    </paper-item>
 
-      <core-scaffold>
-         <core-header-panel navigation flex>
-            <core-toolbar id="navheader">
-               <span>Menu</span>
-            </core-toolbar>
-            <core-menu>
-               <core-item label="Applications"></core-item>
-               <core-item label="Companies"></core-item>
-               <core-item label="Companies"></core-item>
-               <core-item label="Skills"></core-item>
-            </core-menu>
-         </core-header-panel>
-         <span tool>Yard</span>
-         <div class="content">
-            <div ng-view ></div>
-         </div>
-      </core-scaffold>
-      <script src="bower_components/angular/angular.min.js"></script>
-      <script src="bower_components/angular-resource/angular-resource.min.js"></script>
-      <script src="bower_components/angular-route/angular-route.min.js"></script>
-      <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
 
-      <script src='js/app.js' type="text/javascript"></script>
-      <script src='js/controllers/utils.js' type="text/javascript"></script>
-      <script src='js/controllers/applications.js' type="text/javascript"></script>
-      <script src='js/controllers/companies.js' type="text/javascript"></script>
-      <script src='js/controllers/skills.js' type="text/javascript"></script>
-      <script src='js/controllers/pieces.js' type="text/javascript"></script>
-      <script src='js/controllers/categories.js' type="text/javascript"></script>
 
-   </body>
+
+                </core-menu>
+            </core-header-panel>
+            <span tool>
+            Yard
+            </span>
+            <div class="content">
+                <div ng-view > </div>
+            </div>
+        </core-scaffold>
+
+
+        <script src="bower_components/angular/angular.min.js"></script>
+        <script src="bower_components/angular-resource/angular-resource.min.js"></script>
+        <script src="bower_components/angular-route/angular-route.min.js"></script>
+        <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+        <script src='js/app.js' type="text/javascript"></script>
+        <script src='js/controllers/utils.js' type="text/javascript"></script>
+        <script src='js/controllers/applications.js' type="text/javascript"></script>
+        <script src='js/controllers/companies.js' type="text/javascript"></script>
+        <script src='js/controllers/skills.js' type="text/javascript"></script>
+        <script src='js/controllers/pieces.js' type="text/javascript"></script>
+        <script src='js/controllers/categories.js' type="text/javascript"></script>
+    </body>
 </html>
