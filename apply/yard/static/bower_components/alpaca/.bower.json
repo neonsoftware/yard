@@ -25,11 +25,11 @@
     "jquery-ui": "*",
     "ace": "*"
   },
-  "_release": "0c4ddbcfa9",
+  "_release": "19e9427ca5",
   "_resolution": {
     "type": "branch",
     "branch": "master",
-    "commit": "0c4ddbcfa993199bc4dfe3da66497938288200a7"
+    "commit": "19e9427ca5192ec9048f2da53aaa37f086b39204"
   },
   "_source": "git://github.com/cloudcms-components/alpaca.git",
   "_target": "*",

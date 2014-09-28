@@ -40,6 +40,7 @@ var snippetManager = require("./snippets").snippetManager;
 
 var Autocomplete = function() {
     this.autoInsert = true;
+    this.autoSelect = true;
     this.keyboardHandler = new HashHandler();
     this.keyboardHandler.bindKeys(this.commands);
 
@@ -47,19 +48,22 @@ var Autocomplete = function() {
     this.changeListener = this.changeListener.bind(this);
     this.mousedownListener = this.mousedownListener.bind(this);
     this.mousewheelListener = this.mousewheelListener.bind(this);
-    
+
     this.changeTimer = lang.delayedCall(function() {
         this.updateCompletions(true);
-    }.bind(this))
+    }.bind(this));
 };
 
 (function() {
+    this.gatherCompletionsId = 0;
+
     this.$init = function() {
         this.popup = new AcePopup(document.body || document.documentElement);
         this.popup.on("click", function(e) {
             this.insertMatch();
             e.stop();
         }.bind(this));
+        this.popup.focus = this.editor.focus.bind(this.editor);
     };
 
     this.openPopup = function(editor, prefix, keepPopupPosition) {
@@ -69,21 +73,24 @@ var Autocomplete = function() {
         this.popup.setData(this.completions.filtered);
 
         var renderer = editor.renderer;
+        this.popup.setRow(this.autoSelect ? 0 : -1);
         if (!keepPopupPosition) {
-            this.popup.setRow(0);
+            this.popup.setTheme(editor.getTheme());
             this.popup.setFontSize(editor.getFontSize());
 
             var lineHeight = renderer.layerConfig.lineHeight;
-            
-            var pos = renderer.$cursorLayer.getPixelPosition(this.base, true);            
+
+            var pos = renderer.$cursorLayer.getPixelPosition(this.base, true);
             pos.left -= this.popup.getTextLeftOffset();
-            
+
             var rect = editor.container.getBoundingClientRect();
             pos.top += rect.top - renderer.layerConfig.offset;
             pos.left += rect.left - editor.renderer.scrollLeft;
             pos.left += renderer.$gutterLayer.gutterWidth;
 
             this.popup.show(pos, lineHeight);
+        } else if (keepPopupPosition && !prefix) {
+            this.detach();
         }
     };
 
@@ -94,10 +101,14 @@ var Autocomplete = function() {
         this.editor.off("mousedown", this.mousedownListener);
         this.editor.off("mousewheel", this.mousewheelListener);
         this.changeTimer.cancel();
-        
-        if (this.popup)
-            this.popup.hide();
 
+        if (this.popup && this.popup.isOpen) {
+            this.gatherCompletionsId += 1;
+            this.popup.hide();
+        }
+        
+        if (this.base)
+            this.base.detach();
         this.activated = false;
         this.completions = this.base = null;
     };
@@ -114,7 +125,10 @@ var Autocomplete = function() {
     };
 
     this.blurListener = function() {
-        if (document.activeElement != this.editor.textInput.getElement())
+        // we have to check if activeElement is a child of popup because
+        // on IE preventDefault doesn't stop scrollbar from being focussed
+        var el = document.activeElement;
+        if (el != this.editor.textInput.getElement() && el.parentNode != this.popup.container)
             this.detach();
     };
 
@@ -131,7 +145,7 @@ var Autocomplete = function() {
         var max = this.popup.session.getLength() - 1;
 
         switch(where) {
-            case "up": row = row < 0 ? max : row - 1; break;
+            case "up": row = row <= 0 ? max : row - 1; break;
             case "down": row = row >= max ? -1 : row + 1; break;
             case "start": row = 0; break;
             case "end": row = max; break;
@@ -145,6 +159,7 @@ var Autocomplete = function() {
             data = this.popup.getData(this.popup.getRow());
         if (!data)
             return false;
+
         if (data.completer && data.completer.insertMatch) {
             data.completer.insertMatch(this.editor);
         } else {
@@ -171,9 +186,15 @@ var Autocomplete = function() {
 
         "Esc": function(editor) { editor.completer.detach(); },
         "Space": function(editor) { editor.completer.detach(); editor.insert(" ");},
-        "Return": function(editor) { editor.completer.insertMatch(); },
+        "Return": function(editor) { return editor.completer.insertMatch(); },
         "Shift-Return": function(editor) { editor.completer.insertMatch(true); },
-        "Tab": function(editor) { editor.completer.insertMatch(); },
+        "Tab": function(editor) {
+            var result = editor.completer.insertMatch();
+            if (!result && !editor.tabstopManager)
+                editor.completer.goTo("down");
+            else
+                return result;
+        },
 
         "PageUp": function(editor) { editor.completer.popup.gotoPageUp(); },
         "PageDown": function(editor) { editor.completer.popup.gotoPageDown(); }
@@ -182,24 +203,27 @@ var Autocomplete = function() {
     this.gatherCompletions = function(editor, callback) {
         var session = editor.getSession();
         var pos = editor.getCursorPosition();
-        
+
         var line = session.getLine(pos.row);
         var prefix = util.retrievePrecedingIdentifier(line, pos.column);
-        
-        this.base = editor.getCursorPosition();
-        this.base.column -= prefix.length;
 
+        this.base = session.doc.createAnchor(pos.row, pos.column - prefix.length);
+        this.base.$insertRight = true;
+        
         var matches = [];
-        util.parForEach(editor.completers, function(completer, next) {
+        var total = editor.completers.length;
+        editor.completers.forEach(function(completer, i) {
             completer.getCompletions(editor, session, pos, prefix, function(err, results) {
                 if (!err)
                     matches = matches.concat(results);
-                next();
-            });
-        }, function() {
-            callback(null, {
-                prefix: prefix,
-                matches: matches
+                // Fetch prefix again, because they may have changed by now
+                var pos = editor.getCursorPosition();
+                var line = session.getLine(pos.row);
+                callback(null, {
+                    prefix: util.retrievePrecedingIdentifier(line, pos.column, results[0] && results[0].identifierRegex),
+                    matches: matches,
+                    finished: (--total === 0)
+                });
             });
         });
         return true;
@@ -208,7 +232,7 @@ var Autocomplete = function() {
     this.showPopup = function(editor) {
         if (this.editor)
             this.detach();
-        
+
         this.activated = true;
 
         this.editor = editor;
@@ -223,10 +247,10 @@ var Autocomplete = function() {
         editor.on("blur", this.blurListener);
         editor.on("mousedown", this.mousedownListener);
         editor.on("mousewheel", this.mousewheelListener);
-        
+
         this.updateCompletions();
     };
-    
+
     this.updateCompletions = function(keepPopupPosition) {
         if (keepPopupPosition && this.base && this.completions) {
             var pos = this.editor.getCursorPosition();
@@ -236,36 +260,55 @@ var Autocomplete = function() {
             this.completions.setFilter(prefix);
             if (!this.completions.filtered.length)
                 return this.detach();
+            if (this.completions.filtered.length == 1
+            && this.completions.filtered[0].value == prefix
+            && !this.completions.filtered[0].snippet)
+                return this.detach();
             this.openPopup(this.editor, prefix, keepPopupPosition);
             return;
         }
+
+        // Save current gatherCompletions session, session is close when a match is insert
+        var _id = this.gatherCompletionsId;
         this.gatherCompletions(this.editor, function(err, results) {
-            var matches = results && results.matches;
-            if (!matches || !matches.length)
+            // Only detach if result gathering is finished
+            var detachIfFinished = function() {
+                if (!results.finished) return;
                 return this.detach();
-            // TODO reenable this when we have proper change tracking 
-            // if (matches.length == 1)
-            //     return this.insertMatch(matches[0]);
+            }.bind(this);
+
+            var prefix = results.prefix;
+            var matches = results && results.matches;
+            
+            if (!matches || !matches.length)
+                return detachIfFinished();
+
+            // Wrong prefix or wrong session -> ignore
+            if (prefix.indexOf(results.prefix) !== 0 || _id != this.gatherCompletionsId)
+                return;
 
             this.completions = new FilteredList(matches);
-            this.completions.setFilter(results.prefix);
+            this.completions.setFilter(prefix);
             var filtered = this.completions.filtered;
+
+            // No results
             if (!filtered.length)
-                return this.detach();
-            if (this.autoInsert && filtered.length == 1)
+                return detachIfFinished();
+
+            // One result equals to the prefix
+            if (filtered.length == 1 && filtered[0].value == prefix && !filtered[0].snippet)
+                return detachIfFinished();
+
+            // Autoinsert if one result
+            if (this.autoInsert && filtered.length == 1 && results.finished)
                 return this.insertMatch(filtered[0]);
-            this.openPopup(this.editor, results.prefix, keepPopupPosition);
+
+            this.openPopup(this.editor, prefix, keepPopupPosition);
         }.bind(this));
     };
 
     this.cancelContextMenu = function() {
-        var stop = function(e) {
-            this.editor.off("nativecontextmenu", stop);
-            if (e && e.domEvent)
-                event.stopEvent(e.domEvent);
-        }.bind(this);
-        setTimeout(stop, 10);
-        this.editor.on("nativecontextmenu", stop);
+        this.editor.$mouseHandler.cancelContextMenu();
     };
 
 }).call(Autocomplete.prototype);
@@ -275,6 +318,8 @@ Autocomplete.startCommand = {
     exec: function(editor) {
         if (!editor.completer)
             editor.completer = new Autocomplete();
+        editor.completer.autoInsert = 
+        editor.completer.autoSelect = true;
         editor.completer.showPopup(editor);
         // needed for firefox on mac
         editor.completer.cancelContextMenu();
@@ -299,16 +344,16 @@ var FilteredList = function(array, filterText, mutateData) {
         matches = matches.sort(function(a, b) {
             return b.exactMatch - a.exactMatch || b.score - a.score;
         });
-        
+
         // make unique
         var prev = null;
         matches = matches.filter(function(item){
-            var caption = item.value || item.caption || item.snippet; 
+            var caption = item.snippet || item.caption || item.value;
             if (caption === prev) return false;
             prev = caption;
             return true;
         });
-        
+
         this.filtered = matches;
     };
     this.filterCompletions = function(items, needle) {
