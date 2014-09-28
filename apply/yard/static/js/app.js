@@ -1,7 +1,5 @@
 'use strict';
 
-
-
 window.routes = {
 '/applications/:applicationId': {
 	templateUrl: 'html/partials/applications_detail.html',
@@ -56,11 +54,13 @@ window.routes = {
 };
 
 //var remoteUrl = 'http://ec2-54-234-247-242.compute-1.amazonaws.com/' ;
-//var remoteUrl = 'http://127.0.0.1' ;
-var remoteUrl = 'http://54.165.154.172' ;
+var remoteUrl = 'http://127.0.0.1' ;
+//var remoteUrl = 'http://54.165.154.172' ;
 //var remoteUrl = 'http://192.168.0.33' ;
 
-angular.module('niomApp', [ 'gridster', 'ngRoute' , 'ngResource', 'ui.bootstrap' , 'autoFields', 'ngUpload', 'ngSanitize'])
+//angular.module('niomApp', [ 'gridster', 'ngRoute' , 'ngResource', 'ui.bootstrap' , 'autoFields', 'ngUpload', 'ngSanitize'])
+
+angular.module('niomApp', [ 'ngRoute' , 'ngResource', 'ngSanitize'])
 .config(['$routeProvider',
 function($routeProvider) {
 	//this loads up our routes dynamically from the previous object 
