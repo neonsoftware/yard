@@ -5,7 +5,7 @@ angular.module('niomApp')
    
 	$scope.open_detail = function( application ){ $location.path( '/applications/' + application.id ); }
    
-	$scope.delete_application = function(item){ item.$delete( function() { $scope.applications = Applications.query( );}); }
+	$scope.delete_application = function(application){ Applications.delete_application( {uuid : application.id, command : "delete" },function() { $scope.applications = Applications.query( );}); }
 	
 	$scope.in_creation	= false;
 	$scope.create 	= function( ) {  

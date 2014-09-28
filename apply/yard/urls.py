@@ -11,6 +11,7 @@ urlpatterns = patterns('',
 	
 	url(r'^$',  views.my_view , name ='index' ),
 	url(r'applications//new$',  views.application_new , name ='application_new' ),
+	url(r'applications/(?P<id>[-\w\d]+)/delete$',  views.applications_delete , name ='applications_delete' ),
 	url(r'applications/$',  views.applications_list , name ='applications_list' ),
 	url(r'applications/(?P<id>[-\w\d]+)/$',  views.applications_detail , name ='applications_detail' ),
 	url(r'skills//new$',  views.skill_new , name ='skills_new' ),

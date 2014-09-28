@@ -155,9 +155,22 @@ def applications_list(request) :
 		a = ApplicationForm( request.POST )
 		a.save()
 		return redirect('/static/index.html#/applications')
+
+	elif request.method == 'PUT':
+		print '\tPost = ' , request.POST
+		a = ApplicationForm( request.POST )
+		a.save()
+		return redirect('/static/index.html#/applications')
+
 		
 def applications_detail( request, id ) :
 	if request.method == 'GET':
 		application = get_object_or_404( Application, id=id )
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
-		
+
+def applications_delete( request, id ) :
+	if request.method == 'GET':
+		print 'called remove of ', id
+		application = get_object_or_404( Application, id=id )
+		application.delete()
+		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
