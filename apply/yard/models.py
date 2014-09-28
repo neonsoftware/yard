@@ -80,7 +80,7 @@ class Company( CreatedUpdatedModel ):
 	def __str__( self ) :
 		return self.name
 
-class Application( CreatedUpdatedModel ):
+class ApplicationAdvanced( CreatedUpdatedModel ):
 	portal 			= models.ForeignKey(Portal)
 	company			= models.ForeignKey(Company)
 	skills 			= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
@@ -106,6 +106,67 @@ class Application( CreatedUpdatedModel ):
 
 	def __str__( self ) :
 		return self.company.name
+
+class Application( CreatedUpdatedModel ):
+	portal 			= models.CharField(blank=True, max_length=200)
+	company			= models.CharField(max_length=200)
+	position		= models.CharField(max_length=300)
+	skills 			= models.CharField(max_length=200)
+	written			= models.BooleanField(default=False)
+	called			= models.BooleanField(default=False)
+	interviewed		= models.BooleanField(default=False)
+	followup		= models.BooleanField(default=False)
+	notes			= models.TextField(blank=True)
+	next			= models.TextField(blank=True)
+	cover			= models.TextField(blank=True)
+	address1		= models.CharField(blank=True, max_length=100)
+	address2		= models.CharField(blank=True, max_length=100)
+	c1name			= models.CharField(blank=True, max_length=40)
+	c1mail			= models.CharField(blank=True, max_length=40)
+	c1phone			= models.CharField(blank=True, max_length=20)
+	c2name			= models.CharField(blank=True, max_length=40)
+	c2mail			= models.CharField(blank=True, max_length=40)
+	c2phone			= models.CharField(blank=True, max_length=20)
+	c3name			= models.CharField(blank=True, max_length=40)
+	c3mail			= models.CharField(blank=True, max_length=40)
+	c3phone			= models.CharField(blank=True, max_length=20)
+	c4name			= models.CharField(blank=True, max_length=40)
+	c4mail			= models.CharField(blank=True, max_length=40)
+	c4phone			= models.CharField(blank=True, max_length=20)
+	
+	def myToObj ( self ):
+		data = { "id" : self.id, "created" : self.created.strftime('%Y-%m-%d %H:%M') , "updated" : self.updated.strftime('%Y-%m-%d %H:%M')   }
+		data["portal"] 		= self.portal
+		data["company"] 	= self.company
+		data["position"] 	= self.position
+		data["skills"] 		= self.skills
+		data["written"] 	= self.written
+		data["called"] 		= self.called
+		data["interviewed"] = self.interviewed
+		data["followup"] 	= self.followup
+		data["notes"]		= self.notes
+		data["next"] 		= self.next
+		data["cover"]		= self.cover
+		data["address1"]	= self.address1
+		data["address2"]	= self.address2
+		data["c1name"]		= self.c1name
+		data["c1mail"]		= self.c1mail
+		data["c1phone"]		= self.c1phone
+		data["c2name"]		= self.c2name
+		data["c2mail"]		= self.c2mail
+		data["c2phone"]		= self.c2phone
+		data["c3name"]		= self.c3name
+		data["c3mail"]		= self.c3mail
+		data["c3phone"]		= self.c3phone
+		data["c4name"]		= self.c4name
+		data["c4mail"]		= self.c4mail
+		data["c4phone"]		= self.c4phone
+		return data
+
+	def __str__( self ) :
+		return self.company
+
+
 
 
 # User
@@ -154,7 +215,7 @@ class CompanyForm(ModelForm):
 class ApplicationForm(ModelForm):
     class Meta:
         model = Application
-        fields = ['portal', 'company', 'skills']
+        fields = ['company','portal', 'position','skills', 'written', 'called', 'interviewed', 'followup', 'notes', 'next', 'cover', 'address1', 'address2', 'c1name', 'c1mail', 'c1phone', 'c2name', 'c2mail', 'c2phone','c3name', 'c3mail', 'c3phone','c4name', 'c4mail', 'c4phone']
 		
 class PieceCategoryForm(ModelForm):
     class Meta:

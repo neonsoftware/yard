@@ -1,20 +1,16 @@
 
 <div class="well" >
 
-	<paper-input id="appl-company" label="Company" floatingLabel=true value="{{current_application.company.name}}" error="Company should have a name"></paper-input>
+	<paper-input id="appl-company" label="Company" floatingLabel=true value="{{current_application.company}}" error="Company should have a name"></paper-input>
 
-	<paper-input id="appl-portal" label="Portal" floatingLabel=true value="{{current_application.portal.name}}" error="Portal should have a name"></paper-input>
+	<paper-input id="appl-portal" label="Portal" floatingLabel=true value="{{current_application.portal}}" error="Portal should have a name"></paper-input>
 
 	<paper-input id="appl-send" label="To" floatingLabel=true value="{{current_application.portal.name}}" error="Portal should have a name"></paper-input>
 
-    <paper-radio-button toggles label="To respond" checked=true></paper-radio-button>
-<br>
-    <paper-checkbox label="To Call" checked=true></paper-checkbox>
-<br>
-    <paper-radio-button toggles label="Interviewed" checked=true></paper-radio-button>
-<br>
-    <paper-radio-button toggles label="Responded" checked=true></paper-radio-button>
-<br>
+    <paper-radio-button toggles label="To respond" checked=true></paper-radio-button><br>
+    <paper-checkbox label="To Call" checked=true></paper-checkbox><br>
+    <paper-radio-button toggles label="Interviewed" checked=true></paper-radio-button><br>
+    <paper-radio-button toggles label="Responded" checked=true></paper-radio-button><br>
 	<paper-input id="appl-skills" label="Skills" floatingLabel=true value="{{current_application.company.skills}}" error="Company should have a name"></paper-input>
 <br>
 	<paper-input id="appl-company" label="Company" floatingLabel=true value="{{current_application.company.name}}" error="Company should have a name"></paper-input>
