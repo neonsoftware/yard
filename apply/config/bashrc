@@ -1,0 +1,14 @@
+alias ls="ls -1"
+
+APPLY_BASE="/home/ubuntu"
+alias a="cd $APPLY_BASE"
+alias a_amazon="ssh -i /Users/showandtell/google-drive/Amazon/toto.pem ubuntu@54.165.154.172"
+alias a_gotostatic="cd $APPLY_BASE/yard/apply/yard/static"
+alias a_gototemplates="cd $APPLY_BASE/yard/apply/yard/templates"
+alias a_gotorunserver="cd $APPLY_BASE ; source activate_virtualenv.sh ; cd yard/apply/ ; sudo python manage.py runserver 80 "
+alias a_gotopython="cd $APPLY_BASE/yard/apply/yard"
+alias a_virtual=". $APPLY_BASE/venv/bin/activate"
+
+
+
+
