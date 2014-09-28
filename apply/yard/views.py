@@ -174,3 +174,37 @@ def applications_delete( request, id ) :
 		application = get_object_or_404( Application, id=id )
 		application.delete()
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
+
+
+def applications_written( request, id ) :
+	if request.method == 'GET':
+		print 'called written of ', id
+		application = get_object_or_404( Application, id=id )
+		application.written = not application.written 
+		application.save()
+		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
+
+def applications_called( request, id ) :
+	if request.method == 'GET':
+		print 'called called of ', id
+		application = get_object_or_404( Application, id=id )
+		application.called = not application.called
+		application.save()
+		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
+
+def applications_interviewed( request, id ) :
+	if request.method == 'GET':
+		print 'called interviewed of ', id
+		application = get_object_or_404( Application, id=id )
+		application.interviewed = not application.interviewed
+		application.save()
+		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
+
+
+def applications_followup( request, id ) :
+	if request.method == 'GET':
+		print 'called followup of ', id
+		application = get_object_or_404( Application, id=id )
+		application.followup = not application.followup
+		application.save()
+		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )

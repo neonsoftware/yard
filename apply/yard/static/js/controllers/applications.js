@@ -3,10 +3,16 @@ angular.module('niomApp')
 {
 	$scope.applications = Applications.query( );
    
-	$scope.open_detail = function( application ){ $location.path( '/applications/' + application.id ); }
+	$scope.open_detail 	= function( application ){ $location.path( '/applications/' + application.id ); }
    
 	$scope.delete_application = function(application){ Applications.delete_application( {uuid : application.id, command : "delete" },function() { $scope.applications = Applications.query( );}); }
-	
+
+	$scope.written 		= function(application){ Applications.delete_application( {uuid : application.id, command : "written" },function() { $scope.applications = Applications.query( );}); }
+	$scope.called 		= function(application){ Applications.delete_application( {uuid : application.id, command : "called" },function() { $scope.applications = Applications.query( );}); }
+	$scope.interviewed  = function(application){ Applications.delete_application( {uuid : application.id, command : "interviewed" },function() { $scope.applications = Applications.query( );}); }
+	$scope.followup 	= function(application){ Applications.delete_application( {uuid : application.id, command : "followup" },function() { $scope.applications = Applications.query( );}); }
+
+
 	$scope.in_creation	= false;
 	$scope.create 	= function( ) {  
 		$scope.in_creation	 = true; 

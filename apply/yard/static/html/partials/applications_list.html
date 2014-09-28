@@ -23,19 +23,23 @@
 					<th><core-icon icon="perm-identity" style="width: 18px; height: 18px;"></core-icon></th>
 					<th><core-icon icon="more-horiz" style="width: 18px; height: 18px;"></core-icon></th>
 					<th>Next</th>
+					<th></th>
 
 				</tr>
 				<tr ng-repeat="application in applications" >
-					<td> {{ application.company }} </td>
-					<td> {{ application.portal }} </td>
-					<td> {{ application.position }} </td>
-					<td> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.written }}"></core-icon></td>
-					<td> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.called }}"></core-icon></td>
-					<td> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.interviewed }}"></core-icon></td>
-					<td> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.followup }}"></core-icon></td>
-					<td> {{ application.next }} </td>
-					<td> <button class="btn btn-primary" ng-click="open_detail(application)">Update</button> 
-						 <button class="btn btn-primary" ng-click="delete_application(application)">Delete</button> </td>
+					<td ng-click="open_detail(application)"> {{ application.company }} </td>
+					<td ng-click="open_detail(application)"> {{ application.portal }} </td>
+					<td ng-click="open_detail(application)"> {{ application.position }} </td>
+					<td ng-click="written(application)" > <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.written }}" ></core-icon></td>
+					<td ng-click="called(application)"> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.called }}"></core-icon></td>
+					<td ng-click="interviewed(application)"> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.interviewed }}"></core-icon></td>
+					<td ng-click="followup(application)"> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.followup }}"></core-icon></td>
+					<td ng-click="open_detail(application)"> {{ application.next }} </td>
+					<td >  <core-icon icon="create" style="width: 18px; height: 18px;" ng-click="open_detail(application)"></core-icon >
+							<core-icon  icon="delete" style="width: 18px; height: 18px;" ng-click="delete_application(application)"></core-icon > 
+					</td>
+
+
 				</tr>
 
 			</table>
