@@ -22,6 +22,16 @@ angular.module('niomApp')
 		console.log("loaded.");
 	
 	});
+
+	$scope.update = function(){
+
+		var company = document.getElementById('appl-company');
+		console.log("Second :", company.inputValue );
+
+		var portal = document.getElementById('appl-portal');
+		console.log("Second :", portal.inputValue );
+
+	}
 			
 	
 });

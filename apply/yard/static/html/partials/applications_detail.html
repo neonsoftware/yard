@@ -1,8 +1,10 @@
 
 <div class="well" >
-    
-	<h1>{{current_application.company.name}}</h1>
-	<h3><small>via</small> {{current_application.portal.name}}</h3>
-	
+
+	<paper-input id="appl-company" label="Company" floatingLabel=true value="{{current_application.company.name}}" error="Company should have a name"></paper-input>
+
+	<paper-input id="appl-portal" label="Portal" floatingLabel=true value="{{current_application.portal.name}}" error="Portal should have a name"></paper-input>
+
+	<a class="btn btn-block btn-primary" ng-click="update()">Save</a>
     
 </div>
