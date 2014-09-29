@@ -10,13 +10,13 @@
 	<paper-input id="appl-skills" label="Skills" floatingLabel=true value="{{current_application.skills}}" error="Portal should have a name"></paper-input>
 
 	<br><br>
-    <paper-checkbox id="appl-written"></paper-checkbox>
+    <paper-checkbox id="appl-written" ></paper-checkbox>
 	&nbsp;&nbsp;&nbsp;<core-icon icon="question-answer"></core-icon>&nbsp;&nbsp;Written<br><br>
-   	<paper-checkbox id="appl-called"></paper-checkbox>
+   	<paper-checkbox id="appl-called" ></paper-checkbox>
 	&nbsp;&nbsp;&nbsp;<core-icon icon="communication:call" ></core-icon>&nbsp;&nbsp;Called<br><br>
-    <paper-checkbox id="appl-interviewed"></paper-checkbox>
+    <paper-checkbox id="appl-interviewed" ></paper-checkbox>
 	&nbsp;&nbsp;&nbsp;<core-icon icon="perm-identity" ></core-icon>&nbsp;&nbsp;Interviewed <br><br>
-    <paper-checkbox id="appl-followup"></paper-checkbox>
+    <paper-checkbox id="appl-followup" ></paper-checkbox>
 	&nbsp;&nbsp;&nbsp;<core-icon icon="more-horiz" ></core-icon>&nbsp;&nbsp;Followup<br><br>
 	
 
@@ -61,22 +61,11 @@
 	<paper-input id="appl-c4mail" multiline label="Email" type="email" floatingLabel=true value="{{current_application.c4mail}}" error="Portal should have a name"></paper-input>
 	<paper-input id="appl-c4phone" multiline label="Phone" type="tel" floatingLabel=true value="{{current_application.c4phone}}" error="Portal should have a name"></paper-input>
 	<paper-shadow z="1"></paper-shadow>
-
-    <div horizontal end-justified layout>
-  	<div>    
-  		<paper-button ng-click="discard()" label="DISCARD" style="font-size: 24px;"></paper-button>
-    	<paper-button ng-click="update()" class="colored" label="SAVE" style="color: #4285f4; fill: #4285f4; font-size: 24px;"></paper-button>
-	</div>
 </div>
 
+<br><br>
+    
 
 </div>
 
-<br>
-  
-
-</div>
-
-
- 
 <a class="btn btn-block btn-primary" ng-click="update()">Save</a>

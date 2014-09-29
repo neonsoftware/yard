@@ -12,30 +12,100 @@ angular.module('niomApp')
 	$scope.interviewed  = function(application){ Applications.delete_application( {uuid : application.id, command : "interviewed" },function() { $scope.applications = Applications.query( );}); }
 	$scope.followup 	= function(application){ Applications.delete_application( {uuid : application.id, command : "followup" },function() { $scope.applications = Applications.query( );}); }
 
-
-	$scope.in_creation	= false;
-	$scope.create 	= function( ) {  
-		$scope.in_creation	 = true; 
-		Applications.get( { 	uuid : "", command:"new" },	function (res) {$scope.myhtml = res.html ;}, function() { alert('Form not found.' )} ) ;
+	$scope.new 	= function( ) {  
+		console.log();
+		$location.path( '/applications/new' );
 	}
 })
 
 .controller('ApplicationsDetailCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
 {
 
+	console.log("Update");
+
 	$scope.current_application = Applications.get( {uuid : $routeParams.applicationId }, function () {
 		
 		console.log("loaded.");
-	
+		document.getElementById('appl-written').checked = $scope.current_application.written ;
+		document.getElementById('appl-called').checked = $scope.current_application.called ;
+		document.getElementById('appl-followup').checked = $scope.current_application.followup ;
+		document.getElementById('appl-interviewed').checked = $scope.current_application.interviewed ;
+
 	});
+
+	$scope.discard 	= function( ) {  
+		console.log();
+		$location.path( '/applications' );
+	}
 
 	$scope.update = function(){
 
-		var company = document.getElementById('appl-company');
-		console.log("Second :", company.inputValue );
+		$scope.current_application.company = document.getElementById('appl-company').inputValue;
+		$scope.current_application.portal = document.getElementById('appl-portal').inputValue;
+		$scope.current_application.skills = document.getElementById('appl-skills').inputValue;
+		$scope.current_application.written = document.getElementById('appl-written').checked;
+		$scope.current_application.called = document.getElementById('appl-called').checked;
+		$scope.current_application.followup = document.getElementById('appl-followup').checked;
+		$scope.current_application.interviewed = document.getElementById('appl-interviewed').checked;
+		$scope.current_application.notes = document.getElementById('appl-notes').inputValue;
+		$scope.current_application.next = document.getElementById('appl-next').inputValue;
+		$scope.current_application.cover = document.getElementById('appl-cover').inputValue;
+		$scope.current_application.address1 = document.getElementById('appl-address1').inputValue;
+		$scope.current_application.address2 = document.getElementById('appl-address2').inputValue;
+		$scope.current_application.c1name = document.getElementById('appl-c1name').inputValue;
+		$scope.current_application.c1mail = document.getElementById('appl-c1mail').inputValue;
+		$scope.current_application.c1phone = document.getElementById('appl-c1phone').inputValue;
+		$scope.current_application.c2name = document.getElementById('appl-c2name').inputValue;
+		$scope.current_application.c2mail = document.getElementById('appl-c2mail').inputValue;
+		$scope.current_application.c2phone = document.getElementById('appl-c2phone').inputValue;
+		$scope.current_application.c3name = document.getElementById('appl-c3name').inputValue;
+		$scope.current_application.c3mail = document.getElementById('appl-c3mail').inputValue;
+		$scope.current_application.c3phone = document.getElementById('appl-c3phone').inputValue;
+		$scope.current_application.c4name = document.getElementById('appl-c4name').inputValue;
+		$scope.current_application.c4mail = document.getElementById('appl-c4mail').inputValue;
+		$scope.current_application.c4phone = document.getElementById('appl-c4phone').inputValue;
 
-		var portal = document.getElementById('appl-portal');
-		console.log("Second :", portal.inputValue );
+		$scope.current_application.$update( {uuid:$scope.current_application.id}, function(){ console.log("Updated !"); $location.path( '/applications' );} );
+
+	};
+			
+	
+})
+.controller('ApplicationsNewCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
+{
+
+	console.log("New");
+
+	$scope.update = function(){
+
+		$scope.current_application = new Applications();
+
+		$scope.current_application.company = document.getElementById('appl-company').inputValue;
+		$scope.current_application.portal = document.getElementById('appl-portal').inputValue;
+		$scope.current_application.skills = document.getElementById('appl-skills').inputValue;
+		$scope.current_application.written = document.getElementById('appl-written').checked;
+		$scope.current_application.called = document.getElementById('appl-called').checked;
+		$scope.current_application.followup = document.getElementById('appl-followup').checked;
+		$scope.current_application.interviewed = document.getElementById('appl-interviewed').checked;
+		$scope.current_application.notes = document.getElementById('appl-notes').inputValue;
+		$scope.current_application.next = document.getElementById('appl-next').inputValue;
+		$scope.current_application.cover = document.getElementById('appl-cover').inputValue;
+		$scope.current_application.address1 = document.getElementById('appl-address1').inputValue;
+		$scope.current_application.address2 = document.getElementById('appl-address2').inputValue;
+		$scope.current_application.c1name = document.getElementById('appl-c1name').inputValue;
+		$scope.current_application.c1mail = document.getElementById('appl-c1mail').inputValue;
+		$scope.current_application.c1phone = document.getElementById('appl-c1phone').inputValue;
+		$scope.current_application.c2name = document.getElementById('appl-c2name').inputValue;
+		$scope.current_application.c2mail = document.getElementById('appl-c2mail').inputValue;
+		$scope.current_application.c2phone = document.getElementById('appl-c2phone').inputValue;
+		$scope.current_application.c3name = document.getElementById('appl-c3name').inputValue;
+		$scope.current_application.c3mail = document.getElementById('appl-c3mail').inputValue;
+		$scope.current_application.c3phone = document.getElementById('appl-c3phone').inputValue;
+		$scope.current_application.c4name = document.getElementById('appl-c4name').inputValue;
+		$scope.current_application.c4mail = document.getElementById('appl-c4mail').inputValue;
+		$scope.current_application.c4phone = document.getElementById('appl-c4phone').inputValue;
+
+		$scope.current_application.$save( function() { console.log("SAVED"); $location.path( '/applications' ); } );
 
 	}
 			

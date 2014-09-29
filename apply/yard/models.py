@@ -163,6 +163,33 @@ class Application( CreatedUpdatedModel ):
 		data["c4phone"]		= self.c4phone
 		return data
 
+	def fill( self, data ) :
+		self.company 		= data["company"]
+		self.portal 		= data["portal"]
+		self.skills 		= data["skills"]
+		self.written 		= data["written"]
+		self.called 		= data["called"]
+		self.interviewed 	= data["interviewed"]
+		self.followup 		= data["followup"]
+		self.notes 			= data["notes"]
+		self.next 			= data["next"]
+		self.cover 			= data["cover"]
+		self.address1 		= data["address1"]
+		self.address2 		= data["address2"]
+		self.c1name 		= data["c1name"]
+		self.c1mail 		= data["c1mail"]
+		self.c1phone 		= data["c1phone"]
+		self.c2name 		= data["c2name"]
+		self.c2mail 		= data["c2mail"]
+		self.c2phone		= data["c2phone"]
+		self.c3name 		= data["c3name"]
+		self.c3mail 		= data["c3mail"]
+		self.c3phone 		= data["c3phone"]
+		self.c4name 		= data["c4name"]
+		self.c4mail 		= data["c4mail"]
+		self.c4phone 		= data["c4phone"]
+
+
 	def __str__( self ) :
 		return self.company
 

@@ -151,22 +151,32 @@ def applications_list(request) :
 		return HttpResponse( json.dumps( [ app.myToObj() for app in Application.objects.all() ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
-		print '\tPost = ' , request.POST
-		a = ApplicationForm( request.POST )
-		a.save()
-		return redirect('/static/index.html#/applications')
+		updated_data =	json.loads( request.body )
+		print 'New application, data :\n' , request.body
+		application = Application()
+		application.fill(updated_data)
+		application.save()
+		print 'Created and saved'
+		return HttpResponse( json.dumps( {"result":"success"} ), content_type="application/json" )
+		#return redirect('/static/index.html#/applications')
 
-	elif request.method == 'PUT':
-		print '\tPost = ' , request.POST
-		a = ApplicationForm( request.POST )
-		a.save()
-		return redirect('/static/index.html#/applications')
-
-		
+@csrf_exempt
 def applications_detail( request, id ) :
 	if request.method == 'GET':
 		application = get_object_or_404( Application, id=id )
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
+
+	elif request.method == 'PUT':
+		print 'Updating application', id, ' request body :\n' , request.body
+		updated_data =	json.loads( request.body )
+		application = get_object_or_404( Application, id=id )
+		application.fill(updated_data)
+		application.save()
+		print 'Updated and saved'
+		
+		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
+
+
 
 def applications_delete( request, id ) :
 	if request.method == 'GET':
