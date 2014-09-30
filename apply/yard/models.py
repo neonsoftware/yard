@@ -111,7 +111,11 @@ class Application( CreatedUpdatedModel ):
 	portal 			= models.CharField(blank=True, max_length=200)
 	company			= models.CharField(max_length=200)
 	position		= models.CharField(max_length=300)
-	skills 			= models.CharField(max_length=200)
+	salary			= models.CharField(blank=True, max_length=100)
+	contract		= models.CharField(blank=True, max_length=300)
+	latitude		= models.CharField(blank=True, max_length=20)
+	longitude		= models.CharField(blank=True, max_length=20)
+	skills 			= models.CharField(blank=True, max_length=200)
 	written			= models.BooleanField(default=False)
 	called			= models.BooleanField(default=False)
 	interviewed		= models.BooleanField(default=False)
@@ -139,6 +143,10 @@ class Application( CreatedUpdatedModel ):
 		data["portal"] 		= self.portal
 		data["company"] 	= self.company
 		data["position"] 	= self.position
+		data["salary"] 		= self.salary
+		data["contract"] 	= self.contract
+		data["latitude"] 	= self.latitude
+		data["longitude"] 	= self.longitude
 		data["skills"] 		= self.skills
 		data["written"] 	= self.written
 		data["called"] 		= self.called
@@ -166,6 +174,11 @@ class Application( CreatedUpdatedModel ):
 	def fill( self, data ) :
 		self.company 		= data["company"]
 		self.portal 		= data["portal"]
+		self.position		= data["position"]
+		self.salary			= data["salary"]
+		self.contract		= data["contract"]
+		self.latitude		= data["latitude"]
+		self.longitude		= data["longitude"]
 		self.skills 		= data["skills"]
 		self.written 		= data["written"]
 		self.called 		= data["called"]

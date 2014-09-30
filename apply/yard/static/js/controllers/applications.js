@@ -42,6 +42,11 @@ angular.module('niomApp')
 
 		$scope.current_application.company = document.getElementById('appl-company').inputValue;
 		$scope.current_application.portal = document.getElementById('appl-portal').inputValue;
+		$scope.current_application.position = document.getElementById('appl-position').inputValue;
+		$scope.current_application.salary = document.getElementById('appl-salary').inputValue;
+		$scope.current_application.contract = document.getElementById('appl-contract').inputValue;
+		$scope.current_application.latitude = document.getElementById('appl-latitude').inputValue;
+		$scope.current_application.longitude = document.getElementById('appl-longitude').inputValue;
 		$scope.current_application.skills = document.getElementById('appl-skills').inputValue;
 		$scope.current_application.written = document.getElementById('appl-written').checked;
 		$scope.current_application.called = document.getElementById('appl-called').checked;
@@ -82,6 +87,11 @@ angular.module('niomApp')
 
 		$scope.current_application.company = document.getElementById('appl-company').inputValue;
 		$scope.current_application.portal = document.getElementById('appl-portal').inputValue;
+		$scope.current_application.position = document.getElementById('appl-position').inputValue;
+		$scope.current_application.salary = document.getElementById('appl-salary').inputValue;
+		$scope.current_application.contract = document.getElementById('appl-contract').inputValue;
+		$scope.current_application.latitude = document.getElementById('appl-latitude').inputValue;
+		$scope.current_application.longitude = document.getElementById('appl-longitude').inputValue;
 		$scope.current_application.skills = document.getElementById('appl-skills').inputValue;
 		$scope.current_application.written = document.getElementById('appl-written').checked;
 		$scope.current_application.called = document.getElementById('appl-called').checked;
