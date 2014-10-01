@@ -1,8 +1,23 @@
 angular.module('niomApp')
 .controller('ApplicationsListCtrl', function($scope, $http, $resource, $location, Applications )
 {
-	$scope.applications = Applications.query( );
+	$scope.applications = Applications.query( function() {
+
+		angular.forEach( $scope.applications, function( elem, index )
+		{		
+			console.log('Adding expand variable to application' , index, 'with company ', elem.company );
+		
+			elem.expand = false;
+			//$scope.image_URI_db[url] = url;
+			//if (chrome.serial) { $scope.image_URI_db[url] = "" ; loadImage( url, $scope.at_image_load, $scope.image_URI_db ); }
+		});
+
+
+
+	} );
    
+	$scope.toggle	 	= function( application ){ console.log("expanding ", application.expand, "com ", application.company);application.expand = !application.expand; }
+
 	$scope.open_detail 	= function( application ){ $location.path( '/applications/' + application.id ); }
    
 	$scope.delete_application = function(application){ Applications.delete_application( {uuid : application.id, command : "delete" },function() { $scope.applications = Applications.query( );}); }
