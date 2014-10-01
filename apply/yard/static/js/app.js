@@ -6,7 +6,11 @@ window.routes = {
 	controller: 'ApplicationsNewCtrl',
 	requireLogin: true
 },
-
+'/applications/cards': {
+	templateUrl: 'html/partials/applications_cards.html',
+	controller: 'ApplicationsListCtrl',
+	requireLogin: true
+},
 '/applications/:applicationId': {
 	templateUrl: 'html/partials/applications_detail.html',
 	controller: 'ApplicationsDetailCtrl',

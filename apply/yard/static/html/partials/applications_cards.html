@@ -1,0 +1,73 @@
+
+<div ng-repeat="application in applications" >
+<div style="padding: 15px 25px 25px 25px" >
+	<div horizontal end-justified layout>
+		
+		{{ application.salary }}€<br>
+		{{ application.contract }}
+		
+	</div>
+	<div horizontal start-justified layout>
+	<span style="font-size: 22px;"><i>{{application.position}}</i></span><br>
+	</div>
+	<span style="font-size: 12px;">@</span>
+	<span style="font-size: 22px;">{{application.company}}</span>
+	<span style="font-size: 12px;">via</span> 
+	<span style="font-size: 14px;">{{ application.portal }} </span>
+
+
+	<br><br>
+
+	<core-icon icon="question-answer"></core-icon>&nbsp;&nbsp;&nbsp;
+    <paper-checkbox ng-checked="{{application.written}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<core-icon icon="communication:call" ></core-icon>&nbsp;&nbsp;&nbsp;
+   	<paper-checkbox ng-checked="{{application.called}}"></paper-checkbox><br><br>
+	<core-icon icon="perm-identity" ></core-icon>&nbsp;&nbsp;&nbsp;
+    <paper-checkbox ng-checked="{{application.interviewed}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<core-icon icon="more-horiz" ></core-icon>&nbsp;&nbsp;&nbsp;
+    <paper-checkbox ng-checked="{{application.followup}}"></paper-checkbox><br><br>
+
+    <div ng-show="{{application.next.length > 0}}">
+		<span style="font-size: 12px;"><b>Next</b></span><br> 
+    	<span style="font-size: 12px;">{{application.next}}</span>
+    	<br>
+    </div>
+
+    <div ng-show="{{application.notes.length > 0}}">
+		<span style="font-size: 12px;"><b>Notes</b></span><br> 
+    	<span style="font-size: 12px;">{{application.notes}}</span>
+    	<br>
+    </div>
+
+    <div ng-show="{{application.address1.length + application.address2.length > 0}}" >
+    	<span style="font-size: 12px;"><b>Address</b></span><br> 
+		<core-icon icon="more-horiz" ></core-icon>&nbsp;&nbsp;&nbsp;
+    	<span style="font-size: 12px;" ng-show="{{application.address1.length>0}}">{{application.address1}}</span>
+    	<br>
+    	<span style="font-size: 12px;" ng-show="{{application.address2.length>0}}">{{application.address2}}</span>
+    	<br>
+    </div>
+
+    <google-map style="display: block;height: 400px;width: 400px;" fitToMarkers ng-show="{{application.latitude.length > 0}}">
+  		<google-map-marker latitude="{{application.latitude}}" longitude="{{application.latitude}}"></google-map-marker>
+    </google-map>
+
+	<div ng-show="{{application.c1name.length + application.c1mail.length + application.c1phone.length > 0}}" >
+	   	<span style="font-size: 12px;"><b>Contact 1</b></span><br>
+    	<span style="font-size: 12px;">{{application.c1name}}</span><br>
+    	<span style="font-size: 12px;">{{application.c1mail}}</span><br>
+    	<span style="font-size: 12px;">{{application.c1phone}}</span>
+    </div>
+    <br>
+
+  	<div horizontal end-justified layout>    
+  		<paper-button ng-click="delete_application(application)" label="delete" ></paper-button>
+    	<paper-button ng-click="open_detail(application)" class="colored" label="update" style="color: #4285f4; fill: #4285f4;"></paper-button>
+	</div>
+
+	
+    <paper-shadow z="1"></paper-shadow>
+</div>
+<br>
+</div>
+	
