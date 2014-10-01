@@ -1,20 +1,23 @@
 
 <div ng-repeat="application in applications" >
 <div style="padding: 15px 25px 25px 25px" >
-	<div align="right">
-		<b>{{ application.salary }}€</b><br>
-		<b>{{ application.contract }}</b>
-	</div>
-	<div horizontal start-justified layout ng-click="application.expand = !application.expand">
-	<span style="font-size: 22px;"><i>{{application.position}}</i></span><br>
-	</div>
-	<span style="font-size: 12px;">@</span>
-	<span style="font-size: 22px;">{{application.company}}</span>
-	<span style="font-size: 12px;">via</span> 
-	<span style="font-size: 14px;">{{ application.portal }} </span>
 
+	<div horizontal layout>
+  		<div>         
+  			<span style="font-size: 22px;"><i>{{application.position}}</i></span><br>   	
+  			<span style="font-size: 12px;color: grey; ">&nbsp;@&nbsp;</span>
+			<span style="font-size: 22px;">{{application.company}}</span>
+			<span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span> 
+			<span style="font-size: 14px; color: grey; ">{{ application.portal }} </span>
+		</div>
+  		<div flex></div>
+  		<div>            	
+  			<b>{{ application.salary }}€</b><br>
+			<b>{{ application.contract }}</b>
+		</div>
+	</div>
 
-	<br><br><br>
+	<br><br>
 
 	<core-icon icon="question-answer"></core-icon>&nbsp;&nbsp;
     <paper-checkbox ng-checked="{{application.written}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
