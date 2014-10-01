@@ -10,14 +10,13 @@
         </title>
         <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
         <!-- bootstrap 3.0.2 -->
-        <script
-            src="bower_components/platform/platform.js"></script>
+        <script src="bower_components/platform/platform.js"></script>
+        <link rel="import" href="bower_components/paper-input/paper-input.html">
         <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
         <link rel="import" href="bower_components/core-menu/core-menu.html">
         <link rel="import" href="bower_components/core-item/core-item.html">
         <link rel="import" href="bower_components/paper-item/paper-item.html">
         <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
-        <link rel="import" href="bower_components/paper-input/paper-input.html">
         <link rel="import" href="bower_components/paper-shadow/paper-shadow.html">
         <link rel="import" href="bower_components/paper-radio-button/paper-radio-button.html">
         <link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
@@ -32,7 +31,27 @@
         <link href='bower_components/bootstrap/dist/css/bootstrap.min.css'     rel="stylesheet" type="text/css" />
         <link href='bower_components/font-awesome/css/font-awesome.min.css'  rel="stylesheet" type="text/css" />
         <link href='bower_components/ionicons/css/ionicons.min.css'      rel="stylesheet" type="text/css" />
-        <link href='css/AdminLTE.css'          rel="stylesheet" type="text/css" />
+
+  <style shim-shadowdom>
+  
+    body {
+      font-family: RobotoDraft, 'Helvetica Neue', Helvetica, Arial;
+      margin: 0;
+      padding: 24px;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      -webkit-touch-callout: none;
+    }
+
+    paper-input.narrow {
+      width: 150px;
+    }
+    
+  </style>
+        
     </head>
     <body ng-cloak>
         <core-scaffold>
