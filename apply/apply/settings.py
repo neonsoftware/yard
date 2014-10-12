@@ -95,3 +95,5 @@ LOGGING = {
     'version': 1,
 }
 
+LOGIN_REDIRECT_URL="/"
+

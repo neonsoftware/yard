@@ -19,7 +19,7 @@ window.routes = {
 '/applications': {
 	templateUrl: 'html/partials/applications_list.html',
 	controller: 'ApplicationsListCtrl',
-	requireLogin: true
+	requireLogin: false
 },
 '/companies': {
 	templateUrl: 'html/partials/companies_list.html',
@@ -64,8 +64,8 @@ window.routes = {
 };
 
 //var remoteUrl = 'http://ec2-54-234-247-242.compute-1.amazonaws.com/' ;
-//var remoteUrl = 'http://127.0.0.1' ;
-var remoteUrl = 'http://niom.eu/' ;
+var remoteUrl = 'http://127.0.0.1' ;
+//var remoteUrl = 'http://niom.eu/' ;
 //var remoteUrl = 'http://54.165.154.172' ;
 //var remoteUrl = 'http://192.168.0.33' ;
 
@@ -88,10 +88,10 @@ function($routeProvider) {
 		{
 			if(next.indexOf(i) != -1) 
 			{
-				//if(window.routes[i].requireLogin && !SessionService.getUserAuthenticated()) {
-				//	alert("You need to be authenticated to see this page!");
-				//	event.preventDefault();
-				//}
+				if(window.routes[i].requireLogin && !SessionService.getUserAuthenticated()) {
+					alert("You need to be authenticated to see this page!");
+					event.preventDefault();
+				}
 			} 
 		}
 	}); 

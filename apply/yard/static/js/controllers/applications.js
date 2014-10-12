@@ -31,6 +31,7 @@ angular.module('niomApp')
 		console.log();
 		$location.path( '/applications/new' );
 	}
+
 })
 
 .controller('ApplicationsDetailCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
