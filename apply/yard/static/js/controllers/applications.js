@@ -1,6 +1,9 @@
 angular.module('niomApp')
 .controller('ApplicationsListCtrl', function($scope, $http, $resource, $location, Applications )
 {
+
+	document.getElementById('mainscaffold').closeDrawer();
+
 	$scope.applications = Applications.query( function() {
 
 		angular.forEach( $scope.applications, function( elem, index )
@@ -36,6 +39,8 @@ angular.module('niomApp')
 
 .controller('ApplicationsDetailCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
 {
+
+	document.getElementById('mainscaffold').closeDrawer();
 
 	console.log("Update");
 
@@ -96,6 +101,8 @@ angular.module('niomApp')
 {
 
 	console.log("New");
+
+	document.getElementById('mainscaffold').closeDrawer();
 
 	$scope.update = function(){
 
