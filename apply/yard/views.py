@@ -147,7 +147,8 @@ def companies_detail(request, id) :
 @csrf_exempt
 def applications_list(request) :
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( [ app.myToObj() for app in Application.objects.all() ] ), content_type="application/json" )
+
+		return HttpResponse( json.dumps( [ app.myToObj() for app in Application.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
