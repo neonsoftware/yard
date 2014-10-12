@@ -20,21 +20,45 @@ angular.module('niomApp')
 	} );
    
 	$scope.toggle	 	= function( application ){ console.log("expanding ", application.expand, "com ", application.company);application.expand = !application.expand; }
-
-	$scope.open_detail 	= function( application ){ $location.path( '/applications/' + application.id ); }
-   
-	$scope.delete_application = function(application){ Applications.delete_application( {uuid : application.id, command : "delete" },function() { $scope.applications = Applications.query( );}); }
-
-	$scope.written 		= function(application){ Applications.delete_application( {uuid : application.id, command : "written" },function() { $scope.applications = Applications.query( );}); }
-	$scope.called 		= function(application){ Applications.delete_application( {uuid : application.id, command : "called" },function() { $scope.applications = Applications.query( );}); }
-	$scope.interviewed  = function(application){ Applications.delete_application( {uuid : application.id, command : "interviewed" },function() { $scope.applications = Applications.query( );}); }
-	$scope.followup 	= function(application){ Applications.delete_application( {uuid : application.id, command : "followup" },function() { $scope.applications = Applications.query( );}); }
-
 	$scope.new 	= function( ) {  
 		console.log();
 		$location.path( '/applications/new' );
 	}
 
+	$scope.open_detail 	= function( application ){ $location.path( '/applications/cards/' + application.id ); }
+
+	$scope.delete_application = function(application){ Applications.delete_application( {uuid : application.id, command : "delete" },function() { $scope.applications = Applications.query( );}); }
+	$scope.written 		= function(application){ Applications.delete_application( {uuid : application.id, command : "written" },function() { $scope.applications = Applications.query( );}); }
+	$scope.called 		= function(application){ Applications.delete_application( {uuid : application.id, command : "called" },function() { $scope.applications = Applications.query( );}); }
+	$scope.interviewed  = function(application){ Applications.delete_application( {uuid : application.id, command : "interviewed" },function() { $scope.applications = Applications.query( );}); }
+	$scope.followup 	= function(application){ Applications.delete_application( {uuid : application.id, command : "followup" },function() { $scope.applications = Applications.query( );}); }
+
+
+})
+
+.controller('ApplicationsCardDetailCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
+{
+
+	$scope.applications = [];
+
+	document.getElementById('mainscaffold').closeDrawer();
+
+	console.log("Indide CARD DETAIL !"); 
+
+	$scope.current_application = Applications.get( {uuid : $routeParams.applicationId }, function () {
+		console.log("Arrived ! appending."); 
+		$scope.applications = [ $scope.current_application ];
+	});
+
+	// Just copied from above
+	$scope.open_detail 	= function( application ){ $location.path( '/applications/' + application.id ); }
+	$scope.delete_application = function(application){ Applications.delete_application( {uuid : application.id, command : "delete" },function() { $scope.applications = Applications.query( );}); }
+	$scope.written 		= function(application){ Applications.delete_application( {uuid : application.id, command : "written" },function() { $scope.applications = Applications.query( );}); }
+	$scope.called 		= function(application){ Applications.delete_application( {uuid : application.id, command : "called" },function() { $scope.applications = Applications.query( );}); }
+	$scope.interviewed  = function(application){ Applications.delete_application( {uuid : application.id, command : "interviewed" },function() { $scope.applications = Applications.query( );}); }
+	$scope.followup 	= function(application){ Applications.delete_application( {uuid : application.id, command : "followup" },function() { $scope.applications = Applications.query( );}); }
+
+	
 })
 
 .controller('ApplicationsDetailCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
