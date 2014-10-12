@@ -6,6 +6,11 @@ window.routes = {
 	controller: 'ApplicationsNewCtrl',
 	requireLogin: true
 },
+'/applications/cards/:applicationId': {
+	templateUrl: 'html/partials/applications_cards.html',
+	controller: 'ApplicationsCardDetailCtrl',
+	requireLogin: true
+},
 '/applications/cards': {
 	templateUrl: 'html/partials/applications_cards.html',
 	controller: 'ApplicationsListCtrl',
@@ -60,7 +65,12 @@ window.routes = {
 	templateUrl: 'html/partials/categories_detail.html',
 	controller: 'CategoriesDetailCtrl',
 	requireLogin: true
-}
+},
+'/': {
+	templateUrl: 'html/partials/applications_list.html',
+	controller: 'ApplicationsListCtrl',
+	requireLogin: false
+},
 };
 
 //var remoteUrl = 'http://ec2-54-234-247-242.compute-1.amazonaws.com/' ;
