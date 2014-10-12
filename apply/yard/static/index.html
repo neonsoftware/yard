@@ -31,10 +31,27 @@
         <link href='bower_components/bootstrap/dist/css/bootstrap.min.css'     rel="stylesheet" type="text/css" />
         <link href='bower_components/font-awesome/css/font-awesome.min.css'  rel="stylesheet" type="text/css" />
         <link href='bower_components/ionicons/css/ionicons.min.css'      rel="stylesheet" type="text/css" />
-        <link href='css/AdminLTE.css'          rel="stylesheet" type="text/css" />
 
   <style shim-shadowdom>
   
+      .card {
+        min-width: 300px;
+        padding:1.5rem;
+        box-shadow:0 1px 2px #aaa;
+        background:white;
+        margin:1rem 1rem 1rem;
+        border-radius:3px;
+        user-select:none;
+        transform-origin:top left;
+        position:relative;
+        z-index:2;
+        clear: both;
+      }
+
+      .card:nth-child(even){
+       transform-origin:top right;
+      }
+
     body {
       font-family: RobotoDraft, 'Helvetica Neue', Helvetica, Arial;
       margin: 0;
@@ -63,11 +80,11 @@
                     </span>
                 </core-toolbar>
                 <core-menu>
-                    <paper-item icon="content-copy" label="Applications">
+                    <paper-item icon="list" label="Applications">
                         <a href="index.html#/applications">
                         </a>
                     </paper-item>
-                    <paper-item icon="language" label="Cards">
+                    <paper-item icon="content-copy" label="Cards">
                         <a href="index.html#/applications/cards">
                         </a>
                     </paper-item>
@@ -75,17 +92,12 @@
                         <a href="index.html#/applications/new">
                         </a>
                     </paper-item>
-                    <paper-item icon="done-all" label="Skills">
-                        <a href="index.html#/skills">
-                        </a>
-                    </paper-item>
                 </core-menu>
             </core-header-panel>
             <span tool>
             Yard
             </span>
-            <div class="content">
-                <div ng-view > </div>
+            <div class="content" ng-view>
             </div>
         </core-scaffold>
 
