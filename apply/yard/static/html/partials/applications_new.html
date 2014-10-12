@@ -66,9 +66,11 @@
 	<paper-input id="appl-longitude" label="Longitude" floatingLabel=true value="{{current_application.longitude}}" error="Portal should have a name"></paper-input>
 <br><br>
     <div horizontal end-justified layout>
-  	<div>    
-  		<paper-button ng-click="discard()" label="DISCARD" style="font-size: 18px;"></paper-button>
-    	<paper-button ng-click="update()" class="colored" label="SAVE" style="color: #4285f4; fill: #4285f4; font-size: 18px;"></paper-button>
+  	<div>   
+  	<section> 
+  		<core-button ng-click="discard()" style="font-size: 18px;">DISCARD</paper-button>
+    	<cores-button ng-click="update()" class="colored" style="color: #4285f4; fill: #4285f4; font-size: 18px;">SAVE</paper-button>
+    	</section>
 	</div>
 </div>
 

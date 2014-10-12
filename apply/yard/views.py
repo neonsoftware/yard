@@ -153,6 +153,7 @@ def applications_list(request) :
 		updated_data =	json.loads( request.body )
 		print 'New application, data :\n' , request.body
 		application = Application()
+		application.user = request.user
 		application.fill(updated_data)
 		application.save()
 		print 'Created and saved'
@@ -174,7 +175,6 @@ def applications_detail( request, id ) :
 		print 'Updated and saved'
 		
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
-
 
 
 def applications_delete( request, id ) :

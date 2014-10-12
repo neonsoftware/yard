@@ -86,13 +86,13 @@ function($routeProvider) {
 	$rootScope.$on("$locationChangeStart", function(event, next, current) { 
 		for(var i in window.routes) 
 		{
-			if(next.indexOf(i) != -1) 
-			{
-				if(window.routes[i].requireLogin && !SessionService.getUserAuthenticated()) {
-					alert("You need to be authenticated to see this page!");
-					event.preventDefault();
-				}
-			} 
+			// if(next.indexOf(i) != -1) 
+			// {
+			// 	if(window.routes[i].requireLogin && !SessionService.getUserAuthenticated()) {
+			// 		alert("You need to be authenticated to see this page!");
+			// 		event.preventDefault();
+			// 	}
+			// } 
 		}
 	}); 
 }])

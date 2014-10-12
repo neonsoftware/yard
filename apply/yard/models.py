@@ -108,6 +108,7 @@ class ApplicationAdvanced( CreatedUpdatedModel ):
 		return self.company.name
 
 class Application( CreatedUpdatedModel ):
+	user 			= models.ForeignKey(User)
 	portal 			= models.CharField(blank=True, max_length=200)
 	company			= models.CharField(max_length=200)
 	position		= models.CharField(max_length=300)
