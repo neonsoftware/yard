@@ -50,13 +50,31 @@
     	<br><br><br>
     </div>
 
-	<div ng-show="{{application.c1name.length + application.c1mail.length + application.c1phone.length > 0}}" >
-     	<core-icon icon="perm-contact-cal"></core-icon>&nbsp;&nbsp;&nbsp;
-     	<span style="font-size: 12px;">{{application.c1name}}</span><br>
-   		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    	<a href="mailto:ciao@gmail.com" style="font-size: 12px;">{{application.c1mail}}</a><br>
-   		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    	<a href="tel:01234567890" style="font-size: 12px;">{{application.c1phone}}</a>
+  <div ng-show="{{application.c1name.length + application.c1mail.length + application.c1phone.length > 0}}" >
+      <core-icon icon="perm-contact-cal"></core-icon>&nbsp;&nbsp;&nbsp;
+      <span style="font-size: 12px;">{{application.c1name}}</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="mailto:{{application.c1mail}}" style="font-size: 12px;">{{application.c1mail}}</a><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="tel:{{application.c1phone}}" style="font-size: 12px;">{{application.c1phone}}</a>
+    </div>
+    <br>
+  <div ng-show="{{application.c2name.length + application.c2mail.length + application.c2phone.length > 0}}" >
+      <core-icon icon="perm-contact-cal"></core-icon>&nbsp;&nbsp;&nbsp;
+      <span style="font-size: 12px;">{{application.c2name}}</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="mailto:{{application.c2mail}}" style="font-size: 12px;">{{application.c2mail}}</a><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="tel:{{application.c2phone}}" style="font-size: 12px;">{{application.c2phone}}</a>
+    </div>
+    <br>
+  <div ng-show="{{application.c3name.length + application.c3mail.length + application.c3phone.length > 0}}" >
+      <core-icon icon="perm-contact-cal"></core-icon>&nbsp;&nbsp;&nbsp;
+      <span style="font-size: 12px;">{{application.c3name}}</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="mailto:{{application.c3mail}}" style="font-size: 12px;">{{application.c3mail}}</a><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="tel:{{application.c3phone}}" style="font-size: 12px;">{{application.c3phone}}</a>
     </div>
     <br>
 
