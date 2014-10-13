@@ -52,7 +52,7 @@ angular.module('niomApp')
 	});
 
 	// Just copied from above
-	$scope.open_detail 	= function( application ){ $location.path( '/applications/' + application.id ); }
+	$scope.open_edit 	= function( application ){ $location.path( '/applications/' + application.id ); }
 	$scope.delete_application = function(application){ Applications.delete_application( {uuid : application.id, command : "delete" },function() { $scope.applications = Applications.query( );}); }
 	$scope.written 		= function(application){ Applications.delete_application( {uuid : application.id, command : "written" },function() { $scope.applications = Applications.query( );}); }
 	$scope.called 		= function(application){ Applications.delete_application( {uuid : application.id, command : "called" },function() { $scope.applications = Applications.query( );}); }
