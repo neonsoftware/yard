@@ -110,8 +110,11 @@ class ApplicationAdvanced( CreatedUpdatedModel ):
 class Application( CreatedUpdatedModel ):
 	user 			= models.ForeignKey(User)
 	portal 			= models.CharField(blank=True, max_length=200)
-	company			= models.CharField(max_length=200)
-	position		= models.CharField(max_length=300)
+	portal_link		= models.CharField(blank=True, max_length=200, default="")
+	company			= models.CharField(blank=True, max_length=200)
+	company_link	= models.CharField(blank=True, max_length=200, default="")
+	position		= models.CharField(blank=True, max_length=300)
+	position_link	= models.CharField(blank=True, max_length=300, default="")
 	salary			= models.CharField(blank=True, max_length=100)
 	contract		= models.CharField(blank=True, max_length=300)
 	latitude		= models.CharField(blank=True, max_length=20)
@@ -144,6 +147,9 @@ class Application( CreatedUpdatedModel ):
 		data["portal"] 		= self.portal
 		data["company"] 	= self.company
 		data["position"] 	= self.position
+		data["portal_link"] 	= self.portal_link
+		data["company_link"] 	= self.company_link
+		data["position_link"] 	= self.position_link
 		data["salary"] 		= self.salary
 		data["contract"] 	= self.contract
 		data["latitude"] 	= self.latitude
@@ -176,6 +182,9 @@ class Application( CreatedUpdatedModel ):
 		self.company 		= data["company"]
 		self.portal 		= data["portal"]
 		self.position		= data["position"]
+		self.company_link	= data["company_link"]
+		self.portal_link	= data["portal_link"]
+		self.position_link	= data["position_link"]
 		self.salary			= data["salary"]
 		self.contract		= data["contract"]
 		self.latitude		= data["latitude"]

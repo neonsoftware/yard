@@ -26,6 +26,7 @@ angular.module('niomApp')
 	}
 
 	$scope.open_detail 	= function( application ){ $location.path( '/applications/cards/' + application.id ); }
+	$scope.open_edit 	= function( application ){ $location.path( '/applications/' + application.id ); }
 
 	$scope.delete_application = function(application){ Applications.delete_application( {uuid : application.id, command : "delete" },function() { $scope.applications = Applications.query( );}); }
 	$scope.written 		= function(application){ Applications.delete_application( {uuid : application.id, command : "written" },function() { $scope.applications = Applications.query( );}); }
@@ -88,6 +89,9 @@ angular.module('niomApp')
 		$scope.current_application.company = document.getElementById('appl-company').inputValue;
 		$scope.current_application.portal = document.getElementById('appl-portal').inputValue;
 		$scope.current_application.position = document.getElementById('appl-position').inputValue;
+		$scope.current_application.company_link = document.getElementById('appl-company_link').inputValue;
+		$scope.current_application.portal_link = document.getElementById('appl-portal_link').inputValue;
+		$scope.current_application.position_link = document.getElementById('appl-position_link').inputValue;
 		$scope.current_application.salary = document.getElementById('appl-salary').inputValue;
 		$scope.current_application.contract = document.getElementById('appl-contract').inputValue;
 		$scope.current_application.latitude = document.getElementById('appl-latitude').inputValue;
@@ -135,6 +139,9 @@ angular.module('niomApp')
 		$scope.current_application.company = document.getElementById('appl-company').inputValue;
 		$scope.current_application.portal = document.getElementById('appl-portal').inputValue;
 		$scope.current_application.position = document.getElementById('appl-position').inputValue;
+		$scope.current_application.company_link = document.getElementById('appl-company_link').inputValue;
+		$scope.current_application.portal_link = document.getElementById('appl-portal_link').inputValue;
+		$scope.current_application.position_link = document.getElementById('appl-position_link').inputValue;
 		$scope.current_application.salary = document.getElementById('appl-salary').inputValue;
 		$scope.current_application.contract = document.getElementById('appl-contract').inputValue;
 		$scope.current_application.latitude = document.getElementById('appl-latitude').inputValue;

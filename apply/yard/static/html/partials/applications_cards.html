@@ -4,11 +4,20 @@
 
 	<div horizontal layout>
   		<div>         
-  			<span style="font-size: 22px;"><i>{{application.position}}</i></span><br>   	
+        <span style="font-size: 22px;" >
+          <i ng-hide="{{application.position_link.length}}>0">{{application.position}}</i>
+          <i ng-show="{{application.position_link.length}}>0"><a href="{{application.position_link}}">{{application.position}}</a></i>
+          </span><br>     
   			<span style="font-size: 12px;color: grey; ">&nbsp;@&nbsp;</span>
-			<span style="font-size: 22px;">{{application.company}}</span>
-			<span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span> 
-			<span style="font-size: 14px; color: grey; ">{{ application.portal }} </span>
+      <span style="font-size: 22px;" ng-hide="{{application.company_link.length}}>0">{{application.company}}</span>
+      <span style="font-size: 22px;" ng-show="{{application.company_link.length}}>0">
+        <a href="{{application.company_link}}">{{application.company}}</a>
+      </span>
+      <span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span> 
+      <span style="font-size: 14px; color: grey; " ng-hide="{{application.portal_link.length}}>0">{{ application.portal }} </span>
+      <span style="font-size: 14px; color: grey; " ng-show="{{application.portal_link.length}}>0">
+        <a href="{{application.portal_link}}">{{ application.portal }} </a>
+      </span>
 		</div>
   		<div flex></div>
   		<div>            	
@@ -70,7 +79,7 @@
 	<br><br>
   	<div horizontal end-justified layout>    
   		<paper-button ng-click="delete_application(application)" >delete</paper-button>
-    	<paper-button ng-click="open_detail(application)" class="colored" style="color: #4285f4; fill: #4285f4;">edit</paper-button>
+    	<paper-button ng-click="open_edit(application)" class="colored" style="color: #4285f4; fill: #4285f4;">edit</paper-button>
 	</div>
 
     <paper-shadow z="1"></paper-shadow>
