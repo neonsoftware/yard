@@ -51,6 +51,11 @@ window.routes = {
 	controller: 'PiecesListCtrl',
 	requireLogin: true
 },
+'/pieces/new': {
+	templateUrl: 'html/partials/pieces_new.html',
+	controller: 'PiecesNewCtrl',
+	requireLogin: true
+},
 '/pieces/:pieceId': {
 	templateUrl: 'html/partials/pieces_detail.html',
 	controller: 'PiecesDetailCtrl',
@@ -74,8 +79,8 @@ window.routes = {
 };
 
 //var remoteUrl = 'http://ec2-54-234-247-242.compute-1.amazonaws.com/' ;
-//var remoteUrl = 'http://127.0.0.1' ;
-var remoteUrl = 'http://niom.eu/' ;
+var remoteUrl = 'http://127.0.0.1' ;
+//var remoteUrl = 'http://niom.eu/' ;
 //var remoteUrl = 'http://54.165.154.172' ;
 //var remoteUrl = 'http://192.168.0.33' ;
 

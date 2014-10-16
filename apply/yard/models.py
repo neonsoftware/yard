@@ -36,14 +36,17 @@ class PieceCategory( models.Model ):
 class Piece( models.Model ):
 	content  	= models.TextField()
 	language    = models.CharField(max_length=7, choices=LANGUAGES)
-	skills 		= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
-	category	= models.ForeignKey(PieceCategory)
-	schema      = models.CharField(max_length=4094)
+	tags		= models.CharField(max_length=4096, default="")
+	legend      = models.CharField(max_length=9064, default="")
 	
 	def myToObj ( self ):
-		data 			= { "id" : self.id , "content"	: self.content, "language"	: self.language, "category" : self.category.id, "schema" : self.schema }
-		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all() ]
-		return data
+		return { "id" : self.id , "content"	: self.content, "language"	: self.language, "tags" : self.tags, "legend" : self.legend }
+
+	def fill( self, data ) :
+		self.content = data["content"]
+		self.language = data["language"]
+		self.tags = data["tags"]
+		self.legend = data["legend"]
 
 	def __str__( self ) :
 		return self.content
@@ -275,5 +278,5 @@ class PieceCategoryForm(ModelForm):
 class PieceForm(ModelForm):
     class Meta:
         model = Piece
-        fields = ['language', 'category', 'skills', 'content']
+        fields = ['language', 'tags', 'legend', 'content']
 

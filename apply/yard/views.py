@@ -74,10 +74,14 @@ def pieces_list(request) :
 		return HttpResponse( json.dumps( [ piece.myToObj() for piece in Piece.objects.all() ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
-		print '\tPost = ' , request.POST
-		p = PieceForm( request.POST )
+		updated_data =	json.loads( request.body )
+		print '\tPost = ' , request.body
+		p = Piece()
+		print '\tNew, filling ' 
+		p.fill(updated_data)
 		p.save()
-		return redirect('/static/index.html#/pieces')
+		print 'Updated and saved'
+		return HttpResponse( json.dumps( p.myToObj() ), content_type="application/json" )
 
 def pieces_detail(request, id) :
 	if request.method == 'GET':
@@ -115,7 +119,8 @@ def portals_list(request) :
 		print '\tPost = ' , request.POST
 		p = PortalForm( request.POST )
 		p.save()
-		return redirect('/static/index.html#/portals')
+		print 'Updated and saved'
+		return HttpResponse( json.dumps( p.myToObj() ), content_type="application/json" )
 
 def portals_detail(request, id) :
 
