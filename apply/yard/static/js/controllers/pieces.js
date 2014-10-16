@@ -6,7 +6,23 @@
 angular.module('niomApp')
 .controller('PiecesListCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
+
+	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
+	
+	$scope.nextSymbolIndex = 0; 
+	$scope.getNextSymbol = function(){
+		if ($scope.nextSymbolIndex == $scope.symbols.length)
+		{
+			alert("Reached max number of symbols ! Please reduce number of pieces.");
+		}
+		else
+		{
+			return $scope.symbols[$scope.nextSymbolIndex++];
+		}
+	};
+
 	$scope.pieces = Pieces.query( function(){
+
 
 		angular.forEach($scope.pieces, function(value, key) {
 			console.log("legend is ", value.legend);
@@ -14,8 +30,10 @@ angular.module('niomApp')
 			value.legend = {};
 			angular.forEach(leg, function(in_value, key) {
 				console.log("key: ", key);
-				console.log("value: ", in_value);		
-				value.legend[key] = {text:in_value, value:""};
+				console.log("value: ", in_value);
+				var new_symbol = $scope.getNextSymbol();
+				value.content = value.content.replace(key, new_symbol);
+				value.legend[new_symbol] = {text:in_value, value:""};
 			});
 		});
 
