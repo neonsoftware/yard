@@ -1,58 +1,78 @@
 
-<div class="card" ng-repeat="piece in pieces">
-	{{ piece.content }} <br>
-    <div horizontal end-justified layout>
-  	<div>    
- 		<paper-button ng-click="discard()" >discard</paper-button>
-    	<paper-button ng-click="add(piece)" class="colored" >add</paper-button>
-	</div>
-	</div>
-	<paper-shadow z="1"></paper-shadow>
-	<br>
-</div>
-
 <div class="card">
-
- 	<div class="card"ng-repeat="piece in artifact">
-	{{ piece.content }} 
-	    <div horizontal end-justified layout>
-  	<div>    
- 		<paper-button ng-click="remove($index)" >x</paper-button>
-    	<paper-button ng-click="up($index)" class="colored" >up</paper-button>
-    	<paper-button ng-click="down($index)" class="colored" >down</paper-button>
-	</div>
-	</div>
-	<br>
-
-    </div>
-
-
-	<paper-shadow z="1"></paper-shadow>
-	<br>
-	</div>
-</div>
-
-<div class="card">
-
- 	<div ng-repeat="piece in artifact">
- 		<div ng-repeat="(key, val) in piece.legend">
-		{{val.text}} ({{key}})<input ng-model="val.value"></input>
-		{{val.value}}
-		<br>
+    <h5>Select</h5>
+	<div class="piece_list" ng-repeat="piece in pieces">
+    	<div horizontal layout>
+    		<div flex>
+    			{{ piece.content }} 
+  			</div>
+  			<div ng-click="add(piece)" >    
+    			<paper-icon-button icon="add" style="color:#3366CC; height:16px; padding:0px; margin:0px;" ></paper-icon-button>
+			</div>
 		</div>
 	</div>
 </div>
 
+<div class="card" ng-show="artifact.length >0">
 
-{{artifact}}
+    <h5>Order</h5>
+
+ 	<div class="piece_in" ng-repeat="piece in artifact">
+		<div horizontal layout>
+  			<div flex>
+  			{{ piece.content }}
+  			</div>
+
+					<div><core-icon-button icon="hardware:keyboard-arrow-up" ng-click="up($index)"  style="color:#3366CC; height:18px; padding:0px; margin:0px;" ></core-icon-button></div>					
+					<div><core-icon-button icon="hardware:keyboard-arrow-down" ng-click="down($index)" style="color:#3366CC; height:18px; padding:0px; margin:0px;"  ></core-icon-button></div>
+					<div><core-icon-button icon="clear" ng-click="remove($index)" style="color:#3366CC; height:16px; padding:0px; margin:0px;" ></core-icon-button></div>
 
 
-<div class="card">
+		</div>
+    </div>
 
- 	<div ng-repeat="piece in artifact">
-	{{ piece.content | atob:this}} 
-  	<div>    
+</div>
+
+<div class="card" ng-show="artifact.length >0">
+    <h5>Fill</h5>
+    
+    <div horizontal layout style="margin:0rem 0rem 1rem  1rem;">
+    	<div>
+    		<div ng-repeat="piece in artifact">
+    			<div ng-repeat="(key, val) in piece.legend" style="height:20px; margin:1rem 1rem 1rem 1rem;">
+ 		 			{{val.text}} <span style="font-size: 12px;color: grey; ">({{key}})</span>
+ 		 		</div>
+ 			</div>
+     	</div>
+     	<div>
+     		&nbsp;&nbsp;
+     	</div>
+     	<div>
+     		<div ng-repeat="piece in artifact">
+ 				<div ng-repeat="(key, val) in piece.legend" style="height:20px; margin:1rem 1rem 1rem 1rem;">
+ 					<input ng-model="val.value"></input>
+ 				</div>
+ 			</div>
+ 		</div>
+	</div>
+
+</div>
+
+
+<div class="card" ng-show="artifact.length >0">
+	<h5>Result</h5>
+	<pre><div ng-repeat="piece in artifact">{{ piece.content | atob:this }}<br></div></pre>
+	
+   
 </div>
 
 
 
+
+   
+</div>
+</div>
+
+<br><br><br><br><br><br><br>
+
+{{artifact}}

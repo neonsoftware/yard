@@ -85,6 +85,7 @@ angular.module('niomApp').filter('atob', function(){
 				});
 			});
 
+			//tempSubstituted = tempSubstituted.replace(k,v.value);
 			return tempSubstituted;
 		}
 
