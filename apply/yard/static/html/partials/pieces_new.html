@@ -1,0 +1,29 @@
+<div class="card">
+
+<span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
+<br>
+<textarea ng-model="pt"></textarea>
+
+<br><br>
+
+<div ng-repeat="symbol in symbols">
+	<div ng-show="pt.indexOf(symbol)>-1">
+		Describe {{symbol}} &nbsp;&nbsp; <input type="text" ng-model="legend[symbol]" ></input>
+	</div>
+	<br>
+</div>
+
+
+
+
+{{legend}}
+
+    <div horizontal end-justified layout>
+  	<div>    
+ 		<paper-button ng-click="discard()" >discard</paper-button>
+    	<paper-button ng-click="add()" class="colored">add</paper-button>
+	</div>
+
+
+</div>
+
