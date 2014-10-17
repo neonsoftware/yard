@@ -10,6 +10,12 @@ from django.forms.models import model_to_dict
 from yard.models import Portal, Skill, Application, Company, Piece, PieceCategory
 from yard.models import PortalForm, SkillForm, ApplicationForm, CompanyForm, PieceForm, PieceCategoryForm
 
+from docx import Document
+
+#document = Document()
+#paragraph = document.add_paragraph('Lorem ipsum dolor sit amet.')
+#document.save("Lettre de motivation.docx")
+
 import json
 
 @csrf_exempt
@@ -83,9 +89,17 @@ def pieces_list(request) :
 		print 'Updated and saved'
 		return HttpResponse( json.dumps( p.myToObj() ), content_type="application/json" )
 
+@csrf_exempt
 def pieces_detail(request, id) :
 	if request.method == 'GET':
 		piece = get_object_or_404( Piece, id=id )
+		return HttpResponse( json.dumps( piece.myToObj() ), content_type="application/json" )
+	if request.method == 'PUT':
+		updated_data =	json.loads( request.body )
+		print '\tPut = ' , request.body
+		piece = get_object_or_404( Piece, id=id )
+		piece.fill(updated_data)
+		piece.save()
 		return HttpResponse( json.dumps( piece.myToObj() ), content_type="application/json" )
 
 
@@ -98,15 +112,24 @@ def categories_list(request) :
 		return HttpResponse( json.dumps( [ category.myToObj() for category in PieceCategory.objects.all() ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
-		print '\tPost = ' , request.POST
-		c = PieceCategoryForm( request.POST )
+		updated_data =	json.loads( request.body )
+		print '\tPut = ' , request.body
+		c = PieceCategory( )
+		c.fill(updated_data)
 		c.save()
-		return redirect('/static/index.html#/categories') 
+		return HttpResponse( json.dumps( c.myToObj() ), content_type="application/json" )
 
 def categories_detail(request, id) :
 	if request.method == 'GET':
 		category = get_object_or_404( PieceCategory, id=id )
 		return HttpResponse( json.dumps( category.myToObj() ), content_type="application/json" )
+	if request.method == 'PUT':
+		updated_data =	json.loads( request.body )
+		print '\tPut = ' , request.body
+		piece = get_object_or_404( PieceCategory, id=id )
+		piece.fill(updated_data)
+		piece.save()
+		return HttpResponse( json.dumps( piece.myToObj() ), content_type="application/json" )
 
 
 

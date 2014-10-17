@@ -1,39 +1,69 @@
-<div class="well" >
- 
-	<div class="box">
-		<div class="box-header">
-			<h3 class="box-title">Companies</h3>
-			<div class="box-tools">
-				<div class="input-group">
-					<input type="text" name="table_search" class="form-control input-sm pull-right" style="width: 150px;" placeholder="Search"/>
-					<div class="input-group-btn">
-						<button class="btn btn-sm btn-default"><i class="fa fa-search"></i></button>
-					</div>
-				</div>
-			</div>
-		</div><!-- /.box-header -->
-		<div class="box-body table-responsive no-padding">
-			<table class="table table-hover">
-				<tr>
-					<th>Name</th>
-					<th>Website</th>
-					<th>Description</th>
-					<th>Note</th>
-					<th>Skills</th>
-				</tr>
-				<tr ng-repeat="company in companies">
-					<td> {{ company.name }} </td>
-					<td> {{ company.website }} </td>
-					<td> {{ company.note }} </td>
-					<td> {{ company.description }} </td>
-					<td> {{ company.skills }} </td>
-				</tr>
 
-			</table>
-		</div><!-- /.box-body -->
-	</div><!-- /.box -->
- 
-    
-	<a href="#/create" class="btn btn-block btn-primary">CREATE NEW</a>
-    
+<div class="card">
+    <h5>Select</h5>
+	<div class="piece_list" ng-repeat="piece in pieces">
+    	<div horizontal layout>
+    		<div flex>
+    			{{ piece.content }} 
+  			</div>
+  			<div ng-click="add(piece)" >    
+    			<paper-icon-button icon="add" style="color:#3366CC; padding:0px; margin:0px;" ></paper-icon-button>
+			</div>
+		</div>
+	</div>
 </div>
+
+<div class="card" ng-show="artifact.length >0">
+
+    <h5>Order</h5>
+
+ 	<div class="piece_in" ng-repeat="piece in artifact">
+		<div horizontal layout>
+  			<div flex>
+  			{{ piece.content }}
+  			</div>
+
+					<div><core-icon-button icon="hardware:keyboard-arrow-up" ng-click="up($index)"  style="color:#3366CC;  padding:0px; margin:0px;" ></core-icon-button></div>					
+					<div><core-icon-button icon="hardware:keyboard-arrow-down" ng-click="down($index)" style="color:#3366CC; padding:0px; margin:0px;"  ></core-icon-button></div>
+					<div><core-icon-button icon="clear" ng-click="remove($index)" style="color:#3366CC; padding:0px; margin:0px;" ></core-icon-button></div>
+
+
+		</div>
+    </div>
+
+</div>
+
+<div class="card" ng-show="artifact.length >0">
+    <h5>Fill</h5>
+    
+    <div horizontal layout style="margin:0rem 0rem 1rem  1rem;">
+    	<div>
+    		<div ng-repeat="piece in artifact">
+    			<div ng-repeat="(key, val) in piece.legend" style="height:30px; margin:1rem 1rem 1rem 1rem;">
+ 		 			{{val.text}} <span style="font-size: 12px;color: grey; ">({{key}})</span>
+ 		 		</div>
+ 			</div>
+     	</div>
+     	<div>
+     		&nbsp;&nbsp;
+     	</div>
+     	<div>
+     		<div ng-repeat="piece in artifact">
+ 				<div ng-repeat="(key, val) in piece.legend" style="height:30px; margin:1rem 1rem 1rem 1rem;">
+ 					<textarea ng-model="val.value" style="height:25px;"></textarea>
+ 				</div>
+ 			</div>
+ 		</div>
+	</div>
+
+</div>
+
+
+<div class="card" ng-show="artifact.length >0">
+	<h5>Result</h5>
+	<pre><div ng-repeat="piece in artifact">{{ piece.content | atob:this }}<br></div></pre>
+	
+   
+</div>
+
+

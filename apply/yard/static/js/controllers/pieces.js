@@ -6,6 +6,10 @@
 angular.module('niomApp')
 .controller('PiecesListCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
+	$scope.pieces = Pieces.query( );	
+})
+.controller('CategoriesDetailCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
+{
 
 	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
 	
@@ -72,20 +76,33 @@ angular.module('niomApp')
 .controller('PiecesNewCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
 	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
-	$scope.legend  = {};
-	$scope.pt      = "";
-
-	console.log("ciao");
+	
+	$scope.current_piece = new Pieces();
+	$scope.current_piece.legend  = {};
+	$scope.current_piece.content  = "";
+	$scope.current_piece.language = "fr";
 
 	$scope.add = function( ){ 
 		console.log("Saving !");
-		new_piece = new Pieces();
-		new_piece.content = $scope.pt;
-		new_piece.legend = JSON.stringify($scope.legend);
-		new_piece.language = "fr";
-		new_piece.tags = "";
-		new_piece.$save( function() { console.log("SAVED"); $location.path( '/pieces' ); } );
-	}
+		$scope.current_piece.legend = JSON.stringify($scope.current_piece.legend);
+		$scope.current_piece.$save( function() { console.log("SAVED"); $location.path( '/pieces' ); } );
+	};
+	
+})
+.controller('PiecesDetailCtrl', function($scope, $http, $routeParams, $resource, $location, Pieces, Categories )
+{
+	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
+	
+	$scope.current_piece = Pieces.get( {uuid : $routeParams.pieceId }, function () {
+		console.log("Arrived ! appending."); 
+		$scope.current_piece.legend = angular.fromJson($scope.current_piece.legend);
+	});
+
+	$scope.add = function( ){ 
+		console.log("Saving !");
+		$scope.current_piece.legend = JSON.stringify($scope.current_piece.legend);
+		$scope.current_piece.$update( {uuid:$scope.current_piece.id}, function(){ console.log("Updated !"); $location.path( '/pieces' );} );
+	};
 	
 });
 
@@ -105,6 +122,6 @@ angular.module('niomApp').filter('atob', function(){
 
 			//tempSubstituted = tempSubstituted.replace(k,v.value);
 			return tempSubstituted;
-		}
+		};
 
 	});

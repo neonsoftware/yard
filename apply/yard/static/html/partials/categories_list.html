@@ -1,43 +1,15 @@
-<div class="well" >
- 
-	<div class="box">
-		<div class="box-header">
-			<h3 class="box-title">Categories</h3>
-			<div class="box-tools">
-				<div class="input-group">
-					<input type="text" name="table_search" class="form-control input-sm pull-right" style="width: 150px;" placeholder="Search"/>
-					<div class="input-group-btn">
-						<button class="btn btn-sm btn-default"><i class="fa fa-search"></i></button>
-					</div>
-				</div>
-			</div>
-		</div><!-- /.box-header -->
-		<div class="box-body table-responsive no-padding">
-			<table class="table table-hover">
-				<tr>
-					<th>Name</th>
-					<th>Description</th>
-				</tr>
-				<tr ng-repeat="category in categories">
-					<td> {{ category.name }} </td>
-					<td> {{ category.description }} </td>
-				</tr>
+<div class="card" ng-repeat="category in categories">
+  			<h3>{{category.name}}</h3>
+			<h5>{{category.description}}</h5>
 
-			</table>
-		</div><!-- /.box-body -->
-	</div><!-- /.box -->
-	
-	<a class="btn btn-block btn-primary" ng-click="create()">CREATE NEW</a>
-    
+  			<div horizontal end-justified layout> 
+  				<div>
+  					<paper-button ng-click="delete_application(application)" >delete</paper-button>
+    				<paper-button ng-click="open_edit(application)" class="colored">edit</paper-button>
+    			</div>
+    		</div>
 </div>
-
-
-
-<div class="well" ng-show="in_creation" >
-  <form action='/categories/' method='post' >
-	<div> 
-	  <loaded-template myvar="myvar" myhtml="myhtml" />
-	</div>
-	<button type="submit" class="btn btn-primary">Add</button>
-  </form>
-</div>
+<div horizontal center-justified layout>
+<div>
+  	<paper-button raised class="colored" ng-click="new()">new</paper-button>
+</div>	

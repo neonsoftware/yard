@@ -57,13 +57,18 @@ window.routes = {
 	requireLogin: true
 },
 '/pieces/:pieceId': {
-	templateUrl: 'html/partials/pieces_detail.html',
+	templateUrl: 'html/partials/pieces_new.html',
 	controller: 'PiecesDetailCtrl',
 	requireLogin: true
 },
 '/categories': {
 	templateUrl: 'html/partials/categories_list.html',
 	controller: 'CategoriesListCtrl',
+	requireLogin: true
+},
+'/categories/new': {
+	templateUrl: 'html/partials/categories_list.html',
+	controller: 'CategoriesDetailCtrl',
 	requireLogin: true
 },
 '/categories/:categoryId': {

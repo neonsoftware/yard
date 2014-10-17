@@ -24,11 +24,18 @@ class Skill( models.Model ):
 		return self.name
 
 class PieceCategory( models.Model ):
-	name  		= models.CharField(max_length=40)
-	description	= models.CharField(max_length=100)
+	name  		= models.CharField(max_length=4096, default="")
+	description	= models.CharField(max_length=4096, default="")
+	language	= models.CharField(max_length=7, choices=LANGUAGES, default="en")
+	tags		= models.CharField(max_length=4096, default="")
+	pieces 		= models.TextField(default="")
 	
 	def myToObj ( self ):
-		return { "id" : self.id , "name": self.name, "description" : self.description }
+		data = { "id" : self.id , "name": self.name, "description" : self.description }
+		data["language"] = self.language
+		data["tags"] = self.tags
+		data["pieces"] = self.tags
+		return data
 
 	def __str__( self ) :
 		return self.name
@@ -66,6 +73,7 @@ class Portal( CreatedUpdatedModel ):
 
 	def __str__( self ) :
 		return self.name
+
 
 class Company( CreatedUpdatedModel ):
 	name 		= models.CharField(max_length=4096)
@@ -273,7 +281,7 @@ class ApplicationForm(ModelForm):
 class PieceCategoryForm(ModelForm):
     class Meta:
         model = PieceCategory
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'tags', 'language', 'pieces']
 		
 class PieceForm(ModelForm):
     class Meta:

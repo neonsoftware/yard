@@ -1,14 +1,26 @@
 <div class="card">
 
+<span style="font-size: 12px;color: grey; ">Language</span>
+<br> 
+<input type="text" ng-model="current_piece.language" ></input>
+
+<br><br>
+
+<span style="font-size: 12px;color: grey; ">Tags</span>
+<br> 
+<input type="text" ng-model="current_piece.tags" ></input>
+
+<br><br>
+
 <span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
 <br>
-<textarea ng-model="pt"></textarea>
+<textarea ng-model="current_piece.content" style="width:300px"></textarea>
 
 <br><br>
 
 <div ng-repeat="symbol in symbols">
-	<div ng-show="pt.indexOf(symbol)>-1">
-		Describe {{symbol}} &nbsp;&nbsp; <input type="text" ng-model="legend[symbol]" ></input>
+	<div ng-show="current_piece.content.indexOf(symbol)>-1">
+		<i>Describe {{symbol}}</i> &nbsp;&nbsp; <input type="text" ng-model="current_piece.legend[symbol]" ></input>
 	</div>
 	<br>
 </div>
