@@ -119,6 +119,7 @@ def categories_list(request) :
 		c.save()
 		return HttpResponse( json.dumps( c.myToObj() ), content_type="application/json" )
 
+@csrf_exempt
 def categories_detail(request, id) :
 	if request.method == 'GET':
 		category = get_object_or_404( PieceCategory, id=id )
@@ -130,6 +131,11 @@ def categories_detail(request, id) :
 		piece.fill(updated_data)
 		piece.save()
 		return HttpResponse( json.dumps( piece.myToObj() ), content_type="application/json" )
+	if request.method == 'DELETE':
+		piece = get_object_or_404( PieceCategory, id=id )
+		piece.delete()
+		return HttpResponse( json.dumps( {"result" : "success"} ), content_type="application/json" )
+
 
 
 

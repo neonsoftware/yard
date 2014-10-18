@@ -67,7 +67,7 @@ window.routes = {
 	requireLogin: true
 },
 '/categories/new': {
-	templateUrl: 'html/partials/categories_list.html',
+	templateUrl: 'html/partials/categories_detail.html',
 	controller: 'CategoriesDetailCtrl',
 	requireLogin: true
 },
@@ -131,11 +131,11 @@ function($routeProvider) {
 	
 	return { url: actualUrl };
 })
-.factory('Applications', ['$resource', function($resource) { return $resource( remoteUrl + '/applications/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'POST' }, delete_application: { method: 'GET' } } ); } ] )
-.factory('Companies', ['$resource', function($resource) { return $resource( remoteUrl + '/companies/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT' } } ); } ] )
-.factory('Skills', ['$resource', function($resource) { return $resource( remoteUrl + '/skills/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'} } ); } ] )
-.factory('Pieces', ['$resource', function($resource) { return $resource( remoteUrl + '/pieces/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'} } ); } ] )
-.factory('Categories', ['$resource', function($resource) { return $resource( remoteUrl + '/categories/:uuid/:command', {uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'} } ); } ] )
+.factory('Applications', 	['$resource', function($resource) { return $resource( remoteUrl + '/applications/:uuid/:command', 	{uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'POST' }, delete_application: { method: 'GET' } } ); } ] )
+.factory('Companies', 		['$resource', function($resource) { return $resource( remoteUrl + '/companies/:uuid/:command', 		{uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
+.factory('Skills', 			['$resource', function($resource) { return $resource( remoteUrl + '/skills/:uuid/:command', 		{uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
+.factory('Pieces', 			['$resource', function($resource) { return $resource( remoteUrl + '/pieces/:uuid/:command', 		{uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
+.factory('Categories', 		['$resource', function($resource) { return $resource( remoteUrl + '/categories/:uuid/:command', 	{uuid:"@id"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
 .service('SessionService', function(){ 
 	var userIsAuthenticated = false;
 	

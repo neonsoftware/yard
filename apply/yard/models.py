@@ -34,8 +34,20 @@ class PieceCategory( models.Model ):
 		data = { "id" : self.id , "name": self.name, "description" : self.description }
 		data["language"] = self.language
 		data["tags"] = self.tags
-		data["pieces"] = self.tags
+		data["pieces"] = self.pieces
 		return data
+
+	def fill ( self, data ):
+		print "filling", data
+		self.name = data["name"]
+		print "desc"
+		self.description = data["description"]
+		print "2"
+		self.tags = data["tags"]
+		print "3"
+		self.language = data["language"]
+		print "4"
+		self.pieces = data["pieces"]
 
 	def __str__( self ) :
 		return self.name
