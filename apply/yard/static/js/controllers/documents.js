@@ -15,6 +15,14 @@ angular.module('niomApp')
 })
 .controller('DocumentsNewEmptyCtrl', function($scope, $http, $resource, $location, Pieces, Categories, Documents )
 {
+	$scope.docx = function() {
+		Documents.generate(
+					{ uuid: 1, command : "docx" }, 
+					{ "text" : document.getElementById('text-area-content').value },
+					function (res) { console.log( "hex file : ", res.path ) ; window.location.href= res.path ; },
+					function() { alert('Target not created.' );}
+				);
+	};
 })
 .controller('DocumentsNewTemplateCtrl', function($scope, $http, $resource, $routeParams, $location, Pieces, Categories, Documents )
 {   
