@@ -13,6 +13,7 @@
         <link rel="import" href="bower_components/paper-input/paper-input.html">
         <link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
         <link rel="import" href="bower_components/core-menu/core-menu.html">
+        <link rel="import" href="bower_components/core-menu/core-submenu.html">
         <link rel="import" href="bower_components/core-item/core-item.html">
         <link rel="import" href="bower_components/paper-item/paper-item.html">
         <link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
@@ -25,6 +26,7 @@
         <link rel="import" href="bower_components/core-drawer-panel/core-drawer-panel.html">
         <link rel="import" href="bower_components/core-scaffold/core-scaffold.html">
         <link rel="import" href="bower_components/core-icons/communication-icons.html">
+        <link rel="import" href="bower_components/core-icons/image-icons.html">
         <link rel="import" href="bower_components/core-icons/notification-icons.html">
         <link rel="import" href="bower_components/core-icons/hardware-icons.html">
         <link rel="import" href="bower_components/font-roboto/roboto.html">
@@ -156,43 +158,50 @@
                     </span>
                 </core-toolbar>
                 <core-menu>
-                    <paper-item icon="list" label="Applications">
-                        <a href="index.html#/applications">
-                        </a>
-                    </paper-item>
-                    <paper-item icon="content-copy" label="Cards">
-                        <a href="index.html#/applications/cards">
-                        </a>
-                    </paper-item>
-                    <paper-item icon="drive-site" label="New">
-                        <a href="index.html#/applications/new">
-                        </a>
-                    </paper-item>
-                    <paper-item icon="drive-site" label="Pieces">
-                        <a href="index.html#/pieces">
-                        </a>
-                    </paper-item>
-                    <paper-item icon="drive-site" label="New Piece">
-                        <a href="index.html#/pieces/new">
-                        </a>
-                    </paper-item>
-                    <paper-item icon="drive-site" label="Templates">
-                        <a href="index.html#/categories">
-                        </a>
-                    </paper-item>
-                    <paper-item icon="drive-site" label="New Template">
-                        <a href="index.html#/categories/new">
-                        </a>
-                    </paper-item>
-                    <paper-item icon="drive-site" label="Documents">
-                        <a href="index.html#/documents">
-                        </a>
-                    </paper-item>
 
-                    <paper-item icon="drive-site" label="New Document">
-                        <a href="index.html#/documents/new">
-                        </a>
-                    </paper-item>
+                    <core-submenu icon="work" label="Applications">
+      
+                        <paper-item icon="list" label="List">
+                            <a href="index.html#/applications"> </a>
+                        </paper-item>
+                       <paper-item icon="content-copy" label="Cards">
+                            <a href="index.html#/applications/cards"> </a>
+                        </paper-item>
+                        <paper-item icon="add" label="New">
+                            <a href="index.html#/applications/new"> </a>
+                        </paper-item>
+                    </core-submenu>
+
+                    <core-submenu icon="extension" label="Pieces">
+      
+                        <paper-item icon="list" label="List">
+                            <a href="index.html#/pieces"> </a>
+                        </paper-item>
+                        <paper-item icon="add" label="New">
+                            <a href="index.html#/pieces/new"> </a>
+                        </paper-item>
+                    </core-submenu>
+
+                    <core-submenu icon="image:blur-linear" label="Templates">
+      
+                        <paper-item icon="list" label="List">
+                            <a href="index.html#/categories"> </a>
+                        </paper-item>
+                        <paper-item icon="add" label="New">
+                            <a href="index.html#/categories/new"> </a>
+                        </paper-item>
+                    </core-submenu>
+
+
+                   <core-submenu icon="drive-document" label="Covers">
+      
+                        <paper-item icon="list" label="List">
+                            <a href="index.html#/documents"> </a>
+                        </paper-item>
+                        <paper-item icon="add" label="New">
+                            <a href="index.html#/documents/new"> </a>
+                        </paper-item>
+                    </core-submenu>
 
                 </core-menu>
             </core-header-panel>

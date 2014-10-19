@@ -76,11 +76,11 @@ angular.module('niomApp')
 	};
 
 	$scope.down = function( index ){ 
-		if (index < $scope.artifact.length - 1)
+		if (index < $scope.current_template.pieces.length - 1)
 		{
-			var temp = $scope.artifact[index+1];
-			$scope.artifact[index+1] = $scope.artifact[index];
-			$scope.artifact[index] = temp;			
+			var temp = $scope.current_template.pieces[index+1];
+			$scope.current_template.pieces[index+1] = $scope.current_template.pieces[index];
+			$scope.current_template.pieces[index] = temp;			
 		}
 	};
 

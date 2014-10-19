@@ -1,14 +1,20 @@
-<div class="card" ng-repeat="category in categories">
-  			<h3>{{category.name}}</h3>
-			<h5>{{category.description}}</h5>
 
-  			<div horizontal end-justified layout> 
-  				<div>
-  					<paper-button ng-click="delete(category)" >delete</paper-button>
-    				<paper-button ng-click="edit(category)" class="colored">edit</paper-button>
-    			</div>
-    		</div>
-</div>
+
+<div class="card" ng-repeat="category in categories">
+<div horizontal layout>
+    		<div flex>
+    			<h5>{{category.name}}</h5>
+			<h6>{{category.description}}</h6>
+  			</div>
+        <div horizontal end-justified layout> 
+          <div>
+            <paper-button ng-click="delete(category)" >delete</paper-button>
+            <paper-button ng-click="edit(category)" class="colored">edit</paper-button>
+          </div>
+        </div>
+		</div>
+	</div>
+
 <div horizontal center-justified layout>
 <div>
   	<paper-button raised class="colored" ng-click="new()">new</paper-button>
