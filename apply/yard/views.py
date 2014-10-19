@@ -16,11 +16,8 @@ from yard.models import SkillForm, ApplicationForm, CompanyForm, PieceForm, Piec
 
 from docx import Document
 
-#document = Document()
-#paragraph = document.add_paragraph('Lorem ipsum dolor sit amet.')
-#document.save("Lettre de motivation.docx")
 
-import json
+import json, subprocess
 
 @csrf_exempt
 @login_required
@@ -187,6 +184,7 @@ def documents_docx(request, id) :
 		print '\tUser is = ' , str(request.user)
 
 		path = settings.DOCS_URL + str(request.user)
+		filename = "demo"
 		
 		try : 
 			rmtree ( path )
@@ -196,8 +194,10 @@ def documents_docx(request, id) :
 		makedirs(path)
 		doc = Document()
 		doc.add_paragraph(updated_data["text"])
-		doc.save(path + '/demo.docx')
-		return HttpResponse( json.dumps( {"path":"docs/" + str(request.user) +"/demo.docx"} ), content_type="application/json" )
+		doc.save(path + "/" + filename + ".docx")
+		result = subprocess.call( "cd " + path + "; lowriter --convert-to pdf " + filename + ".docx" , shell=True )
+
+		return HttpResponse( json.dumps( {"path":"docs/" + str(request.user) + "/" + filename + ".pdf" } ), content_type="application/json" )
 
 
 @csrf_exempt
