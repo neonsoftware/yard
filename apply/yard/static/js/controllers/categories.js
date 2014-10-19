@@ -10,7 +10,38 @@ angular.module('niomApp')
 
 .controller('CategoriesDetailCtrl', function($scope, $http, $resource, $routeParams, $location, Pieces, Categories )
 {
-	$scope.pieces = Pieces.query();
+
+	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
+	
+	$scope.nextSymbolIndex = 0; 
+	$scope.getNextSymbol = function(){
+		if ($scope.nextSymbolIndex == $scope.symbols.length)
+		{
+			alert("Reached max number of symbols ! Please reduce number of pieces.");
+		}
+		else
+		{
+			return $scope.symbols[$scope.nextSymbolIndex++];
+		}
+	};
+
+	
+	$scope.pieces = Pieces.query( function(){
+
+		angular.forEach($scope.pieces, function(value, key) {
+			console.log("legend is ", value.legend);
+			var leg = angular.fromJson(value.legend);
+			value.legend = {};
+			angular.forEach(leg, function(in_value, key) {
+				console.log("key: ", key);
+				console.log("value: ", in_value);
+				var new_symbol = $scope.getNextSymbol();
+				value.content = value.content.replace(key, new_symbol);
+				value.legend[new_symbol] = {text:in_value, value:""};
+			});
+		});
+
+	});
 	$scope.languages = ["aa", "bb", "cc"];	
 
 	if ($location.path().indexOf("new") > 0)

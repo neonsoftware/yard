@@ -7,6 +7,10 @@ angular.module('niomApp')
 .controller('PiecesListCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
 	$scope.pieces = Pieces.query( );	
+	$scope.edit 		= function( item ){ $location.path( '/pieces/' + item.id ); };
+	$scope.delete 		= function( item )	{ item.$delete( function() { $scope.pieces = Pieces.query( ); $location.path( '/pieces' ); }); };
+	$scope.new 			= function( ){ $location.path( '/pieces/new' ); };
+
 })
 
 .controller('PiecesNewCtrl', function($scope, $http, $resource, $location, Pieces, Categories )

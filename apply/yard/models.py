@@ -66,17 +66,16 @@ class Piece( models.Model ):
 		return self.content
 
 
-class Portal( CreatedUpdatedModel ):
+class Cover( CreatedUpdatedModel ):
 	name 		= models.CharField(max_length=4096)
-	website		= models.CharField(max_length=4096)
-	description	= models.CharField(max_length=4096)
-	#countries	= models.CharField(max_length=4096)
-	skills 		= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
+	content		= models.TextField(default="")
 	
 	def myToObj ( self ):
-		data 			= { "id" : self.id, "name"	: self.name, "website" : self.website, "description" : self.description }
-		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all()   ]
-		return data
+		return  { "id" : self.id, "name"	: self.name, "content" : self.content }
+
+	def fill( data ):
+		self.name 		= data.name
+		self.content 	= data.content
 
 	def __str__( self ) :
 		return self.name
@@ -98,32 +97,7 @@ class Company( CreatedUpdatedModel ):
 	def __str__( self ) :
 		return self.name
 
-class ApplicationAdvanced( CreatedUpdatedModel ):
-	portal 			= models.ForeignKey(Portal)
-	company			= models.ForeignKey(Company)
-	skills 			= models.ManyToManyField( Skill, related_name="%(app_label)s_%(class)s_related" )
-	responded 		= models.BooleanField(default=False)
-	interviewed		= models.BooleanField(default=False)
-	to_call			= models.BooleanField(default=False)
-	to_send_other	= models.BooleanField(default=False)
-	note 			= models.CharField(max_length=4096)
-	pieces_list    	= models.CharField(max_length=4094)
-	
-	def myToObj ( self ):
-		data = { "id" : self.id, "created" : self.created.strftime('%Y-%m-%d %H:%M') , "updated" : self.updated.strftime('%Y-%m-%d %H:%M')   }
-		data["portal"] 			= { "id" : self.portal.id, "name" : self.portal.name } 
-		data["company"] 		= { "id" : self.company.id, "name" : self.company.name }
-		data["responded"] 		= self.responded
-		data["interviewed"]		= self.interviewed
-		data["to_call"] 		= self.to_call
-		data["to_send_other"]	= self.to_send_other
-		data["note"]			= self.note
-		data["skills"] 			= [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all()   ]
-		data["list"]			= self.pieces_list
-		return data
 
-	def __str__( self ) :
-		return self.company.name
 
 class Application( CreatedUpdatedModel ):
 	user 			= models.ForeignKey(User)
@@ -265,10 +239,6 @@ class ProfileForm(ModelForm):
         model = Profile
         fields = ['user', 'bio', 'website']
 
-class PortalForm(ModelForm):
-    class Meta:
-        model = Portal
-        fields = ['name', 'description', 'skills']
 
 class SkillForm(ModelForm):
     class Meta:

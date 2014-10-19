@@ -7,8 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.forms.models import model_to_dict
 
-from yard.models import Portal, Skill, Application, Company, Piece, PieceCategory
-from yard.models import PortalForm, SkillForm, ApplicationForm, CompanyForm, PieceForm, PieceCategoryForm
+from yard.models import Cover, Skill, Application, Company, Piece, PieceCategory
+from yard.models import SkillForm, ApplicationForm, CompanyForm, PieceForm, PieceCategoryForm
 
 from docx import Document
 
@@ -101,6 +101,10 @@ def pieces_detail(request, id) :
 		piece.fill(updated_data)
 		piece.save()
 		return HttpResponse( json.dumps( piece.myToObj() ), content_type="application/json" )
+	if request.method == 'DELETE':
+		piece = get_object_or_404( Piece, id=id )
+		piece.delete()
+		return HttpResponse( json.dumps( {"result" : "success"} ), content_type="application/json" )
 
 
 
@@ -140,22 +144,35 @@ def categories_detail(request, id) :
 
 
 @csrf_exempt
-def portals_list(request) :
+def documents_list(request) :
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( [ port.myToObj() for port in Portal.objects.all() ] ), content_type="application/json" )
+		return HttpResponse( json.dumps( [ doc.myToObj() for doc in Cover.objects.all() ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
-		print '\tPost = ' , request.POST
-		p = PortalForm( request.POST )
-		p.save()
-		print 'Updated and saved'
-		return HttpResponse( json.dumps( p.myToObj() ), content_type="application/json" )
+		updated_data =	json.loads( request.body )
+		print '\tPOST = ' , request.body
+		d = Document( )
+		d.fill(updated_data)
+		d.save()
+		return HttpResponse( json.dumps( d.myToObj() ), content_type="application/json" )
 
-def portals_detail(request, id) :
+@csrf_exempt
+def documents_detail(request, id) :
 
 	if request.method == 'GET':
-		portal = get_object_or_404( Portal, id=id )
+		doc = get_object_or_404( Cover, id=id )
 		return HttpResponse( json.dumps( portal.myToObj() ), content_type="application/json" )
+	if request.method == 'PUT':
+		updated_data =	json.loads( request.body )
+		print '\tPut = ' , request.body
+		doc = get_object_or_404( Cover, id=id )
+		doc.fill(updated_data)
+		doc.save()
+		return HttpResponse( json.dumps( doc.myToObj() ), content_type="application/json" )
+	if request.method == 'DELETE':
+		doc = get_object_or_404( Cover, id=id )
+		doc.delete()
+		return HttpResponse( json.dumps( {"result" : "success"} ), content_type="application/json" )
 
 
 

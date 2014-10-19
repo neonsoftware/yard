@@ -3,74 +3,32 @@ angular.module('niomApp')
 {
 	$scope.documents 	= Documents.query( );
 	$scope.edit 		= function( item ){ $location.path( '/documents/' + item.id ); };
-	$scope.delete 		= function( item )	{ item.$delete( function() { $scope.categories = Categories.query( );}); };
+	$scope.delete 		= function( item )	{ item.$delete( function() { $location.path( '/documents' ); }); };
 	$scope.new 			= function( ){ $location.path( '/documents/new' ); };
 })
 
-
-.controller('DocumentNewCtrl', function($scope, $http, $resource, $location, Pieces, Categories, Documents )
+.controller('DocumentsNewCtrl', function($scope, $http, $resource, $location, Pieces, Categories, Documents )
 {
-
-	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
-	
-	$scope.nextSymbolIndex = 0; 
-	$scope.getNextSymbol = function(){
-		if ($scope.nextSymbolIndex == $scope.symbols.length)
-		{
-			alert("Reached max number of symbols ! Please reduce number of pieces.");
-		}
-		else
-		{
-			return $scope.symbols[$scope.nextSymbolIndex++];
-		}
-	};
-
-	$scope.pieces = Pieces.query( function(){
-
-
-		angular.forEach($scope.pieces, function(value, key) {
-			console.log("legend is ", value.legend);
-			var leg = angular.fromJson(value.legend);
-			value.legend = {};
-			angular.forEach(leg, function(in_value, key) {
-				console.log("key: ", key);
-				console.log("value: ", in_value);
-				var new_symbol = $scope.getNextSymbol();
-				value.content = value.content.replace(key, new_symbol);
-				value.legend[new_symbol] = {text:in_value, value:""};
-			});
-		});
-
-	});
-   
+	$scope.categories 	= Categories.query( );
+	$scope.use 			= function( item ){ $location.path( '/documents/new/' + item.id ); };
+	$scope.new 			= function( ){ $location.path( '/documents/new/empty' ); };
+})
+.controller('DocumentsNewEmptyCtrl', function($scope, $http, $resource, $location, Pieces, Categories, Documents )
+{
+})
+.controller('DocumentsNewTemplateCtrl', function($scope, $http, $resource, $routeParams, $location, Pieces, Categories, Documents )
+{   
 	$scope.artifact = [];
 
+	$scope.artifact.dummy = ""; 
 
-	$scope.add = function( piece ){ 
-		console.log("adding .. ", piece.content);
-		$scope.artifact.push(piece); 
-
-	};
-	$scope.up = function( index ){
-		if (index > 0)
-		{
-			var temp = $scope.artifact[index-1];
-			$scope.artifact[index-1] = $scope.artifact[index];
-			$scope.artifact[index] = temp;
-		} 
-	};
-	$scope.down = function( index ){ 
-		if (index < $scope.artifact.length - 1)
-		{
-			var temp = $scope.artifact[index+1];
-			$scope.artifact[index+1] = $scope.artifact[index];
-			$scope.artifact[index] = temp;			
-		}
-
-	};
-	$scope.remove = function( index ){ $scope.artifact.splice(index,1); };
-
-
+	$scope.current_template = Categories.get( {uuid : $routeParams.templateId }, function () {
+			console.log("Arrived ! appending."); 
+			$scope.artifact = angular.fromJson($scope.current_template.pieces);
+			angular.forEach($scope.artifact, function(value, key) {
+				value.legend = angular.fromJson(value.legend);
+			});
+		});
 	
 });
 
@@ -90,6 +48,35 @@ angular.module('niomApp').filter('atob', function(){
 
 			//tempSubstituted = tempSubstituted.replace(k,v.value);
 			return tempSubstituted;
+		};
+
+	});
+angular.module('niomApp').filter('fillTemplate', function(){
+		return function(text, scope){ 
+			
+			console.log("Passing stuff ");
+						
+			var fullSubstitute = "";
+			angular.forEach(scope.artifact, function(value, key) {
+				fullSubstitute = fullSubstitute.concat( value.content );
+			});
+
+			console.log("--> Total is : ", fullSubstitute);
+						
+
+			angular.forEach(scope.artifact, function(value, key) {
+
+				angular.forEach(value.legend, function(v, k){
+					if (v.value.length > 0 )
+					{
+						console.log("--> Substituting : ", k, " with ", v.value);
+						fullSubstitute = fullSubstitute.replace(k,v.value);
+					}
+				});
+			});
+
+			//tempSubstituted = tempSubstituted.replace(k,v.value);
+			return fullSubstitute;
 		};
 
 	});
