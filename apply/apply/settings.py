@@ -91,6 +91,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+DOCS_URL = BASE_DIR + '/yard/static/docs/'
+
+
 LOGGING = {
     'version': 1,
 }

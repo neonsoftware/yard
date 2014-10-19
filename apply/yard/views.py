@@ -5,7 +5,11 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from   django.conf 				import settings
 from django.forms.models import model_to_dict
+
+from   os						import path, makedirs, remove
+from   shutil 					import copy, copytree, rmtree, move
 
 from yard.models import Cover, Skill, Application, Company, Piece, PieceCategory
 from yard.models import SkillForm, ApplicationForm, CompanyForm, PieceForm, PieceCategoryForm
@@ -174,6 +178,29 @@ def documents_detail(request, id) :
 		doc.delete()
 		return HttpResponse( json.dumps( {"result" : "success"} ), content_type="application/json" )
 
+@csrf_exempt
+def documents_docx(request, id) :
+
+	if request.method == 'PUT':
+		updated_data =	json.loads( request.body )
+		print '\tPut = ' , request.body
+		print '\tUser is = ' , str(request.user)
+
+		path = settings.DOCS_URL + str(request.user)
+		
+		#try : 
+		#	rmtree ( path )
+		#except :
+		#	pass
+
+		#os.makedirs(path)
+
+		path = path + '/demo.docx'
+
+		doc = Document()
+		doc.add_paragraph(updated_data["text"])
+		doc.save(path)
+		return HttpResponse( json.dumps( {"path":"docs/" + str(request.user) +"/demo.docx"} ), content_type="application/json" )
 
 
 @csrf_exempt

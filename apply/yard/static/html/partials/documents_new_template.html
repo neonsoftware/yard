@@ -28,10 +28,13 @@
 
 <div class="card" ng-show="artifact.length >0">
 	<h5>Result</h5>
-	<textarea  style="width:100%; height:500px;">{{ artifact.dummy | fillTemplate:this }}</textarea>
-	
-   
+	<textarea  id="text-area-content" style="width:100%; height:500px;">{{ artifact.dummy | fillTemplate:this }}</textarea>
 </div>
+
+<div horizontal center-justified layout>
+<div>
+    <paper-button raised class="colored" ng-click="docx()">.docx</paper-button>
+</div>  
 
 
 
