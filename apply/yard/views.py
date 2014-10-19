@@ -188,18 +188,15 @@ def documents_docx(request, id) :
 
 		path = settings.DOCS_URL + str(request.user)
 		
-		#try : 
-		#	rmtree ( path )
-		#except :
-		#	pass
+		try : 
+			rmtree ( path )
+		except :
+			pass
 
-		#os.makedirs(path)
-
-		path = path + '/demo.docx'
-
+		makedirs(path)
 		doc = Document()
 		doc.add_paragraph(updated_data["text"])
-		doc.save(path)
+		doc.save(path + '/demo.docx')
 		return HttpResponse( json.dumps( {"path":"docs/" + str(request.user) +"/demo.docx"} ), content_type="application/json" )
 
 
