@@ -3,7 +3,7 @@ angular.module('niomApp')
 {
 	$scope.categories 	= Categories.query( );
 	$scope.edit 		= function( item ){ $location.path( '/categories/' + item.id ); };
-	$scope.delete 		= function( item )	{ item.$delete( function() {$scope.categories = Categories.query( );}); };
+	$scope.delete 		= function( item )	{ item.$delete( function() { $scope.categories = Categories.query( );}); };
 	$scope.new 			= function( ){ $location.path( '/categories/new' ); };
 })
 

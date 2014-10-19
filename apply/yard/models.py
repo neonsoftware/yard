@@ -38,15 +38,10 @@ class PieceCategory( models.Model ):
 		return data
 
 	def fill ( self, data ):
-		print "filling", data
 		self.name = data["name"]
-		print "desc"
 		self.description = data["description"]
-		print "2"
 		self.tags = data["tags"]
-		print "3"
 		self.language = data["language"]
-		print "4"
 		self.pieces = data["pieces"]
 
 	def __str__( self ) :
