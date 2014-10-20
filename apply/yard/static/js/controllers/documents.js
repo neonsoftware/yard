@@ -1,6 +1,7 @@
 angular.module('niomApp')
 .controller('DocumentsListCtrl', function($scope, $http, $resource, $location, $sanitize, $sce, $compile, Categories, Pieces, Documents )
 {
+	document.getElementById('mainscaffold').closeDrawer();
 	$scope.documents 	= Documents.query( );
 	$scope.edit 		= function( item ){ $location.path( '/documents/' + item.id ); };
 	$scope.delete 		= function( item )	{ item.$delete( function() { $location.path( '/documents' ); }); };
@@ -9,12 +10,14 @@ angular.module('niomApp')
 
 .controller('DocumentsNewCtrl', function($scope, $http, $resource, $location, Pieces, Categories, Documents )
 {
+	document.getElementById('mainscaffold').closeDrawer();
 	$scope.categories 	= Categories.query( );
 	$scope.use 			= function( item ){ $location.path( '/documents/new/' + item.id ); };
 	$scope.new 			= function( ){ $location.path( '/documents/new/empty' ); };
 })
 .controller('DocumentsNewEmptyCtrl', function($scope, $http, $resource, $location, Pieces, Categories, Documents )
 {
+	document.getElementById('mainscaffold').closeDrawer();
 	$scope.docx = function() {
 		Documents.generate(
 					{ uuid: 1, command : "docx" }, 
@@ -26,9 +29,9 @@ angular.module('niomApp')
 })
 .controller('DocumentsNewTemplateCtrl', function($scope, $http, $resource, $routeParams, $location, Pieces, Categories, Documents )
 {   
+	document.getElementById('mainscaffold').closeDrawer();
+	
 	$scope.artifact = [];
-
-	$scope.artifact.dummy = ""; 
 
 	$scope.current_template = Categories.get( {uuid : $routeParams.templateId }, function () {
 			console.log("Arrived ! appending."); 

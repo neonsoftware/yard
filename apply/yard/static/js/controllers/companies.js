@@ -1,6 +1,7 @@
 angular.module('niomApp')
 .controller('CompaniesListCtrl', function($scope, $http, $resource, $location, Companies )
 {
+	document.getElementById('mainscaffold').closeDrawer();
 	$scope.companies = Companies.query( );
    
 	$scope.open_detail = function( device ){ $location.path( '/companies/' + device.uuid ); }

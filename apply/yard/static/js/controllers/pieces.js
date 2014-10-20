@@ -6,6 +6,9 @@
 angular.module('niomApp')
 .controller('PiecesListCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
+	console.log("Closing Drawer");
+	document.getElementById('mainscaffold').closeDrawer();
+
 	$scope.pieces = Pieces.query( );	
 	$scope.edit 		= function( item ){ $location.path( '/pieces/' + item.id ); };
 	$scope.delete 		= function( item )	{ item.$delete( function() { $scope.pieces = Pieces.query( ); $location.path( '/pieces' ); }); };
@@ -15,8 +18,8 @@ angular.module('niomApp')
 
 .controller('PiecesNewCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
-	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
-	
+	document.getElementById('mainscaffold').closeDrawer();
+
 	$scope.current_piece = new Pieces();
 	$scope.current_piece.legend  = {};
 	$scope.current_piece.content  = "";
@@ -31,8 +34,8 @@ angular.module('niomApp')
 })
 .controller('PiecesDetailCtrl', function($scope, $http, $routeParams, $resource, $location, Pieces, Categories )
 {
-	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
-	
+	document.getElementById('mainscaffold').closeDrawer();
+
 	$scope.current_piece = Pieces.get( {uuid : $routeParams.pieceId }, function () {
 		console.log("Arrived ! appending."); 
 		$scope.current_piece.legend = angular.fromJson($scope.current_piece.legend);

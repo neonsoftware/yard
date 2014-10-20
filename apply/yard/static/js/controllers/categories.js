@@ -1,6 +1,7 @@
 angular.module('niomApp')
 .controller('CategoriesListCtrl', function($scope, $http, $resource, $location, $sanitize, $sce, $compile, Categories )
 {
+	document.getElementById('mainscaffold').closeDrawer();
 	$scope.categories 	= Categories.query( );
 	$scope.edit 		= function( item ){ $location.path( '/categories/' + item.id ); };
 	$scope.delete 		= function( item )	{ item.$delete( function() { $scope.categories = Categories.query( );}); };
@@ -10,8 +11,8 @@ angular.module('niomApp')
 
 .controller('CategoriesDetailCtrl', function($scope, $http, $resource, $routeParams, $location, Pieces, Categories )
 {
-
-	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'LLL'];
+	document.getElementById('mainscaffold').closeDrawer();
+	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
 	
 	$scope.nextSymbolIndex = 0; 
 	$scope.getNextSymbol = function(){
