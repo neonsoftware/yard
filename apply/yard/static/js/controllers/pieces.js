@@ -20,6 +20,8 @@ angular.module('niomApp')
 {
 	document.getElementById('mainscaffold').closeDrawer();
 
+	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
+
 	$scope.current_piece = new Pieces();
 	$scope.current_piece.legend  = {};
 	$scope.current_piece.content  = "";
