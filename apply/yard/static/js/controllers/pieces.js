@@ -23,6 +23,7 @@ angular.module('niomApp')
 	$scope.current_piece = new Pieces();
 	$scope.current_piece.legend  = {};
 	$scope.current_piece.content  = "";
+	$scope.current_piece.tags  = "";
 	$scope.current_piece.language = "fr";
 
 	$scope.add = function( ){ 
