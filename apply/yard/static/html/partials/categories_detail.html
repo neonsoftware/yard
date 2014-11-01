@@ -2,26 +2,35 @@
   <paper-input id="temp-name" label="Name" floatingLabel=true value="{{current_template.name}}"></paper-input>
   <paper-input id="temp-desc" label="Description" floatingLabel=true value="{{current_template.description}}"></paper-input>
   <paper-input id="temp-tags" label="Tags" floatingLabel=true value="{{current_template.tags}}"></paper-input>
-  <br>
-  Language&nbsp;&nbsp;
-  <select id="temp-lang" ng-model="current_template.language" ng-options="lang for lang in languages">
-      <option value="">-- choose language --</option>
-  </select>
+
 </div>
 
 
 <div class="card">
     <h5>Pieces</h5>
-	<div class="piece_list" ng-repeat="piece in pieces">
+  <br>
+  Language&nbsp;&nbsp;
+  <select id="temp-lang" ng-model="current_template.language" ng-options="lang for lang in languages">
+      <option value="">-- choose language --</option>
+  </select>
+
+      <h6>Tags</h6>
+    <span ng-repeat="tag in tags">
+      <input type="checkbox" value="Bike" ng-model="activeTags[tag]">&nbsp;&nbsp;{{tag}}<br>
+    </span>
+  <br><br>
+	<div ng-repeat="piece in pieces">
+    <div class="piece_list" ng-show="isActive(piece)">
     	<div horizontal layout>
     		<div flex>
     			{{ piece.content }} 
   			</div>
   			<div ng-click="add(piece)" >    
     			<paper-icon-button icon="add" style="color:#3366CC; padding:0px; margin:0px;" ></paper-icon-button>
-			</div>
-		</div>
-	</div>
+			  </div>
+		  </div>
+	  </div>
+  </div>
 </div>
 
 <div class="card" ng-show="current_template.pieces.length >0">

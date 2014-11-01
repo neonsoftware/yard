@@ -26,7 +26,9 @@ angular.module('niomApp')
 		}
 	};
 
-	
+	$scope.tags = [];
+	$scope.activeTags = {};
+
 	$scope.pieces = Pieces.query( function(){
 
 		angular.forEach($scope.pieces, function(value, key) {
@@ -42,8 +44,49 @@ angular.module('niomApp')
 			});
 		});
 
+		angular.forEach( $scope.pieces, function( elem, index )
+		{		
+			console.log('Analysing tags of ' , elem.tags );
+			var newTags = elem.tags.split(",");
+			angular.forEach( newTags, function( tag, index )
+			{
+				console.log('Checking ' , tag );
+				if(tag.length > 0 && $scope.tags.indexOf(tag) == -1)	
+				{
+					console.log('Adding ' , tag );
+					$scope.tags.push(tag);
+					$scope.activeTags[tag] = true;
+				}	
+			});
+		});
+
+
 	});
-	$scope.languages = ["aa", "bb", "cc"];	
+
+	$scope.isActive		= function( piece ){
+		console.log('Searching: ', piece.content);
+		var active = false;
+		var theseTags = piece.tags.split(",");
+		angular.forEach( theseTags, function( tag, index )
+		{
+			console.log('Checking activity of tag : ', tag);
+			if ( tag.length > 0 && $scope.activeTags[tag] === true )
+			{
+				console.log('>> Was true : ' , tag , piece.content);
+				active = true;
+			}
+			else
+			{
+				console.log('>> Was false. ' );
+			}
+		}); 
+		console.log('>> Not Found : ', piece.content );
+		return active;
+	} ;
+
+
+
+	$scope.languages = ["en", "fr"];	
 
 	if ($location.path().indexOf("new") > 0)
 	{
