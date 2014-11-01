@@ -55,7 +55,7 @@ angular.module('niomApp')
 				{
 					console.log('Adding ' , tag );
 					$scope.tags.push(tag);
-					$scope.activeTags[tag] = true;
+					$scope.activeTags[tag] = false;
 				}	
 			});
 		});
@@ -73,7 +73,7 @@ angular.module('niomApp')
 			if ( tag.length > 0 && $scope.activeTags[tag] === true )
 			{
 				console.log('>> Was true : ' , tag , piece.content);
-				active = false;
+				active = true;
 			}
 			else
 			{
