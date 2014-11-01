@@ -21,19 +21,14 @@
 <div ng-repeat="symbol in symbols">
 	<div ng-show="current_piece.content.indexOf(symbol)>-1">
 		<i>Describe {{symbol}}</i> &nbsp;&nbsp; <input type="text" ng-model="current_piece.legend[symbol]" ></input>
+		<br>
 	</div>
-	<br>
 </div>
-
-
-
-
-{{legend}}
 
     <div horizontal end-justified layout>
   	<div>    
  		<paper-button ng-click="discard()" >discard</paper-button>
-    	<paper-button ng-click="add()" class="colored">add</paper-button>
+    	<paper-button ng-click="add()" class="colored">save</paper-button>
 	</div>
 
 
