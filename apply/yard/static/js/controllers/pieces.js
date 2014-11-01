@@ -92,5 +92,6 @@ angular.module('niomApp')
 		$scope.current_piece.legend = JSON.stringify($scope.current_piece.legend);
 		$scope.current_piece.$update( {uuid:$scope.current_piece.id}, function(){ console.log("Updated !"); $location.path( '/pieces' );} );
 	};
-	
+	$scope.discard 	= function( )	{ $location.path( '/pieces' ); };
+
 });
