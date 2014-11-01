@@ -9,7 +9,50 @@ angular.module('niomApp')
 	console.log("Closing Drawer");
 	document.getElementById('mainscaffold').closeDrawer();
 
-	$scope.pieces = Pieces.query( );	
+	$scope.tags = [];
+	$scope.activeTags = {};
+
+	$scope.pieces = Pieces.query( function(){
+
+		angular.forEach( $scope.pieces, function( elem, index )
+		{		
+			console.log('Analysing tags of ' , elem.tags );
+			var newTags = elem.tags.split(",");
+			angular.forEach( newTags, function( tag, index )
+			{
+				console.log('Checking ' , tag );
+				if(tag.length > 0 && $scope.tags.indexOf(tag) == -1)	
+				{
+					console.log('Adding ' , tag );
+					$scope.tags.push(tag);
+					$scope.activeTags[tag] = true;
+				}	
+			});
+		});
+
+	});
+
+	$scope.isActive		= function( piece ){
+		console.log('Searching: ', piece.content);
+		var active = false;
+		var theseTags = piece.tags.split(",");
+		angular.forEach( theseTags, function( tag, index )
+		{
+			console.log('Checking activity of tag : ', tag);
+			if ( tag.length > 0 && $scope.activeTags[tag] === true )
+			{
+				console.log('>> Was true : ' , tag , piece.content);
+				active = true;
+			}
+			else
+			{
+				console.log('>> Was false. ' );
+			}
+		}); 
+		console.log('>> Not Found : ', piece.content );
+		return active;
+	} ;
+
 	$scope.edit 		= function( item ){ $location.path( '/pieces/' + item.id ); };
 	$scope.delete 		= function( item )	{ item.$delete( function() { $scope.pieces = Pieces.query( ); $location.path( '/pieces' ); }); };
 	$scope.new 			= function( ){ $location.path( '/pieces/new' ); };

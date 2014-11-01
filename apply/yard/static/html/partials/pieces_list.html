@@ -1,4 +1,11 @@
-	<div class="card" ng-repeat="piece in pieces">
+<div class="card" ng-show="isActive(piece)">
+  <h4>Tags</h4>
+  <span ng-repeat="tag in tags">
+    <input type="checkbox" value="Bike" ng-model="activeTags[tag]">&nbsp;&nbsp;{{tag}}<br>
+  </span>
+</div>
+<div ng-repeat="piece in pieces">
+	<div class="card" ng-show="isActive(piece)">
     <div horizontal layout>
     		<div flex>
     			{{ piece.content }} 
@@ -11,7 +18,8 @@
         </div>
 		</div>
 	</div>
-  
+</div> 
+
 <div horizontal center-justified layout>
 <div>
     <paper-button raised class="colored" ng-click="new()">new</paper-button>
