@@ -25,7 +25,7 @@ angular.module('niomApp')
 				{
 					console.log('Adding ' , tag );
 					$scope.tags.push(tag);
-					$scope.activeTags[tag] = true;
+					$scope.activeTags[tag] = false;
 				}	
 			});
 		});

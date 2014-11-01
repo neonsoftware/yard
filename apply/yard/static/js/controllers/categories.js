@@ -73,7 +73,7 @@ angular.module('niomApp')
 			if ( tag.length > 0 && $scope.activeTags[tag] === true )
 			{
 				console.log('>> Was true : ' , tag , piece.content);
-				active = true;
+				active = false;
 			}
 			else
 			{
