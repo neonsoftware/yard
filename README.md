@@ -1,3 +1,14 @@
+# Yard
+
+An web application for creating templated documents and export as PDF
+
+Back-end : AWS EC2 (Ubuntu 14.4 LTS) + Nginx + Django + Gunicorn
+DB : MySQL on AWS RDS
+Front-end : Polymer + AngularJS
+
+## Screenshots
+
+
 ## To install on a new aws instance
 
 ### Set ubuntu packages
