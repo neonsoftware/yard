@@ -47,18 +47,32 @@ angular.module('niomApp')
 		angular.forEach( $scope.pieces, function( elem, index )
 		{		
 			console.log('Analysing tags of ' , elem.tags );
-			var newTags = elem.tags.split(",");
-			angular.forEach( newTags, function( tag, index )
+			var trimmedTags = elem.tags.trim();
+			if (trimmedTags.length === 0 )
 			{
-				console.log('Checking ' , tag );
-				if(tag.length > 0 && $scope.tags.indexOf(tag) == -1)	
+				if ($scope.tags.indexOf("no tags") === -1)
 				{
-					console.log('Adding ' , tag );
-					$scope.tags.push(tag);
-					$scope.activeTags[tag] = false;
-				}	
-			});
+					console.log('Adding "notags"' );
+					$scope.tags.push("no tags");
+					$scope.activeTags["no tags"] = false;
+				}
+			}
+			else
+			{
+				var newTags = elem.tags.split(",");
+				angular.forEach( newTags, function( tag, index )
+				{
+					console.log('Checking ' , tag );
+					if(tag.length > 0 && $scope.tags.indexOf(tag) == -1)	
+					{
+						console.log('Adding ' , tag );
+						$scope.tags.push(tag);
+						$scope.activeTags[tag] = false;
+					}	
+				});
+			}
 		});
+
 
 
 	});
@@ -66,21 +80,29 @@ angular.module('niomApp')
 	$scope.isActive		= function( piece ){
 		console.log('Searching: ', piece.content);
 		var active = false;
-		var theseTags = piece.tags.split(",");
-		angular.forEach( theseTags, function( tag, index )
+		var trimmedTags = piece.tags.trim();
+		if (trimmedTags.length === 0 )
 		{
-			console.log('Checking activity of tag : ', tag);
-			if ( tag.length > 0 && $scope.activeTags[tag] === true )
+			active = $scope.activeTags["no tags"];
+		}
+		else
+		{
+			var theseTags = piece.tags.split(",");
+
+			angular.forEach( theseTags, function( tag, index )
 			{
-				console.log('>> Was true : ' , tag , piece.content);
-				active = true;
-			}
-			else
-			{
-				console.log('>> Was false. ' );
-			}
-		}); 
-		console.log('>> Not Found : ', piece.content );
+				console.log('Checking activity of tag : ', tag);
+				if ( tag.length > 0 && $scope.activeTags[tag] === true )
+				{
+					console.log('>> Active : ' , tag , piece.content);
+					active = true;
+				}
+				else
+				{
+					console.log('>> Not Active : ' );
+				}
+			}); 
+		}
 		return active;
 	} ;
 
