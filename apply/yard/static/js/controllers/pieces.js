@@ -42,7 +42,6 @@ angular.module('niomApp')
 				});
 			}
 		});
-
 	});
 
 	$scope.isActive		= function( piece ){
