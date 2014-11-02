@@ -72,15 +72,18 @@ angular.module('niomApp')
 	$scope.current_piece.language = "fr";
 
 	$scope.add = function( ){ 
-		console.log("Saving !");
+		console.log(">>>> Saving !", $scope.current_piece.content );
 		$scope.current_piece.legend = JSON.stringify($scope.current_piece.legend);
 		$scope.current_piece.$save( function() { console.log("SAVED"); $location.path( '/pieces' ); } );
 	};
+	$scope.discard 	= function( )	{ $location.path( '/pieces' ); };
 	
 })
 .controller('PiecesDetailCtrl', function($scope, $http, $routeParams, $resource, $location, Pieces, Categories )
 {
 	document.getElementById('mainscaffold').closeDrawer();
+
+	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
 
 	$scope.current_piece = Pieces.get( {uuid : $routeParams.pieceId }, function () {
 		console.log("Arrived ! appending."); 
