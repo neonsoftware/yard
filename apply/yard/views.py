@@ -24,6 +24,11 @@ import json, subprocess
 def my_view( req ):
 	return redirect('/static/index.html')
 
+@login_required
+def other( req ):
+	return redirect('/static/tmp.html')
+
+
 @csrf_exempt
 def portal_new( request ):
 	if request.method == 'GET':
