@@ -6,12 +6,16 @@ An web application for creating templated documents and export as PDF
 * DB : MySQL on AWS RDS
 * Front-end : Polymer + AngularJS
 
+[Live demo](http://www.rusty.blue)
+
 ## Screenshots
 
-![ciao](https://github.com/neonsoftware/yard/blob/master/img/mobile_resize.jpg)
-![ciao](https://github.com/neonsoftware/yard/blob/master/img/img2.jpg)
-![ciao](https://github.com/neonsoftware/yard/blob/master/img/img3.png)
-![ciao](https://github.com/neonsoftware/yard/blob/master/img/img4.png)
+#### Mobile
+![ciao](https://github.com/neonsoftware/yard/blob/master/img/mobile.jpg)
+
+#### Tablet & Desktop
+![ciao](https://github.com/neonsoftware/yard/blob/master/img/desktop.jpg)
+
 
 ## To install on a new aws instance
 
