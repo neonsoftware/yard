@@ -4,6 +4,23 @@
 // 2 ) make filter with direct substitution
 
 angular.module('niomApp')
+.controller('SummaryCtrl', function($scope, $http, $resource, $location, Pieces, Categories, Documents )
+{
+	console.log("Closing Drawer");
+	document.getElementById('mainscaffold').closeDrawer();
+
+	$scope.tags = [];
+	$scope.activeTags = {};
+
+	$scope.pieces = Pieces.query( function(){ console.log("Got Pieces.");
+	});
+
+	$scope.categories = Categories.query( function(){});
+
+	$scope.documents = Documents.query( );
+
+
+})
 .controller('PiecesListCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
 	console.log("Closing Drawer");

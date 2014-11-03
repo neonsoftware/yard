@@ -92,8 +92,8 @@ window.routes = {
 	requireLogin: true
 },
 '/': {
-	templateUrl: 'html/partials/applications_list.html',
-	controller: 'ApplicationsListCtrl',
+	templateUrl: 'html/partials/summary.html',
+	controller: 'SummaryCtrl',
 	requireLogin: false
 },
 };
