@@ -11,10 +11,10 @@ An web application for creating templated documents and export as PDF
 ## Screenshots
 
 #### Mobile
-![ciao](https://github.com/neonsoftware/yard/blob/master/img/mobile.jpg)
+![ciao](https://github.com/neonsoftware/yard/blob/master/img/mobile.png)
 
 #### Tablet & Desktop
-![ciao](https://github.com/neonsoftware/yard/blob/master/img/desktop.jpg)
+![ciao](https://github.com/neonsoftware/yard/blob/master/img/desktop.png)
 
 
 ## To install on a new aws instance
