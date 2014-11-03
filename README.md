@@ -8,8 +8,8 @@ An web application for creating templated documents and export as PDF
 
 ## Screenshots
 
-![ciao](https://github.com/neonsoftware/yard/blob/master/img/img1.png)
-![ciao](https://github.com/neonsoftware/yard/blob/master/img/img2.png)
+![ciao](https://github.com/neonsoftware/yard/blob/master/img/mobile_resize.jpg)
+![ciao](https://github.com/neonsoftware/yard/blob/master/img/img2.jpg)
 ![ciao](https://github.com/neonsoftware/yard/blob/master/img/img3.png)
 ![ciao](https://github.com/neonsoftware/yard/blob/master/img/img4.png)
 
