@@ -2,97 +2,97 @@
 
 window.routes = {
 '/applications/new': {
-	templateUrl: 'html/partials/applications_new.html',
+	templateUrl: 'static/html/partials/applications_new.html',
 	controller: 'ApplicationsNewCtrl',
 	requireLogin: true
 },
 '/applications/cards/:applicationId': {
-	templateUrl: 'html/partials/applications_cards.html',
+	templateUrl: 'static/html/partials/applications_cards.html',
 	controller: 'ApplicationsCardDetailCtrl',
 	requireLogin: true
 },
 '/applications/cards': {
-	templateUrl: 'html/partials/applications_cards.html',
+	templateUrl: 'static/html/partials/applications_cards.html',
 	controller: 'ApplicationsListCtrl',
 	requireLogin: true
 },
 '/applications/:applicationId': {
-	templateUrl: 'html/partials/applications_detail.html',
+	templateUrl: 'static/html/partials/applications_detail.html',
 	controller: 'ApplicationsDetailCtrl',
 	requireLogin: true
 },
 '/applications': {
-	templateUrl: 'html/partials/applications_list.html',
+	templateUrl: 'static/html/partials/applications_list.html',
 	controller: 'ApplicationsListCtrl',
 	requireLogin: false
 },
 '/documents/new/empty': {
-	templateUrl: 'html/partials/documents_new_empty.html',
+	templateUrl: 'static/html/partials/documents_new_empty.html',
 	controller: 'DocumentsNewEmptyCtrl',
 	requireLogin: true
 },
 '/documents/new/:templateId': {
-	templateUrl: 'html/partials/documents_new_template.html',
+	templateUrl: 'static/html/partials/documents_new_template.html',
 	controller: 'DocumentsNewTemplateCtrl',
 	requireLogin: true
 },
 '/documents/new': {
-	templateUrl: 'html/partials/documents_new.html',
+	templateUrl: 'static/html/partials/documents_new.html',
 	controller: 'DocumentsNewCtrl',
 	requireLogin: true
 },
 '/documents/:documentId': {
-	templateUrl: 'html/partials/documents_detail.html',
+	templateUrl: 'static/html/partials/documents_detail.html',
 	controller: 'DocumentsDetailCtrl',
 	requireLogin: true
 },
 '/documents': {
-	templateUrl: 'html/partials/documents_list.html',
+	templateUrl: 'static/html/partials/documents_list.html',
 	controller: 'DocumentsListCtrl',
 	requireLogin: true
 },
 '/skills': {
-	templateUrl: 'html/partials/skills_list.html',
+	templateUrl: 'static/html/partials/skills_list.html',
 	controller: 'SkillsListCtrl',
 	requireLogin: true
 },
 '/skills/:skillId': {
-	templateUrl: 'html/partials/skills_detail.html',
+	templateUrl: 'static/html/partials/skills_detail.html',
 	controller: 'SkillsDetailCtrl',
 	requireLogin: true
 },
 '/pieces': {
-	templateUrl: 'html/partials/pieces_list.html',
+	templateUrl: 'static/html/partials/pieces_list.html',
 	controller: 'PiecesListCtrl',
 	requireLogin: true
 },
 '/pieces/new': {
-	templateUrl: 'html/partials/pieces_new.html',
+	templateUrl: 'static/html/partials/pieces_new.html',
 	controller: 'PiecesNewCtrl',
 	requireLogin: true
 },
 '/pieces/:pieceId': {
-	templateUrl: 'html/partials/pieces_new.html',
+	templateUrl: 'static/html/partials/pieces_new.html',
 	controller: 'PiecesDetailCtrl',
 	requireLogin: true
 },
 '/categories': {
-	templateUrl: 'html/partials/categories_list.html',
+	templateUrl: 'static/html/partials/categories_list.html',
 	controller: 'CategoriesListCtrl',
 	requireLogin: true
 },
 '/categories/new': {
-	templateUrl: 'html/partials/categories_detail.html',
+	templateUrl: 'static/html/partials/categories_detail.html',
 	controller: 'CategoriesDetailCtrl',
 	requireLogin: true
 },
 '/categories/:categoryId': {
-	templateUrl: 'html/partials/categories_detail.html',
+	templateUrl: 'static/html/partials/categories_detail.html',
 	controller: 'CategoriesDetailCtrl',
 	requireLogin: true
 },
 '/': {
-	templateUrl: 'html/partials/summary.html',
+	templateUrl: 'static/html/partials/summary.html',
 	controller: 'SummaryCtrl',
 	requireLogin: false
 },

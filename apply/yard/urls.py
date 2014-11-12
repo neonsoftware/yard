@@ -7,10 +7,9 @@ urlpatterns = patterns('',
     # Examples:
     # url(r'^$', 'ciao.views.home', name='home'),
 	url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
-	url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': 'yard/'}),
+	url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/accounts/login'}),
 	
 	url(r'^$',  views.my_view , name ='index' ),
-	url(r'other$',  views.other , name ='index' ),
 	url(r'applications//new$',  views.application_new , name ='application_new' ),
 	url(r'applications/(?P<id>[-\w\d]+)/delete$',  views.applications_delete , name ='applications_written' ),
 	url(r'applications/(?P<id>[-\w\d]+)/written$',  views.applications_written , name ='applications_written' ),

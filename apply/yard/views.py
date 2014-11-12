@@ -5,11 +5,11 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from   django.conf 				import settings
+from django.conf import settings
 from django.forms.models import model_to_dict
 
-from   os						import path, makedirs, remove
-from   shutil 					import copy, copytree, rmtree, move
+from   os import path, makedirs, remove
+from   shutil import copy, copytree, rmtree, move
 
 from yard.models import Cover, Skill, Application, Company, Piece, PieceCategory
 from yard.models import SkillForm, ApplicationForm, CompanyForm, PieceForm, PieceCategoryForm
@@ -25,15 +25,7 @@ import json, subprocess
 def my_view( request ):
 	username = request.user.username
 	print '\n++++++ User name is :' , username, '\n'
-	if username in whitelist:
-		return redirect('/static/tmp.html')
-	else:
-		return redirect('/static/index.html')
-
-@login_required
-def other( req ):
-	return redirect('/static/tmp.html')
-
+	return render(request, 'tmp.html', {"username":username, "tmp": username in whitelist})
 
 @csrf_exempt
 def portal_new( request ):
@@ -117,8 +109,6 @@ def pieces_detail(request, id) :
 		piece = get_object_or_404( Piece, id=id )
 		piece.delete()
 		return HttpResponse( json.dumps( {"result" : "success"} ), content_type="application/json" )
-
-
 
 
 @csrf_exempt
@@ -245,7 +235,6 @@ def applications_list(request) :
 		application.save()
 		print 'Created and saved'
 		return HttpResponse( json.dumps( {"result":"success"} ), content_type="application/json" )
-		#return redirect('/static/index.html#/applications')
 
 @csrf_exempt
 def applications_detail( request, id ) :
