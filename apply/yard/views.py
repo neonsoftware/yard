@@ -16,13 +16,19 @@ from yard.models import SkillForm, ApplicationForm, CompanyForm, PieceForm, Piec
 
 from docx import Document
 
+whitelist = ['ish', 'frankie', 'bomber', 'redbeard']
 
 import json, subprocess
 
 @csrf_exempt
 @login_required
-def my_view( req ):
-	return redirect('/static/index.html')
+def my_view( request ):
+	username = request.user.username
+	print '\n++++++ User name is :' , username, '\n'
+	if username in whitelist:
+		return redirect('/static/tmp.html')
+	else:
+		return redirect('/static/index.html')
 
 @login_required
 def other( req ):
