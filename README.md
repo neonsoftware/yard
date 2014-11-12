@@ -2,9 +2,9 @@
 
 An web application for creating templated documents and export as PDF
 
-* Back-end : AWS EC2 (Ubuntu 14.4 LTS) + Nginx + Python + Django + Gunicorn
-* DB : MySQL on AWS RDS
-* Front-end : Polymer + AngularJS
+* **Back-end** : AWS EC2 (Ubuntu 14.4 LTS) + Nginx + Python + Django + Gunicorn
+* **DB** : MySQL on AWS RDS
+* **Front-end** : Polymer + AngularJS
 
 [Live demo](http://www.rusty.blue)
 
