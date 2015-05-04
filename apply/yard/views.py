@@ -198,7 +198,7 @@ def documents_docx(request, id) :
 		doc.save(path + "/" + filename + ".docx")
 		result = subprocess.call( "cd " + path + "; lowriter --convert-to pdf " + filename + ".docx" , shell=True )
 
-		return HttpResponse( json.dumps( {"path":"docs/" + str(request.user) + "/" + filename + ".pdf" } ), content_type="application/json" )
+		return HttpResponse( json.dumps( {"path":"static/docs/" + str(request.user) + "/" + filename + ".pdf" } ), content_type="application/json" )
 
 
 @csrf_exempt

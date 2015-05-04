@@ -1,7 +1,30 @@
 <div class="card" >
 
 <p>You have <br></p>
-<p><span style="font-size:40px;"> &nbsp;{{pieces.length}}&nbsp;</span> pieces</p>
-<p><span style="font-size:40px;"> &nbsp;{{categories.length}}&nbsp;</span> templates</p>
-<p><span style="font-size:40px;"> &nbsp;{{documents.length}}&nbsp;</span> documents</p>
+<span style="font-size:40px;"> &nbsp;{{applications.length}}&nbsp;</span> applications 
+<span style="font-size:40px;"> &nbsp;{{pieces.length}}&nbsp;</span> pieces 
+<span style="font-size:40px;"> &nbsp;&nbsp;{{categories.length}}&nbsp;</span> templates
+<span style="font-size:40px;"> &nbsp;&nbsp;{{documents.length}}&nbsp;</span> documents
 </div> 
+
+<div horizontal center-justified layout>
+	<div>
+  		<paper-button raised class="colored" ng-click="new()">new application</paper-button>
+	</div>	
+</div>
+
+<br>
+
+<div horizontal center-justified layout>
+	<div>
+  		<paper-button raised class="colored" ng-click="new()">new cover</paper-button>
+	</div>	
+</div>
+
+<br>
+
+<div horizontal center-justified layout>
+	<div>
+  		<paper-button raised class="colored" ng-click="new()">new empty document</paper-button>
+	</div>	
+</div>

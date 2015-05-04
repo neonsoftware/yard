@@ -70,11 +70,6 @@ DATABASES = {
   }
 }
 
-#'PASSWORD': 'frankie',                  # Not used with sqlite3.
-#'HOST': 'archivione.caprj3rjkmkr.us-west-2.rds.amazonaws.com',                      # Set to empty string for localhost. Not used with sqlite3.
-#'PORT': '3306',                      # Set to empty string for default. Not used with sqlite3.
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
