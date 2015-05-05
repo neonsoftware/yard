@@ -1,6 +1,11 @@
 
 <div class="card">
 
+	<div horizontal end-justified layout>
+	  		<paper-button ng-click="discard()" >discard</paper-button>
+	    	<paper-button class="colored" ng-click="update()" class="colored" >save</paper-button>
+	</div>
+
 	<core-icon icon="communication:business"></core-icon>
 	<span style="font-size:16px"><b>&nbsp;Company</b></span></h5><br>
 
@@ -51,9 +56,7 @@
 	<div style="padding-left :20px;">
 
 		<paper-input id="appl-next" multiline label="Next" floatingLabel=true value="{{current_application.next}}" error="Portal should have a name"></paper-input>
-
 		<paper-input id="appl-notes" multiline label="Notes" floatingLabel=true value="{{current_application.notes}}" error="Portal should have a name"></paper-input>
-
 		<paper-input id="appl-cover" multiline label="Cover Letter" floatingLabel=true value="{{current_application.cover}}" error="Portal should have a name"></paper-input>
 
 	</div>
@@ -65,9 +68,7 @@
 	<div style="padding-left :20px;">
 
 		<paper-input id="appl-address1" multiline label="Address 1" floatingLabel=true value="{{current_application.address1}}" error="Portal should have a name"></paper-input>
-
 		<paper-input id="appl-address2" multiline label="Address 2" floatingLabel=true value="{{current_application.address2}}" error="Portal should have a name"></paper-input>
-
 		<paper-input id="appl-latitude" label="Latitude" floatingLabel=true value="{{current_application.latitude}}" error="Portal should have a name"></paper-input>
 		<paper-input id="appl-longitude" label="Longitude" floatingLabel=true value="{{current_application.longitude}}" error="Portal should have a name"></paper-input>
 	</div>
@@ -100,14 +101,7 @@
 
 	</div>
 
-	<div horizontal end-justified layout>
-	  	<div>   
-	  	<section> 
-	  		<paper-button raised ng-click="discard()" >discard</paper-button>
-	    	<paper-button raised class="colored" ng-click="update()" class="colored" >save</paper-button>
-	    </section>
-		</div>
-	</div>
+	
 </div>
 
 
