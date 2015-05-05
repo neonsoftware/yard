@@ -17,7 +17,7 @@ window.routes = {
 	requireLogin: true
 },
 '/applications/:applicationId': {
-	templateUrl: 'static/html/partials/applications_detail.html',
+	templateUrl: 'static/html/partials/applications_new.html',
 	controller: 'ApplicationsDetailCtrl',
 	requireLogin: true
 },

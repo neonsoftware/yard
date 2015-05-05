@@ -17,6 +17,10 @@ angular.module('niomApp')
 	$scope.categories = Categories.query( function(){});
 	$scope.documents = Documents.query( );
 
+	$scope.new_application 	= function( ) { $location.path( '/applications/new' ); };
+	$scope.new_cover 		= function( ) { $location.path( '/documents/new' ); };
+	$scope.new_cover_empty 	= function( ) { $location.path( '/documents/new/empty' ); };
+
 })
 .controller('PiecesListCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
