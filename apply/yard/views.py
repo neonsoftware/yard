@@ -11,8 +11,8 @@ from django.forms.models import model_to_dict
 from   os import path, makedirs, remove
 from   shutil import copy, copytree, rmtree, move
 
-from yard.models import Cover, Skill, Application, Company, Piece, PieceCategory
-from yard.models import SkillForm, ApplicationForm, CompanyForm, PieceForm, PieceCategoryForm
+from yard.models import Cover, Skill, Application, Piece, PieceCategory
+from yard.models import SkillForm, ApplicationForm, PieceForm, PieceCategoryForm
 
 from docx import Document
 
@@ -41,11 +41,6 @@ def skill_new( request ):
 def application_new( request ):
 	if request.method == 'GET':
 		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': ApplicationForm() } ) } ) , content_type="application/json" ) 
-
-@csrf_exempt
-def company_new( request ):
-	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': CompanyForm() } ) } ) , content_type="application/json" ) 
 
 @csrf_exempt
 def piece_new( request ):
@@ -201,26 +196,6 @@ def documents_docx(request, id) :
 		result = subprocess.call( "cd " + path + "; lowriter --convert-to pdf " + filename + ".docx" , shell=True )
 
 		return HttpResponse( json.dumps( {"path":"static/docs/" + str(request.user) + "/" + filename + ".pdf" } ), content_type="application/json" )
-
-
-@csrf_exempt
-def companies_list(request) :
-	if request.method == 'GET':
-		return HttpResponse( json.dumps( [ comp.myToObj() for comp in Company.objects.filter(user=request.user) ] ), content_type="application/json" )
-
-	elif request.method == 'POST':
-		print '\tPost = ' , request.POST
-		c = CompanyForm( request.POST )
-		c.save()
-		return redirect('/static/index.html#/companies')
-
-def companies_detail(request, id) :
-	if request.method == 'GET':
-		company = get_object_or_404( Company, id=id )
-		return HttpResponse( json.dumps( company.myToObj() ), content_type="application/json" )
-
-
-
 
 @csrf_exempt
 def applications_list(request) :

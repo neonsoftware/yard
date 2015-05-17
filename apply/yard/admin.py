@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from yard.models import Skill, Cover, Company, Application, Profile, Piece, PieceCategory
+from yard.models import Skill, Cover, Application, Profile, Piece, PieceCategory
 
 # Register your models here.
 
@@ -28,7 +28,6 @@ class CoverAdmin(admin.ModelAdmin):
 admin.site.register(Skill, SkillAdmin)
 admin.site.register(PieceCategory, PieceCategoryAdmin)
 admin.site.register(Piece, PieceAdmin)
-admin.site.register(Company)
 admin.site.register(Application, ApplicationAdmin)
 admin.site.register(Profile)
 admin.site.register(Cover, CoverAdmin)

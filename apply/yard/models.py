@@ -87,32 +87,6 @@ class Cover( CreatedUpdatedModel ):
 	def __str__( self ) :
 		return self.name
 
-
-class Company( CreatedUpdatedModel ):
-	user 		= models.ForeignKey(User)
-	name 		= models.CharField(max_length=4096)
-	website		= models.CharField(max_length=4096)
-	description	= models.CharField(max_length=4096)
-	skills 		= models.ManyToManyField(Skill, related_name="%(app_label)s_%(class)s_related" )
-	note 		= models.CharField(max_length=4096)
-
-	def myToObj ( self ):
-		data 			= { "id" : self.id, "name"	: self.name, "website" : self.name, "description" : self.description, "note" : self.note }
-		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all()   ]
-		return data
-
-	def fill( self, data ) :
-		self.user 			= data["user"]
-		self.website 		= data["website"]
-		self.description	= data["description"]
-		self.skills			= data["skills"]
-		self.note			= data["note"]
-
-	def __str__( self ) :
-		return self.name
-
-
-
 class Application( CreatedUpdatedModel ):
 	user 			= models.ForeignKey(User)
 	portal 			= models.CharField(blank=True, max_length=200)
@@ -260,11 +234,6 @@ class SkillForm(ModelForm):
     class Meta:
         model = Skill
         fields = ['name']
-
-class CompanyForm(ModelForm):
-    class Meta:
-        model = Company
-        fields = ['name', 'description', 'skills']
 
 class ApplicationForm(ModelForm):
     class Meta:
