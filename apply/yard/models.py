@@ -15,15 +15,20 @@ class CreatedUpdatedModel(models.Model):
 
 
 class Skill( models.Model ):
+	user 		= models.ForeignKey(User)
 	name 		= models.CharField(max_length=4096)
 	
 	def myToObj ( self ):
 		return { "id" : self.id , "name": self.name }
 
+	def fill ( self, data ):
+		self.name = data["name"]
+
 	def __str__( self ) :
 		return self.name
 
 class PieceCategory( models.Model ):
+	user 		= models.ForeignKey(User)
 	name  		= models.CharField(max_length=4096, default="")
 	description	= models.CharField(max_length=4096, default="")
 	language	= models.CharField(max_length=7, choices=LANGUAGES, default="en")
@@ -48,6 +53,7 @@ class PieceCategory( models.Model ):
 		return self.name
 
 class Piece( models.Model ):
+	user 		= models.ForeignKey(User)
 	content  	= models.TextField()
 	language    = models.CharField(max_length=7, choices=LANGUAGES)
 	tags		= models.CharField(max_length=4096, default="")
@@ -67,6 +73,7 @@ class Piece( models.Model ):
 
 
 class Cover( CreatedUpdatedModel ):
+	user 		= models.ForeignKey(User)
 	name 		= models.CharField(max_length=4096)
 	content		= models.TextField(default="")
 	
@@ -82,6 +89,7 @@ class Cover( CreatedUpdatedModel ):
 
 
 class Company( CreatedUpdatedModel ):
+	user 		= models.ForeignKey(User)
 	name 		= models.CharField(max_length=4096)
 	website		= models.CharField(max_length=4096)
 	description	= models.CharField(max_length=4096)
@@ -93,6 +101,12 @@ class Company( CreatedUpdatedModel ):
 		data["skills"]  = [ { "id" : sk.id, "name" : sk.name } for sk in self.skills.all()   ]
 		return data
 
+	def fill( self, data ) :
+		self.user 			= data["user"]
+		self.website 		= data["website"]
+		self.description	= data["description"]
+		self.skills			= data["skills"]
+		self.note			= data["note"]
 
 	def __str__( self ) :
 		return self.name

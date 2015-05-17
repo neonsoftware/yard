@@ -66,7 +66,8 @@ def skills_list(request) :
 
 	elif request.method == 'POST':
 		print '\tPost = ' , request.POST
-		s = SkillForm( request.POST )
+		s = Skill()
+		s.user = request.user
 		s.save()
 		return redirect('/static/index.html#/skills')
 
@@ -85,8 +86,8 @@ def pieces_list(request) :
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
 		print '\tPost = ' , request.body
-		p = Piece()
-		print '\tNew, filling ' 
+		p = Piece() 
+		p.user = request.user
 		p.fill(updated_data)
 		p.save()
 		print 'Updated and saved'
@@ -119,7 +120,8 @@ def categories_list(request) :
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
 		print '\tPut = ' , request.body
-		c = PieceCategory( )
+		c = PieceCategory()
+		c.user = request.user
 		c.fill(updated_data)
 		c.save()
 		return HttpResponse( json.dumps( c.myToObj() ), content_type="application/json" )
@@ -152,7 +154,8 @@ def documents_list(request) :
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
 		print '\tPOST = ' , request.body
-		d = Document( )
+		d = Document()
+		d.user = request.user
 		d.fill(updated_data)
 		d.save()
 		return HttpResponse( json.dumps( d.myToObj() ), content_type="application/json" )
