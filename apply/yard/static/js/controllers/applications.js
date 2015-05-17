@@ -1,22 +1,14 @@
 angular.module('niomApp')
 .controller('ApplicationsListCtrl', function($scope, $http, $resource, $location, Applications )
 {
-
 	document.getElementById('mainscaffold').closeDrawer();
 
 	$scope.applications = Applications.query( function() {
-
 		angular.forEach( $scope.applications, function( elem, index )
 		{		
-			console.log('Adding expand variable to application' , index, 'with company ', elem.company );
-		
+			console.log('Adding expand variable to application' , index, 'with company ', elem.company );		
 			elem.expand = false;
-			//$scope.image_URI_db[url] = url;
-			//if (chrome.serial) { $scope.image_URI_db[url] = "" ; loadImage( url, $scope.at_image_load, $scope.image_URI_db ); }
 		});
-
-
-
 	} );
    
 	$scope.toggle	 	= function( application ){ console.log("expanding ", application.expand, "com ", application.company);application.expand = !application.expand; }
@@ -33,17 +25,12 @@ angular.module('niomApp')
 	$scope.called 		= function(application){ Applications.delete_application( {uuid : application.id, command : "called" },function() { $scope.applications = Applications.query( );}); }
 	$scope.interviewed  = function(application){ Applications.delete_application( {uuid : application.id, command : "interviewed" },function() { $scope.applications = Applications.query( );}); }
 	$scope.followup 	= function(application){ Applications.delete_application( {uuid : application.id, command : "followup" },function() { $scope.applications = Applications.query( );}); }
-
-
 })
 
 .controller('ApplicationsCardDetailCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
 {
-
 	$scope.applications = [];
-
 	document.getElementById('mainscaffold').closeDrawer();
-
 	console.log("Indide CARD DETAIL !"); 
 
 	$scope.current_application = Applications.get( {uuid : $routeParams.applicationId }, function () {
@@ -58,15 +45,11 @@ angular.module('niomApp')
 	$scope.called 		= function(application){ Applications.delete_application( {uuid : application.id, command : "called" },function() { $scope.applications = Applications.query( );}); }
 	$scope.interviewed  = function(application){ Applications.delete_application( {uuid : application.id, command : "interviewed" },function() { $scope.applications = Applications.query( );}); }
 	$scope.followup 	= function(application){ Applications.delete_application( {uuid : application.id, command : "followup" },function() { $scope.applications = Applications.query( );}); }
-
-	
 })
 
 .controller('ApplicationsDetailCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
 {
-
 	document.getElementById('mainscaffold').closeDrawer();
-
 	console.log("Update");
 
 	$scope.current_application = Applications.get( {uuid : $routeParams.applicationId }, function () {
@@ -85,7 +68,6 @@ angular.module('niomApp')
 	}
 
 	$scope.update = function(){
-
 		$scope.current_application.company = document.getElementById('appl-company').inputValue;
 		$scope.current_application.portal = document.getElementById('appl-portal').inputValue;
 		$scope.current_application.position = document.getElementById('appl-position').inputValue;
@@ -120,10 +102,7 @@ angular.module('niomApp')
 		$scope.current_application.c4phone = document.getElementById('appl-c4phone').inputValue;
 
 		$scope.current_application.$update( {uuid:$scope.current_application.id}, function(){ console.log("Updated !"); $location.path( '/applications' );} );
-
-	};
-			
-	
+	};	
 })
 .controller('ApplicationsNewCtrl', function($scope, $route, $routeParams, $http, $resource, $location, $timeout, Applications)
 {
@@ -170,8 +149,5 @@ angular.module('niomApp')
 		$scope.current_application.c4phone = document.getElementById('appl-c4phone').inputValue;
 
 		$scope.current_application.$save( function() { console.log("SAVED"); $location.path( '/applications' ); } );
-
 	}
-			
-	
 });

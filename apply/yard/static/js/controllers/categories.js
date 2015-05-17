@@ -171,6 +171,4 @@ angular.module('niomApp')
 			$scope.outgoing.$update( {uuid:$scope.outgoing.id}, function(){ console.log("Updated !"); $location.path( '/categories' );} );
 		}
 	};
-
-
 });

@@ -49,7 +49,6 @@ angular.module('niomApp')
 					function() { alert('Target not created.' );}
 				);
 	};
-	
 });
 
 angular.module('niomApp').filter('fillTemplate', function(){
@@ -63,8 +62,6 @@ angular.module('niomApp').filter('fillTemplate', function(){
 			});
 
 			console.log("--> Total is : ", fullSubstitute);
-						
-
 			angular.forEach(scope.artifact, function(value, key) {
 
 				angular.forEach(value.legend, function(v, k){
@@ -79,5 +76,4 @@ angular.module('niomApp').filter('fillTemplate', function(){
 			//tempSubstituted = tempSubstituted.replace(k,v.value);
 			return fullSubstitute;
 		};
-
-	});
+});

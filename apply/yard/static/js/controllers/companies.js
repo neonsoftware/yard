@@ -13,6 +13,4 @@ angular.module('niomApp')
 		$scope.in_creation	 = true; 
 		Companies.get( { 	uuid : "", command:"new" },	function (res) {$scope.myhtml = res.html ;}, function() { alert('Form not found.' )} ) ;
 	}
-	
-   
 });
