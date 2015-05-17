@@ -1,4 +1,6 @@
-alias ls="ls -1"
+alias ls="ls -1 --color"
+
+export EDITOR=vim
 
 APPLY_BASE="/home/ubuntu"
 alias a="cd $APPLY_BASE"
