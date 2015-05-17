@@ -133,22 +133,9 @@ function($routeProvider) {
 	}); 
 }])
 .factory( 'Niom', function(){ 
-
-	var actualUrl ;
-
-	if (chrome.serial)
-	{
-		actualUrl = '';
-	}
-	else
-	{
-		actualUrl = remoteUrl;
-	}
-	
-	return { url: actualUrl };
+	return { url: remoteUrl };
 })
 .factory('Applications', 	['$resource', function($resource) { return $resource( remoteUrl + '/applications/:uuid/:command', 	{uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'POST' }, delete_application: { method: 'GET' } } ); } ] )
-.factory('Companies', 		['$resource', function($resource) { return $resource( remoteUrl + '/companies/:uuid/:command', 		{uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
 .factory('Skills', 			['$resource', function($resource) { return $resource( remoteUrl + '/skills/:uuid/:command', 		{uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
 .factory('Pieces', 			['$resource', function($resource) { return $resource( remoteUrl + '/pieces/:uuid/:command', 		{uuid:"@id"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
 .factory('Categories', 		['$resource', function($resource) { return $resource( remoteUrl + '/categories/:uuid/:command', 	{uuid:"@id"},   {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
