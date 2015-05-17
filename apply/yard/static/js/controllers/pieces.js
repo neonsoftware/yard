@@ -7,12 +7,24 @@ angular.module('niomApp')
 .controller('SummaryCtrl', function($scope, $http, $resource, $location, Pieces, Categories, Documents, Applications )
 {
 	console.log("Closing Drawer");
-	document.getElementById('mainscaffold').closeDrawer();
+	//document.getElementById('mainscaffold').closeDrawer();
 
 	$scope.tags = [];
 	$scope.activeTags = {};
 
-	$scope.applications = Applications.query( function(){ console.log("Got Pieces."); });
+	$scope.open_applications = [];
+	$scope.applications = Applications.query( function(){ 
+		console.log("Got Pieces."); 
+
+		angular.forEach( $scope.applications, function( elem, index )
+		{		
+			if (elem.followup === true )
+			{
+				$scope.open_applications.push(elem);
+			}
+		});
+	});
+
 	$scope.pieces = Pieces.query( function(){ console.log("Got Pieces."); });
 	$scope.categories = Categories.query( function(){});
 	$scope.documents = Documents.query( );
@@ -20,7 +32,7 @@ angular.module('niomApp')
 	$scope.new_application 	= function( ) { $location.path( '/applications/new' ); };
 	$scope.new_cover 		= function( ) { $location.path( '/documents/new' ); };
 	$scope.new_cover_empty 	= function( ) { $location.path( '/documents/new/empty' ); };
-
+	$scope.open_detail 	= function( application ){ $location.path( '/applications/cards/' + application.id ); }
 })
 .controller('PiecesListCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
