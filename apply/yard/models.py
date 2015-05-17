@@ -219,6 +219,7 @@ class Profile( CreatedUpdatedModel ):
 	website = models.URLField(null=True)
 	has_avatar 	= models.BooleanField(default=False)
 	avatar 		= models.CharField(max_length=4096)
+	tutorial	= models.IntegerField()
 	
 	def myToObj ( self ):
 		data = {}
@@ -228,6 +229,7 @@ class Profile( CreatedUpdatedModel ):
 		data["website"] 		= self.website
 		data["has_avatar"]		= self.has_avatar
 		data["avatar"]			= self.avatar
+		data["tutorial"]		= self.tutorial
 		return data
 
 	def __str__( self ) :

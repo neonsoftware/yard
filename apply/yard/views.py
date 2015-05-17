@@ -61,9 +61,8 @@ def category_new( request ):
 
 @csrf_exempt
 def skills_list(request) :
-
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( [ skill.myToObj() for skill in Skill.objects.all() ] ), content_type="application/json" )
+		return HttpResponse( json.dumps( [ skill.myToObj() for skill in Skill.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 		print '\tPost = ' , request.POST
@@ -81,7 +80,7 @@ def skills_detail(request, id) :
 def pieces_list(request) :
 
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( [ piece.myToObj() for piece in Piece.objects.all() ] ), content_type="application/json" )
+		return HttpResponse( json.dumps( [ piece.myToObj() for piece in Piece.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
@@ -115,7 +114,7 @@ def pieces_detail(request, id) :
 def categories_list(request) :
 
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( [ category.myToObj() for category in PieceCategory.objects.all() ] ), content_type="application/json" )
+		return HttpResponse( json.dumps( [ category.myToObj() for category in PieceCategory.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
@@ -148,7 +147,7 @@ def categories_detail(request, id) :
 @csrf_exempt
 def documents_list(request) :
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( [ doc.myToObj() for doc in Cover.objects.all() ] ), content_type="application/json" )
+		return HttpResponse( json.dumps( [ doc.myToObj() for doc in Cover.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
@@ -204,7 +203,7 @@ def documents_docx(request, id) :
 @csrf_exempt
 def companies_list(request) :
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( [ comp.myToObj() for comp in Company.objects.all() ] ), content_type="application/json" )
+		return HttpResponse( json.dumps( [ comp.myToObj() for comp in Company.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
 		print '\tPost = ' , request.POST
@@ -223,7 +222,6 @@ def companies_detail(request, id) :
 @csrf_exempt
 def applications_list(request) :
 	if request.method == 'GET':
-
 		return HttpResponse( json.dumps( [ app.myToObj() for app in Application.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
