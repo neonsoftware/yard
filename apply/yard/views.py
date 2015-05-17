@@ -16,7 +16,7 @@ from yard.models import SkillForm, ApplicationForm, CompanyForm, PieceForm, Piec
 
 from docx import Document
 
-whitelist = ['ish', 'frankie', 'bomber', 'redbeard']
+whitelist = ['ish', 'frankie', 'bomber', 'redbeard', 'bryan']
 
 import json, subprocess
 
