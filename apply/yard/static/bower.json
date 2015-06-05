@@ -16,15 +16,17 @@
     "tests"
   ],
   "dependencies": {
-    "angular-resource": "~1.2.14",
-    "angular-route": "~1.2.14",
-    "angular-sanitize": "~1.2.14",
-    "angular": "~1.2.14",
-    "bootstrap": "~3.1.1",
-    "font-awesome": "~4.0.3",
-    "ionicons": "~1.4.1",
-    "polymer": "Polymer/polymer#~0.4.1",
-    "core-elements": "Polymer/core-elements#~0.4.1",
-    "paper-elements": "Polymer/paper-elements#~0.4.1"
+    "angular-resource": "latest",
+    "angular-route": "latest",
+    "angular-sanitize": "latest",
+    "angular": "latest",
+    "bootstrap": "latest",
+    "font-awesome": "latest",
+    "ionicons": "latest",
+    "iron-elements": "PolymerElements/iron-elements",
+    "paper-elements": "PolymerElements/paper-elements",
+    "platinum-elements": "PolymerElements/platinum-elements",
+    "neon-elements": "PolymerElements/neon-elements"
+
   }
 }
