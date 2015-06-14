@@ -107,32 +107,32 @@ var remoteUrl = '' ;
 
 //angular.module('niomApp', [ 'gridster', 'ngRoute' , 'ngResource', 'ui.bootstrap' , 'autoFields', 'ngUpload', 'ngSanitize'])
 
-angular.module('niomApp', [ 'ngRoute' , 'ngResource', 'ngSanitize', 'monospaced.elastic'])
+angular.module('niomApp', [ 'ngRoute' , 'ngResource'])
 .config(['$routeProvider',
 function($routeProvider) {
-	//this loads up our routes dynamically from the previous object 
-	for(var path in window.routes) 
+	//this loads up our routes dynamically from the previous object
+	for(var path in window.routes)
 	{
-		$routeProvider.when(path, window.routes[path]); 
+		$routeProvider.when(path, window.routes[path]);
 	}
-	
+
 	$routeProvider.otherwise({redirectTo: '/'});
 }])
 .run( ['$rootScope', function($rootScope){
-	$rootScope.$on("$locationChangeStart", function(event, next, current) { 
-		for(var i in window.routes) 
+	$rootScope.$on("$locationChangeStart", function(event, next, current) {
+		for(var i in window.routes)
 		{
-			// if(next.indexOf(i) != -1) 
+			// if(next.indexOf(i) != -1)
 			// {
 			// 	if(window.routes[i].requireLogin && !SessionService.getUserAuthenticated()) {
 			// 		alert("You need to be authenticated to see this page!");
 			// 		event.preventDefault();
 			// 	}
-			// } 
+			// }
 		}
-	}); 
+	});
 }])
-.factory( 'Niom', function(){ 
+.factory( 'Niom', function(){
 	return { url: remoteUrl };
 })
 .factory('Applications', 	['$resource', function($resource) { return $resource( remoteUrl + '/applications/:uuid/:command', 	{uuid:"@uuid"}, {update: { method: 'PUT' }, generate: { method: 'POST' }, delete_application: { method: 'GET' } } ); } ] )
@@ -140,14 +140,14 @@ function($routeProvider) {
 .factory('Pieces', 			['$resource', function($resource) { return $resource( remoteUrl + '/pieces/:uuid/:command', 		{uuid:"@id"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
 .factory('Categories', 		['$resource', function($resource) { return $resource( remoteUrl + '/categories/:uuid/:command', 	{uuid:"@id"},   {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
 .factory('Documents', 		['$resource', function($resource) { return $resource( remoteUrl + '/documents/:uuid/:command', 	    {uuid:"@id"},   {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
-.service('SessionService', function(){ 
+.service('SessionService', function(){
 	var userIsAuthenticated = false;
-	
-	this.setUserAuthenticated = function(value){ 
+
+	this.setUserAuthenticated = function(value){
 		userIsAuthenticated = value;
 	};
 
-	his.getUserAuthenticated = function(){ 
+	his.getUserAuthenticated = function(){
 		return userIsAuthenticated;
 	};
 })
@@ -167,8 +167,7 @@ function($routeProvider) {
 					            var test = $compile(element)(scope);
 					            elt.append(test);
 			            }, true);
-            
+
         }
     };
 });
-

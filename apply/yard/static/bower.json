@@ -22,11 +22,12 @@
     "angular": "latest",
     "bootstrap": "latest",
     "font-awesome": "latest",
+    "roboto-fontface": "latest",
     "ionicons": "latest",
+    "google-map": "latest",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
     "platinum-elements": "PolymerElements/platinum-elements",
     "neon-elements": "PolymerElements/neon-elements"
-
   }
 }
