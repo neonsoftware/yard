@@ -11,15 +11,19 @@
       </template>
     </ul>
     <paper-button on-click="refresh_me">refresh</paper-button>
-    <iron-ajax auto url="/applications" params="" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
     <ul>
       <template is="dom-repeat" items="{{onlineItems}}">
-        <li><span class="paper-font-body1">{{item}}</span>
+        <li on-click="open_me">
+          <span class="paper-font-body1">{{item.id}}</span>
           <span class="paper-font-body1">{{item.company_link}}</span>
-          <span class="paper-font-body1">{{item.followup}}</span></li>
-          <paper-input bind-value="{{onlineItems}}"></paper-input>
+          <span class="paper-font-body1">{{item.followup}}</span>
+        </li>
       </template>
     </ul>
+
+    <a id="item-link" href="javascript:;"><span>{{item.id}}</span></a>
+
 
   </template>
 </dom-module>
@@ -28,39 +32,30 @@
     Polymer({
       is: 'app-list',
       properties: {
-        items: {
-          type: Array,
-          notify: true,
-        },
         onlineItems: {
           type: Array,
           notify: true,
         }
       },
+
       ready: function() {
-        this.items = [
-          'Responsive Web App boilerplate',
-          'Iron Elements and Paper Elements',
-          'End-to-end Build Tooling (including Vulcanize)',
-          'Unit testing with Web Component Tester',
-          'Routing with Page.js',
-          'Offline support with the Platinum Service Worker Elements'
-        ];
+        console.log('app-list. I am ready');
+        this.$.my_iron.generateRequest();
       },
       refresh_me:function(){
-        alert("Very clicked !");
-
-        //var =
-
+        this.$.my_iron.generateRequest();
+      },
+      open_me: function(e) {
+        var model = e.model;
+        var id = model.item.id;
+        console.log('the id is', id);
+        window.location = '#!/apps/' + String(id);
+        window.location.reload();
+        //model.set('item.ordered', model.item.ordered+1);
       },
       handleResponse:function(response){
         console.log(response.detail.response);
-
         this.onlineItems = response.detail.response;
-        //alert("Rsponded !" + response.detail.response);
-
-        //var =
-
       }
     });
   })();
