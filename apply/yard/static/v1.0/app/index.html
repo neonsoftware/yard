@@ -83,6 +83,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <iron-icon icon="mail"></iron-icon>
                 <span>Contact</span>
               </a>
+
+              <a data-route="app-list-content" href="/app-list-content">
+                <iron-icon icon="mail"></iron-icon>
+                <span>App-list</span>
+              </a>
+
           </paper-menu>
       </div>
       <paper-header-panel main mode="waterfall-tall">
@@ -175,6 +181,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-material elevation="1">
                 <h2 class="paper-font-display2">Contact</h2>
                 <p>This is the contact section</p>
+              </paper-material>
+            </section>
+
+
+            <section data-route="app-list-content">
+              <paper-material elevation="1">
+                This is the list <app-list></app-list>
               </paper-material>
             </section>
 

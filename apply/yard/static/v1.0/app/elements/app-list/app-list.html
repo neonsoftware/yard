@@ -1,0 +1,67 @@
+<dom-module id="app-list">
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+  <template>
+    <ul>
+      <template is="dom-repeat" items="{{items}}">
+        <li><span class="paper-font-body1">{{item}}</span></li>
+      </template>
+    </ul>
+    <paper-button on-click="refresh_me">refresh</paper-button>
+    <iron-ajax auto url="/applications" params="" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <ul>
+      <template is="dom-repeat" items="{{onlineItems}}">
+        <li><span class="paper-font-body1">{{item}}</span>
+          <span class="paper-font-body1">{{item.company_link}}</span>
+          <span class="paper-font-body1">{{item.followup}}</span></li>
+          <paper-input bind-value="{{onlineItems}}"></paper-input>
+      </template>
+    </ul>
+
+  </template>
+</dom-module>
+<script>
+  (function () {
+    Polymer({
+      is: 'app-list',
+      properties: {
+        items: {
+          type: Array,
+          notify: true,
+        },
+        onlineItems: {
+          type: Array,
+          notify: true,
+        }
+      },
+      ready: function() {
+        this.items = [
+          'Responsive Web App boilerplate',
+          'Iron Elements and Paper Elements',
+          'End-to-end Build Tooling (including Vulcanize)',
+          'Unit testing with Web Component Tester',
+          'Routing with Page.js',
+          'Offline support with the Platinum Service Worker Elements'
+        ];
+      },
+      refresh_me:function(){
+        alert("Very clicked !");
+
+        //var =
+
+      },
+      handleResponse:function(response){
+        console.log(response.detail.response);
+
+        this.onlineItems = response.detail.response;
+        //alert("Rsponded !" + response.detail.response);
+
+        //var =
+
+      }
+    });
+  })();
+</script>
