@@ -8,7 +8,7 @@
 
   <template>
     <iron-ajax id="my_iron_elem" auto url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="POST" url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="PUT" handle-as="json" on-response="handleResponse_post"></iron-ajax>
     <span class="paper-font-body1">{{currentitem.id}}</span><br>
     <span class="paper-font-body1">{{currentitem.position}}</span><br>
     <span class="paper-font-body1">{{currentitem.company}}</span><br>
@@ -64,15 +64,21 @@
 
       save_me:function(){
         console.log('Saving my object, which is: ', this.objid);
-        var newUrl = "/applications/" + String(this.objid);
+        var newUrl = "/applications/" + String(this.objid) + '/';
         console.log('My new url is ', newUrl);
-        this.$.my_iron_elem.url = newUrl;
-        this.$.my_iron_elem.generateRequest();
+        this.$.my_iron_save.url = newUrl;
+        this.$.my_iron_save.body = JSON.stringify(this.currentitem);
+        this.$.my_iron_save.contentType = "application/json";
+        this.$.my_iron_save.generateRequest();
       },
-
 
       handleResponse:function(response){
         console.log('Received response !' , response.detail.response);
+        this.currentitem = response.detail.response;
+      },
+
+      handleResponse_post:function(response){
+        console.log('Received response POST !' , response.detail.response);
         this.currentitem = response.detail.response;
       },
 
