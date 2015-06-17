@@ -1,67 +1,85 @@
 <dom-module id="app-elem">
+
   <style>
     :host {
       display: block;
     }
   </style>
-  <template>
-    <ul>
-      <template is="dom-repeat" items="{{items}}">
-        <li><span class="paper-font-body1">{{item}}</span></li>
-      </template>
-    </ul>
-    <paper-button on-click="refresh_me">refresh</paper-button>
-    <iron-ajax auto url="/applications" params="" handle-as="json" on-response="handleResponse"></iron-ajax>
-    <ul>
-      <template is="dom-repeat" items="{{onlineItems}}">
-        <li><span class="paper-font-body1">{{item}}</span>
-          <span class="paper-font-body1">{{item.company_link}}</span>
-          <span class="paper-font-body1">{{item.followup}}</span></li>
-          <paper-input bind-value="{{onlineItems}}"></paper-input>
-      </template>
-    </ul>
 
+  <template>
+    <iron-ajax id="my_iron_elem" auto url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="POST" url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <span class="paper-font-body1">{{currentitem.id}}</span><br>
+    <span class="paper-font-body1">{{currentitem.position}}</span><br>
+    <span class="paper-font-body1">{{currentitem.company}}</span><br>
+    <paper-input value={{currentitem.company}}></paper-input><br>
+    <paper-button on-click="refresh_me">refresh</paper-button>
+    <paper-button on-click="save_me">save</paper-button>
+
+    in the end is <span>{{objid}}</span>
   </template>
+
 </dom-module>
+
 <script>
   (function () {
     Polymer({
+
       is: 'app-elem',
       properties: {
-        items: {
-          type: Array,
+        currentitem: {
+          type: Object,
           notify: true,
         },
-        onlineItems: {
-          type: Array,
+        objid: {
+          type: Number,
           notify: true,
+          observe:'_obj_id_has_changed'
         }
       },
+
       ready: function() {
-        this.items = [
-          'Responsive Web App boilerplate',
-          'Iron Elements and Paper Elements',
-          'End-to-end Build Tooling (including Vulcanize)',
-          'Unit testing with Web Component Tester',
-          'Routing with Page.js',
-          'Offline support with the Platinum Service Worker Elements'
-        ];
+        console.log('My object has id ', this.objid);
+        console.log('app-elem. I am ready');
+        this.$.my_iron_elem.generateRequest();
       },
+
       refresh_me:function(){
-        alert("Very clicked !");
-
-        //var =
-
+        console.log('My object has id ', this.objid);
+        var newUrl = "/applications/" + String(this.objid);
+        console.log('My new url is ', newUrl);
+        this.$.my_iron_elem.url = newUrl;
+        this.$.my_iron_elem.generateRequest();
       },
+
+      open_me: function(e) {
+        var model = e.model;
+        var id = model.item.id;
+        console.log('the id is', id);
+        page('#!/apps/' + String(id));
+        //window.location = '#!/apps/' + String(id);
+        //window.location.reload();
+        //model.set('item.ordered', model.item.ordered+1);
+      },
+
+      save_me:function(){
+        console.log('Saving my object, which is: ', this.objid);
+        var newUrl = "/applications/" + String(this.objid);
+        console.log('My new url is ', newUrl);
+        this.$.my_iron_elem.url = newUrl;
+        this.$.my_iron_elem.generateRequest();
+      },
+
+
       handleResponse:function(response){
-        console.log(response.detail.response);
+        console.log('Received response !' , response.detail.response);
+        this.currentitem = response.detail.response;
+      },
 
-        this.onlineItems = response.detail.response;
-        //alert("Rsponded !" + response.detail.response);
-
-        //var =
-
+      _obj_id_has_changed:function(new_value, old_value){
+        console.log('before : ', old_value, 'after : ', new_value);
       }
+
     });
   })();
 </script>
