@@ -30,27 +30,27 @@ def my_view( request ):
 @csrf_exempt
 def portal_new( request ):
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PortalForm() } ) } ) , content_type="application/json" ) 
-		
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PortalForm() } ) } ) , content_type="application/json" )
+
 @csrf_exempt
 def skill_new( request ):
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': SkillForm() } ) } ) , content_type="application/json" ) 
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': SkillForm() } ) } ) , content_type="application/json" )
 
 @csrf_exempt
 def application_new( request ):
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': ApplicationForm() } ) } ) , content_type="application/json" ) 
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': ApplicationForm() } ) } ) , content_type="application/json" )
 
 @csrf_exempt
 def piece_new( request ):
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PieceForm() } ) } ) , content_type="application/json" ) 
-		
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PieceForm() } ) } ) , content_type="application/json" )
+
 @csrf_exempt
 def category_new( request ):
 	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PieceCategoryForm()} ) } ) , content_type="application/json" ) 
+		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PieceCategoryForm()} ) } ) , content_type="application/json" )
 
 
 
@@ -81,7 +81,7 @@ def pieces_list(request) :
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
 		print '\tPost = ' , request.body
-		p = Piece() 
+		p = Piece()
 		p.user = request.user
 		p.fill(updated_data)
 		p.save()
@@ -183,8 +183,8 @@ def documents_docx(request, id) :
 
 		path = settings.DOCS_URL + str(request.user)
 		filename = "demo"
-		
-		try : 
+
+		try :
 			rmtree ( path )
 		except :
 			pass
@@ -225,7 +225,7 @@ def applications_detail( request, id ) :
 		application.fill(updated_data)
 		application.save()
 		print 'Updated and saved'
-		
+
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
 
 
@@ -241,7 +241,7 @@ def applications_written( request, id ) :
 	if request.method == 'GET':
 		print 'called written of ', id
 		application = get_object_or_404( Application, id=id )
-		application.written = not application.written 
+		application.written = not application.written
 		application.save()
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
 
