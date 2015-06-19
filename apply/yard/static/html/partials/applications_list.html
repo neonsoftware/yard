@@ -13,11 +13,11 @@
 				</tr>
 				<tr ng-repeat="application in applications" >
 					<td ng-click="open_detail(application)"> 
-			<span style="font-size: 12px;"><i>{{application.position}}</i></span><br>   
-			<span style="font-size: 11px;">{{application.company}}</span>
-			<span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span> 
-			<span style="font-size: 9px; color: grey; ">{{ application.portal }} </span>
-			</td>
+						<span style="font-size: 12px;"><i>{{application.position}}</i></span><br>   
+						<span style="font-size: 11px;">{{application.company}}</span>
+						<span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span> 
+						<span style="font-size: 9px; color: grey; ">{{ application.portal }} </span>
+					</td>
 					<td ng-click="written(application)" > <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.written }}" ></core-icon></td>
 					<td ng-click="called(application)"> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.called }}"></core-icon></td>
 					<td ng-click="interviewed(application)"> <core-icon icon="check" style="width: 24px; height: 24px; color: green;" ng-show="{{ application.interviewed }}"></core-icon></td>
