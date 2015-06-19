@@ -69,9 +69,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
         <!-- Drawer Content -->
           <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
+
               <a data-route="home" href="/">
                 <iron-icon icon="home"></iron-icon>
                 <span>Home</span>
+              </a>
+
+              <a data-route="app-list-content" href="/app-list-content">
+                <iron-icon icon="mail"></iron-icon>
+                <span>Applications</span>
               </a>
 
               <a data-route="users" href="/users">
@@ -82,11 +88,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <a data-route="contact" href="/contact">
                 <iron-icon icon="mail"></iron-icon>
                 <span>Contact</span>
-              </a>
-
-              <a data-route="app-list-content" href="/app-list-content">
-                <iron-icon icon="mail"></iron-icon>
-                <span>App-list</span>
               </a>
 
           </paper-menu>
@@ -103,7 +104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <paper-icon-button icon="search"></paper-icon-button>
 
           <!-- Application name -->
-          <div class="middle paper-font-display2 app-name">Polymer Starter Kit</div>
+          <div class="middle paper-font-display2 app-name">Yard</div>
 
           <!-- Application sub title -->
           <div class="bottom title"></div>
@@ -123,8 +124,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <paper-material elevation="1">
                 <my-greeting></my-greeting>
-
-
 
                 <p class="paper-font-subhead">You now have:</p>
                 <my-list></my-list>
@@ -186,15 +185,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
             <section data-route="app-list-content">
-              <paper-material elevation="1">
                 <app-list></app-list>
-              </paper-material>
             </section>
 
             <section data-route="app-detail">
-              <paper-material elevation="1">
                 <app-elem objid="{{params.name}}"></app-elem>
-              </paper-material>
             </section>
 
           </iron-pages>
