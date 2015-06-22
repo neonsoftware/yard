@@ -1,0 +1,90 @@
+<dom-module id="block-list">
+
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+
+  <template>
+    <paper-material elevation="1">
+       <iron-ajax id="my_iron" url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
+
+       <table>
+  				<tr>
+  					<th>Position</th>
+  					<th><iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon></th>
+  					<th><iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon></th>
+  					<th><iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon></th>
+  					<th><iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon></th>
+  					<th>Next</th>
+  					<th></th>
+  				</tr>
+
+          <template is="dom-repeat" items="{{onlineItems}}">
+            <tr on-click="open_me">
+    					<td>
+    						<span style="font-size: 12px;"><i>{{item.position}}</i></span><br>
+    						<span style="font-size: 11px;">{{item.company}}</span>
+    						<span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
+    						<span style="font-size: 9px; color: grey; ">{{item.portal}} </span>
+    					</td>
+              <td> <paper-checkbox checked="{{item.written}}"></paper-checkbox></td>
+              <td> <paper-checkbox checked="{{item.called}}"></paper-checkbox></td>
+              <td> <paper-checkbox checked="{{item.interviewed}}"></paper-checkbox></td>
+              <td> <paper-checkbox checked="{{item.followup}}"></paper-checkbox></td>
+
+              <td>{{item.next}}</td>
+    					<td>
+    						<iron-icon icon="create" style="width: 18px; height: 18px;"></iron-icon >
+    						<iron-icon  icon="delete" style="width: 18px; height: 18px;" ></core-icon >
+    					</td>
+  				  </tr>
+          </template>
+       </table>
+
+       <br><br>
+       <paper-button on-click="refresh_me" raised>refresh</paper-button>
+
+    </paper-material>
+  </template>
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'block-list',
+      properties: {
+        onlineItems: {
+          type: Array,
+          notify: true,
+        }
+      },
+
+      ready: function() {
+        console.log('app-list. I am ready');
+        this.$.my_iron.generateRequest();
+      },
+
+      refresh_me:function(){
+        this.$.my_iron.generateRequest();
+      },
+
+      open_me: function(e) {
+        var model = e.model;
+        var id = model.item.id;
+        console.log('the id is', id);
+        window.location = '#!/apps/' + String(id);
+        window.location.reload();
+        //model.set('item.ordered', model.item.ordered+1);
+      },
+
+      handleResponse:function(response){
+        console.log(response.detail.response);
+        this.onlineItems = response.detail.response;
+      }
+
+    });
+  })();
+</script>
