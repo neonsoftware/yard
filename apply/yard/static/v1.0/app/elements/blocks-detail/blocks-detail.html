@@ -1,46 +1,30 @@
 <dom-module id="blocks-detail">
 
-  <style>
-    :host {
-      display: block;
-    }
-  </style>
-
   <template>
-    <iron-ajax id="my_iron_elem" auto handle-as="json" on-response="handleResponse"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="PUT" handle-as="json" on-response="handleResponse_post"></iron-ajax>
+    <iron-ajax id="my_iron_elem" method="GET" handle-as="json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="PUT" handle-as="json" on-response="_handle_response_post"></iron-ajax>
 
-    blabla
-
-    <iron-paper-material elevation="1">
-
-
-      <h4> Contacts </h4>
-
-
+    <paper-material elevation="1">
       <span style="font-size: 12px;color: grey; ">Language</span>
       <br>
-      <input type="text" value="{{currentitem.language}}" ></input>
-
+      <paper-input type="text" bind-value="{{currentitem.language}}" ></paper-input>
       <br><br>
-
       <span style="font-size: 12px;color: grey; ">Tags</span>
       <br>
-      <input type="text" value="{{currentitem.tags}}" ></input>
-
+      <paper-input type="text" bind-value="{{currentitem.tags}}" ></paper-input>
       <br><br>
-
       <span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
       <br>
-      <iron-autogrow-textarea bind-value="{{currentcontent}}" id="a2">
+      <iron-autogrow-textarea bind-value="{{currentcontent}}">
         <textarea></textarea>
       </iron-autogrow-textarea>
-
-
       <br><br>
-      <paper-button on-click="refresh_me">refresh</paper-button>
-      Elem : <span>{{objid}}</span></span>
+      <template is="dom-repeat" items="{{currentlegend}}">
+        <i>Describe<span>{{item.key}}</span></i> &nbsp;&nbsp;
+        <paper-input type="text" bind-value="{{item.value}}" ></paper-input><br>
+      </template>
 
+      <paper-button on-click="save_me">save</paper-button>
     </paper-material>
 
   </template>
@@ -53,69 +37,105 @@
 
       is: 'blocks-detail',
       properties: {
+        is_new: Boolean,
         currentitem: {
           type: Object,
-          notify: true,
-          observer: '_on_content_change'
+          value: {"language":"en",
+                  "tags":"",
+                  "content": "",
+                  "legend": ""
+                  }
         },
         currentcontent: {
           type: String,
-          notify: true,
-          observer: '_on_content_change'
+          observer: '_on_content_change',
+          value: ""
+        },
+        currentlegend: {
+          type: Array,
+          value: []
         },
         objid: {
           type: Number,
-          notify: true,
           observer:'_obj_id_has_changed'
+        },
+        lettersymbols: {
+          type: Array,
+          value: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ']
         }
       },
 
-      ready: function() {
-        console.log('My object has id ', this.objid);
-        console.log('blocks-detail. I am ready');
+      ready:function(){
+        console.log('Ready. Initializing symbols.');
+        console.log('Checking also  ', this.objid, this.lettersymbols);
+
+      },
+      attached:function(){
+        console.log('Attached. Initializing symbols.');
+        console.log('Checking also  ', this.objid, this.lettersymbols);
+
       },
 
-      refresh_me:function(){
-        console.log('My object has id ', this.objid);
-        var newUrl = "/pieces/" + String(this.objid);
-        console.log('My new url is ', newUrl);
-        this.$.my_iron_elem.url = newUrl;
+      refresh_me: function(){
+        this.$.my_iron_elem.url = "/pieces/" + String(this.objid);
         this.$.my_iron_elem.generateRequest();
       },
 
-      save_me:function(){
-        console.log('Saving my object, which is: ', this.objid);
-        var newUrl = "/pieces/" + String(this.objid) + '/';
-        console.log('My new url is ', newUrl);
+      save_me: function(){
         this.currentitem.content = this.currentcontent;
-        this.$.my_iron_save.url = newUrl;
+        if( this.is_new ){
+          console.log('Saving new object. POST');
+          this.$.my_iron_save.url = "/pieces" ;
+          this.$.my_iron_save.method = "POST"
+        }else {
+          console.log('Updating object. PUT');
+          this.$.my_iron_save.url = "/pieces/" + String(this.objid) + '/';
+          this.$.my_iron_save.method = "PUT"
+        }
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
         this.$.my_iron_save.contentType = "application/json";
         this.$.my_iron_save.generateRequest();
-        document.querySelector('#saving-complete').show();
-
       },
 
-      handleResponse:function(response){
-        console.log('Received response !' , response.detail.response);
+      _handle_response_get: function(response){
+        console.log('Received response from GET: ', response.detail.response);
         this.currentitem = response.detail.response;
         this.currentcontent = response.detail.response.content;
       },
 
-      handleResponse_post:function(response){
-        console.log('Received response POST !' , response.detail.response);
+      _handle_response_post: function(response){
+        console.log('Received response from POST: ', response.detail.response);
         this.currentitem = response.detail.response;
         this.currentcontent = response.detail.response.content;
       },
 
-      _obj_id_has_changed:function(new_value, old_value){
-        console.log('before : ', old_value, 'after : ', new_value);
-        this.refresh_me();
-      }
-      ,
+      _obj_id_has_changed: function(new_value, old_value){
+        this.is_new = ( new_value === "new" );
+        console.log("Is new : ", this.is_new);
+        if (!this.is_new){
+          this.refresh_me();
+        }
+      },
 
-      _on_content_change:function(new_value, old_value){
-        console.log('content : before : ', old_value, 'after : ', new_value);
+      _on_content_change: function(new_value, old_value){
+
+        if (typeof this.lettersymbols != 'undefined'){
+          console.log('Content updated. Before: ', old_value, ', After: ', new_value);
+          console.log('Checking also  ', this.objid, this.lettersymbols);
+
+          var index, len;
+          for (index = 0, len = this.lettersymbols.length; index < len; ++index) {
+            var currentSymbol = this.lettersymbols[index];
+            //console.log("Checking ", currentSymbol);
+            if ( new_value.indexOf(currentSymbol) >-1 ){
+              console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
+            }
+          }
+
+          this.currentlegend = [{"key": "aaa", "value": "bbbb"}, {"key": "cccc", "value": "dddd"}];
+        }
+
+
       }
 
     });
