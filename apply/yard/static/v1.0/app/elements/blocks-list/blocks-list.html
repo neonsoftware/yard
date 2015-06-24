@@ -1,0 +1,69 @@
+<dom-module id="blocks-list">
+
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+
+  <template>
+    <paper-material elevation="1">
+       <iron-ajax id="my_iron" url="/pieces" handle-as="json" on-response="handleResponse"></iron-ajax>
+
+          <template is="dom-repeat" items="{{onlineItems}}">
+            <div on-click="open_me">
+    						Content: &nbsp;&nbsp;<span style="font-size: 12px;">{{item.content}}</span><br>
+    						<span style="font-size: 11px;">{{item.legend}}</span><br>
+                <span style="font-size: 9px; color: grey; ">{{item.id}}</span><br>
+                <span style="font-size: 9px; color: grey; ">{{item.language}}</span><br>
+                <span style="font-size: 9px; color: grey; ">{{item.tags}}</span><br>
+                <br><br><br>
+            </div>
+          </template>
+       </table>
+
+       <br><br>
+       <paper-button on-click="refresh_me" raised>refresh</paper-button>
+
+    </paper-material>
+  </template>
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'blocks-list',
+      properties: {
+        onlineItems: {
+          type: Array,
+          notify: true,
+        }
+      },
+
+      ready: function() {
+        console.log('blocks-list. I am ready');
+        this.$.my_iron.generateRequest();
+      },
+
+      refresh_me:function(){
+        this.$.my_iron.generateRequest();
+      },
+
+      open_me: function(e) {
+        var model = e.model;
+        var id = model.item.id;
+        console.log('the id is', id);
+        window.location = '#!/blocks/' + String(id);
+        window.location.reload();
+        //model.set('item.ordered', model.item.ordered+1);
+      },
+
+      handleResponse:function(response){
+        console.log(response.detail.response);
+        this.onlineItems = response.detail.response;
+      }
+
+    });
+  })();
+</script>

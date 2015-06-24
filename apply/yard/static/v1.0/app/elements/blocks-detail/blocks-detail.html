@@ -1,0 +1,123 @@
+<dom-module id="blocks-detail">
+
+  <style>
+    :host {
+      display: block;
+    }
+  </style>
+
+  <template>
+    <iron-ajax id="my_iron_elem" auto handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="PUT" handle-as="json" on-response="handleResponse_post"></iron-ajax>
+
+    blabla
+
+    <iron-paper-material elevation="1">
+
+
+      <h4> Contacts </h4>
+
+
+      <span style="font-size: 12px;color: grey; ">Language</span>
+      <br>
+      <input type="text" value="{{currentitem.language}}" ></input>
+
+      <br><br>
+
+      <span style="font-size: 12px;color: grey; ">Tags</span>
+      <br>
+      <input type="text" value="{{currentitem.tags}}" ></input>
+
+      <br><br>
+
+      <span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
+      <br>
+      <iron-autogrow-textarea bind-value="{{currentcontent}}" id="a2">
+        <textarea></textarea>
+      </iron-autogrow-textarea>
+
+
+      <br><br>
+      <paper-button on-click="refresh_me">refresh</paper-button>
+      Elem : <span>{{objid}}</span></span>
+
+    </paper-material>
+
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'blocks-detail',
+      properties: {
+        currentitem: {
+          type: Object,
+          notify: true,
+          observer: '_on_content_change'
+        },
+        currentcontent: {
+          type: String,
+          notify: true,
+          observer: '_on_content_change'
+        },
+        objid: {
+          type: Number,
+          notify: true,
+          observer:'_obj_id_has_changed'
+        }
+      },
+
+      ready: function() {
+        console.log('My object has id ', this.objid);
+        console.log('blocks-detail. I am ready');
+      },
+
+      refresh_me:function(){
+        console.log('My object has id ', this.objid);
+        var newUrl = "/pieces/" + String(this.objid);
+        console.log('My new url is ', newUrl);
+        this.$.my_iron_elem.url = newUrl;
+        this.$.my_iron_elem.generateRequest();
+      },
+
+      save_me:function(){
+        console.log('Saving my object, which is: ', this.objid);
+        var newUrl = "/pieces/" + String(this.objid) + '/';
+        console.log('My new url is ', newUrl);
+        this.currentitem.content = this.currentcontent;
+        this.$.my_iron_save.url = newUrl;
+        this.$.my_iron_save.body = JSON.stringify(this.currentitem);
+        this.$.my_iron_save.contentType = "application/json";
+        this.$.my_iron_save.generateRequest();
+        document.querySelector('#saving-complete').show();
+
+      },
+
+      handleResponse:function(response){
+        console.log('Received response !' , response.detail.response);
+        this.currentitem = response.detail.response;
+        this.currentcontent = response.detail.response.content;
+      },
+
+      handleResponse_post:function(response){
+        console.log('Received response POST !' , response.detail.response);
+        this.currentitem = response.detail.response;
+        this.currentcontent = response.detail.response.content;
+      },
+
+      _obj_id_has_changed:function(new_value, old_value){
+        console.log('before : ', old_value, 'after : ', new_value);
+        this.refresh_me();
+      }
+      ,
+
+      _on_content_change:function(new_value, old_value){
+        console.log('content : before : ', old_value, 'after : ', new_value);
+      }
+
+    });
+  })();
+</script>

@@ -1,4 +1,4 @@
-<dom-module id="template-elem">
+<dom-module id="covers-detail">
 
   <style>
     :host {
@@ -96,7 +96,7 @@
   (function () {
     Polymer({
 
-      is: 'template-elem
+      is: 'covers-detail',
       properties: {
         currentitem: {
           type: Object,
@@ -111,7 +111,7 @@
 
       ready: function() {
         console.log('My object has id ', this.objid);
-        console.log('template-elem. I am ready');
+        console.log('app-elem. I am ready');
         this.$.my_iron_elem.generateRequest();
       },
 

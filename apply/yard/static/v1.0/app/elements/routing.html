@@ -32,17 +32,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.route = 'contact';
     });
 
-    page('/app-list-content', function () {
-      app.route = 'app-list-content';
+    page('/apps', function () {
+      app.route = 'apps-list';
     });
 
     page('/apps/:name', function (data) {
-      app.route = 'app-detail';
+      app.route = 'apps-detail';
+      app.params = data.params;
+    });
+
+    page('/blocks', function () {
+      app.route = 'blocks-list';
+    });
+
+    page('/blocks/:name', function (data) {
+      app.route = 'blocks-detail';
+      app.params = data.params;
+    });
+
+    page('/templates', function () {
+      app.route = 'templates-list';
+    });
+
+    page('/templates/:name', function (data) {
+      app.route = 'templates-detail';
+      app.params = data.params;
+    });
+
+    page('/covers', function () {
+      app.route = 'covers-list';
+    });
+
+    page('/covers/:name', function (data) {
+      app.route = 'covers-detail';
       app.params = data.params;
     });
 
 
-
+    console.log('Now web composnents are ready !!!!');
 
     // add #! before urls
     page({

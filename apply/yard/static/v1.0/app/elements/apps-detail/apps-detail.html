@@ -1,4 +1,4 @@
-<dom-module id="cover-elem">
+<dom-module id="apps-detail">
 
   <style>
     :host {
@@ -96,7 +96,7 @@
   (function () {
     Polymer({
 
-      is: 'cover-elem',
+      is: 'apps-detail',
       properties: {
         currentitem: {
           type: Object,
@@ -123,16 +123,6 @@
         this.$.my_iron_elem.generateRequest();
       },
 
-      open_me: function(e) {
-        var model = e.model;
-        var id = model.item.id;
-        console.log('the id is', id);
-        page('#!/apps/' + String(id));
-        //window.location = '#!/apps/' + String(id);
-        //window.location.reload();
-        //model.set('item.ordered', model.item.ordered+1);
-      },
-
       save_me:function(){
         console.log('Saving my object, which is: ', this.objid);
         var newUrl = "/applications/" + String(this.objid) + '/';
@@ -142,23 +132,26 @@
         this.$.my_iron_save.contentType = "application/json";
         this.$.my_iron_save.generateRequest();
         document.querySelector('#saving-complete').show();
-
       },
 
       handleResponse:function(response){
-        console.log('Received response !' , response.detail.response);
+        console.log('Received response from get :' , response.detail.response);
         this.currentitem = response.detail.response;
       },
 
       handleResponse_post:function(response){
-        console.log('Received response POST !' , response.detail.response);
-        this.currentitem = response.detail.response;
+        console.log('Received response from post :' , response.detail.response);
       },
 
       _obj_id_has_changed:function(new_value, old_value){
         console.log('before : ', old_value, 'after : ', new_value);
       }
 
+    });
+
+    window.addEventListener('WebComponentsReady', function() {
+
+      console.log("YEEEEEEEE");
     });
   })();
 </script>

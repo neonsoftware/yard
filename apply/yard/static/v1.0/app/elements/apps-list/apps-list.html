@@ -1,4 +1,4 @@
-<dom-module id="cover-list">
+<dom-module id="apps-list">
 
   <style>
     :host {
@@ -24,10 +24,10 @@
           <template is="dom-repeat" items="{{onlineItems}}">
             <tr on-click="open_me">
     					<td>
-    						<span style="font-size: 12px;"><i>{{item.position}}</i></span><br>
+    						<span style="font-size: 12px;">{{item.position}}</span><br>
     						<span style="font-size: 11px;">{{item.company}}</span>
     						<span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
-    						<span style="font-size: 9px; color: grey; ">{{item.portal}} </span>
+    						<span style="font-size: 9px; color: grey; ">{{item.portal}}</span>
     					</td>
               <td> <paper-checkbox checked="{{item.written}}"></paper-checkbox></td>
               <td> <paper-checkbox checked="{{item.called}}"></paper-checkbox></td>
@@ -54,7 +54,7 @@
   (function () {
     Polymer({
 
-      is: 'cover-list',
+      is: 'apps-list',
       properties: {
         onlineItems: {
           type: Array,
@@ -63,7 +63,9 @@
       },
 
       ready: function() {
-        console.log('app-list. I am ready');
+        console.log('apps-list. I am ready');
+        console.log('Params is ', app.params);
+
         this.$.my_iron.generateRequest();
       },
 

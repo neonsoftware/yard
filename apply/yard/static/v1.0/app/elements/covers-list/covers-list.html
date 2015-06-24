@@ -1,4 +1,4 @@
-<dom-module id="app-list">
+<dom-module id="covers-list">
 
   <style>
     :host {
@@ -54,7 +54,7 @@
   (function () {
     Polymer({
 
-      is: 'app-list',
+      is: 'covers-list',
       properties: {
         onlineItems: {
           type: Array,
@@ -63,7 +63,7 @@
       },
 
       ready: function() {
-        console.log('app-list. I am ready');
+        console.log('covers-list. I am ready');
         this.$.my_iron.generateRequest();
       },
 
@@ -75,7 +75,7 @@
         var model = e.model;
         var id = model.item.id;
         console.log('the id is', id);
-        window.location = '#!/apps/' + String(id);
+        window.location = '#!/covers/' + String(id);
         window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
       },

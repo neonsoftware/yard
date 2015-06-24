@@ -1,4 +1,4 @@
-<dom-module id="block-list">
+<dom-module id="templates-list">
 
   <style>
     :host {
@@ -54,7 +54,7 @@
   (function () {
     Polymer({
 
-      is: 'block-list',
+      is: 'templates-list',
       properties: {
         onlineItems: {
           type: Array,
@@ -63,7 +63,7 @@
       },
 
       ready: function() {
-        console.log('app-list. I am ready');
+        console.log('template-list. I am ready');
         this.$.my_iron.generateRequest();
       },
 
