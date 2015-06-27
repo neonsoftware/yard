@@ -55,6 +55,10 @@
           type: Array,
           value: []
         },
+        currentlegendObject: {
+          type: Object,
+          value: {}
+        },
         objid: {
           type: Number,
           observer:'_obj_id_has_changed'
@@ -83,6 +87,16 @@
 
       save_me: function(){
         this.currentitem.content = this.currentcontent;
+        this.currentitem.legend = [];
+        for (index = 0, len = this.currentlegend.length; index < len; ++index) {
+          for( var key in this.currentlegend[index] ){
+            this.currentitem.legend[key] = this.currentlegend[index][key];
+            console.log("AAAdding to current item legend !! ", currentSymbol);
+
+          }
+          console.log("AAAdding it ! ", currentSymbol);
+        }
+
         if( this.is_new ){
           console.log('Saving new object. POST');
           this.$.my_iron_save.url = "/pieces" ;
@@ -119,7 +133,9 @@
 
       _on_content_change: function(new_value, old_value){
 
-        if (typeof this.lettersymbols != 'undefined'){
+        var new_legendObject = {};
+
+        if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegendObject != 'undefined'){
           console.log('Content updated. Before: ', old_value, ', After: ', new_value);
           console.log('Checking also  ', this.objid, this.lettersymbols);
 
@@ -129,10 +145,32 @@
             //console.log("Checking ", currentSymbol);
             if ( new_value.indexOf(currentSymbol) >-1 ){
               console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
+              if( currentSymbol in this.currentlegendObject ){
+                console.log("WWWWWAAASSSSS present ! ", currentSymbol);
+                new_legendObject[currentSymbol] = this.currentlegendObject[currentSymbol];
+              }else{
+                console.log("AAAdding it ! ", currentSymbol);
+                new_legendObject[currentSymbol] = "";
+              }
             }
           }
 
-          this.currentlegend = [{"key": "aaa", "value": "bbbb"}, {"key": "cccc", "value": "dddd"}];
+          console.log("New legend : ", new_legendObject);
+
+          if( JSON.stringify(this.currentlegendObject) != JSON.stringify(new_legendObject) ){
+            console.log("Updating current.");
+            this.currentlegendObject = new_legendObject;
+            var new_legendList = [];
+            for( var key in new_legendObject ){
+              if( new_legendObject.hasOwnProperty(key) ){
+                console.log("Adding to list :", key);
+                new_legendList.push({"key": new_legendObject[key]});
+              }
+            }
+            this.currentlegend = new_legendList;
+          }
+
+
         }
 
 
