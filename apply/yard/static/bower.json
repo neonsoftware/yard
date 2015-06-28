@@ -16,6 +16,7 @@
     "tests"
   ],
   "dependencies": {
+    "more-routing" : "PolymerLabs/more-routing"
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
     "platinum-elements": "PolymerElements/platinum-elements",

@@ -60,7 +60,7 @@
        </table>
      </div>
      <div  centerButton>
-       <paper-button tabindex="0" raised class="colorful" source="ciao">new</paper-button>
+         <paper-button tabindex="0" raised class="colorful" on-click="open_new">new</paper-button>
      </div>
     </paper-material>
   </template>
@@ -96,6 +96,12 @@
         window.location = '#!/apps/' + String(id);
         window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
+      },
+
+      open_new: function(e) {
+        console.log('To new !!');
+        window.location = '#!/apps/new' ;
+        window.location.reload();
       },
 
       handleResponse:function(response){

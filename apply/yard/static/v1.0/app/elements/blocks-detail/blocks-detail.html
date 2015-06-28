@@ -7,11 +7,11 @@
     <paper-material elevation="1">
       <span style="font-size: 12px;color: grey; ">Language</span>
       <br>
-      <paper-input type="text" bind-value="{{currentitem.language}}" ></paper-input>
+      <paper-input type="text" value="{{currentitem.language}}" ></paper-input>
       <br><br>
       <span style="font-size: 12px;color: grey; ">Tags</span>
       <br>
-      <paper-input type="text" bind-value="{{currentitem.tags}}" ></paper-input>
+      <paper-input type="text" value="{{currentitem.tags}}" ></paper-input>
       <br><br>
       <span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
       <br>
@@ -21,7 +21,7 @@
       <br><br>
       <template is="dom-repeat" items="{{currentlegend}}">
         <i>Describe<span>{{item.key}}</span></i> &nbsp;&nbsp;
-        <paper-input type="text" bind-value="{{item.value}}" ></paper-input><br>
+        <paper-input type="text" value="{{item.value}}" ></paper-input><br>
       </template>
 
       <paper-button on-click="save_me">save</paper-button>

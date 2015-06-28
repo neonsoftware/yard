@@ -59,6 +59,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <span id="browser-sync-binding"></span>
   <template is="dom-bind" id="app">
 
+    <!--<more-routing-config driver="path"></more-routing-config>-->
+
     <paper-drawer-panel id="paperDrawerPanel">
       <div drawer>
 
@@ -130,7 +132,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </section>
 
             <section data-route="apps-detail">
-                This is the part with <span>{{params.name}}</span>
                 <apps-detail objid="{{params.name}}"></apps-detail>
             </section>
 
