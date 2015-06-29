@@ -22,17 +22,12 @@
 
 
   <template>
-    <iron-ajax id="my_iron_elem" method="GET" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="PUT" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
-
-    Id : <span>{{computeAjaxStuff(objid)}}</span>
-
+    <iron-ajax id="my_iron_elem" auto method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card elevation="1">
-      <paper-input type="text" label="Language" floatingLabel value="{{currentitem.language}}" ></paper-input>
-      <br><br>
-      <paper-input type="text" label="Language" floatingLabel value="{{currentitem.tags}}" ></paper-input>
-      <br><br>
+      <paper-input type="text" label="Language" floatingLabel value="{{currentitem.language}}"></paper-input>
+      <paper-input type="text" label="Tags" floatingLabel value="{{currentitem.tags}}" ></paper-input>
       <span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
       <br>
       <iron-autogrow-textarea bind-value="{{currentcontent}}">
@@ -101,40 +96,26 @@
 
       },
 
-      refresh_me: function(){
-        this.$.my_iron_elem.url = "/pieces/" + String(this.objid);
-        this.$.my_iron_elem.generateRequest();
-      },
-
       save_me: function(){
         this.currentitem.content = this.currentcontent;
         this.currentitem.legend = [];
         for (index = 0, len = this.currentlegend.length; index < len; ++index) {
           for( var key in this.currentlegend[index] ){
             this.currentitem.legend[key] = this.currentlegend[index][key];
-            console.log("AAAdding to current item legend !! ", currentSymbol);
-
+            console.log("AAAdding to current item legend !! ", key, this.currentlegend[index][key]);
           }
-          console.log("AAAdding it ! ", currentSymbol);
-        }
-
-        if( this.is_new ){
-          console.log('Saving new object. POST');
-          this.$.my_iron_save.url = "/pieces" ;
-          this.$.my_iron_save.method = "POST"
-        }else {
-          console.log('Updating object. PUT');
-          this.$.my_iron_save.url = "/pieces/" + String(this.objid) + '/';
-          this.$.my_iron_save.method = "PUT"
+          console.log("AAAdding it ! ");
         }
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
         this.$.my_iron_save.generateRequest();
       },
 
       _handle_response_get: function(response){
-        console.log('Received response from GET: ', response.detail.response);
-        this.currentitem = response.detail.response;
-        this.currentcontent = response.detail.response.content;
+        if ( typeof this.objid != 'undefined' && typeof response.detail.response != 'undefined'){
+          console.log('Received response from GET: ', response.detail.response);
+          this.currentitem = response.detail.response;
+          this.currentcontent = response.detail.response.content;
+        }
       },
 
       _handle_response_post: function(response){
@@ -144,13 +125,9 @@
       },
 
       _obj_id_has_changed: function(new_value, old_value){
-
         console.log('ON CHANGE :  ', new_value);
-
-        this.is_new = ( new_value === "new" );
-        console.log("Is new : ", this.is_new);
-        if (!this.is_new){
-          this.refresh_me();
+        if ( new_value !== "new" ){
+            this.$.my_iron_get.generateRequest();
         }
       },
 
@@ -158,9 +135,34 @@
         return 'Describe ' + currentv ;
       },
 
-      computeAjaxStuff:function(currentId){
-        console.log('COMUPTE : ' + currentId);
-        return 'COMUPTE : ' + currentId ;
+      computeGetUrl:function(currentId){
+        if ( currentId === "new" ) {
+          console.log('Computing GET URL: empty' );
+          return "" ;
+        } else {
+          console.log('Computing GET URL: ', "/pieces/" + String(this.objid) );
+          return "/pieces/" + String(this.objid) ;
+        }
+      },
+
+      computePushMethod:function(currentId){
+        if ( currentId === "new" ) {
+          console.log('Computing Push method : PUSH' );
+          return "PUSH" ;
+        } else {
+          console.log('Computing Push method : PUT' );
+          return "PUT" ;
+        }
+      },
+
+      computePushUrl:function(currentId){
+        if ( currentId === "new" ) {
+          console.log('Computing Push URL:', '/pieces' );
+          return '/pieces' ;
+        } else {
+          console.log('Computing Push URL: ', '/pieces/' + currentId + '/' );
+          return '/pieces/' + currentId + '/' ;
+        }
       },
 
       _on_content_change: function(new_value, old_value){
