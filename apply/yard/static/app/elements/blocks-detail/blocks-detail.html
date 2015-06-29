@@ -22,8 +22,11 @@
 
 
   <template>
-    <iron-ajax id="my_iron_elem" method="GET" handle-as="json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="PUT" handle-as="json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="my_iron_elem" method="GET" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="PUT" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+
+    Id : <span>{{computeAjaxStuff(objid)}}</span>
+
 
     <paper-material card elevation="1">
       <paper-input type="text" label="Language" floatingLabel value="{{currentitem.language}}" ></paper-input>
@@ -125,7 +128,6 @@
           this.$.my_iron_save.method = "PUT"
         }
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
-        this.$.my_iron_save.contentType = "application/json";
         this.$.my_iron_save.generateRequest();
       },
 
@@ -142,6 +144,9 @@
       },
 
       _obj_id_has_changed: function(new_value, old_value){
+
+        console.log('ON CHANGE :  ', new_value);
+
         this.is_new = ( new_value === "new" );
         console.log("Is new : ", this.is_new);
         if (!this.is_new){
@@ -151,6 +156,11 @@
 
       computeKey:function(currentv){
         return 'Describe ' + currentv ;
+      },
+
+      computeAjaxStuff:function(currentId){
+        console.log('COMUPTE : ' + currentId);
+        return 'COMUPTE : ' + currentId ;
       },
 
       _on_content_change: function(new_value, old_value){
