@@ -1,17 +1,34 @@
 <dom-module id="blocks-detail">
 
+  <style>
+    paper-button[raised].colorful {
+      background: #4285f4;
+      color: #fff;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [card] {
+      width: 600px;
+      margin: 16px auto;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
+    }
+  </style>
+
+
   <template>
     <iron-ajax id="my_iron_elem" method="GET" handle-as="json" on-response="_handle_response_get"></iron-ajax>
     <iron-ajax id="my_iron_save" method="PUT" handle-as="json" on-response="_handle_response_post"></iron-ajax>
 
-    <paper-material elevation="1">
-      <span style="font-size: 12px;color: grey; ">Language</span>
-      <br>
-      <paper-input type="text" value="{{currentitem.language}}" ></paper-input>
+    <paper-material card elevation="1">
+      <paper-input type="text" label="Language" floatingLabel value="{{currentitem.language}}" ></paper-input>
       <br><br>
-      <span style="font-size: 12px;color: grey; ">Tags</span>
-      <br>
-      <paper-input type="text" value="{{currentitem.tags}}" ></paper-input>
+      <paper-input type="text" label="Language" floatingLabel value="{{currentitem.tags}}" ></paper-input>
       <br><br>
       <span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
       <br>
@@ -20,11 +37,12 @@
       </iron-autogrow-textarea>
       <br><br>
       <template is="dom-repeat" items="{{currentlegend}}">
-        <i>Describe<span>{{item.key}}</span></i> &nbsp;&nbsp;
-        <paper-input type="text" value="{{item.value}}" ></paper-input><br>
+        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabelvalue="{{item.value}}" ></paper-input><br>
       </template>
 
-      <paper-button on-click="save_me">save</paper-button>
+      <div centerButton>
+          <paper-button tabindex="0" raised class="colorful" on-click="save_me">save</paper-button>
+      </div>
     </paper-material>
 
   </template>
@@ -131,6 +149,10 @@
         }
       },
 
+      computeKey:function(currentv){
+        return 'Describe ' + currentv ;
+      },
+
       _on_content_change: function(new_value, old_value){
 
         var new_legendObject = {};
@@ -164,14 +186,17 @@
             for( var key in new_legendObject ){
               if( new_legendObject.hasOwnProperty(key) ){
                 console.log("Adding to list :", key);
-                new_legendList.push({"key": new_legendObject[key]});
+                new_legendList.push({"key": key, "value": new_legendObject[key]});
               }
             }
             this.currentlegend = new_legendList;
+            console.log("Updated legend is :", new_legendList);
           }
 
 
+
         }
+
 
 
       }

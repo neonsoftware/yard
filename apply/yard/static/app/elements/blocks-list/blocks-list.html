@@ -1,31 +1,45 @@
 <dom-module id="blocks-list">
 
   <style>
-    :host {
-      display: block;
+
+    paper-button[raised].colorful {
+      background: #4285f4;
+      color: #fff;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [card] {
+      width: 600px;
+      margin: 16px auto;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
     }
   </style>
 
   <template>
-    <paper-material elevation="1">
-       <iron-ajax id="my_iron" url="/pieces" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" url="/pieces" handle-as="json" on-response="handleResponse"></iron-ajax>
+
 
           <template is="dom-repeat" items="{{onlineItems}}">
+            <paper-material card elevation="1">
             <div on-click="open_me">
-    						Content: &nbsp;&nbsp;<span style="font-size: 12px;">{{item.content}}</span><br>
-    						<span style="font-size: 11px;">{{item.legend}}</span><br>
-                <span style="font-size: 9px; color: grey; ">{{item.id}}</span><br>
-                <span style="font-size: 9px; color: grey; ">{{item.language}}</span><br>
-                <span style="font-size: 9px; color: grey; ">{{item.tags}}</span><br>
-                <br><br><br>
+    						<span style="font-size: 16px;">{{item.content}}</span><br>
+    						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+                <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
             </div>
+            </paper-material>
           </template>
        </table>
 
-       <br><br>
-       <paper-button on-click="refresh_me" raised>refresh</paper-button>
+       <div centerButton>
+           <paper-button tabindex="0" raised class="colorful" on-click="open_new">new</paper-button>
+       </div>
 
-    </paper-material>
   </template>
 </dom-module>
 
@@ -46,6 +60,11 @@
         this.$.my_iron.generateRequest();
       },
 
+      ready: function() {
+        console.log('blocks-list. I am attached.');
+        this.$.my_iron.generateRequest();
+      },
+
       refresh_me:function(){
         this.$.my_iron.generateRequest();
       },
@@ -58,6 +77,13 @@
         window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
       },
+
+      open_new: function(e) {
+        console.log('To new !!');
+        window.location = '#!/apps/new' ;
+        window.location.reload();
+      },
+
 
       handleResponse:function(response){
         console.log(response.detail.response);
