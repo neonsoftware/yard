@@ -22,7 +22,7 @@
 
 
   <template>
-    <iron-ajax id="my_iron_elem" auto method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
     <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card elevation="1">
@@ -35,7 +35,7 @@
       </iron-autogrow-textarea>
       <br><br>
       <template is="dom-repeat" items="{{currentlegend}}">
-        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabelvalue="{{item.value}}" ></paper-input><br>
+        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
       </template>
 
       <div centerButton>
@@ -85,27 +85,17 @@
         }
       },
 
-      ready:function(){
-        console.log('Ready. Initializing symbols.');
-        console.log('Checking also  ', this.objid, this.lettersymbols);
-
-      },
-      attached:function(){
-        console.log('Attached. Initializing symbols.');
-        console.log('Checking also  ', this.objid, this.lettersymbols);
-
-      },
-
       save_me: function(){
         this.currentitem.content = this.currentcontent;
-        this.currentitem.legend = [];
+        this.currentitem.legend = {};
         for (index = 0, len = this.currentlegend.length; index < len; ++index) {
-          for( var key in this.currentlegend[index] ){
-            this.currentitem.legend[key] = this.currentlegend[index][key];
-            console.log("AAAdding to current item legend !! ", key, this.currentlegend[index][key]);
-          }
-          console.log("AAAdding it ! ");
+          console.log("I am now iterating on this object :  ", this.currentlegend[index]);
+          var new_key = this.currentlegend[index]["key"];
+          var new_value = this.currentlegend[index]["value"];
+          this.currentitem.legend[new_key] = new_value;
         }
+        console.log("In the end legend is : ", this.currentitem.legend );
+
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
         this.$.my_iron_save.generateRequest();
       },
@@ -204,15 +194,9 @@
             this.currentlegend = new_legendList;
             console.log("Updated legend is :", new_legendList);
           }
-
-
-
         }
 
-
-
       }
-
     });
   })();
 </script>
