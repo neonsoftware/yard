@@ -86,17 +86,20 @@
       },
 
       save_me: function(){
+        var new_legend = {};
         this.currentitem.content = this.currentcontent;
-        this.currentitem.legend = {};
         for (index = 0, len = this.currentlegend.length; index < len; ++index) {
           console.log("I am now iterating on this object :  ", this.currentlegend[index]);
           var new_key = this.currentlegend[index]["key"];
           var new_value = this.currentlegend[index]["value"];
-          this.currentitem.legend[new_key] = new_value;
+          new_legend[new_key] = new_value;
         }
+        this.currentitem.legend = JSON.stringify(new_legend);
         console.log("In the end legend is : ", this.currentitem.legend );
 
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
+        console.log("Payload is  : ", JSON.stringify(this.currentitem) );
+
         this.$.my_iron_save.generateRequest();
       },
 
