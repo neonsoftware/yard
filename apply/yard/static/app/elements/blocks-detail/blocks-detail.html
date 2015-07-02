@@ -86,20 +86,11 @@
       },
 
       save_me: function(){
-        var new_legend = {};
         this.currentitem.content = this.currentcontent;
-        for (index = 0, len = this.currentlegend.length; index < len; ++index) {
-          console.log("I am now iterating on this object :  ", this.currentlegend[index]);
-          var new_key = this.currentlegend[index]["key"];
-          var new_value = this.currentlegend[index]["value"];
-          new_legend[new_key] = new_value;
-        }
-        this.currentitem.legend = JSON.stringify(new_legend);
+        this.currentitem.legend = JSON.stringify(this.currentlegend);
         console.log("In the end legend is : ", this.currentitem.legend );
-
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
         console.log("Payload is  : ", JSON.stringify(this.currentitem) );
-
         this.$.my_iron_save.generateRequest();
       },
 
@@ -108,6 +99,8 @@
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
+          this.currentlegend = JSON.parse(response.detail.response.legend);
+          console.log('The legend got from the GET is :', this.currentlegend );
         }
       },
 
@@ -115,6 +108,8 @@
         console.log('Received response from POST: ', response.detail.response);
         this.currentitem = response.detail.response;
         this.currentcontent = response.detail.response.content;
+        this.currentlegend = JSON.parse(response.detail.response.legend);
+        console.log('The legend got from the POST is :', this.currentlegend );
       },
 
       _obj_id_has_changed: function(new_value, old_value){
@@ -129,40 +124,51 @@
       },
 
       computeGetUrl:function(currentId){
-        if ( currentId === "new" ) {
-          console.log('Computing GET URL: empty' );
-          return "" ;
-        } else {
-          console.log('Computing GET URL: ', "/pieces/" + String(this.objid) );
-          return "/pieces/" + String(this.objid) ;
-        }
+        var new_get_url = ( currentId === "new" ) ? '' : '/pieces/' + String(this.objid);
+        console.log('Computing GET URL :', new_get_url );
+        return new_get_url;
       },
 
       computePushMethod:function(currentId){
-        if ( currentId === "new" ) {
-          console.log('Computing Push method : PUSH' );
-          return "PUSH" ;
-        } else {
-          console.log('Computing Push method : PUT' );
-          return "PUT" ;
-        }
+        var new_push_method = ( currentId === "new" ) ? "POST" : "PUT";
+        console.log('Computing Push method :', new_push_method );
+        return new_push_method;
       },
 
       computePushUrl:function(currentId){
-        if ( currentId === "new" ) {
-          console.log('Computing Push URL:', '/pieces' );
-          return '/pieces' ;
-        } else {
-          console.log('Computing Push URL: ', '/pieces/' + currentId + '/' );
-          return '/pieces/' + currentId + '/' ;
-        }
+        var new_push_url = ( currentId === "new" ) ? '/pieces' : '/pieces/' + currentId + '/';
+        console.log('Computing Push URL :', new_push_url );
+        return new_push_url;
       },
+
+      _getFromCurrentLegendOrEmpty: function(symbol_to_search){
+        var j, len;
+        console.log("Current currentlegend is  ", this.currentlegend);
+
+        for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
+          var currentObject = this.currentlegend[j];
+          var currentObjectKey = currentObject["key"];
+          console.log("Current object is ", currentObject);
+          console.log("Current object key is ", currentObjectKey);
+          console.log("Checking if there is something ", symbol_to_search);
+          console.log("Comparing  ", this.currentlegend[j]["key"], 'to ', symbol_to_search);
+
+          if (this.currentlegend[j]["key"] === symbol_to_search){
+            console.log("WWWWWAAASSSSS present ! ", symbol_to_search);
+            return this.currentlegend[j]["value"];
+          }
+        }
+        console.log("AAAdding it ! ", symbol_to_search);
+        return "";
+      }
+
+      ,
 
       _on_content_change: function(new_value, old_value){
 
-        var new_legendObject = {};
+        var new_legend = []
 
-        if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegendObject != 'undefined'){
+        if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
           console.log('Content updated. Before: ', old_value, ', After: ', new_value);
           console.log('Checking also  ', this.objid, this.lettersymbols);
 
@@ -172,31 +178,12 @@
             //console.log("Checking ", currentSymbol);
             if ( new_value.indexOf(currentSymbol) >-1 ){
               console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
-              if( currentSymbol in this.currentlegendObject ){
-                console.log("WWWWWAAASSSSS present ! ", currentSymbol);
-                new_legendObject[currentSymbol] = this.currentlegendObject[currentSymbol];
-              }else{
-                console.log("AAAdding it ! ", currentSymbol);
-                new_legendObject[currentSymbol] = "";
-              }
+              new_legend.push({"key" : currentSymbol , "value" : this._getFromCurrentLegendOrEmpty(currentSymbol) });
             }
           }
 
-          console.log("New legend : ", new_legendObject);
-
-          if( JSON.stringify(this.currentlegendObject) != JSON.stringify(new_legendObject) ){
-            console.log("Updating current.");
-            this.currentlegendObject = new_legendObject;
-            var new_legendList = [];
-            for( var key in new_legendObject ){
-              if( new_legendObject.hasOwnProperty(key) ){
-                console.log("Adding to list :", key);
-                new_legendList.push({"key": key, "value": new_legendObject[key]});
-              }
-            }
-            this.currentlegend = new_legendList;
-            console.log("Updated legend is :", new_legendList);
-          }
+          console.log("New legend : ", new_legend);
+          this.currentlegend = new_legend;
         }
 
       }
