@@ -72,20 +72,10 @@
 
       is: 'apps-list',
       properties: {
-        onlineItems: {
-          type: Array,
-          notify: true,
-        }
       },
 
       ready: function() {
         console.log('apps-list. I am ready');
-        console.log('Params is ', app.params);
-
-        this.$.my_iron.generateRequest();
-      },
-
-      refresh_me:function(){
         this.$.my_iron.generateRequest();
       },
 

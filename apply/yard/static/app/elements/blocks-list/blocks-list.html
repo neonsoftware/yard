@@ -49,23 +49,10 @@
 
       is: 'blocks-list',
       properties: {
-        onlineItems: {
-          type: Array,
-          notify: true,
-        }
       },
 
       ready: function() {
         console.log('blocks-list. I am ready');
-        this.$.my_iron.generateRequest();
-      },
-
-      ready: function() {
-        console.log('blocks-list. I am attached.');
-        this.$.my_iron.generateRequest();
-      },
-
-      refresh_me:function(){
         this.$.my_iron.generateRequest();
       },
 
@@ -80,10 +67,9 @@
 
       open_new: function(e) {
         console.log('To new !!');
-        window.location = '#!/apps/new' ;
+        window.location = '#!/blocks/new';
         window.location.reload();
       },
-
 
       handleResponse:function(response){
         console.log(response.detail.response);
