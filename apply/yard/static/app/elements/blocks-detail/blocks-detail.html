@@ -53,7 +53,10 @@
 
       is: 'blocks-detail',
       properties: {
-        is_new: Boolean,
+        debug: {
+          type: Boolean,
+          value: false
+        },
         currentitem: {
           type: Object,
           value: {"language":"en",
@@ -61,19 +64,6 @@
                   "content": "",
                   "legend": ""
                   }
-        },
-        currentcontent: {
-          type: String,
-          observer: '_on_content_change',
-          value: ""
-        },
-        currentlegend: {
-          type: Array,
-          value: []
-        },
-        currentlegendObject: {
-          type: Object,
-          value: {}
         },
         objid: {
           type: Number,
@@ -143,50 +133,44 @@
 
       _getFromCurrentLegendOrEmpty: function(symbol_to_search){
         var j, len;
-        console.log("Current currentlegend is  ", this.currentlegend);
+        if(this.debug) console.log("Current currentlegend is  ", this.currentlegend);
 
         for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
           var currentObject = this.currentlegend[j];
           var currentObjectKey = currentObject["key"];
-          console.log("Current object is ", currentObject);
-          console.log("Current object key is ", currentObjectKey);
-          console.log("Checking if there is something ", symbol_to_search);
-          console.log("Comparing  ", this.currentlegend[j]["key"], 'to ', symbol_to_search);
+          if(this.debug) console.log("Current object is ", currentObject);
+          if(this.debug) console.log("Current object key is ", currentObjectKey);
+          if(this.debug) console.log("Checking if there is something ", symbol_to_search);
+          if(this.debug) console.log("Comparing  ", this.currentlegend[j]["key"], 'to ', symbol_to_search);
 
           if (this.currentlegend[j]["key"] === symbol_to_search){
-            console.log("WWWWWAAASSSSS present ! ", symbol_to_search);
+            if(this.debug) console.log("WWWWWAAASSSSS present ! ", symbol_to_search);
             return this.currentlegend[j]["value"];
           }
         }
-        console.log("AAAdding it ! ", symbol_to_search);
+        if(this.debug) console.log("AAAdding it ! ", symbol_to_search);
         return "";
-      }
-
-      ,
+      },
 
       _on_content_change: function(new_value, old_value){
 
         var new_legend = []
-
         if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
-          console.log('Content updated. Before: ', old_value, ', After: ', new_value);
-          console.log('Checking also  ', this.objid, this.lettersymbols);
-
+          if(this.debug) console.log('Content updated. Before: ', old_value, ', After: ', new_value);
+          if(this.debug) console.log('Checking also  ', this.objid, this.lettersymbols);
           var index, len;
           for (index = 0, len = this.lettersymbols.length; index < len; ++index) {
             var currentSymbol = this.lettersymbols[index];
-            //console.log("Checking ", currentSymbol);
             if ( new_value.indexOf(currentSymbol) >-1 ){
-              console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
+              if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
               new_legend.push({"key" : currentSymbol , "value" : this._getFromCurrentLegendOrEmpty(currentSymbol) });
             }
           }
-
-          console.log("New legend : ", new_legend);
+          if(this.debug) console.log("New legend : ", new_legend);
           this.currentlegend = new_legend;
         }
+      } // _on_content_change
 
-      }
     });
   })();
 </script>
