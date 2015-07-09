@@ -1,52 +1,46 @@
 <dom-module id="covers-list">
 
   <style>
-    :host {
-      display: block;
+
+    paper-button[raised].colorful {
+      background: #4285f4;
+      color: #fff;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [card] {
+      width: 600px;
+      margin: 16px auto;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
     }
   </style>
 
   <template>
-    <paper-material elevation="1">
-       <iron-ajax id="my_iron" url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
-
-       <table>
-  				<tr>
-  					<th>Position</th>
-  					<th><iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon></th>
-  					<th><iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon></th>
-  					<th><iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon></th>
-  					<th><iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon></th>
-  					<th>Next</th>
-  					<th></th>
-  				</tr>
+    <iron-ajax id="my_iron" url="/documents" handle-as="json" on-response="handleResponse"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
-            <tr on-click="open_me">
-    					<td>
-    						<span style="font-size: 12px;"><i>{{item.position}}</i></span><br>
-    						<span style="font-size: 11px;">{{item.company}}</span>
-    						<span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
-    						<span style="font-size: 9px; color: grey; ">{{item.portal}} </span>
-    					</td>
-              <td> <paper-checkbox checked="{{item.written}}"></paper-checkbox></td>
-              <td> <paper-checkbox checked="{{item.called}}"></paper-checkbox></td>
-              <td> <paper-checkbox checked="{{item.interviewed}}"></paper-checkbox></td>
-              <td> <paper-checkbox checked="{{item.followup}}"></paper-checkbox></td>
-
-              <td>{{item.next}}</td>
-    					<td>
-    						<iron-icon icon="create" style="width: 18px; height: 18px;"></iron-icon >
-    						<iron-icon  icon="delete" style="width: 18px; height: 18px;" ></core-icon >
-    					</td>
-  				  </tr>
+            <paper-material card elevation="1">
+            <div on-click="open_me">
+              <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
+              <span style="font-size: 16px;">{{item.content}}</span><br>
+    						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+                <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+              <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
+          </div>
+            </paper-material>
           </template>
        </table>
 
-       <br><br>
-       <paper-button on-click="refresh_me" raised>refresh</paper-button>
+       <div centerButton>
+           <paper-button tabindex="0" raised class="colorful" on-click="open_new">new</paper-button>
+       </div>
 
-    </paper-material>
   </template>
 </dom-module>
 
@@ -56,18 +50,10 @@
 
       is: 'covers-list',
       properties: {
-        onlineItems: {
-          type: Array,
-          notify: true,
-        }
       },
 
       ready: function() {
-        console.log('covers-list. I am ready');
-        this.$.my_iron.generateRequest();
-      },
-
-      refresh_me:function(){
+        console.log('template-list. I am ready');
         this.$.my_iron.generateRequest();
       },
 
@@ -78,6 +64,12 @@
         window.location = '#!/covers/' + String(id);
         window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
+      },
+
+      open_new: function(e) {
+        console.log('To new !!');
+        window.location = '#!/covers/new';
+        window.location.reload();
       },
 
       handleResponse:function(response){
