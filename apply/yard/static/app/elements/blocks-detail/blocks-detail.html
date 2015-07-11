@@ -137,15 +137,15 @@
 
         for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
           var currentObject = this.currentlegend[j];
-          var currentObjectKey = currentObject["key"];
+          var currentObjectKey = currentObject.key;
           if(this.debug) console.log("Current object is ", currentObject);
           if(this.debug) console.log("Current object key is ", currentObjectKey);
           if(this.debug) console.log("Checking if there is something ", symbol_to_search);
-          if(this.debug) console.log("Comparing  ", this.currentlegend[j]["key"], 'to ', symbol_to_search);
+          if(this.debug) console.log("Comparing  ", this.currentlegend[j].key, 'to ', symbol_to_search);
 
-          if (this.currentlegend[j]["key"] === symbol_to_search){
+          if (this.currentlegend[j].key === symbol_to_search){
             if(this.debug) console.log("WWWWWAAASSSSS present ! ", symbol_to_search);
-            return this.currentlegend[j]["value"];
+            return this.currentlegend[j].value;
           }
         }
         if(this.debug) console.log("AAAdding it ! ", symbol_to_search);
@@ -154,7 +154,7 @@
 
       _on_content_change: function(new_value, old_value){
 
-        var new_legend = []
+        var new_legend = [];
         if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
           if(this.debug) console.log('Content updated. Before: ', old_value, ', After: ', new_value);
           if(this.debug) console.log('Checking also  ', this.objid, this.lettersymbols);

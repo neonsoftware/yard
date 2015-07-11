@@ -129,11 +129,11 @@
         if ( this.is_new ) {
           console.log('Saving new object. POST');
           this.$.my_iron_save.url = "/applications" ;
-          this.$.my_iron_save.method = "POST"
+          this.$.my_iron_save.method = "POST";
         } else {
           console.log('Updating object. PUT');
           this.$.my_iron_save.url = "/applications/" + String(this.objid) + '/';
-          this.$.my_iron_save.method = "PUT"
+          this.$.my_iron_save.method = "PUT";
         }
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
         this.$.my_iron_save.contentType = "application/json";
