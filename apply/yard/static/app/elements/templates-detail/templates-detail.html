@@ -91,9 +91,8 @@
       _handle_response_post: function(response){
         console.log('Received response from POST: ', response.detail.response);
         this.currentitem = response.detail.response;
-        this.currentcontent = response.detail.response.content;
-        this.currentlegend = JSON.parse(response.detail.response.legend);
-        console.log('The legend got from the POST is :', this.currentlegend );
+        this.currentpieces = JSON.parse(response.detail.response.pieces);
+        console.log('The pieces from the POST is :', this.currentpieces );
       },
 
       _obj_id_has_changed: function(new_value, old_value){
