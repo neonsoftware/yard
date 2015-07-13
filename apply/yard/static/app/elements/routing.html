@@ -63,11 +63,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       app.route = 'covers-list';
     });
 
-    page('/covers/:name', function (data) {
+    page('/covers/new', function (data) {
+      app.route = 'covers-new';
+    });
+
+    page('/covers/:name/:template', function (data) {
       app.route = 'covers-detail';
       app.params = data.params;
     });
-
 
     console.log('Now web composnents are ready !!!!');
 

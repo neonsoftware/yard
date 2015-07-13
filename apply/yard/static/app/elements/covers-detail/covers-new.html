@@ -1,4 +1,4 @@
-<dom-module id="covers-list">
+<dom-module id="covers-new">
 
   <style>
 
@@ -22,7 +22,7 @@
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/documents" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" url="/categories" handle-as="json" on-response="handleResponse"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
             <paper-material card elevation="1">
@@ -38,7 +38,7 @@
        </table>
 
        <div centerButton>
-           <paper-button tabindex="0" raised class="colorful" on-click="open_new">new</paper-button>
+           <paper-button tabindex="0" raised class="colorful" on-click="open_empty">empty</paper-button>
        </div>
 
   </template>
@@ -48,7 +48,7 @@
   (function () {
     Polymer({
 
-      is: 'covers-list',
+      is: 'covers-new',
       properties: {
       },
 
@@ -61,14 +61,14 @@
         var model = e.model;
         var id = model.item.id;
         console.log('the id is', id);
-        window.location = '#!/documents/' + String(id) + '/empty';
+        window.location = '#!/covers/new/' + String(id);
         window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
       },
 
-      open_new: function(e) {
+      open_empty: function(e) {
         console.log('To new !!');
-        window.location = '#!/covers/new';
+        window.location = '#!/covers/new/empty';
         window.location.reload();
       },
 

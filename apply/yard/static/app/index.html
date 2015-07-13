@@ -155,8 +155,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <covers-list></covers-list>
             </section>
 
+            <section data-route="covers-new">
+                <covers-new></covers-new>
+            </section>
+
             <section data-route="covers-detail">
-                <covers-detail objid="{{params.name}}"></covers-detail>
+                <covers-detail objid="{{params.name}}" objtempl="{{params.template}}"></covers-detail>
             </section>
 
           </iron-pages>
