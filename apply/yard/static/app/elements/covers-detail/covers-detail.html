@@ -33,9 +33,18 @@
         <textarea></textarea>
       </iron-autogrow-textarea>
       <br><br>
+      Content : <span>{{currentcontent}}</span><br>
+      Example : <span>{{currentexample}}</span><br>
       Legend : <span>{{currentlegend}}</span><br>
+      Leggenda : <span>{{currentleggenda}}</span><br>
 
       <template is="dom-repeat" items="{{currentlegend}}">
+        Item :<span>{{item}}</span>
+        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
+        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
+      </template>
+
+      <template is="dom-repeat" items="{{currentleggenda}}">
         Item :<span>{{item}}</span>
         Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
         <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
@@ -67,14 +76,21 @@
         objtempl: {
           type: Number,
           observer:'_obj_templ_has_changed'
+        },
+        currentlegend: {
+          type: Array,
+          value: [],
+          observer:'_on_legend_change'
         }
       },
 
       ready: function(){
         this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
         this.currentitem = {"name":"", "content": "" };
-        this.currentlegend = [];
-      },
+        //this.currentlegend = [];
+        this.currentexample = [{"key":"ciao", "value":"ciuccio"}, {"key":"cuppa", "value":"salla"}];
+        this.currentleggenda = [{"key":"ciao", "value":"ciuccio"}, {"key":"cuppa", "value":"salla"}];
+    },
 
       save_me: function(){
       },
@@ -123,7 +139,7 @@
         console.log('Received response from POST: ', response.detail.response);
         this.currentitem = response.detail.response;
         this.currentcontent = response.detail.response.content;
-        this.currentlegend = JSON.parse(response.detail.response.legend);
+        //this.currentlegend = JSON.parse(response.detail.response.legend);
         console.log('The legend got from the POST is :', this.currentlegend );
       },
 
@@ -174,7 +190,10 @@
       },
 
       _on_content_change: function(new_value, old_value){
+      }, // _on_content_change
 
+      _on_legend_change: function(new_value, old_value){
+        console.log('Changed legend : new value is ', new_value );
       } // _on_content_change
 
     });
