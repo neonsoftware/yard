@@ -38,17 +38,22 @@
       Legend : <span>{{currentlegend}}</span><br>
       Leggenda : <span>{{currentleggenda}}</span><br>
 
+      <h4>Leggenda : </h4>
+      <template is="dom-repeat" items="{{currentleggenda}}">
+        Item :<span>{{item}}</span>
+        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
+        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
+      </template>
+
+      <h4>Leggend </h4>
+
       <template is="dom-repeat" items="{{currentlegend}}">
         Item :<span>{{item}}</span>
         Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
         <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
       </template>
 
-      <template is="dom-repeat" items="{{currentleggenda}}">
-        Item :<span>{{item}}</span>
-        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
-        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
-      </template>
+
 
       <div centerButton>
           <paper-button tabindex="0" raised class="colorful" on-click="save_me">save</paper-button>
@@ -89,7 +94,7 @@
         this.currentitem = {"name":"", "content": "" };
         //this.currentlegend = [];
         this.currentexample = [{"key":"ciao", "value":"ciuccio"}, {"key":"cuppa", "value":"salla"}];
-        this.currentleggenda = [{"key":"ciao", "value":"ciuccio"}, {"key":"cuppa", "value":"salla"}];
+        this.currentleggenda = [{"key":"ciao", "value":"ciuccio", "content":""}, {"key":"cuppa", "value":"salla", "content":""}];
     },
 
       save_me: function(){
@@ -126,7 +131,9 @@
               currentLegendItem.key = newSymbol;
               symbolsToAssign.shift();
               console.log('With new key it is now :', currentLegendItem );
-              this.currentlegend.push(currentLegendItem);
+              console.log('Here is the big appending this :', this.currentleggenda );
+              console.log('Plus this : ', currentLegendItem );
+              this.push('currentleggenda', currentLegendItem);
             }
             this.currentcontent = this.currentcontent.concat(currentPiece.content);
           }

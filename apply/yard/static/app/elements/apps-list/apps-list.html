@@ -23,7 +23,7 @@
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" handle-as="json" on-response="handleResponse"></iron-ajax>
     <paper-material levation="1">
       <div >
        <table card>
@@ -72,11 +72,19 @@
 
       is: 'apps-list',
       properties: {
+        serverurl: {
+          type: String,
+          value: ""
+        }
       },
 
       ready: function() {
         console.log('apps-list. I am ready');
         this.$.my_iron.generateRequest();
+      },
+
+      computeUrly:function(currentv){
+        return this.serverurl + "/applications" ;
       },
 
       open_me: function(e) {

@@ -11938,445 +11938,6 @@ is separate from validation, and `allowed-pattern` does not affect how the input
 
 
 ;
-  /**
-   * The `<platinum-sw-cache>` element makes it easy to precache specific resources, perform runtime
-   * caching, and serve your cached resources when a network is unavailable.
-   * Under the hood, the [sw-toolbox](https://github.com/googlechrome/sw-toolbox) library is used
-   * for all the caching and request handling logic.
-   * `<platinum-sw-cache>` needs to be a child element of `<platinum-sw-register>`.
-   * A simple, yet useful configuration is
-   *
-   *     <platinum-sw-register auto-register>
-   *       <platinum-sw-cache></platinum-sw-cache>
-   *     </platinum-sw-register>
-   *
-   * This is enough to have all of the resources your site uses cached at runtime, both local and
-   * cross-origin.
-   * (It uses the default `defaultCacheStrategy` of "networkFirst".)
-   * When there's a network available, visits to your site will go against the network copy of the
-   * resources, but if someone visits your site when they're offline, all the cached resources will
-   * be used.
-   *
-   * @demo demo/index.html An offline-capable eReader demo.
-   */
-  Polymer({
-    is: 'platinum-sw-cache',
-
-    properties: {
-      /**
-       * The caching strategy used for all requests, both for local and cross-origin resources.
-       *
-       * For a list of strategies, see the [`sw-toolbox` documentation](https://github.com/GoogleChrome/sw-toolbox#built-in-handlers).
-       * Specify a strategy as a string, without the "toolbox" prefix. E.g., for
-       * `toolbox.networkFirst`, set `defaultCacheStrategy` to "networkFirst".
-       *
-       * Note that the "cacheFirst" and "cacheOnly" strategies are not recommended, and may be
-       * explicitly prevented in a future release. More information can be found at
-       * https://github.com/PolymerElements/platinum-sw#cacheonly--cachefirst-defaultcachestrategy-considered-harmful
-       *
-       * @see {@link https://github.com/GoogleChrome/sw-toolbox#built-in-handlers}
-       */
-      defaultCacheStrategy: {
-        type: String,
-        value: 'networkFirst'
-      },
-
-      /**
-       * Used to provide a list of URLs that are always precached as soon as the service worker is
-       * installed. Corresponds to  [`sw-toolbox`'s `precache()` method](https://github.com/GoogleChrome/sw-toolbox#toolboxprecachearrayofurls).
-       *
-       * This is useful for URLs that that wouldn't necessarily be picked up by runtime caching,
-       * i.e. a list of resources that are needed by one of the subpages of your site, or a list of
-       * resources that are only loaded via user interaction.
-       *
-       * `precache` can be used in conjunction with `precacheFile`, and the two arrays will be
-       * concatenated.
-       *
-       * @see {@link https://github.com/GoogleChrome/sw-toolbox#toolboxprecachearrayofurls}
-       */
-      precache: {
-        type: Array,
-        value: function() { return []; }
-      },
-
-      /**
-       * Used to provide a list of URLs that are always precached as soon as the service worker is
-       * installed. Corresponds to  [`sw-toolbox`'s `precache()` method](https://github.com/GoogleChrome/sw-toolbox#toolboxprecachearrayofurls).
-       *
-       * While the `precache` option supports provided the array of URLs in as an inline attribute,
-       * this option supports providing them as an array in JSON file, which is fetched at runtime.
-       * This is useful if the array is generated via a separate build step, as it's easier to
-       * write that output to a file then it is to modify inline HTML content.
-       *
-       * `precacheFile` can be used in conjunction with `precache`, and the two arrays will be
-       * concatenated.
-       *
-       * @see {@link https://github.com/GoogleChrome/sw-toolbox#toolboxprecachearrayofurls}
-       */
-      precacheFile: String
-    },
-
-    _getParameters: function(baseURI) {
-      return new Promise(function(resolve) {
-        var params = {
-          importscriptLate: new URL('bootstrap/sw-toolbox-setup.js', baseURI).href,
-          defaultCacheStrategy: this.defaultCacheStrategy,
-          precache: this.precache
-        };
-
-        if (this.precacheFile) {
-          window.fetch(this.precacheFile).then(function(response) {
-            if (!response.ok) {
-              throw Error('unable to load ' + this.precacheFile);
-            }
-            return response.json();
-          }.bind(this)).then(function(files) {
-            params.precache = params.precache.concat(files);
-          }).catch(function(error) {
-            console.info('Skipping precaching: ' + error.message);
-          }).then(function() {
-            resolve(params);
-          });
-        } else {
-          resolve(params);
-        }
-      }.bind(this));
-    }
-  });
-
-;
-  (function() {
-    // Grab the URI of this file to use as a base when resolving relative paths.
-    // Fallback to './' as a default, though current browsers that don't support
-    // document.currentScript also don't support service workers.
-    var baseURI = document.currentScript ? document.currentScript.baseURI : './';
-
-    /**
-     * The `<platinum-sw-register>` element handles
-     * [service worker](http://www.html5rocks.com/en/tutorials/service-worker/introduction/)
-     * registration, reflects the overall service worker state, and coordinates the configuration
-     * provided by other Service Worker Elements.
-     * `<platinum-sw-register>` is used as a parent element for child elements in the
-     * `<platinum-sw-*>` group.
-     *
-     *     <platinum-sw-register skip-waiting
-     *                           clients-claim
-     *                           auto-register
-     *                           state="{{state}}"
-     *                           on-service-worker-error="handleSWError"
-     *                           on-service-worker-updated="handleSWUpdated"
-     *                           on-service-worker-installed="handleSWInstalled">
-     *       ...one or more <platinum-sw-*> children which share the service worker registration...
-     *     </platinum-sw-register>
-     *
-     * Please see https://github.com/PolymerElements/platinum-sw#top-level-sw-importjs for a
-     * *crucial* prerequisite file you must create before `<platinum-sw-register>` can be used!
-     *
-     * @demo demo/index.html An offline-capable eReader demo.
-     */
-    Polymer({
-      is: 'platinum-sw-register',
-
-      // Used as an "emergency" switch if we make breaking changes in the way <platinum-sw-register>
-      // talks to service-worker.js. Otherwise, it shouldn't need to change, and isn't meant to be
-      // kept in sync with the element's release number.
-      _version: '1.0',
-
-      /**
-       * Fired when the initial service worker installation completes successfully.
-       * The service worker will normally only be installed once, the first time a page with a
-       * `<platinum-sw-register>` element is visited in a given browser. If the same page is visited
-       * again, the existing service worker will be reused, and there won't be another
-       * `service-worker-installed` fired.
-       *
-       * @event service-worker-installed
-       * @param {String} A message indicating that the installation succeeded.
-       */
-
-      /**
-       * Fired when the service worker update flow completes successfully.
-       * If you make changes to your `<platinum-sw-register>` configuration (i.e. by adding in new
-       * `<platinum-sw-*>` child elements, or changing their attributes), users who had the old
-       * service worker installed will get the update installed when they see the modified elements.
-       *
-       * @event service-worker-updated
-       * @param {String} A message indicating that the update succeeded.
-       */
-
-      /**
-       * Fired when an error prevents the service worker installation from completing.
-       *
-       * @event service-worker-error
-       * @param {String} A message indicating what went wrong.
-       */
-
-      properties: {
-        /**
-         * Whether this element should automatically register the corresponding service worker as
-         * soon as its added to a page.
-         *
-         * If set to `false`, then the service worker won't be automatically registered, and you
-         * must call this element's `register()` method if you want service worker functionality.
-         * This is useful if, for example, the service worker needs to be configured using
-         * information that isn't immediately available at the time the page loads.
-         *
-         * If set to `true`, the service worker will be automatically registered without having to
-         * call any methods.
-         */
-        autoRegister: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * Whether the activated service worker should [take immediate control](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#clients-claim-method)
-         * of any pages under its scope.
-         *
-         * If this is `false`, the service worker won't have any effect until the next time the page
-         * is visited/reloaded.
-         * If this is `true`, it will take control and start handling events for the current page
-         * (and any pages under the same scope open in other tabs/windows) as soon it's active.
-         * @see {@link https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#clients-claim-method}
-         */
-        clientsClaim: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * The service worker script that is [registered](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#navigator-service-worker-register).
-         * The script *should* be located at the top level of your site, to ensure that it is able
-         * to control all the pages on your site.
-         *
-         * It's *strongly* recommended that you create a top-level file named `sw-import.js`
-         * containing only:
-         *
-         * `importScripts('bower_components/platinum-sw/service-worker.js');`
-         *
-         * (adjust to match the path where your `platinum-sw` element directory can be found).
-         *
-         * This will ensure that your service worker script contains everything needed to play
-         * nicely with the Service Worker Elements group.
-         *
-         * @see {@link https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#navigator-service-worker-register}
-         */
-        href: {
-          type: String,
-          value: 'sw-import.js'
-        },
-
-        /**
-         * Whether the page should be automatically reloaded (via `window.location.reload()`) when
-         * the service worker is successfully installed.
-         *
-         * While it's perfectly valid to continue using a page with a freshly installed service
-         * worker, it's a common pattern to want to reload it immediately following the install.
-         * This ensures that, for example, if you're using a `<platinum-sw-cache>` with an on the
-         * fly caching strategy, it will get a chance to intercept all the requests needed to render
-         * your page and store them in the cache.
-         *
-         * If you don't immediately reload your page, then any resources that were loaded before the
-         * service worker was installed (e.g. this `platinum-sw-register.html` file) won't be present
-         * in the cache until the next time the page is loaded.
-         *
-         * Note that this reload will only happen when a service worker is installed for the first
-         * time. If the service worker is subsequently updated, it won't trigger another reload.
-         */
-        reloadOnInstall: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * The scope of the service worker, relative to the registered service worker script.
-         * All pages that fall under this scope will be controlled by the registered service worker.
-         *
-         * Normally, this would not need to be changed, unless you want the service worker to only
-         * apply to a subset of your site.
-         *
-         * @see {@link https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#navigator-service-worker-register}
-         */
-        scope: {
-          type: String,
-          value: './'
-        },
-
-        /**
-         * Whether an updated service worker should [bypass the `waiting` state](https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#service-worker-global-scope-skipwaiting)
-         * and immediately become `active`.
-         *
-         * Normally, during an update, the new service worker stays in the
-         * `waiting` state until the current page and any other tabs/windows that are using the old
-         * service worker are unloaded.
-         *
-         * If this is `false`, an updated service worker won't be activated until all instances of
-         * the old server worker have been unloaded.
-         *
-         * If this is `true`, an updated service worker will become `active` immediately.
-         * @see {@link https://slightlyoff.github.io/ServiceWorker/spec/service_worker/#service-worker-global-scope-skipwaiting}
-         */
-        skipWaiting: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * The current state of the service worker registered by this element.
-         *
-         * One of:
-         * - 'installed'
-         * - 'updated'
-         * - 'error'
-         * - 'unsupported'
-         */
-        state: {
-          notify: true,
-          readOnly: true,
-          type: String
-        }
-      },
-
-      /**
-       * Registers the service worker based on the configuration options in this element and any
-       * child elements.
-       *
-       * If you set the `autoRegister` property to `true`, then this method is called automatically
-       * at page load.
-       * It can be useful to set `autoRegister` to `false` and then explicitly call this method if
-       * there are options that are only configured after the page is loaded.
-       */
-      register: function() {
-        if ('serviceWorker' in navigator) {
-          this._constructServiceWorkerUrl().then(function(serviceWorkerUrl) {
-            this._registerServiceWorker(serviceWorkerUrl);
-          }.bind(this));
-        } else {
-          this._setState('unsupported');
-          this.fire('service-worker-error', 'Service workers are not available in the current browser.');
-        }
-      },
-
-      _constructServiceWorkerUrl: function() {
-        var paramsPromises = [];
-        var children = Polymer.dom(this).children;
-        for (var i = 0; i < children.length; i++) {
-          if (typeof children[i]._getParameters === 'function') {
-            paramsPromises.push(children[i]._getParameters(baseURI));
-          }
-        }
-
-        return Promise.all(paramsPromises).then(function(paramsResolutions) {
-          var params = {
-            baseURI: baseURI,
-            version: this._version
-          };
-
-          paramsResolutions.forEach(function(childParams) {
-            Object.keys(childParams).forEach(function(key) {
-              if (Array.isArray(params[key])) {
-                params[key].push(childParams[key]);
-              } else {
-                params[key] = [childParams[key]];
-              }
-            });
-          });
-
-          return params;
-        }.bind(this)).then(function(params) {
-          if (params.importscriptLate) {
-            if (params.importscript) {
-              params.importscript = params.importscript.concat(params.importscriptLate);
-            } else {
-              params.importscript = params.importscriptLate;
-            }
-          }
-
-          if (params.importscript) {
-            params.importscript = this._unique(params.importscript);
-          }
-
-          params.clientsClaim = this.clientsClaim;
-          params.skipWaiting = this.skipWaiting;
-
-          var serviceWorkerUrl = new URL(this.href, window.location);
-          // It's very important to ensure that the serialization is stable.
-          // Serializing the same settings should always produce the same URL.
-          // Serializing different settings should always produce a different URL.
-          // This ensures that the service worker upgrade flow is triggered when settings change.
-          serviceWorkerUrl.search = this._serializeUrlParams(params);
-
-          return serviceWorkerUrl;
-        }.bind(this));
-      },
-
-      _unique: function(arr) {
-        return arr.filter(function(item, index) {
-          return arr.indexOf(item) === index;
-        });
-      },
-
-      _serializeUrlParams: function(params) {
-        return Object.keys(params).sort().map(function(key) {
-          // encodeURIComponent(['a', 'b']) => 'a%2Cb',
-          // so this will still work when the values are Arrays.
-          // TODO: It won't work if the values in the Arrays have ',' characters in them.
-          return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
-        }).join('&');
-      },
-
-      _registerServiceWorker: function(serviceWorkerUrl) {
-        navigator.serviceWorker.register(serviceWorkerUrl, {scope: this.scope}).then(function(registration) {
-          if (registration.active) {
-            this._setState('installed');
-          }
-
-          registration.onupdatefound = function() {
-            var installingWorker = registration.installing;
-            installingWorker.onstatechange = function() {
-              switch (installingWorker.state) {
-                case 'installed':
-                  if (navigator.serviceWorker.controller) {
-                    this._setState('updated');
-                    this.fire('service-worker-updated',
-                      'A new service worker was installed, replacing the old service worker.');
-                  } else {
-                    if (this.reloadOnInstall) {
-                      window.location.reload();
-                    } else {
-                      this._setState('installed');
-                      this.fire('service-worker-installed', 'A new service worker was installed.');
-                    }
-                  }
-                break;
-
-                case 'redundant':
-                  this._setState('error');
-                  this.fire('service-worker-error', 'The installing service worker became redundant.');
-                break;
-              }
-            }.bind(this);
-          }.bind(this);
-        }.bind(this)).catch(function(error) {
-          this._setState('error');
-          this.fire('service-worker-error', error.toString());
-          if (error.name === 'NetworkError') {
-            var location = serviceWorkerUrl.origin + serviceWorkerUrl.pathname;
-            console.error('A valid service worker script was not found at ' + location + '\n' +
-              'To learn how to fix this, please see\n' +
-              'https://github.com/PolymerElements/platinum-sw#top-level-sw-importjs');
-          }
-        }.bind(this));
-      },
-
-      attached: function() {
-        if (this.autoRegister) {
-          this.async(this.register);
-        }
-      }
-    });
-  })();
-
-;
 (function(scope) {
 var MoreRouting = scope.MoreRouting = scope.MoreRouting || {};
 MoreRouting.Emitter = Object.create(null);  // Minimal set of properties.
@@ -14459,11 +14020,14 @@ module.exports = Array.isArray || function (arr) {
       app.route = 'covers-list';
     });
 
-    page('/covers/:name', function (data) {
+    page('/covers/new', function (data) {
+      app.route = 'covers-new';
+    });
+
+    page('/covers/:name/:template', function (data) {
       app.route = 'covers-detail';
       app.params = data.params;
     });
-
 
     console.log('Now web composnents are ready !!!!');
 
@@ -17120,11 +16684,19 @@ Polymer({
 
       is: 'apps-list',
       properties: {
+        serverurl: {
+          type: String,
+          value: ""
+        }
       },
 
       ready: function() {
         console.log('apps-list. I am ready');
         this.$.my_iron.generateRequest();
+      },
+
+      computeUrly:function(currentv){
+        return this.serverurl + "/applications" ;
       },
 
       open_me: function(e) {
@@ -17362,21 +16934,21 @@ Polymer({
 
       _on_content_change: function(new_value, old_value){
 
-        var new_legend = [];
-        if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
-          if(this.debug) console.log('Content updated. Before: ', old_value, ', After: ', new_value);
-          if(this.debug) console.log('Checking also  ', this.objid, this.lettersymbols);
-          var index, len;
-          for (index = 0, len = this.lettersymbols.length; index < len; ++index) {
-            var currentSymbol = this.lettersymbols[index];
-            if ( new_value.indexOf(currentSymbol) >-1 ){
-              if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
-              new_legend.push({"key" : currentSymbol , "value" : this._getFromCurrentLegendOrEmpty(currentSymbol) });
-            }
-          }
-          if(this.debug) console.log("New legend : ", new_legend);
-          this.currentlegend = new_legend;
-        }
+        // var new_legend = [];
+        // if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
+        //   if(this.debug) console.log('Content updated. Before: ', old_value, ', After: ', new_value);
+        //   if(this.debug) console.log('Checking also  ', this.objid, this.lettersymbols);
+        //   var index, len;
+        //   for (index = 0, len = this.lettersymbols.length; index < len; ++index) {
+        //     var currentSymbol = this.lettersymbols[index];
+        //     if ( new_value.indexOf(currentSymbol) >-1 ){
+        //       if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
+        //       new_legend.push({"key" : currentSymbol , "value" : this._getFromCurrentLegendOrEmpty(currentSymbol) });
+        //     }
+        //   }
+        //   if(this.debug) console.log("New legend : ", new_legend);
+        //   this.currentlegend = new_legend;
+        // }
       } // _on_content_change
 
     });
@@ -17462,9 +17034,8 @@ Polymer({
       _handle_response_post: function(response){
         console.log('Received response from POST: ', response.detail.response);
         this.currentitem = response.detail.response;
-        this.currentcontent = response.detail.response.content;
-        this.currentlegend = JSON.parse(response.detail.response.legend);
-        console.log('The legend got from the POST is :', this.currentlegend );
+        this.currentpieces = JSON.parse(response.detail.response.pieces);
+        console.log('The pieces from the POST is :', this.currentpieces );
       },
 
       _obj_id_has_changed: function(new_value, old_value){
@@ -17561,7 +17132,7 @@ Polymer({
         var model = e.model;
         var id = model.item.id;
         console.log('the id is', id);
-        window.location = '#!/covers/' + String(id);
+        window.location = '#!/documents/' + String(id) + '/empty';
         window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
       },
@@ -17586,65 +17157,173 @@ Polymer({
 
       is: 'covers-detail',
       properties: {
-        currentitem: {
-          type: Object,
-          notify: true,
+        debug: {
+          type: Boolean,
+          value: false
         },
         objid: {
           type: Number,
-          notify: true,
-          observe:'_obj_id_has_changed'
+          observer:'_obj_id_has_changed'
+        },
+        objtempl: {
+          type: Number,
+          observer:'_obj_templ_has_changed'
+        },
+        currentlegend: {
+          type: Array,
+          value: [],
+          observer:'_on_legend_change'
         }
       },
 
-      ready: function() {
-        console.log('My object has id ', this.objid);
-        console.log('app-elem. I am ready');
-        this.$.my_iron_elem.generateRequest();
+      ready: function(){
+        this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
+        this.currentitem = {"name":"", "content": "" };
+        //this.currentlegend = [];
+        this.currentexample = [{"key":"ciao", "value":"ciuccio"}, {"key":"cuppa", "value":"salla"}];
+        this.currentleggenda = [{"key":"ciao", "value":"ciuccio", "content":""}, {"key":"cuppa", "value":"salla", "content":""}];
+    },
+
+      save_me: function(){
       },
 
-      refresh_me:function(){
-        console.log('My object has id ', this.objid);
-        var newUrl = "/applications/" + String(this.objid);
-        console.log('My new url is ', newUrl);
-        this.$.my_iron_elem.url = newUrl;
-        this.$.my_iron_elem.generateRequest();
+      _handle_response_get: function(response){
+        if ( typeof this.objid != 'undefined' && typeof response.detail.response != 'undefined'){
+          console.log('Received response from GET: ', response.detail.response);
+          this.currentitem = response.detail.response;
+          this.currentcontent = response.detail.response.content;
+          //this.currentlegend = JSON.parse(response.detail.response.legend);
+          console.log('The legend got from the GET is :', this.currentlegend );
+        }
+      },
+
+      _handle_response_get_template: function(response){
+        if ( typeof this.objid != 'undefined' && typeof response.detail.response != 'undefined'){
+          console.log('Received response from GET template : ', response.detail.response);
+          this.currentpieces = JSON.parse(response.detail.response.pieces);
+          this.currentcontent = "";
+          this.currentlegend = [];
+          var symbolsToAssign = this.lettersymbols;
+          for (index = 0, len = this.currentpieces.length; index < len; ++index) {
+            var currentPiece = this.currentpieces[index];
+            console.log('New piece :', currentPiece );
+            console.log('Now content is ', this.currentcontent );
+            for (j = 0, lenLegend = currentPiece.legend.length; j < lenLegend; ++j) {
+              var currentLegendItem = currentPiece.legend[j];
+              console.log('New legend item is :', currentLegendItem );
+              var oldSymbol = currentLegendItem.key;
+              var newSymbol = symbolsToAssign[0];
+              currentPiece.content = currentPiece.content.replace(oldSymbol, newSymbol);
+              console.log('Updated content :', currentPiece );
+              currentLegendItem.key = newSymbol;
+              symbolsToAssign.shift();
+              console.log('With new key it is now :', currentLegendItem );
+              console.log('Here is the big appending this :', this.currentleggenda );
+              console.log('Plus this : ', currentLegendItem );
+              this.currentleggenda.push(currentLegendItem);
+            }
+            this.currentcontent = this.currentcontent.concat(currentPiece.content);
+          }
+          console.log('The legend got from the GET is :', this.currentpieces );
+          console.log('Current legend is now :', this.currentlegend );
+        }
+      },
+
+      _handle_response_post: function(response){
+        console.log('Received response from POST: ', response.detail.response);
+        this.currentitem = response.detail.response;
+        this.currentcontent = response.detail.response.content;
+        //this.currentlegend = JSON.parse(response.detail.response.legend);
+        console.log('The legend got from the POST is :', this.currentlegend );
+      },
+
+      _obj_id_has_changed: function(new_value, old_value){
+        console.log('ON CHANGE ID :  ', new_value);
+        if ( new_value !== "new" ){
+            this.$.my_iron_get.generateRequest();
+        }
+      },
+
+      _obj_templ_has_changed: function(new_value, old_value){
+        console.log('ON CHANGE TEMPL:  ', new_value);
+        if ( new_value !== "empty" ){
+            this.$.my_iron_get_template.generateRequest();
+        }
+      },
+
+      computeKey:function(currentv){
+        return 'Describe ' + currentv ;
+      },
+
+      computeGetUrl:function(currentId){
+        var new_get_url = ( currentId === "new" ) ? '' : '/documents/' + String(this.objid);
+        console.log('Computing GET URL :', new_get_url );
+        return new_get_url;
+      },
+
+      computeGetUrlOfTemplate:function(currentTempl){
+        var new_get_url = ( currentTempl === "empty" ) ? '' : '/categories/' + String(this.objtempl);
+        console.log('Computing GET URL for template  :', new_get_url );
+        return new_get_url;
+      },
+
+      computePushMethod:function(currentId){
+        var new_push_method = ( currentId === "new" ) ? "POST" : "PUT";
+        console.log('Computing Push method :', new_push_method );
+        return new_push_method;
+      },
+
+      computePushUrl:function(currentId){
+        var new_push_url = ( currentId === "new" ) ? '/documents' : '/documents/' + currentId + '/';
+        console.log('Computing Push URL :', new_push_url );
+        return new_push_url;
+      },
+
+      _getFromCurrentLegendOrEmpty: function(symbol_to_search){
+
+      },
+
+      _on_content_change: function(new_value, old_value){
+      }, // _on_content_change
+
+      _on_legend_change: function(new_value, old_value){
+        console.log('Changed legend : new value is ', new_value );
+      } // _on_content_change
+
+    });
+  })();
+
+;
+  (function () {
+    Polymer({
+
+      is: 'covers-new',
+      properties: {
+      },
+
+      ready: function() {
+        console.log('template-list. I am ready');
+        this.$.my_iron.generateRequest();
       },
 
       open_me: function(e) {
         var model = e.model;
         var id = model.item.id;
         console.log('the id is', id);
-        page('#!/apps/' + String(id));
-        //window.location = '#!/apps/' + String(id);
-        //window.location.reload();
+        window.location = '#!/covers/new/' + String(id);
+        window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
       },
 
-      save_me:function(){
-        console.log('Saving my object, which is: ', this.objid);
-        var newUrl = "/applications/" + String(this.objid) + '/';
-        console.log('My new url is ', newUrl);
-        this.$.my_iron_save.url = newUrl;
-        this.$.my_iron_save.body = JSON.stringify(this.currentitem);
-        this.$.my_iron_save.contentType = "application/json";
-        this.$.my_iron_save.generateRequest();
-        document.querySelector('#saving-complete').show();
-
+      open_empty: function(e) {
+        console.log('To new !!');
+        window.location = '#!/covers/new/empty';
+        window.location.reload();
       },
 
       handleResponse:function(response){
-        console.log('Received response !' , response.detail.response);
-        this.currentitem = response.detail.response;
-      },
-
-      handleResponse_post:function(response){
-        console.log('Received response POST !' , response.detail.response);
-        this.currentitem = response.detail.response;
-      },
-
-      _obj_id_has_changed:function(new_value, old_value){
-        console.log('before : ', old_value, 'after : ', new_value);
+        console.log(response.detail.response);
+        this.onlineItems = response.detail.response;
       }
 
     });

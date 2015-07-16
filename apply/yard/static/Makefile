@@ -5,7 +5,7 @@ PROJECT_NAME=yard
 all: crisp
 
 crisp:
-		vulcanize --inline-scripts app/index.html > $(BUILD_FOLDER)/vulcanized.html
+		vulcanize --inline-css --inline-scripts app/extension.html > $(BUILD_FOLDER)/vulcanized.html
 		crisper --source $(BUILD_FOLDER)/vulcanized.html --html $(BUILD_FOLDER)/$(PROJECT_NAME).html --js $(BUILD_FOLDER)/$(PROJECT_NAME).js
 		rm -fr $(BUILD_FOLDER)/vulcanized.html
 

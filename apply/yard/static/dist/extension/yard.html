@@ -30,7 +30,23 @@
   <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
 
   
-  <link rel="stylesheet" href="styles/main.css">
+  <style>
+/*
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+body {
+  background: #fafafa;
+  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: #333;
+}
+
+</style>
   
 
   
@@ -1757,6 +1773,8 @@ styles. All other styles should exist as single lines."
 
 
 
+
+
 <style is="custom-style">
 
   /*
@@ -2679,7 +2697,160 @@ styles. All other styles should exist as single lines."
 </dom-module>
 
 <dom-module id="paper-drawer-panel" assetpath="bower_components/paper-drawer-panel/">
-  <link rel="import" type="css" href="bower_components/paper-drawer-panel/paper-drawer-panel.css">
+  <style>
+/**
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+iron-selector > #drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: white;
+
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+
+  @apply(--paper-drawer-panel-drawer-container);
+}
+
+.transition > #drawer {
+  transition: -webkit-transform ease-in-out 0.3s, width ease-in-out 0.3s, visibility 0.3s;
+  transition: transform ease-in-out 0.3s, width ease-in-out 0.3s, visibility 0.3s;
+}
+
+.left-drawer > #drawer {
+  @apply(--paper-drawer-panel-left-drawer-container);
+}
+
+.right-drawer > #drawer {
+  left: auto;
+  right: 0;
+
+  @apply(--paper-drawer-panel-right-drawer-container);
+}
+
+iron-selector > #main {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  @apply(--paper-drawer-panel-main-container);
+}
+
+.transition > #main {
+  transition: left ease-in-out 0.3s, padding ease-in-out 0.3s;
+}
+
+.right-drawer > #main {
+  left: 0;
+}
+
+.right-drawer.transition > #main {
+  transition: right ease-in-out 0.3s, padding ease-in-out 0.3s;
+}
+
+#main > ::content > [main] {
+  height: 100%;
+}
+
+#drawer > ::content > [drawer] {
+  height: 100%;
+}
+
+#scrim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity ease-in-out 0.38s, visibility ease-in-out 0.38s;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.narrow-layout > #drawer {
+  will-change: transform;
+}
+
+.narrow-layout > #drawer.iron-selected {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.right-drawer.narrow-layout > #drawer.iron-selected {
+  box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.narrow-layout > #drawer > ::content > [drawer] {
+  border: 0;
+}
+
+.left-drawer.narrow-layout > #drawer:not(.iron-selected) {
+  -webkit-transform: translateX(-100%);
+  transform: translateX(-100%);
+}
+
+.right-drawer.narrow-layout > #drawer:not(.iron-selected) {
+  left: auto;
+  visibility: hidden;
+
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+}
+
+.right-drawer.narrow-layout.dragging > #drawer:not(.iron-selected),
+.right-drawer.narrow-layout.peeking > #drawer:not(.iron-selected) {
+  visibility: visible;
+}
+
+.narrow-layout > #main {
+  padding: 0;
+}
+
+.right-drawer.narrow-layout > #main {
+  left: 0;
+  right: 0;
+}
+
+.narrow-layout > #main:not(.iron-selected) > #scrim,
+.dragging > #main > #scrim {
+  visibility: visible;
+  opacity: var(--paper-drawer-panel-scrim-opacity, 1);
+}
+
+.narrow-layout > #main > * {
+  margin: 0;
+  min-height: 100%;
+  left: 0;
+  right: 0;
+
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
+  display: none;
+}
+</style>
 
   <template>
     <iron-media-query id="mq" on-query-matches-changed="_onQueryMatchesChanged" query="[[_computeMediaQuery(forceNarrow, responsiveWidth)]]">
@@ -2941,7 +3112,28 @@ styles. All other styles should exist as single lines."
 </dom-module>
 <dom-module id="paper-item" assetpath="bower_components/paper-item/">
 
-  <link rel="import" type="css" href="bower_components/paper-item/paper-item-shared.css">
+  <style>
+/*
+    @license
+    Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+    This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+    The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+    The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+    Code distributed by Google as part of the polymer project is also
+    subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  display: block;
+  min-height: var(--paper-item-min-height, 48px);
+  padding: 0px 16px;
+}
+
+:host > ::content > *:not(:first-child):not(:last-child) {
+  margin-right: 16px;
+}
+
+</style>
 
   <style>
 
@@ -3614,7 +3806,158 @@ styles. All other styles should exist as single lines."
 </dom-module>
 
 <dom-module id="paper-checkbox" assetpath="bower_components/paper-checkbox/">
-  <link rel="import" type="css" href="bower_components/paper-checkbox/paper-checkbox.css">
+  <style>
+/*
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+:host(:focus) {
+  outline: none;
+}
+
+.hidden {
+  display: none;
+}
+
+#checkboxContainer {
+  display: inline-block;
+  position: relative;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  vertical-align: middle;
+}
+
+:host #ink {
+  position: absolute;
+  top: -15px;
+  left: -15px;
+  width: 48px;
+  height: 48px;
+  color: var(--paper-checkbox-unchecked-ink-color, --primary-text-color);
+  opacity: 0.6;
+}
+
+:host #ink[checked] {
+  color: var(--paper-checkbox-checked-ink-color, --default-primary-color);
+}
+
+:host #checkbox {
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  border: solid 2px;
+  border-color: var(--paper-checkbox-unchecked-color, --primary-text-color);
+  border-radius: 2px;
+  pointer-events: none;
+  -webkit-transition: background-color 140ms, border-color 140ms;
+  transition: background-color 140ms, border-color 140ms;
+}
+
+/* checkbox checked animations */
+#checkbox.checked #checkmark {
+  -webkit-animation: checkmark-expand 140ms ease-out forwards;
+  animation: checkmark-expand 140ms ease-out forwards;
+}
+
+@-webkit-keyframes checkmark-expand {
+  0% {
+    top: 9px;
+    left: 6px;
+    width: 0px;
+    height: 0px;
+  }
+  100% {
+    top: -1px;
+    left: 4px;
+    width: 5px;
+    height: 10px;
+  }
+}
+
+@keyframes checkmark-expand {
+  0% {
+    top: 9px;
+    left: 6px;
+    width: 0px;
+    height: 0px;
+  }
+  100% {
+    top: -1px;
+    left: 4px;
+    width: 5px;
+    height: 10px;
+  }
+}
+
+:host #checkbox.checked {
+  background-color: var(--paper-checkbox-checked-color, --default-primary-color);
+  border-color: var(--paper-checkbox-checked-color, --default-primary-color);
+}
+
+:host #checkmark {
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+  position: absolute;
+  top: -1px;
+  left: 4px;
+  width: 5px;
+  height: 10px;
+  border-style: solid;
+  border-top: none;
+  border-left: none;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+  border-color: white;
+}
+
+/* label */
+#checkboxLabel {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  padding-left: 8px;
+  white-space: normal;
+  pointer-events: none;
+  color: var(--paper-checkbox-label-color, --primary-text-color);
+}
+
+#checkboxLabel[hidden] {
+  display: none;
+}
+
+/* disabled state */
+:host([disabled]) {
+  pointer-events: none;
+}
+
+:host([disabled]) #checkbox {
+  opacity: 0.5;
+  border-color: var(--paper-checkbox-unchecked-color, --primary-text-color);
+}
+
+:host([disabled][checked]) #checkbox {
+  background-color: var(--paper-checkbox-unchecked-color, --primary-text-color);
+  opacity: 0.5;
+}
+
+:host([disabled]) #checkboxLabel  {
+  opacity: 0.65;
+}
+
+</style>
 
   <template>
 
@@ -3662,7 +4005,7 @@ styles. All other styles should exist as single lines."
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" handle-as="json" on-response="handleResponse"></iron-ajax>
     <paper-material levation="1">
       <div>
        <table card="">
@@ -4046,93 +4389,113 @@ styles. All other styles should exist as single lines."
 <dom-module id="covers-detail" assetpath="elements/covers-detail/">
 
   <style>
-    :host {
-      display: block;
+    paper-button[raised].colorful {
+      background: #4285f4;
+      color: #fff;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [card] {
+      width: 600px;
+      margin: 16px auto;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
     }
   </style>
 
+
   <template>
-    <iron-ajax id="my_iron_elem" auto="" url="/applications" handle-as="json" on-response="handleResponse"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="PUT" handle-as="json" on-response="handleResponse_post"></iron-ajax>
+    <iron-ajax id="my_iron_get" method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_get_template" method="GET" url="{{computeGetUrlOfTemplate(objtempl)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
-    <paper-material elevation="1">
-
-      <paper-input label="Company" floatinglabel="true" value="{{currentitem.company}}" error="Company should have a name"></paper-input>
-    	<paper-input label="Company website" floatinglabel="true" value="{{currentitem.company_link}}" error="Company should have a name"></paper-input>
-    	<paper-input label="Portal" floatinglabel="true" value="{{currentitem.portal}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Portal Website" floatinglabel="true" value="{{currentitem.portal_link}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Position" floatinglabel="true" value="{{currentitem.position}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Position link" floatinglabel="true" value="{{currentitem.position_link}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Skills" floatinglabel="true" value="{{currentitem.skills}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Salary" floatinglabel="true" value="{{currentitem.salary}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Contract" floatinglabel="true" value="{{currentitem.skills}}" error="Portal should have a name"></paper-input>
-
-    	<br><br>
-
-      <paper-checkbox checked="{{currentitem.written}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
-      <core-icon icon="question-answer"></core-icon>&nbsp;&nbsp;Written<br><br>
-     	<paper-checkbox checked="{{currentitem.called}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
-      <core-icon icon="communication:call"></core-icon>&nbsp;&nbsp;Called<br><br>
-      <paper-checkbox checked="{{currentitem.interviewed}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
-      <core-icon icon="perm-identity"></core-icon>&nbsp;&nbsp;Interviewed <br><br>
-      <paper-checkbox checked="{{currentitem.followup}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
-      <core-icon icon="more-horiz"></core-icon>&nbsp;&nbsp;Followup<br><br>
-
-
-    	<paper-input multiline="" label="Next" floatinglabel="true" value="{{currentitem.next}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Notes" floatinglabel="true" value="{{currentitem.notes}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Cover Letter" floatinglabel="true" value="{{currentitem.cover}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Address 1" floatinglabel="true" value="{{currentitem.address1}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Address 2" floatinglabel="true" value="{{currentitem.address2}}" error="Portal should have a name"></paper-input>
-
+    <paper-material card="" elevation="1">
+      <paper-input type="text" label="Name" floatinglabel="" value="{{currentitem.name}}"></paper-input>
       <br>
-
-      <h4> Contacts </h4>
-
-    	<paper-input multiline="" label="Name" floatinglabel="true" value="{{currentitem.c1name}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Email" type="email" floatinglabel="true" value="{{currentitem.c1mail}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Phone" type="tel" floatinglabel="true" value="{{currentitem.c1phone}}" error="Portal should have a name"></paper-input>
-
+      <iron-autogrow-textarea bind-value="{{currentcontent}}">
+        <textarea></textarea>
+      </iron-autogrow-textarea>
       <br><br>
-    	<paper-input multiline="" label="Name" floatinglabel="true" value="{{currentitem.c2name}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Email" type="email" floatinglabel="true" value="{{currentitem.c2mail}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Phone" type="tel" floatinglabel="true" value="{{currentitem.c2phone}}" error="Portal should have a name"></paper-input>
+      Content : <span>{{currentcontent}}</span><br>
+      Example : <span>{{currentexample}}</span><br>
+      Legend : <span>{{currentlegend}}</span><br>
+      Leggenda : <span>{{currentleggenda}}</span><br>
 
-      <br><br>
-    	<paper-input multiline="" label="Name" floatinglabel="true" value="{{currentitem.c3name}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Email" type="email" floatinglabel="true" value="{{currentitem.c3mail}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Phone" type="tel" floatinglabel="true" value="{{currentitem.c3phone}}" error="Portal should have a name"></paper-input>
+      <h4>Leggenda : </h4>
+      <template is="dom-repeat" items="{{currentleggenda}}">
+        Item :<span>{{item}}</span>
+        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
+        <paper-input type="text" label="{{computeKey(item.key)}}" floatinglabel="" value="{{item.value}}"></paper-input><br>
+      </template>
 
-      <br><br>
-    	<paper-input multiline="" label="Name" floatinglabel="true" value="{{currentitem.c4name}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Email" type="email" floatinglabel="true" value="{{currentitem.c4mail}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline="" label="Phone" type="tel" floatinglabel="true" value="{{currentitem.c4phone}}" error="Portal should have a name"></paper-input>
+      <h4>Leggend </h4>
+
+      <template is="dom-repeat" items="{{currentlegend}}">
+        Item :<span>{{item}}</span>
+        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
+        <paper-input type="text" label="{{computeKey(item.key)}}" floatinglabel="" value="{{item.value}}"></paper-input><br>
+      </template>
 
 
-      <br>
-      <h4> Map </h4>
 
-      	<paper-input id="appl-latitude" label="Latitude" floatinglabel="true" value="{{currentitem.latitude}}" error="Portal should have a name"></paper-input>
-      	<paper-input id="appl-longitude" label="Longitude" floatinglabel="true" value="{{currentitem.longitude}}" error="Portal should have a name"></paper-input>
-      <br><br>
-
-      <div horizontal="" end-justified="" layout="">
-      	<div>
-      		<paper-button>DISCARD</paper-button>
-        	<paper-button on-click="save_me" raised="true">save</paper-button>
-        </div>
-        <paper-toast id="saving-complete" duration="6000" text="Saving successful!">
-        </paper-toast>
+      <div centerbutton="">
+          <paper-button tabindex="0" raised="" class="colorful" on-click="save_me">save</paper-button>
       </div>
-
-      <br><br>
-      <paper-button on-click="refresh_me">refresh</paper-button>
-      Elem : <span>{{objid}}</span>
-
     </paper-material>
 
   </template>
 
+</dom-module>
+
+<dom-module id="covers-new" assetpath="elements/covers-detail/">
+
+  <style>
+
+    paper-button[raised].colorful {
+      background: #4285f4;
+      color: #fff;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [card] {
+      width: 600px;
+      margin: 16px auto;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
+    }
+  </style>
+
+  <template>
+    <iron-ajax id="my_iron" url="/categories" handle-as="json" on-response="handleResponse"></iron-ajax>
+
+          <template is="dom-repeat" items="{{onlineItems}}">
+            <paper-material card="" elevation="1">
+            <div on-click="open_me">
+              <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
+              <span style="font-size: 16px;">{{item.content}}</span><br>
+    						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+                <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+              <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
+          </div>
+            </paper-material>
+          </template>
+       
+
+       <div centerbutton="">
+           <paper-button tabindex="0" raised="" class="colorful" on-click="open_empty">empty</paper-button>
+       </div>
+
+  </template>
 </dom-module>
 
 </div>
@@ -4141,45 +4504,33 @@ styles. All other styles should exist as single lines."
 
     
 
-    <paper-drawer-panel id="paperDrawerPanel">
-      <div drawer="">
 
-        
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">Menu</span>
-        </paper-toolbar>
-
-        
-          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
-
-              <a data-route="home" href="/">
-                <iron-icon icon="home"></iron-icon>
-                <span>Home</span>
-              </a>
-
-              <a data-route="apps-list" href="/apps">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Applications</span>
-              </a>
-
-              <a data-route="blocks-list" href="/blocks">
-                <iron-icon icon="info"></iron-icon>
-                <span>Blocks</span>
-              </a>
-
-              <a data-route="templates-list" href="/templates">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Templates</span>
-              </a>
-
-              <a data-route="covers-list" href="/covers">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Covers</span>
-              </a>
-
-          </paper-menu>
-      </div>
       <paper-header-panel main="" mode="waterfall-tall">
+
+        <a data-route="home" href="/">
+          <iron-icon icon="home"></iron-icon>
+          <span>Home</span>
+        </a>
+
+        <a data-route="apps-list" href="/apps">
+          <iron-icon icon="mail"></iron-icon>
+          <span>Applications</span>
+        </a>
+
+        <a data-route="blocks-list" href="/blocks">
+          <iron-icon icon="info"></iron-icon>
+          <span>Blocks</span>
+        </a>
+
+        <a data-route="templates-list" href="/templates">
+          <iron-icon icon="mail"></iron-icon>
+          <span>Templates</span>
+        </a>
+
+        <a data-route="covers-list" href="/covers">
+          <iron-icon icon="mail"></iron-icon>
+          <span>Covers</span>
+        </a>
 
         
         <paper-toolbar id="mainToolbar">
@@ -4208,7 +4559,7 @@ styles. All other styles should exist as single lines."
             </section>
 
             <section data-route="apps-list">
-                <apps-list></apps-list>
+                <apps-list serverurl="rusttt"></apps-list>
             </section>
 
             <section data-route="apps-detail">
@@ -4235,22 +4586,21 @@ styles. All other styles should exist as single lines."
                 <covers-list></covers-list>
             </section>
 
+            <section data-route="covers-new">
+                <covers-new></covers-new>
+            </section>
+
             <section data-route="covers-detail">
-                <covers-detail objid="{{params.name}}"></covers-detail>
+                <covers-detail objid="{{params.name}}" objtempl="{{params.template}}"></covers-detail>
             </section>
 
           </iron-pages>
         </div>
       </paper-header-panel>
-    </paper-drawer-panel>
 
     <paper-toast id="caching-complete" duration="6000" text="Caching complete! This app will work offline.">
     </paper-toast>
 
-    <platinum-sw-register auto-register="" clients-claim="" skip-waiting="" on-service-worker-installed="displayInstalledToast">
-      <platinum-sw-cache default-cache-strategy="networkFirst" precache-file="precache.json">
-      </platinum-sw-cache>
-    </platinum-sw-register>
 
   </template>
 
