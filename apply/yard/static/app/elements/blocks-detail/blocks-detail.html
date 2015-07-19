@@ -65,6 +65,11 @@
                   "legend": ""
                   }
         },
+        currentcontent: {
+          type: String,
+          observer: '_on_content_change',
+          value: ""
+        },
         objid: {
           type: Number,
           observer:'_obj_id_has_changed'
@@ -154,21 +159,21 @@
 
       _on_content_change: function(new_value, old_value){
 
-        // var new_legend = [];
-        // if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
-        //   if(this.debug) console.log('Content updated. Before: ', old_value, ', After: ', new_value);
-        //   if(this.debug) console.log('Checking also  ', this.objid, this.lettersymbols);
-        //   var index, len;
-        //   for (index = 0, len = this.lettersymbols.length; index < len; ++index) {
-        //     var currentSymbol = this.lettersymbols[index];
-        //     if ( new_value.indexOf(currentSymbol) >-1 ){
-        //       if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
-        //       new_legend.push({"key" : currentSymbol , "value" : this._getFromCurrentLegendOrEmpty(currentSymbol) });
-        //     }
-        //   }
-        //   if(this.debug) console.log("New legend : ", new_legend);
-        //   this.currentlegend = new_legend;
-        // }
+        var new_legend = [];
+        if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
+          if(this.debug) console.log('Content updated. Before: ', old_value, ', After: ', new_value);
+          if(this.debug) console.log('Checking also  ', this.objid, this.lettersymbols);
+          var index, len;
+          for (index = 0, len = this.lettersymbols.length; index < len; ++index) {
+            var currentSymbol = this.lettersymbols[index];
+            if ( new_value.indexOf(currentSymbol) >-1 ){
+              if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
+              new_legend.push({"key" : currentSymbol , "value" : this._getFromCurrentLegendOrEmpty(currentSymbol) });
+            }
+          }
+          if(this.debug) console.log("New legend : ", new_legend);
+          this.currentlegend = new_legend;
+        }
       } // _on_content_change
 
     });

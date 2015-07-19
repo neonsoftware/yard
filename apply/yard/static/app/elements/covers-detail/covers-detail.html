@@ -29,30 +29,15 @@
     <paper-material card elevation="1">
       <paper-input type="text" label="Name" floatingLabel value="{{currentitem.name}}"></paper-input>
       <br>
+
+      <template is="dom-repeat" items="{{currentlegend}}">
+        <paper-input type="text" label="{{item.value}}" floatingLabel value="{{item.filled}}" on-change="_chhange"  ></paper-input><br>
+      </template>
+
       <iron-autogrow-textarea bind-value="{{currentcontent}}">
         <textarea></textarea>
       </iron-autogrow-textarea>
       <br><br>
-      Content : <span>{{currentcontent}}</span><br>
-      Example : <span>{{currentexample}}</span><br>
-      Legend : <span>{{currentlegend}}</span><br>
-      Leggenda : <span>{{currentleggenda}}</span><br>
-
-      <h4>Leggenda : </h4>
-      <template is="dom-repeat" items="{{currentleggenda}}">
-        Item :<span>{{item}}</span>
-        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
-        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
-      </template>
-
-      <h4>Leggend </h4>
-
-      <template is="dom-repeat" items="{{currentlegend}}">
-        Item :<span>{{item}}</span>
-        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
-        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
-      </template>
-
 
 
       <div centerButton>
@@ -86,15 +71,18 @@
           type: Array,
           value: [],
           observer:'_on_legend_change'
-        }
+        },
+        currentcontent: {
+          type: String,
+          observer: '_on_content_change',
+          value: ""
+        },
       },
 
       ready: function(){
         this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
         this.currentitem = {"name":"", "content": "" };
-        //this.currentlegend = [];
-        this.currentexample = [{"key":"ciao", "value":"ciuccio"}, {"key":"cuppa", "value":"salla"}];
-        this.currentleggenda = [{"key":"ciao", "value":"ciuccio", "content":""}, {"key":"cuppa", "value":"salla", "content":""}];
+        this.debug=true;
     },
 
       save_me: function(){
@@ -105,7 +93,6 @@
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
-          //this.currentlegend = JSON.parse(response.detail.response.legend);
           console.log('The legend got from the GET is :', this.currentlegend );
         }
       },
@@ -131,9 +118,11 @@
               currentLegendItem.key = newSymbol;
               symbolsToAssign.shift();
               console.log('With new key it is now :', currentLegendItem );
-              console.log('Here is the big appending this :', this.currentleggenda );
+              console.log('Here is the big appending this :', this.currentlegend );
               console.log('Plus this : ', currentLegendItem );
-              this.push('currentleggenda', currentLegendItem);
+              this.push('currentlegend', currentLegendItem);
+              console.log('OOOOO current legend : ', this.currentlegend );
+
             }
             this.currentcontent = this.currentcontent.concat(currentPiece.content);
           }
@@ -197,11 +186,30 @@
       },
 
       _on_content_change: function(new_value, old_value){
+        var j, len;
+        console.log('Changed content : new value is ', new_value, ' current legend is ', this.currentlegend );
+        for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
+          var currentObject = this.currentlegend[j];
+          var currentObjectKey = currentObject.key;
+          if(this.debug) console.log("Current object is ", currentObject);
+          if(this.debug) console.log("Current object key is ", currentObjectKey);
+          if(this.debug) console.log("Comparing  ", this.currentlegend[j].key, 'to ');
+
+          if( this.currentcontent.indexOf(currentObjectKey) >-1 ){
+            if(this.debug) console.log("FOOOOOOOUNDDDDDD ");
+          }
+        }
+
+
       }, // _on_content_change
 
       _on_legend_change: function(new_value, old_value){
         console.log('Changed legend : new value is ', new_value );
-      } // _on_content_change
+      }, // _on_content_change
+
+      _chhange: function(new_value, old_value){
+        console.log('Changed legend : new value is ', new_value );
+      }
 
     });
   })();
