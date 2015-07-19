@@ -28,33 +28,6 @@ def my_view( request ):
 	return render(request, 'tmp.html', {"username":username, "tmp": username in whitelist})
 
 @csrf_exempt
-def portal_new( request ):
-	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PortalForm() } ) } ) , content_type="application/json" )
-
-@csrf_exempt
-def skill_new( request ):
-	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': SkillForm() } ) } ) , content_type="application/json" )
-
-@csrf_exempt
-def application_new( request ):
-	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': ApplicationForm() } ) } ) , content_type="application/json" )
-
-@csrf_exempt
-def piece_new( request ):
-	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PieceForm() } ) } ) , content_type="application/json" )
-
-@csrf_exempt
-def category_new( request ):
-	if request.method == 'GET':
-		return HttpResponse( json.dumps( { "html" : render_to_string('forms/simple_form.html', {'form': PieceCategoryForm()} ) } ) , content_type="application/json" )
-
-
-
-@csrf_exempt
 def skills_list(request) :
 	if request.method == 'GET':
 		return HttpResponse( json.dumps( [ skill.myToObj() for skill in Skill.objects.filter(user=request.user) ] ), content_type="application/json" )
@@ -227,15 +200,11 @@ def applications_detail( request, id ) :
 		print 'Updated and saved'
 
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
-
-
-def applications_delete( request, id ) :
-	if request.method == 'GET':
+	elif request.method == 'DELETE':
 		print 'called remove of ', id
 		application = get_object_or_404( Application, id=id )
 		application.delete()
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
-
 
 def applications_written( request, id ) :
 	if request.method == 'GET':
