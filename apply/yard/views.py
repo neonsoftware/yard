@@ -25,7 +25,10 @@ import json, subprocess
 def my_view( request ):
 	username = request.user.username
 	print '\n++++++ User name is :' , username, '\n'
-	return render(request, 'tmp.html', {"username":username, "tmp": username in whitelist})
+	abspath = open('/Users/showandtell/Garage/Repositories/github.com/yard/apply/yard/templates/yard.html','r')
+	response = HttpResponse(content=abspath.read())
+	response['Content-Type']= 'application/text'
+	return response
 
 @csrf_exempt
 def skills_list(request) :

@@ -10,7 +10,6 @@ urlpatterns = patterns('',
 	url(r'^accounts/logout/$', 'django.contrib.auth.views.logout', {'next_page': '/accounts/login'}),
 
 	url(r'^$',  views.my_view , name ='index' ),
-	url(r'applications//new$',  views.application_new , name ='application_new' ),
 	url(r'applications/(?P<id>[-\w\d]+)/written$',  views.applications_written , name ='applications_written' ),
 	url(r'applications/(?P<id>[-\w\d]+)/called$',  views.applications_called , name ='applications_called' ),
 	url(r'applications/(?P<id>[-\w\d]+)/interviewed$',  views.applications_interviewed , name ='applications_interviewed' ),

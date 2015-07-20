@@ -4417,30 +4417,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-material card="" elevation="1">
       <paper-input type="text" label="Name" floatinglabel="" value="{{currentitem.name}}"></paper-input>
       <br>
+
+      <template is="dom-repeat" items="{{currentlegend}}">
+        <paper-input type="text" label="{{item.value}}" floatinglabel="" value="{{item.filled}}" on-change="_chhange"></paper-input><br>
+      </template>
+
       <iron-autogrow-textarea bind-value="{{currentcontent}}">
         <textarea></textarea>
       </iron-autogrow-textarea>
       <br><br>
-      Content : <span>{{currentcontent}}</span><br>
-      Example : <span>{{currentexample}}</span><br>
-      Legend : <span>{{currentlegend}}</span><br>
-      Leggenda : <span>{{currentleggenda}}</span><br>
-
-      <h4>Leggenda : </h4>
-      <template is="dom-repeat" items="{{currentleggenda}}">
-        Item :<span>{{item}}</span>
-        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
-        <paper-input type="text" label="{{computeKey(item.key)}}" floatinglabel="" value="{{item.value}}"></paper-input><br>
-      </template>
-
-      <h4>Leggend </h4>
-
-      <template is="dom-repeat" items="{{currentlegend}}">
-        Item :<span>{{item}}</span>
-        Key : <span>{{item.key}}</span> Value  : <span>{{item.value}}</span>
-        <paper-input type="text" label="{{computeKey(item.key)}}" floatinglabel="" value="{{item.value}}"></paper-input><br>
-      </template>
-
 
 
       <div centerbutton="">
