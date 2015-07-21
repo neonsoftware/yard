@@ -4005,7 +4005,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-    <iron-ajax id="my_iron" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponse"></iron-ajax>
     <paper-material levation="1">
       <div>
        <table card="">

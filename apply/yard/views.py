@@ -25,10 +25,7 @@ import json, subprocess
 def my_view( request ):
 	username = request.user.username
 	print '\n++++++ User name is :' , username, '\n'
-	abspath = open('/Users/showandtell/Garage/Repositories/github.com/yard/apply/yard/templates/yard.html','r')
-	response = HttpResponse(content=abspath.read())
-	response['Content-Type']= 'application/text'
-	return response
+	return redirect('/static/dist/onefile/yard.html')
 
 @csrf_exempt
 def skills_list(request) :

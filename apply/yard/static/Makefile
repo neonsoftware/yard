@@ -7,7 +7,7 @@ all: onefile extension_crisp
 
 onefile:
 	@echo "--> onefile"
-	vulcanize --inline-css --inline-scripts app/extension.html > $(ONEFILE_BUILD_FOLDER)/yard.html
+	vulcanize --inline-css --inline-scripts app/index.html > $(ONEFILE_BUILD_FOLDER)/yard.html
 
 extension_crisp:
 	@echo "--> extension"

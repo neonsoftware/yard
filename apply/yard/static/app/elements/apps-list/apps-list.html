@@ -23,7 +23,7 @@
   </style>
 
   <template>
-    <iron-ajax id="my_iron" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto method="GET" url="{{serverurl}}"  handle-as="json" on-response="handleResponse"></iron-ajax>
     <paper-material levation="1">
       <div >
        <table card>
@@ -75,35 +75,36 @@
         serverurl: {
           type: String,
           value: ""
+        },
+        debug: {
+          type: Boolean,
+          value: false
         }
       },
 
       ready: function() {
-        console.log('apps-list. I am ready');
+        if(this.debug) console.log('app-list : ready');
         this.$.my_iron.generateRequest();
-      },
-
-      computeUrly:function(currentv){
-        return this.serverurl + "/applications" ;
       },
 
       open_me: function(e) {
         var model = e.model;
         var id = model.item.id;
-        console.log('the id is', id);
+        if(this.debug) console.log('app-list : opening ', id);
         window.location = '#!/apps/' + String(id);
         window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
       },
 
       open_new: function(e) {
-        console.log('To new !!');
+        if(this.debug) console.log('app-list : creating new');
         window.location = '#!/apps/new' ;
         window.location.reload();
       },
 
       handleResponse:function(response){
-        console.log(response.detail.response);
+        console.log("ebug is switched  ", this.debug);
+        if(this.debug) console.log("app-list : GET returned ", response.detail.response);
         this.onlineItems = response.detail.response;
       }
 
