@@ -22,7 +22,7 @@
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/pieces" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
 
           <template is="dom-repeat" items="{{onlineItems}}">
@@ -49,11 +49,7 @@
 
       is: 'blocks-list',
       properties: {
-      },
-
-      ready: function() {
-        console.log('blocks-list. I am ready');
-        this.$.my_iron.generateRequest();
+        serverurl: String
       },
 
       open_me: function(e) {

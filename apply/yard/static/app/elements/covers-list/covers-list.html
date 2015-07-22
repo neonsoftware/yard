@@ -22,24 +22,23 @@
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/documents" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
-          <template is="dom-repeat" items="{{onlineItems}}">
-            <paper-material card elevation="1">
-            <div on-click="open_me">
-              <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
-              <span style="font-size: 16px;">{{item.content}}</span><br>
-    						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
-                <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
-              <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
-          </div>
-            </paper-material>
-          </template>
-       </table>
+    <template is="dom-repeat" items="{{onlineItems}}">
+      <paper-material card elevation="1">
+      <div on-click="open_me">
+        <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
+        <span style="font-size: 16px;">{{item.content}}</span><br>
+					<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+          <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+        <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
+      </div>
+      </paper-material>
+    </template>
 
-       <div centerButton>
-           <paper-button tabindex="0" raised class="colorful" on-click="open_new">new</paper-button>
-       </div>
+   <div centerButton>
+       <paper-button tabindex="0" raised class="colorful" on-click="open_new">new</paper-button>
+   </div>
 
   </template>
 </dom-module>
@@ -50,11 +49,7 @@
 
       is: 'covers-list',
       properties: {
-      },
-
-      ready: function() {
-        console.log('template-list. I am ready');
-        this.$.my_iron.generateRequest();
+        serverurl: String
       },
 
       open_me: function(e) {

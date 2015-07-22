@@ -81,12 +81,7 @@
           value: false
         }
       },
-
-      ready: function() {
-        if(this.debug) console.log('app-list : ready');
-        this.$.my_iron.generateRequest();
-      },
-
+      
       open_me: function(e) {
         var model = e.model;
         var id = model.item.id;

@@ -22,7 +22,7 @@
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/categories" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
             <paper-material card elevation="1">
@@ -50,11 +50,7 @@
 
       is: 'templates-list',
       properties: {
-      },
-
-      ready: function() {
-        console.log('template-list. I am ready');
-        this.$.my_iron.generateRequest();
+        serverurl: String
       },
 
       open_me: function(e) {
