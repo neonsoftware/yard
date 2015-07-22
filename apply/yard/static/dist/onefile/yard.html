@@ -21091,8 +21091,8 @@ Polymer({
 
 
   <template>
-    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
       <paper-input type="text" label="Language" floatinglabel="" value="{{currentitem.language}}"></paper-input>
@@ -21140,14 +21140,31 @@ Polymer({
           value: ""
         },
         objid: {
-          type: Number,
-          observer:'_obj_id_has_changed'
+          type: Number
+        },
+        getURL:{
+          type: String,
+          value: ""
+        },
+        pushmethod:{
+          type: String,
+          value: ""
+        },
+        pushURL:{
+          type: String,
+          value: ""
+        },
+        serverurl: {
+          type: String,
+          value: ""
         },
         lettersymbols: {
           type: Array,
           value: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ']
         }
       },
+
+      observers:['bigUpdate(objid, serverurl)'],
 
       save_me: function(){
         this.currentitem.content = this.currentcontent;
@@ -21174,13 +21191,6 @@ Polymer({
         this.currentcontent = response.detail.response.content;
         this.currentlegend = JSON.parse(response.detail.response.legend);
         console.log('The legend got from the POST is :', this.currentlegend );
-      },
-
-      _obj_id_has_changed: function(new_value, old_value){
-        console.log('ON CHANGE :  ', new_value);
-        if ( new_value !== "new" ){
-            this.$.my_iron_get.generateRequest();
-        }
       },
 
       computeKey:function(currentv){
@@ -21224,6 +21234,20 @@ Polymer({
         }
         if(this.debug) console.log("AAAdding it ! ", symbol_to_search);
         return "";
+      },
+
+      bigUpdate: function(current_id, current_serverurl){
+        if(this.debug) console.log('KKKKKKKKK Computed Big Update is ', current_id, ' - ', current_serverurl);
+        console.log('blocks-detail : Updated ID :  ', current_id);
+        var isNew = new Boolean(true);
+        isNew = (current_id === "new");
+        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid);
+        this.pushmethod = ( isNew ) ? "POST" : "PUT";
+        this.pushURL = ( isNew ) ? "POST" : "PUT";
+        if(this.debug) console.log('Computed GET URL :', this.getURL );
+        if(this.debug) console.log('Computed Push method :', this.pushmethod );
+        if(this.debug) console.log('Computed Push URL :', this.pushURL );
+
       },
 
       _on_content_change: function(new_value, old_value){
@@ -21969,7 +21993,7 @@ Polymer({
             </section>
 
             <section data-route="blocks-detail">
-                <blocks-detail debug="true" objid="{{params.name}}"></blocks-detail>
+                <blocks-detail debug="" serverurl="fafa" objid="{{params.name}}"></blocks-detail>
             </section>
 
             <section data-route="templates-list">

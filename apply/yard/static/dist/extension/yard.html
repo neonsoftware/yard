@@ -4220,8 +4220,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
   <template>
-    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
       <paper-input type="text" label="Language" floatinglabel="" value="{{currentitem.language}}"></paper-input>
