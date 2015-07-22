@@ -16876,7 +16876,7 @@ Polymer({
         }
       },
 
-      observers:['bigUpdate(objid, serverurl)'],
+      observers:['updateAjaxParameters(objid, serverurl)'],
 
       save_me: function(){
         this.currentitem.content = this.currentcontent;
@@ -16948,18 +16948,17 @@ Polymer({
         return "";
       },
 
-      bigUpdate: function(current_id, current_serverurl){
+      updateAjaxParameters: function(current_id, current_serverurl){
         if(this.debug) console.log('KKKKKKKKK Computed Big Update is ', current_id, ' - ', current_serverurl);
         console.log('blocks-detail : Updated ID :  ', current_id);
         var isNew = new Boolean(true);
         isNew = (current_id === "new");
-        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid);
+        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
         this.pushmethod = ( isNew ) ? "POST" : "PUT";
-        this.pushURL = ( isNew ) ? "POST" : "PUT";
+        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
         if(this.debug) console.log('Computed GET URL :', this.getURL );
         if(this.debug) console.log('Computed Push method :', this.pushmethod );
         if(this.debug) console.log('Computed Push URL :', this.pushURL );
-
       },
 
       _on_content_change: function(new_value, old_value){
