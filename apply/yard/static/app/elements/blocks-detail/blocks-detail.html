@@ -97,6 +97,11 @@
 
       observers:['updateAjaxParameters(objid, serverurl)'],
 
+      ready: function(){
+          this.currentcontent = "";
+          this.currentlegend = [];
+      },
+
       save_me: function(){
         this.currentitem.content = this.currentcontent;
         this.currentitem.legend = JSON.stringify(this.currentlegend);
@@ -118,32 +123,20 @@
 
       _handle_response_post: function(response){
         console.log('Received response from POST: ', response.detail.response);
-        this.currentitem = response.detail.response;
-        this.currentcontent = response.detail.response.content;
-        this.currentlegend = JSON.parse(response.detail.response.legend);
-        console.log('The legend got from the POST is :', this.currentlegend );
+        window.location = '#!/blocks' ;
+        window.location.reload();
       },
 
       computeKey:function(currentv){
         return 'Describe ' + currentv ;
       },
 
-      computeGetUrl:function(currentId){
-        var new_get_url = ( currentId === "new" ) ? '' : '/pieces/' + String(this.objid);
-        console.log('Computing GET URL :', new_get_url );
-        return new_get_url;
-      },
-
-      computePushMethod:function(currentId){
-        var new_push_method = ( currentId === "new" ) ? "POST" : "PUT";
-        console.log('Computing Push method :', new_push_method );
-        return new_push_method;
-      },
-
-      computePushUrl:function(currentId){
-        var new_push_url = ( currentId === "new" ) ? '/pieces' : '/pieces/' + currentId + '/';
-        console.log('Computing Push URL :', new_push_url );
-        return new_push_url;
+      updateAjaxParameters: function(current_id, current_serverurl){
+        var isNew = Boolean(current_id === "new");;
+        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
+        this.pushmethod = ( isNew ) ? "POST" : "PUT";
+        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
+        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
       },
 
       _getFromCurrentLegendOrEmpty: function(symbol_to_search){
@@ -165,19 +158,6 @@
         }
         if(this.debug) console.log("AAAdding it ! ", symbol_to_search);
         return "";
-      },
-
-      updateAjaxParameters: function(current_id, current_serverurl){
-        if(this.debug) console.log('KKKKKKKKK Computed Big Update is ', current_id, ' - ', current_serverurl);
-        console.log('blocks-detail : Updated ID :  ', current_id);
-        var isNew = new Boolean(true);
-        isNew = (current_id === "new");
-        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
-        this.pushmethod = ( isNew ) ? "POST" : "PUT";
-        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
-        if(this.debug) console.log('Computed GET URL :', this.getURL );
-        if(this.debug) console.log('Computed Push method :', this.pushmethod );
-        if(this.debug) console.log('Computed Push URL :', this.pushURL );
       },
 
       _on_content_change: function(new_value, old_value){
