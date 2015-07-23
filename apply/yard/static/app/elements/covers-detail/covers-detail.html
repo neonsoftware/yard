@@ -39,6 +39,10 @@
       </iron-autogrow-textarea>
       <br><br>
 
+      <div centerButton>
+          <paper-button tabindex="0" raised class="colorful" on-click="fill_me">fill</paper-button>
+      </div>
+
 
       <div centerButton>
           <paper-button tabindex="0" raised class="colorful" on-click="save_me">save</paper-button>
@@ -77,6 +81,11 @@
           observer: '_on_content_change',
           value: ""
         },
+        originalcontent: {
+          type: String,
+          observer: '_on_content_change',
+          value: ""
+        },
       },
 
       observers:['updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)',
@@ -97,6 +106,7 @@
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
+          this.originalcontent = this.currentcontent;
           console.log('The legend got from the GET is :', this.currentlegend );
         }
       },
@@ -129,6 +139,7 @@
 
             }
             this.currentcontent = this.currentcontent.concat(currentPiece.content);
+            this.originalcontent = this.currentcontent;
           }
           console.log('The legend got from the GET is :', this.currentpieces );
           console.log('Current legend is now :', this.currentlegend );
@@ -151,23 +162,35 @@
       },
 
       _on_content_change: function(new_value){
+
+      }, // _on_content_change
+
+      fill_me: function(){
+
+      }, // _on_content_change
+
+
+      _on_legend_change: function(new_value){
         var j, len;
-        console.log('Changed content : new value is ', new_value, ' current legend is ', this.currentlegend );
+        var currentOriginalContent = this.originalcontent;
+        console.log('Changed something in the legend.: new value is ', new_value, ' current legend is ', this.currentlegend );
         for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
           var currentObject = this.currentlegend[j];
           var currentObjectKey = currentObject.key;
-          if(this.debug) console.log("Current object is ", currentObject);
-          if(this.debug) console.log("Current object key is ", currentObjectKey);
-          if(this.debug) console.log("Comparing  ", this.currentlegend[j].key, 'to ');
+          var currentFilled = currentObject.filled;
+          if( typeof currentObject.filled !== 'undefined' && currentObject.filled.length > 0){
+            if(this.debug) console.log("Current object is ", currentObject);
+            if(this.debug) console.log("Current object key is ", currentObjectKey);
+            if(this.debug) console.log("Searching  ", currentObjectKey, ' in the text ', currentOriginalContent);
 
-          if( this.currentcontent.indexOf(currentObjectKey) >-1 ){
-            if(this.debug) console.log("FOOOOOOOUNDDDDDD ");
+            if ( currentOriginalContent.indexOf(currentObjectKey) >-1 ){
+              if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentObjectKey);
+
+              currentOriginalContent = currentOriginalContent.replace(currentObjectKey, currentFilled);
+            }
           }
         }
-      }, // _on_content_change
-
-      _on_legend_change: function(new_value){
-        console.log('Changed legend : new value is ', new_value );
+        this.currentcontent = currentOriginalContent;
       } // _on_content_change
 
     });
