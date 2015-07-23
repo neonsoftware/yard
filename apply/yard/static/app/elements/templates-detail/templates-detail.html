@@ -22,8 +22,8 @@
 
 
   <template>
-    <iron-ajax id="my_iron_get" auto method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card elevation="1">
       <paper-input type="text" label="Description" floatingLabel value="{{currentitem.description}}"></paper-input>
@@ -65,11 +65,14 @@
                   "pieces":""
                   }
         },
-        objid: {
-          type: Number,
-          observer:'_obj_id_has_changed'
-        },
+        objid: Number,
+        getURL: String,
+        pushmethod: String,
+        pushURL: String,
+        serverurl: String
       },
+
+      observers:['updateAjaxParameters(objid, serverurl)'],
 
       save_me: function(){
         this.currentitem.pieces = JSON.stringify(this.currentpieces);
@@ -88,40 +91,18 @@
         }
       },
 
-      _handle_response_post: function(response){
+      _handle_response_post:function(response){
         console.log('Received response from POST: ', response.detail.response);
-        this.currentitem = response.detail.response;
-        this.currentpieces = JSON.parse(response.detail.response.pieces);
-        console.log('The pieces from the POST is :', this.currentpieces );
+        window.location = '#!/templates';
+        window.location.reload();
       },
 
-      _obj_id_has_changed: function(new_value, old_value){
-        console.log('ON CHANGE :  ', new_value);
-        if ( new_value !== "new" ){
-            this.$.my_iron_get.generateRequest();
-        }
-      },
-
-      computeKey:function(currentv){
-        return 'Describe ' + currentv ;
-      },
-
-      computeGetUrl:function(currentId){
-        var new_get_url = ( currentId === "new" ) ? '' : '/categories/' + String(this.objid);
-        console.log('Computing GET URL :', new_get_url );
-        return new_get_url;
-      },
-
-      computePushMethod:function(currentId){
-        var new_push_method = ( currentId === "new" ) ? "POST" : "PUT";
-        console.log('Computing Push method :', new_push_method );
-        return new_push_method;
-      },
-
-      computePushUrl:function(currentId){
-        var new_push_url = ( currentId === "new" ) ? '/categories' : '/categories/' + currentId + '/';
-        console.log('Computing Push URL :', new_push_url );
-        return new_push_url;
+      updateAjaxParameters: function(current_id, current_serverurl){
+        var isNew = Boolean(current_id === "new");;
+        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
+        this.pushmethod = ( isNew ) ? "POST" : "PUT";
+        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
+        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
       },
 
       move_up: function(e) {
