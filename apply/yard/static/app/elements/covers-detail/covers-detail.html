@@ -31,7 +31,7 @@
       <br>
 
       <template is="dom-repeat" items="{{currentlegend}}">
-        <paper-input type="text" label="{{item.value}}" floatingLabel value="{{item.filled}}" on-change="_chhange"  ></paper-input><br>
+        <paper-input type="text" label="{{item.value}}" floatingLabel value="{{item.filled}}" ></paper-input><br>
       </template>
 
       <iron-autogrow-textarea bind-value="{{currentcontent}}">
@@ -79,7 +79,8 @@
         },
       },
 
-      observers:['updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)'],
+      observers:['updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)',
+                  '_on_legend_change(currentlegend.*)'],
 
 
       ready: function(){
@@ -149,11 +150,7 @@
         if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
       },
 
-      computeKey:function(currentv){
-        return 'Describe ' + currentv ;
-      },
-
-      _on_content_change: function(new_value, old_value){
+      _on_content_change: function(new_value){
         var j, len;
         console.log('Changed content : new value is ', new_value, ' current legend is ', this.currentlegend );
         for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
@@ -169,13 +166,9 @@
         }
       }, // _on_content_change
 
-      _on_legend_change: function(new_value, old_value){
+      _on_legend_change: function(new_value){
         console.log('Changed legend : new value is ', new_value );
-      }, // _on_content_change
-
-      _chhange: function(new_value, old_value){
-        console.log('Changed legend : new value is ', new_value );
-      }
+      } // _on_content_change
 
     });
   })();
