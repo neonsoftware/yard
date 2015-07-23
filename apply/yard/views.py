@@ -133,7 +133,7 @@ def documents_detail(request, id) :
 
 	if request.method == 'GET':
 		doc = get_object_or_404( Cover, id=id )
-		return HttpResponse( json.dumps( portal.myToObj() ), content_type="application/json" )
+		return HttpResponse( json.dumps( doc.myToObj() ), content_type="application/json" )
 	if request.method == 'PUT':
 		updated_data =	json.loads( request.body )
 		print '\tPut = ' , request.body
