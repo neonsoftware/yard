@@ -29,22 +29,18 @@
     <paper-material card elevation="1">
       <paper-input type="text" label="Name" floatingLabel value="{{currentitem.name}}"></paper-input>
       <br>
-
-      <template is="dom-repeat" items="{{currentlegend}}">
+    <template is="dom-if" if="{{edit_disabled}}">
+        <template is="dom-repeat" items="{{currentlegend}}">
         <paper-input type="text" label="{{item.value}}" floatingLabel value="{{item.filled}}" ></paper-input><br>
       </template>
-
-      <iron-autogrow-textarea bind-value="{{currentcontent}}">
+    </template>
+      <iron-autogrow-textarea bind-value="{{currentcontent}}" disabled$="{{edit_disabled}}">
         <textarea></textarea>
       </iron-autogrow-textarea>
       <br><br>
 
       <div centerButton>
-          <paper-button tabindex="0" raised class="colorful" on-click="fill_me">fill</paper-button>
-      </div>
-
-
-      <div centerButton>
+          <paper-button tabindex="0" raised class="colorful" on-click="fill_me">edit</paper-button>
           <paper-button tabindex="0" raised class="colorful" on-click="save_me">save</paper-button>
       </div>
     </paper-material>
@@ -63,6 +59,10 @@
           type: Boolean,
           value: false
         },
+        edit_disabled: {
+          type: Boolean,
+          value: true
+        },
         objid: Number,
         getURL: String,
         pushmethod: String,
@@ -71,34 +71,27 @@
         templategetURL: String,
         templateserverurl: String,
         objtempl: Number,
-        currentlegend: {
-          type: Array,
-          value: [],
-          observer:'_on_legend_change'
+        currentlegend: Array,
+        currentcontent: String,
+        currentitem:{
+          type: Object,
+          value: {"content":"", "name":""}
         },
-        currentcontent: {
+        originalcontent: String,
+        lettersymbols: {
           type: String,
-          observer: '_on_content_change',
-          value: ""
-        },
-        originalcontent: {
-          type: String,
-          observer: '_on_content_change',
-          value: ""
-        },
+          value: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ']
+        }
       },
 
       observers:['updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)',
                   '_on_legend_change(currentlegend.*)'],
 
-
-      ready: function(){
-        this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
-        this.currentitem = {"name":"", "content": "" };
-        this.debug=true;
-      },
-
       save_me: function(){
+        this.currentitem.content = this.currentcontent;
+        console.log("In the end pieces is : ", this.currentitem );
+        this.$.my_iron_save.body = JSON.stringify(this.currentitem);
+        this.$.my_iron_save.generateRequest();
       },
 
       _handle_response_get: function(response){
@@ -156,7 +149,7 @@
         var isNew = Boolean(current_id === "new");;
         this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
         this.pushmethod = ( isNew ) ? "POST" : "PUT";
-        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
+        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + String(this.objid) ;
         this.templategetURL = ( current_template_id === "new") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
         if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
       },
@@ -166,7 +159,7 @@
       }, // _on_content_change
 
       fill_me: function(){
-
+        this.edit_disabled = false;
       }, // _on_content_change
 
 

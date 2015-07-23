@@ -17,7 +17,7 @@ class CreatedUpdatedModel(models.Model):
 class Skill( models.Model ):
 	user 		= models.ForeignKey(User)
 	name 		= models.CharField(max_length=4096)
-	
+
 	def myToObj ( self ):
 		return { "id" : self.id , "name": self.name }
 
@@ -34,7 +34,7 @@ class PieceCategory( models.Model ):
 	language	= models.CharField(max_length=7, choices=LANGUAGES, default="en")
 	tags		= models.CharField(max_length=4096, default="")
 	pieces 		= models.TextField(default="")
-	
+
 	def myToObj ( self ):
 		data = { "id" : self.id , "name": self.name, "description" : self.description }
 		data["language"] = self.language
@@ -58,7 +58,7 @@ class Piece( models.Model ):
 	language    = models.CharField(max_length=7, choices=LANGUAGES)
 	tags		= models.CharField(max_length=4096, default="")
 	legend      = models.CharField(max_length=9064, default="")
-	
+
 	def myToObj ( self ):
 		return { "id" : self.id , "content"	: self.content, "language"	: self.language, "tags" : self.tags, "legend" : self.legend }
 
@@ -76,13 +76,13 @@ class Cover( CreatedUpdatedModel ):
 	user 		= models.ForeignKey(User)
 	name 		= models.CharField(max_length=4096)
 	content		= models.TextField(default="")
-	
+
 	def myToObj ( self ):
 		return  { "id" : self.id, "name"	: self.name, "content" : self.content }
 
-	def fill( data ):
-		self.name 		= data.name
-		self.content 	= data.content
+	def fill( self, data ):
+		self.name 		= data["name"]
+		self.content 	= data["content"]
 
 	def __str__( self ) :
 		return self.name
@@ -121,7 +121,7 @@ class Application( CreatedUpdatedModel ):
 	c4name			= models.CharField(blank=True, max_length=40)
 	c4mail			= models.CharField(blank=True, max_length=40)
 	c4phone			= models.CharField(blank=True, max_length=20)
-	
+
 	def myToObj ( self ):
 		data = { "id" : self.id, "created" : self.created.strftime('%Y-%m-%d %H:%M') , "updated" : self.updated.strftime('%Y-%m-%d %H:%M')   }
 		data["portal"] 		= self.portal
@@ -208,10 +208,10 @@ class Profile( CreatedUpdatedModel ):
 	has_avatar 	= models.BooleanField(default=False)
 	avatar 		= models.CharField(max_length=4096)
 	tutorial	= models.IntegerField()
-	
+
 	def myToObj ( self ):
 		data = {}
-		data["user"] 			= { "id" : self.user.id, "name" : self.user.name } 
+		data["user"] 			= { "id" : self.user.id, "name" : self.user.name }
 		data["uuid"] 			= self.uuid
 		data["bio"]				= self.bio
 		data["website"] 		= self.website
@@ -239,14 +239,13 @@ class ApplicationForm(ModelForm):
     class Meta:
         model = Application
         fields = ['company','portal', 'position','skills', 'written', 'called', 'interviewed', 'followup', 'notes', 'next', 'cover', 'address1', 'address2', 'c1name', 'c1mail', 'c1phone', 'c2name', 'c2mail', 'c2phone','c3name', 'c3mail', 'c3phone','c4name', 'c4mail', 'c4phone']
-		
+
 class PieceCategoryForm(ModelForm):
     class Meta:
         model = PieceCategory
         fields = ['name', 'description', 'tags', 'language', 'pieces']
-		
+
 class PieceForm(ModelForm):
     class Meta:
         model = Piece
         fields = ['language', 'tags', 'legend', 'content']
-

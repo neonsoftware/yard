@@ -54,6 +54,7 @@ def pieces_list(request) :
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
 		print '\tPost = ' , request.body
+		print '\tData = ' , updated_data
 		p = Piece()
 		p.user = request.user
 		p.fill(updated_data)
@@ -120,11 +121,17 @@ def documents_list(request) :
 		return HttpResponse( json.dumps( [ doc.myToObj() for doc in Cover.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
-		updated_data =	json.loads( request.body )
+		#updated_data =	json.loads( request.body )
+		updated_data = {"content": "ciaocaio", "name":"saronno"}
 		print '\tPOST = ' , request.body
-		d = Document()
+		print '\tPOST = ' , updated_data
+		d = Cover()
+		print '\tPOST = ' , updated_data
 		d.user = request.user
+		print '\tPOST = ' , updated_data
+		print '\taPOST = ' , updated_data, ' . ', updated_data["content"], ' . ', updated_data["name"]
 		d.fill(updated_data)
+		print '\tPOST = ' , updated_data
 		d.save()
 		return HttpResponse( json.dumps( d.myToObj() ), content_type="application/json" )
 
