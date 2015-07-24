@@ -21795,45 +21795,33 @@ Polymer({
 
     
 
-    <paper-drawer-panel id="paperDrawerPanel">
-      <div drawer="">
 
-        
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">Menu</span>
-        </paper-toolbar>
-
-        
-          <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
-
-              <a data-route="home" href="/">
-                <iron-icon icon="home"></iron-icon>
-                <span>Home</span>
-              </a>
-
-              <a data-route="apps-list" href="/apps">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Applications</span>
-              </a>
-
-              <a data-route="blocks-list" href="/blocks">
-                <iron-icon icon="info"></iron-icon>
-                <span>Blocks</span>
-              </a>
-
-              <a data-route="templates-list" href="/templates">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Templates</span>
-              </a>
-
-              <a data-route="covers-list" href="/covers">
-                <iron-icon icon="mail"></iron-icon>
-                <span>Covers</span>
-              </a>
-
-          </paper-menu>
-      </div>
       <paper-header-panel main="" mode="waterfall-tall">
+
+        <a data-route="home" href="/">
+          <iron-icon icon="home"></iron-icon>
+          <span>Home</span>
+        </a>
+
+        <a data-route="apps-list" href="/apps">
+          <iron-icon icon="mail"></iron-icon>
+          <span>Applications</span>
+        </a>
+
+        <a data-route="blocks-list" href="/blocks">
+          <iron-icon icon="info"></iron-icon>
+          <span>Blocks</span>
+        </a>
+
+        <a data-route="templates-list" href="/templates">
+          <iron-icon icon="mail"></iron-icon>
+          <span>Templates</span>
+        </a>
+
+        <a data-route="covers-list" href="/covers">
+          <iron-icon icon="mail"></iron-icon>
+          <span>Covers</span>
+        </a>
 
         
         <paper-toolbar id="mainToolbar">
@@ -21897,18 +21885,14 @@ Polymer({
                 <covers-detail objid="{{params.name}}" objtempl="{{params.template}}" debug="" serverurl="http://rusty.blue/documents/" templateserverurl="http://rusty.blue/categories"></covers-detail>
             </section>
 
+
           </iron-pages>
         </div>
       </paper-header-panel>
-    </paper-drawer-panel>
 
     <paper-toast id="caching-complete" duration="6000" text="Caching complete! This app will work offline.">
     </paper-toast>
 
-    <platinum-sw-register auto-register="" clients-claim="" skip-waiting="" on-service-worker-installed="displayInstalledToast">
-      <platinum-sw-cache default-cache-strategy="networkFirst" precache-file="precache.json">
-      </platinum-sw-cache>
-    </platinum-sw-register>
 
   </template>
 
