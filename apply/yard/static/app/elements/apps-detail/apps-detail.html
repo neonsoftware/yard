@@ -111,7 +111,43 @@
           type: Boolean,
           value: false
         },
-        currentitem: Object,
+        currentitem: {
+          type: Object,
+          value: {
+            portal :"",
+          	portal_link:"",
+          	company:"",
+          	company_link:"",
+          	position:"",
+          	position_link:"",
+          	salary:"",
+          	contract:"",
+          	latitude:"",
+          	longitude:"",
+          	skills:"",
+          	written:"",
+          	called:"",
+          	interviewed:"",
+          	followup:"",
+          	notes:"",
+          	next:"",
+          	cover:"",
+          	address1:"",
+          	address2:"",
+          	c1name:"",
+          	c1mail:"",
+          	c1phone:"",
+          	c2name:"",
+          	c2mail:"",
+          	c2phone:"",
+          	c3name:"",
+          	c3mail:"",
+          	c3phone:"",
+          	c4name:"",
+          	c4mail:"",
+          	c4phone:""
+          }
+        },
         objid: Number,
         getURL: String,
         pushmethod: String,
@@ -121,7 +157,13 @@
 
       observers:['updateAjaxParameters(objid, serverurl)'],
 
+      ready:function(){
+        console.log('Start :', this.currentitem);
+
+      },
+
       save_me:function(){
+        console.log('The currenty is :', this.currentitem);
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
         this.$.my_iron_save.contentType = "application/json";
         this.$.my_iron_save.generateRequest();
@@ -129,8 +171,10 @@
       },
 
       _handle_response_get:function(response){
-        console.log('Received response from get :' , response.detail.response);
-        this.currentitem = response.detail.response;
+        if(response.detail.response != null){
+          console.log('Received response from get :' , response.detail.response);
+          this.currentitem = response.detail.response;
+        }
       },
 
       _handle_response_post:function(response){
