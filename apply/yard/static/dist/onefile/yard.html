@@ -20784,12 +20784,7 @@ Polymer({
           value: false
         }
       },
-
-      ready: function() {
-        if(this.debug) console.log('app-list : ready');
-        this.$.my_iron.generateRequest();
-      },
-
+      
       open_me: function(e) {
         var model = e.model;
         var id = model.item.id;
@@ -20842,8 +20837,8 @@ Polymer({
   </style>
 
   <template>
-    <iron-ajax id="my_iron_elem" handle-as="json" on-response="handleResponse"></iron-ajax>
-    <iron-ajax id="my_iron_save" handle-as="json" on-response="handleResponse_post"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
 
@@ -20923,67 +20918,48 @@ Polymer({
 
       is: 'apps-detail',
       properties: {
-        is_new: Boolean,
-        currentitem: {
-          type: Object,
-          notify: true,
+        debug: {
+          type: Boolean,
+          value: false
         },
-        objid: {
-          type: Number,
-          notify: true,
-          observer:'_obj_id_has_changed'
-        }
+        currentitem: Object,
+        objid: Number,
+        getURL: String,
+        pushmethod: String,
+        pushURL: String,
+        serverurl: String
       },
 
-      ready: function() {
-        console.log('My object has id ', this.objid);
-        console.log('app-elem. I am ready');
-        this.$.my_iron_elem.generateRequest();
-      },
+      observers:['updateAjaxParameters(objid, serverurl)'],
 
       save_me:function(){
-        if ( this.is_new ) {
-          console.log('Saving new object. POST');
-          this.$.my_iron_save.url = "/applications" ;
-          this.$.my_iron_save.method = "POST";
-        } else {
-          console.log('Updating object. PUT');
-          this.$.my_iron_save.url = "/applications/" + String(this.objid) + '/';
-          this.$.my_iron_save.method = "PUT";
-        }
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
         this.$.my_iron_save.contentType = "application/json";
         this.$.my_iron_save.generateRequest();
         document.querySelector('#saving-complete').show();
       },
 
-      handleResponse:function(response){
+      _handle_response_get:function(response){
         console.log('Received response from get :' , response.detail.response);
         this.currentitem = response.detail.response;
       },
 
-      handleResponse_post:function(response){
-        console.log('Received response from post :' , response.detail.response);
+      _handle_response_post:function(response){
+        console.log('Received response from POST: ', response.detail.response);
+        window.location = '#!/apps';
+        window.location.reload();
       },
 
-      refresh_me:function(){
-        this.$.my_iron_elem.url = "/applications/" + String(this.objid);
-        this.$.my_iron_elem.generateRequest();
+      updateAjaxParameters: function(current_id, current_serverurl){
+        var isNew = Boolean(current_id === "new");;
+        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
+        this.pushmethod = ( isNew ) ? "POST" : "PUT";
+        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
+        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
       },
-
-      _obj_id_has_changed:function(new_value, old_value){
-        this.is_new = ( new_value === "new" );
-        console.log("Is new : ", this.is_new);
-        if (!this.is_new){
-          this.refresh_me();
-        }
-      }
 
     });
 
-    window.addEventListener('WebComponentsReady', function() {
-      console.log("WebComponentsReady");
-    });
   })();
 </script>
 <dom-module id="blocks-list" assetpath="elements/blocks-list/">
@@ -21010,7 +20986,7 @@ Polymer({
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/pieces" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
 
           <template is="dom-repeat" items="{{onlineItems}}">
@@ -21037,11 +21013,7 @@ Polymer({
 
       is: 'blocks-list',
       properties: {
-      },
-
-      ready: function() {
-        console.log('blocks-list. I am ready');
-        this.$.my_iron.generateRequest();
+        serverurl: String
       },
 
       open_me: function(e) {
@@ -21139,25 +21111,11 @@ Polymer({
           observer: '_on_content_change',
           value: ""
         },
-        objid: {
-          type: Number
-        },
-        getURL:{
-          type: String,
-          value: ""
-        },
-        pushmethod:{
-          type: String,
-          value: ""
-        },
-        pushURL:{
-          type: String,
-          value: ""
-        },
-        serverurl: {
-          type: String,
-          value: ""
-        },
+        objid: Number,
+        getURL: String,
+        pushmethod: String,
+        pushURL: String,
+        serverurl: String,
         lettersymbols: {
           type: Array,
           value: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ']
@@ -21275,7 +21233,7 @@ Polymer({
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/categories" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
             <paper-material card="" elevation="1">
@@ -21303,11 +21261,7 @@ Polymer({
 
       is: 'templates-list',
       properties: {
-      },
-
-      ready: function() {
-        console.log('template-list. I am ready');
-        this.$.my_iron.generateRequest();
+        serverurl: String
       },
 
       open_me: function(e) {
@@ -21357,8 +21311,8 @@ Polymer({
 
 
   <template>
-    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
       <paper-input type="text" label="Description" floatinglabel="" value="{{currentitem.description}}"></paper-input>
@@ -21400,11 +21354,14 @@ Polymer({
                   "pieces":""
                   }
         },
-        objid: {
-          type: Number,
-          observer:'_obj_id_has_changed'
-        },
+        objid: Number,
+        getURL: String,
+        pushmethod: String,
+        pushURL: String,
+        serverurl: String
       },
+
+      observers:['updateAjaxParameters(objid, serverurl)'],
 
       save_me: function(){
         this.currentitem.pieces = JSON.stringify(this.currentpieces);
@@ -21423,44 +21380,21 @@ Polymer({
         }
       },
 
-      _handle_response_post: function(response){
+      _handle_response_post:function(response){
         console.log('Received response from POST: ', response.detail.response);
-        this.currentitem = response.detail.response;
-        this.currentpieces = JSON.parse(response.detail.response.pieces);
-        console.log('The pieces from the POST is :', this.currentpieces );
+        window.location = '#!/templates';
+        window.location.reload();
       },
 
-      _obj_id_has_changed: function(new_value, old_value){
-        console.log('ON CHANGE :  ', new_value);
-        if ( new_value !== "new" ){
-            this.$.my_iron_get.generateRequest();
-        }
-      },
-
-      computeKey:function(currentv){
-        return 'Describe ' + currentv ;
-      },
-
-      computeGetUrl:function(currentId){
-        var new_get_url = ( currentId === "new" ) ? '' : '/categories/' + String(this.objid);
-        console.log('Computing GET URL :', new_get_url );
-        return new_get_url;
-      },
-
-      computePushMethod:function(currentId){
-        var new_push_method = ( currentId === "new" ) ? "POST" : "PUT";
-        console.log('Computing Push method :', new_push_method );
-        return new_push_method;
-      },
-
-      computePushUrl:function(currentId){
-        var new_push_url = ( currentId === "new" ) ? '/categories' : '/categories/' + currentId + '/';
-        console.log('Computing Push URL :', new_push_url );
-        return new_push_url;
+      updateAjaxParameters: function(current_id, current_serverurl){
+        var isNew = Boolean(current_id === "new");;
+        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
+        this.pushmethod = ( isNew ) ? "POST" : "PUT";
+        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
+        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
       },
 
       move_up: function(e) {
-        console.log('moving up ');
         var model = e.model;
         var id = model.item.id;
         console.log('moving up ', id);
@@ -21483,7 +21417,6 @@ Polymer({
       },
 
       move_down: function(e) {
-        console.log('moving down ');
         var model = e.model;
         var id = model.item.id;
         console.log('moving down ', id);
@@ -21500,7 +21433,6 @@ Polymer({
           }
           newCurrentPieces.push(currentItem);
         }
-
         this.currentpieces = newCurrentPieces;
       },
 
@@ -21531,24 +21463,23 @@ Polymer({
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/documents" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
-          <template is="dom-repeat" items="{{onlineItems}}">
-            <paper-material card="" elevation="1">
-            <div on-click="open_me">
-              <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
-              <span style="font-size: 16px;">{{item.content}}</span><br>
-    						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
-                <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
-              <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
-          </div>
-            </paper-material>
-          </template>
-       
+    <template is="dom-repeat" items="{{onlineItems}}">
+      <paper-material card="" elevation="1">
+      <div on-click="open_me">
+        <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
+        <span style="font-size: 16px;">{{item.content}}</span><br>
+					<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+          <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+        <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
+      </div>
+      </paper-material>
+    </template>
 
-       <div centerbutton="">
-           <paper-button tabindex="0" raised="" class="colorful" on-click="open_new">new</paper-button>
-       </div>
+   <div centerbutton="">
+       <paper-button tabindex="0" raised="" class="colorful" on-click="open_new">new</paper-button>
+   </div>
 
   </template>
 </dom-module>
@@ -21559,18 +21490,14 @@ Polymer({
 
       is: 'covers-list',
       properties: {
-      },
-
-      ready: function() {
-        console.log('template-list. I am ready');
-        this.$.my_iron.generateRequest();
+        serverurl: String
       },
 
       open_me: function(e) {
         var model = e.model;
         var id = model.item.id;
         console.log('the id is', id);
-        window.location = '#!/documents/' + String(id) + '/empty';
+        window.location = '#!/covers/' + String(id) + '/empty';
         window.location.reload();
         //model.set('item.ordered', model.item.ordered+1);
       },
@@ -21613,25 +21540,25 @@ Polymer({
 
 
   <template>
-    <iron-ajax id="my_iron_get" method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_get_template" method="GET" url="{{computeGetUrlOfTemplate(objtempl)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="my_iron_get_template" auto="" method="GET" url="{{templategetURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
       <paper-input type="text" label="Name" floatinglabel="" value="{{currentitem.name}}"></paper-input>
       <br>
-
-      <template is="dom-repeat" items="{{currentlegend}}">
-        <paper-input type="text" label="{{item.value}}" floatinglabel="" value="{{item.filled}}" on-change="_chhange"></paper-input><br>
+    <template is="dom-if" if="{{edit_disabled}}">
+        <template is="dom-repeat" items="{{currentlegend}}">
+        <paper-input type="text" label="{{item.value}}" floatinglabel="" value="{{item.filled}}"></paper-input><br>
       </template>
-
-      <iron-autogrow-textarea bind-value="{{currentcontent}}">
+    </template>
+      <iron-autogrow-textarea bind-value="{{currentcontent}}" disabled$="{{edit_disabled}}">
         <textarea></textarea>
       </iron-autogrow-textarea>
       <br><br>
 
-
       <div centerbutton="">
+          <paper-button tabindex="0" raised="" class="colorful" on-click="fill_me">edit</paper-button>
           <paper-button tabindex="0" raised="" class="colorful" on-click="save_me">save</paper-button>
       </div>
     </paper-material>
@@ -21650,33 +21577,39 @@ Polymer({
           type: Boolean,
           value: false
         },
-        objid: {
-          type: Number,
-          observer:'_obj_id_has_changed'
+        edit_disabled: {
+          type: Boolean,
+          value: true
         },
-        objtempl: {
-          type: Number,
-          observer:'_obj_templ_has_changed'
+        objid: Number,
+        getURL: String,
+        pushmethod: String,
+        pushURL: String,
+        serverurl: String,
+        templategetURL: String,
+        templateserverurl: String,
+        objtempl: Number,
+        currentlegend: Array,
+        currentcontent: String,
+        currentitem:{
+          type: Object,
+          value: {"content":"", "name":""}
         },
-        currentlegend: {
-          type: Array,
-          value: [],
-          observer:'_on_legend_change'
-        },
-        currentcontent: {
+        originalcontent: String,
+        lettersymbols: {
           type: String,
-          observer: '_on_content_change',
-          value: ""
-        },
+          value: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ']
+        }
       },
 
-      ready: function(){
-        this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
-        this.currentitem = {"name":"", "content": "" };
-        this.debug=true;
-    },
+      observers:['updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)',
+                  '_on_legend_change(currentlegend.*)'],
 
       save_me: function(){
+        this.currentitem.content = this.currentcontent;
+        console.log("In the end pieces is : ", this.currentitem );
+        this.$.my_iron_save.body = JSON.stringify(this.currentitem);
+        this.$.my_iron_save.generateRequest();
       },
 
       _handle_response_get: function(response){
@@ -21684,6 +21617,7 @@ Polymer({
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
+          this.originalcontent = this.currentcontent;
           console.log('The legend got from the GET is :', this.currentlegend );
         }
       },
@@ -21716,91 +21650,59 @@ Polymer({
 
             }
             this.currentcontent = this.currentcontent.concat(currentPiece.content);
+            this.originalcontent = this.currentcontent;
           }
           console.log('The legend got from the GET is :', this.currentpieces );
           console.log('Current legend is now :', this.currentlegend );
         }
       },
 
-      _handle_response_post: function(response){
+      _handle_response_post:function(response){
         console.log('Received response from POST: ', response.detail.response);
-        this.currentitem = response.detail.response;
-        this.currentcontent = response.detail.response.content;
-        //this.currentlegend = JSON.parse(response.detail.response.legend);
-        console.log('The legend got from the POST is :', this.currentlegend );
+        window.location = '#!/covers';
+        window.location.reload();
       },
 
-      _obj_id_has_changed: function(new_value, old_value){
-        console.log('ON CHANGE ID :  ', new_value);
-        if ( new_value !== "new" ){
-            this.$.my_iron_get.generateRequest();
-        }
+      updateAjaxParameters: function(current_id, current_template_id, current_serverurl, current_template_server){
+        var isNew = Boolean(current_id === "new");;
+        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
+        this.pushmethod = ( isNew ) ? "POST" : "PUT";
+        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + String(this.objid) ;
+        this.templategetURL = ( current_template_id === "new") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
+        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
       },
 
-      _obj_templ_has_changed: function(new_value, old_value){
-        console.log('ON CHANGE TEMPL:  ', new_value);
-        if ( new_value !== "empty" ){
-            this.$.my_iron_get_template.generateRequest();
-        }
-      },
+      _on_content_change: function(new_value){
 
-      computeKey:function(currentv){
-        return 'Describe ' + currentv ;
-      },
+      }, // _on_content_change
 
-      computeGetUrl:function(currentId){
-        var new_get_url = ( currentId === "new" ) ? '' : '/documents/' + String(this.objid);
-        console.log('Computing GET URL :', new_get_url );
-        return new_get_url;
-      },
+      fill_me: function(){
+        this.edit_disabled = false;
+      }, // _on_content_change
 
-      computeGetUrlOfTemplate:function(currentTempl){
-        var new_get_url = ( currentTempl === "empty" ) ? '' : '/categories/' + String(this.objtempl);
-        console.log('Computing GET URL for template  :', new_get_url );
-        return new_get_url;
-      },
 
-      computePushMethod:function(currentId){
-        var new_push_method = ( currentId === "new" ) ? "POST" : "PUT";
-        console.log('Computing Push method :', new_push_method );
-        return new_push_method;
-      },
-
-      computePushUrl:function(currentId){
-        var new_push_url = ( currentId === "new" ) ? '/documents' : '/documents/' + currentId + '/';
-        console.log('Computing Push URL :', new_push_url );
-        return new_push_url;
-      },
-
-      _getFromCurrentLegendOrEmpty: function(symbol_to_search){
-
-      },
-
-      _on_content_change: function(new_value, old_value){
+      _on_legend_change: function(new_value){
         var j, len;
-        console.log('Changed content : new value is ', new_value, ' current legend is ', this.currentlegend );
+        var currentOriginalContent = this.originalcontent;
+        console.log('Changed something in the legend.: new value is ', new_value, ' current legend is ', this.currentlegend );
         for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
           var currentObject = this.currentlegend[j];
           var currentObjectKey = currentObject.key;
-          if(this.debug) console.log("Current object is ", currentObject);
-          if(this.debug) console.log("Current object key is ", currentObjectKey);
-          if(this.debug) console.log("Comparing  ", this.currentlegend[j].key, 'to ');
+          var currentFilled = currentObject.filled;
+          if( typeof currentObject.filled !== 'undefined' && currentObject.filled.length > 0){
+            if(this.debug) console.log("Current object is ", currentObject);
+            if(this.debug) console.log("Current object key is ", currentObjectKey);
+            if(this.debug) console.log("Searching  ", currentObjectKey, ' in the text ', currentOriginalContent);
 
-          if( this.currentcontent.indexOf(currentObjectKey) >-1 ){
-            if(this.debug) console.log("FOOOOOOOUNDDDDDD ");
+            if ( currentOriginalContent.indexOf(currentObjectKey) >-1 ){
+              if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentObjectKey);
+
+              currentOriginalContent = currentOriginalContent.replace(currentObjectKey, currentFilled);
+            }
           }
         }
-
-
-      }, // _on_content_change
-
-      _on_legend_change: function(new_value, old_value){
-        console.log('Changed legend : new value is ', new_value );
-      }, // _on_content_change
-
-      _chhange: function(new_value, old_value){
-        console.log('Changed legend : new value is ', new_value );
-      }
+        this.currentcontent = currentOriginalContent;
+      } // _on_content_change
 
     });
   })();
@@ -21964,11 +21866,11 @@ Polymer({
             </section>
 
             <section data-route="apps-detail">
-                <apps-detail objid="{{params.name}}"></apps-detail>
+                <apps-detail objid="{{params.name}}" debug="" serverurl="/applications"></apps-detail>
             </section>
 
             <section data-route="blocks-list">
-                <blocks-list></blocks-list>
+                <blocks-list debug="" serverurl="/pieces"></blocks-list>
             </section>
 
             <section data-route="blocks-detail">
@@ -21976,15 +21878,15 @@ Polymer({
             </section>
 
             <section data-route="templates-list">
-                <templates-list></templates-list>
+                <templates-list debug="" serverurl="/documents"></templates-list>
             </section>
 
             <section data-route="templates-detail">
-                <templates-detail objid="{{params.name}}"></templates-detail>
+                <templates-detail objid="{{params.name}}" debug="" serverurl="/categories"></templates-detail>
             </section>
 
             <section data-route="covers-list">
-                <covers-list></covers-list>
+                <covers-list debug="" serverurl="/documents"></covers-list>
             </section>
 
             <section data-route="covers-new">
@@ -21992,7 +21894,7 @@ Polymer({
             </section>
 
             <section data-route="covers-detail">
-                <covers-detail objid="{{params.name}}" objtempl="{{params.template}}"></covers-detail>
+                <covers-detail objid="{{params.name}}" objtempl="{{params.template}}" debug="" serverurl="/documents/" templateserverurl="/categories"></covers-detail>
             </section>
 
           </iron-pages>

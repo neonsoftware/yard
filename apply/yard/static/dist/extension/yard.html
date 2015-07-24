@@ -4076,8 +4076,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-    <iron-ajax id="my_iron_elem" handle-as="json" on-response="handleResponse"></iron-ajax>
-    <iron-ajax id="my_iron_save" handle-as="json" on-response="handleResponse_post"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
 
@@ -4175,7 +4175,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/pieces" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
 
           <template is="dom-repeat" items="{{onlineItems}}">
@@ -4269,7 +4269,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/categories" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
             <paper-material card="" elevation="1">
@@ -4315,8 +4315,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
   <template>
-    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
       <paper-input type="text" label="Description" floatinglabel="" value="{{currentitem.description}}"></paper-input>
@@ -4364,24 +4364,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
-    <iron-ajax id="my_iron" url="/documents" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
-          <template is="dom-repeat" items="{{onlineItems}}">
-            <paper-material card="" elevation="1">
-            <div on-click="open_me">
-              <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
-              <span style="font-size: 16px;">{{item.content}}</span><br>
-    						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
-                <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
-              <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
-          </div>
-            </paper-material>
-          </template>
-       
+    <template is="dom-repeat" items="{{onlineItems}}">
+      <paper-material card="" elevation="1">
+      <div on-click="open_me">
+        <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
+        <span style="font-size: 16px;">{{item.content}}</span><br>
+					<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+          <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+        <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
+      </div>
+      </paper-material>
+    </template>
 
-       <div centerbutton="">
-           <paper-button tabindex="0" raised="" class="colorful" on-click="open_new">new</paper-button>
-       </div>
+   <div centerbutton="">
+       <paper-button tabindex="0" raised="" class="colorful" on-click="open_new">new</paper-button>
+   </div>
 
   </template>
 </dom-module>
@@ -4410,25 +4409,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
   <template>
-    <iron-ajax id="my_iron_get" method="GET" url="{{computeGetUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_get_template" method="GET" url="{{computeGetUrlOfTemplate(objtempl)}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="{{computePushMethod(objid)}}" url="{{computePushUrl(objid)}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="my_iron_get_template" auto="" method="GET" url="{{templategetURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
+    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
+    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
       <paper-input type="text" label="Name" floatinglabel="" value="{{currentitem.name}}"></paper-input>
       <br>
-
-      <template is="dom-repeat" items="{{currentlegend}}">
-        <paper-input type="text" label="{{item.value}}" floatinglabel="" value="{{item.filled}}" on-change="_chhange"></paper-input><br>
+    <template is="dom-if" if="{{edit_disabled}}">
+        <template is="dom-repeat" items="{{currentlegend}}">
+        <paper-input type="text" label="{{item.value}}" floatinglabel="" value="{{item.filled}}"></paper-input><br>
       </template>
-
-      <iron-autogrow-textarea bind-value="{{currentcontent}}">
+    </template>
+      <iron-autogrow-textarea bind-value="{{currentcontent}}" disabled$="{{edit_disabled}}">
         <textarea></textarea>
       </iron-autogrow-textarea>
       <br><br>
 
-
       <div centerbutton="">
+          <paper-button tabindex="0" raised="" class="colorful" on-click="fill_me">edit</paper-button>
           <paper-button tabindex="0" raised="" class="colorful" on-click="save_me">save</paper-button>
       </div>
     </paper-material>
