@@ -4543,31 +4543,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </section>
 
             <section data-route="apps-list">
-                <apps-list serverurl="rusttt"></apps-list>
+                <apps-list debug="" serverurl="http://rusty.blue/applications"></apps-list>
             </section>
 
             <section data-route="apps-detail">
-                <apps-detail objid="{{params.name}}"></apps-detail>
+                <apps-detail objid="{{params.name}}" debug="" serverurl="http://rusty.blue/applications"></apps-detail>
             </section>
 
             <section data-route="blocks-list">
-                <blocks-list></blocks-list>
+                <blocks-list debug="" serverurl="http://rusty.blue/pieces"></blocks-list>
             </section>
 
             <section data-route="blocks-detail">
-                <blocks-detail debug="true" objid="{{params.name}}"></blocks-detail>
+                <blocks-detail debug="" serverurl="http://rusty.blue/pieces" objid="{{params.name}}"></blocks-detail>
             </section>
 
             <section data-route="templates-list">
-                <templates-list></templates-list>
+                <templates-list debug="" serverurl="http://rusty.blue/documents"></templates-list>
             </section>
 
             <section data-route="templates-detail">
-                <templates-detail objid="{{params.name}}"></templates-detail>
+                <templates-detail objid="{{params.name}}" debug="" serverurl="http://rusty.blue/categories"></templates-detail>
             </section>
 
             <section data-route="covers-list">
-                <covers-list></covers-list>
+                <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
             </section>
 
             <section data-route="covers-new">
@@ -4575,8 +4575,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </section>
 
             <section data-route="covers-detail">
-                <covers-detail objid="{{params.name}}" objtempl="{{params.template}}"></covers-detail>
+                <covers-detail objid="{{params.name}}" objtempl="{{params.template}}" debug="" serverurl="http://rusty.blue/documents/" templateserverurl="http://rusty.blue/categories"></covers-detail>
             </section>
+
 
           </iron-pages>
         </div>
