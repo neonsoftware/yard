@@ -16895,7 +16895,7 @@ Polymer({
       },
 
       _handle_response_get: function(response){
-        if ( typeof this.objid != 'undefined' && typeof response.detail.response != 'undefined'){
+        if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
@@ -17022,12 +17022,13 @@ Polymer({
         templateserverurl: String,
         serverurl: String,
         isnotabselected: Boolean,
-        tags: [],
-        selectedblocks: []
+        tags: Array,
+        blocks: Array,
+        selectedblocks: Array
       },
 
       observers:['updateAjaxParameters(objid, serverurl, templateserverurl)',
-                  'updateTags(tags.*, isnotabselected)'],
+                  'updateTags(tags.*, isnotabselected, blocks)'],
 
       save_me: function(){
         this.currentitem.pieces = JSON.stringify(this.currentpieces);
@@ -17038,7 +17039,7 @@ Polymer({
       },
 
       _handle_response_get: function(response){
-        if ( typeof this.objid != 'undefined' && typeof response.detail.response != 'undefined'){
+        if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentpieces = JSON.parse(response.detail.response.pieces);
@@ -17080,7 +17081,7 @@ Polymer({
         if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL, ' - templategetURL :', this.templateserverurl );
       },
 
-      updateTags: function(current_tags, isnotabselected){
+      updateTags: function(current_tags, isnotabselected, current_blocks){
         var newCurrentPieces = []
 
         if(this.debug) console.log('TAGS HAVE CHANGED');
