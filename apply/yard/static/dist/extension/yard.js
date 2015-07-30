@@ -16693,7 +16693,7 @@ Polymer({
           value: false
         }
       },
-      
+
       open_me: function(e) {
         var model = e.model;
         var id = model.item.id;
@@ -16728,7 +16728,43 @@ Polymer({
           type: Boolean,
           value: false
         },
-        currentitem: Object,
+        currentitem: {
+          type: Object,
+          value: {
+            portal :"",
+          	portal_link:"",
+          	company:"",
+          	company_link:"",
+          	position:"",
+          	position_link:"",
+          	salary:"",
+          	contract:"",
+          	latitude:"",
+          	longitude:"",
+          	skills:"",
+          	written:"",
+          	called:"",
+          	interviewed:"",
+          	followup:"",
+          	notes:"",
+          	next:"",
+          	cover:"",
+          	address1:"",
+          	address2:"",
+          	c1name:"",
+          	c1mail:"",
+          	c1phone:"",
+          	c2name:"",
+          	c2mail:"",
+          	c2phone:"",
+          	c3name:"",
+          	c3mail:"",
+          	c3phone:"",
+          	c4name:"",
+          	c4mail:"",
+          	c4phone:""
+          }
+        },
         objid: Number,
         getURL: String,
         pushmethod: String,
@@ -16738,7 +16774,13 @@ Polymer({
 
       observers:['updateAjaxParameters(objid, serverurl)'],
 
+      ready:function(){
+        console.log('Start :', this.currentitem);
+
+      },
+
       save_me:function(){
+        console.log('The currenty is :', this.currentitem);
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
         this.$.my_iron_save.contentType = "application/json";
         this.$.my_iron_save.generateRequest();
@@ -16746,8 +16788,10 @@ Polymer({
       },
 
       _handle_response_get:function(response){
-        console.log('Received response from get :' , response.detail.response);
-        this.currentitem = response.detail.response;
+        if(response.detail.response != null){
+          console.log('Received response from get :' , response.detail.response);
+          this.currentitem = response.detail.response;
+        }
       },
 
       _handle_response_post:function(response){
@@ -16975,10 +17019,15 @@ Polymer({
         getURL: String,
         pushmethod: String,
         pushURL: String,
-        serverurl: String
+        templateserverurl: String,
+        serverurl: String,
+        isnotabselected: Boolean,
+        tags: [],
+        selectedblocks: []
       },
 
-      observers:['updateAjaxParameters(objid, serverurl)'],
+      observers:['updateAjaxParameters(objid, serverurl, templateserverurl)',
+                  'updateTags(tags.*, isnotabselected)'],
 
       save_me: function(){
         this.currentitem.pieces = JSON.stringify(this.currentpieces);
@@ -16997,26 +17046,70 @@ Polymer({
         }
       },
 
+      _handle_response_get_template: function(response){
+        var i, len;
+        var newTags = [];
+        if ( typeof this.templategetURL != '' && typeof response.detail.response != 'undefined' && response.detail.response != null){
+          console.log('Received response from GET TEMPLATE: ', response.detail.response);
+          this.blocks = response.detail.response;
+          for (index = 0, len = this.blocks.length; index < len; ++index) {
+            var currentItem = this.blocks[index];
+            console.log('Iter ', index, ' - item ', currentItem);
+            if( currentItem.tags.length > 0){
+              newTags.push({name: currentItem.tags, selected: false});
+            }
+          }
+        }
+        this.isnotabselected = false;
+        this.tags = newTags;
+        console.log('Done TAGS : ', this.tags);
+      },
+
       _handle_response_post:function(response){
         console.log('Received response from POST: ', response.detail.response);
         window.location = '#!/templates';
         window.location.reload();
       },
 
-      updateAjaxParameters: function(current_id, current_serverurl){
+      updateAjaxParameters: function(current_id, current_serverurl, current_template_server){
         var isNew = Boolean(current_id === "new");;
         this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
         this.pushmethod = ( isNew ) ? "POST" : "PUT";
         this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
-        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
+        this.templategetURL = ( isNew ) ? this.templateserverurl : '';
+        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL, ' - templategetURL :', this.templateserverurl );
+      },
+
+      updateTags: function(current_tags, isnotabselected){
+        var newCurrentPieces = []
+
+        if(this.debug) console.log('TAGS HAVE CHANGED');
+        var activeTags = [];
+        for (index = 0, len = this.tags.length; index < len; ++index) {
+          var currenttag = this.tags[index];
+          console.log('Iter ', index, ' - currenttag ', currenttag);
+          if( currenttag.selected ){
+            activeTags.push(currenttag.name);
+          }
+        }
+
+        for (index = 0, len = this.blocks.length; index < len; ++index) {
+          var currentblock = this.blocks[index];
+          console.log('Iter ', index, ' - currentblock ', currentblock);
+
+          if( (currentblock.tags.length == 0 && this.isnotabselected) || (activeTags.indexOf(currentblock.tags) >-1) ){
+            newCurrentPieces.push(currentblock);
+          }
+        }
+
+        this.currentpieces = newCurrentPieces;
       },
 
       move_up: function(e) {
         var model = e.model;
         var id = model.item.id;
-        console.log('moving up ', id);
-
         var newCurrentPieces = [];
+        console.log('moving up ', id);
 
         for (index = 0, len = this.currentpieces.length; index < len; ++index) {
           var currentItem = this.currentpieces[index];
@@ -17036,9 +17129,8 @@ Polymer({
       move_down: function(e) {
         var model = e.model;
         var id = model.item.id;
-        console.log('moving down ', id);
-
         var newCurrentPieces = [];
+        console.log('moving down ', id);
 
         for (index = 0, len = this.currentpieces.length; index < len; ++index) {
           var currentItem = this.currentpieces[index];

@@ -39,6 +39,8 @@
         </paper-material>
       </template>
 
+      <span >no tag</span>
+      <paper-checkbox checked="{{isnotabselected}}"></paper-checkbox><br>
       <template is="dom-repeat" items="{{tags}}">
         <span >{{item.name}}</span>
         <paper-checkbox checked="{{item.selected}}"></paper-checkbox><br>
@@ -77,12 +79,13 @@
         pushURL: String,
         templateserverurl: String,
         serverurl: String,
+        isnotabselected: Boolean,
         tags: [],
         selectedblocks: []
       },
 
       observers:['updateAjaxParameters(objid, serverurl, templateserverurl)',
-                  'updateTags(tags.*)'],
+                  'updateTags(tags.*, isnotabselected)'],
 
       save_me: function(){
         this.currentitem.pieces = JSON.stringify(this.currentpieces);
@@ -115,6 +118,7 @@
             }
           }
         }
+        this.isnotabselected = false;
         this.tags = newTags;
         console.log('Done TAGS : ', this.tags);
       },
@@ -134,7 +138,7 @@
         if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL, ' - templategetURL :', this.templateserverurl );
       },
 
-      updateTags: function(current_tags){
+      updateTags: function(current_tags, isnotabselected){
         var newCurrentPieces = []
 
         if(this.debug) console.log('TAGS HAVE CHANGED');
@@ -150,7 +154,8 @@
         for (index = 0, len = this.blocks.length; index < len; ++index) {
           var currentblock = this.blocks[index];
           console.log('Iter ', index, ' - currentblock ', currentblock);
-          if( activeTags.indexOf(currentblock.tags) >-1 ){
+
+          if( (currentblock.tags.length == 0 && this.isnotabselected) || (activeTags.indexOf(currentblock.tags) >-1) ){
             newCurrentPieces.push(currentblock);
           }
         }
