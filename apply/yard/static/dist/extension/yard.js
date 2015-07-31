@@ -17256,7 +17256,7 @@ Polymer({
       },
 
       _handle_response_get: function(response){
-        if ( typeof this.objid != 'undefined' && typeof response.detail.response != 'undefined'){
+        if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
@@ -17266,7 +17266,7 @@ Polymer({
       },
 
       _handle_response_get_template: function(response){
-        if ( typeof this.objid != 'undefined' && typeof response.detail.response != 'undefined'){
+        if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
           console.log('Received response from GET template : ', response.detail.response);
           this.currentpieces = JSON.parse(response.detail.response.pieces);
           this.currentcontent = "";
