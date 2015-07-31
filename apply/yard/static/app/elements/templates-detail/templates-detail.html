@@ -91,18 +91,18 @@
 
       save_me: function(){
         this.currentitem.pieces = JSON.stringify(this.currentpieces);
-        console.log("In the end pieces is : ", this.currentitem.pieces );
+        console.log("templates-detail :In the end pieces is : ", this.currentitem.pieces );
         this.$.my_iron_save.body = JSON.stringify(this.currentitem);
-        console.log("Payload is  : ", JSON.stringify(this.currentitem) );
+        console.log("templates-detail :Payload is  : ", JSON.stringify(this.currentitem) );
         this.$.my_iron_save.generateRequest();
       },
 
       _handle_response_get: function(response){
         if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
-          console.log('Received response from GET: ', response.detail.response);
+          console.log('templates-detail :Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentpieces = JSON.parse(response.detail.response.pieces);
-          console.log('The pieces from the GET is :', this.currentpieces );
+          console.log('templates-detail :The pieces from the GET is :', this.currentpieces );
         }
       },
 
@@ -110,11 +110,11 @@
         var i, len;
         var newTags = [];
         if ( typeof this.templategetURL != '' && typeof response.detail.response != 'undefined' && response.detail.response != null){
-          console.log('Received response from GET TEMPLATE: ', response.detail.response);
+          console.log('templates-detail :Received response from GET TEMPLATE: ', response.detail.response);
           this.blocks = response.detail.response;
           for (index = 0, len = this.blocks.length; index < len; ++index) {
             var currentItem = this.blocks[index];
-            console.log('Iter ', index, ' - item ', currentItem);
+            console.log('templates-detail :Iter ', index, ' - item ', currentItem);
             if( currentItem.tags.length > 0){
               newTags.push({name: currentItem.tags, selected: false});
             }
@@ -122,22 +122,23 @@
         }
         this.isnotabselected = false;
         this.tags = newTags;
-        console.log('Done TAGS : ', this.tags);
+        console.log('templates-detail :Done TAGS : ', this.tags);
       },
 
       _handle_response_post:function(response){
-        console.log('Received response from POST: ', response.detail.response);
+        console.log('templates-detail :Received response from POST: ', response.detail.response);
         window.location = '#!/templates';
         window.location.reload();
       },
 
       updateAjaxParameters: function(current_id, current_serverurl, current_template_server){
+        console.log('templates-detail : Now AJAX');
         var isNew = Boolean(current_id === "new");;
         this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
         this.pushmethod = ( isNew ) ? "POST" : "PUT";
         this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
         this.templategetURL = ( isNew ) ? this.templateserverurl : '';
-        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL, ' - templategetURL :', this.templateserverurl );
+        if(this.debug) console.log('templates-detail :Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL, ' - templategetURL :', this.templateserverurl );
       },
 
       updateTags: function(current_tags, isnotabselected, current_blocks){
@@ -147,7 +148,7 @@
         var activeTags = [];
         for (index = 0, len = this.tags.length; index < len; ++index) {
           var currenttag = this.tags[index];
-          console.log('Iter ', index, ' - currenttag ', currenttag);
+          console.log('templates-detail :Iter ', index, ' - currenttag ', currenttag);
           if( currenttag.selected ){
             activeTags.push(currenttag.name);
           }
@@ -155,7 +156,7 @@
 
         for (index = 0, len = this.blocks.length; index < len; ++index) {
           var currentblock = this.blocks[index];
-          console.log('Iter ', index, ' - currentblock ', currentblock);
+          console.log('templates-detail :Iter ', index, ' - currentblock ', currentblock);
 
           if( (currentblock.tags.length == 0 && this.isnotabselected) || (activeTags.indexOf(currentblock.tags) >-1) ){
             newCurrentPieces.push(currentblock);
@@ -169,11 +170,11 @@
         var model = e.model;
         var id = model.item.id;
         var newCurrentPieces = [];
-        console.log('moving up ', id);
+        console.log('templates-detail :moving up ', id);
 
         for (index = 0, len = this.currentpieces.length; index < len; ++index) {
           var currentItem = this.currentpieces[index];
-          console.log('Iter ', index, ' - item ', currentItem);
+          console.log('templates-detail :Iter ', index, ' - item ', currentItem);
           if( index + 1 < len){
             if ( this.currentpieces[index+1].id === id ){
               newCurrentPieces.push(this.currentpieces[index+1]);
@@ -190,13 +191,13 @@
         var model = e.model;
         var id = model.item.id;
         var newCurrentPieces = [];
-        console.log('moving down ', id);
+        console.log('templates-detail :moving down ', id);
 
         for (index = 0, len = this.currentpieces.length; index < len; ++index) {
           var currentItem = this.currentpieces[index];
-          console.log('Iter ', index, ' - item ', currentItem);
+          console.log('templates-detail :Iter ', index, ' - item ', currentItem);
           if ( currentItem.id === id && index + 1 < len ){
-              console.log('It is NOT the last one !! ');
+              console.log('templates-detail :It is NOT the last one !! ');
               newCurrentPieces.push(this.currentpieces[index+1]);
               ++index;
           }
