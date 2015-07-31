@@ -17009,7 +17009,7 @@ Polymer({
         },
         currentitem: {
           type: Object,
-          value: {"description":"",
+          value: {"name":"","description":"",
                   "language":"en",
                   "tags":"",
                   "pieces":""

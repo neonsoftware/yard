@@ -88,7 +88,7 @@ def categories_list(request) :
 
 	elif request.method == 'POST':
 		updated_data =	json.loads( request.body )
-		print '\tPut = ' , request.body
+		print '\tPost = ' , request.body
 		c = PieceCategory()
 		c.user = request.user
 		c.fill(updated_data)

@@ -27,6 +27,7 @@
     <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card elevation="1">
+      <paper-input type="text" label="Title" floatingLabel value="{{currentitem.name}}"></paper-input>
       <paper-input type="text" label="Description" floatingLabel value="{{currentitem.description}}"></paper-input>
       <paper-input type="text" label="Language" floatingLabel value="{{currentitem.language}}"></paper-input>
       <paper-input type="text" label="Tags" floatingLabel value="{{currentitem.tags}}" ></paper-input>
@@ -67,7 +68,7 @@
         },
         currentitem: {
           type: Object,
-          value: {"description":"",
+          value: {"name":"","description":"",
                   "language":"en",
                   "tags":"",
                   "pieces":""

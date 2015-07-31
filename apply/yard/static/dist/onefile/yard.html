@@ -21360,6 +21360,7 @@ Polymer({
     <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
+      <paper-input type="text" label="Title" floatinglabel="" value="{{currentitem.name}}"></paper-input>
       <paper-input type="text" label="Description" floatinglabel="" value="{{currentitem.description}}"></paper-input>
       <paper-input type="text" label="Language" floatinglabel="" value="{{currentitem.language}}"></paper-input>
       <paper-input type="text" label="Tags" floatinglabel="" value="{{currentitem.tags}}"></paper-input>
@@ -21400,7 +21401,7 @@ Polymer({
         },
         currentitem: {
           type: Object,
-          value: {"description":"",
+          value: {"name":"","description":"",
                   "language":"en",
                   "tags":"",
                   "pieces":""
