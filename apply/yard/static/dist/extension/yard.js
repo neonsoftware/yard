@@ -17024,7 +17024,12 @@ Polymer({
         isnotabselected: Boolean,
         tags: Array,
         blocks: Array,
-        selectedblocks: Array
+        selectedblocks: Array,
+        displayedblocks: Array,
+        currentpieces: {
+          type: Array,
+          value: []
+        }
       },
 
       observers:['updateAjaxParameters(objid, serverurl, templateserverurl)',
@@ -17083,7 +17088,7 @@ Polymer({
       },
 
       updateTags: function(current_tags, isnotabselected, current_blocks){
-        var newCurrentPieces = []
+        var newDisplayedBlocks = []
 
         if(this.debug) console.log('TAGS HAVE CHANGED');
         var activeTags = [];
@@ -17100,11 +17105,11 @@ Polymer({
           console.log('templates-detail :Iter ', index, ' - currentblock ', currentblock);
 
           if( (currentblock.tags.length == 0 && this.isnotabselected) || (activeTags.indexOf(currentblock.tags) >-1) ){
-            newCurrentPieces.push(currentblock);
+            newDisplayedBlocks.push(currentblock);
           }
         }
 
-        this.currentpieces = newCurrentPieces;
+        this.displayedblocks = newDisplayedBlocks;
       },
 
       move_up: function(e) {
@@ -17146,6 +17151,29 @@ Polymer({
         }
         this.currentpieces = newCurrentPieces;
       },
+
+      remove: function(e) {
+        var model = e.model;
+        var id = model.item.id;
+        var updatedPieces = [];
+        console.log('templates-detail :moving down ', id);
+
+        for (index = 0, len = this.currentpieces.length; index < len; ++index) {
+          var currentItem = this.currentpieces[index];
+          if ( currentItem.id === id ){
+              console.log('REMOVING element ! ');
+          }
+        }
+        this.currentpieces = updatedPieces;
+      },
+
+      add: function(e) {
+        var model = e.model;
+        console.log('templates-detail :adding in total it is ', model.item);
+        console.log('templates-detail : currentpieces ', this.currentpieces);
+        this.push('currentpieces', model.item);
+      },
+
 
     });
   })();

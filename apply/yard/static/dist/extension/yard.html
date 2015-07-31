@@ -4325,11 +4325,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <paper-input type="text" label="Language" floatinglabel="" value="{{currentitem.language}}"></paper-input>
       <paper-input type="text" label="Tags" floatinglabel="" value="{{currentitem.tags}}"></paper-input>
       <br><br>
+      Pieces:
       <template is="dom-repeat" items="{{currentpieces}}">
         <paper-material elevation="2">
         <span>{{item.content}}</span>
         <paper-button tabindex="0" raised="" class="colorful" on-click="move_up">^</paper-button>
         <paper-button tabindex="0" raised="" class="colorful" on-click="move_down">v</paper-button>
+      <paper-button tabindex="0" raised="" class="colorful" on-click="remove">X</paper-button>
+      </paper-material>
+      </template>
+      <br>
+
+      Available:
+      <template is="dom-repeat" items="{{displayedblocks}}">
+        <paper-material elevation="2">
+        <span>{{item.content}}</span>
+        <paper-button tabindex="0" raised="" class="colorful" on-click="add">add</paper-button>
         </paper-material>
       </template>
 
