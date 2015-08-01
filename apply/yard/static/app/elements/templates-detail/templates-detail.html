@@ -92,7 +92,10 @@
         templateserverurl: String,
         serverurl: String,
         isnotabselected: Boolean,
-        tags: Array,
+        tags: {
+          type: Array,
+          value: []
+        },
         blocks: Array,
         selectedblocks: Array,
         displayedblocks: Array,
@@ -114,7 +117,7 @@
       },
 
       _handle_response_get: function(response){
-        if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
+        if ( typeof this.objid != 'undefined' && this.objid != 'new' && this.objid != '' && typeof response.detail.response != 'undefined'){
           console.log('templates-detail :Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentpieces = JSON.parse(response.detail.response.pieces);
@@ -123,7 +126,6 @@
       },
 
       _handle_response_get_template: function(response){
-        var i, len;
         var newTags = [];
         if ( typeof this.templategetURL != '' && typeof response.detail.response != 'undefined' && response.detail.response != null){
           console.log('templates-detail :Received response from GET TEMPLATE: ', response.detail.response);
@@ -132,13 +134,22 @@
             var currentItem = this.blocks[index];
             console.log('templates-detail :Iter ', index, ' - item ', currentItem);
             if( currentItem.tags.length > 0){
-              newTags.push({name: currentItem.tags, selected: false});
+              var found = Boolean(false);
+              for (j = 0; j < newTags.length; ++j) {
+                if(newTags[j].name === currentItem.tags){
+                  found = true;
+                }
+              }
+              if(found==false){
+                newTags.push({name: currentItem.tags, selected: false});
+              }
             }
           }
+
+          this.isnotabselected = false;
+          this.set('tags', newTags);
+          console.log('templates-detail :Done TAGS : ', this.tags);
         }
-        this.isnotabselected = false;
-        this.tags = newTags;
-        console.log('templates-detail :Done TAGS : ', this.tags);
       },
 
       _handle_response_post:function(response){
