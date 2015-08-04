@@ -1,15 +1,17 @@
 {
-  "name": "polymer-starter-kit",
-  "private": true,
+  "name": "appy",
+  "version": "0.0.0",
+  "authors": [
+    "testy"
+  ],
+  "description": "Some app",
+  "main": "index.html",
+  "keywords": [
+    "none"
+  ],
   "dependencies": {
-    "iron-elements": "PolymerElements/iron-elements",
-    "paper-elements": "PolymerElements/paper-elements",
-    "platinum-elements": "PolymerElements/platinum-elements",
-    "more-routing" : "PolymerLabs/more-routing",
-    "page": "visionmedia/page.js#~1.6.3"
+    "cork": "neonsoftware/cork#^0.0.1"
   },
-  "devDependencies": {
-    "web-component-tester": "*",
-    "test-fixture": "PolymerElements/test-fixture#^1.0.0"
-  }
+  "license": "MIT",
+  "homepage": "www.google.com"
 }

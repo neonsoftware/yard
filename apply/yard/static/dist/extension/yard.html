@@ -1,56 +1,249 @@
-<!DOCTYPE html><html lang=""><head>
-  <meta charset="utf-8">
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="generator" content="Polymer Starter Kit">
-  <title>Polymer Starter Kit</title>
-  
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+    <style is="custom-style">
+      html, body {
+        height: 500px;
+        width: 400px;
+        margin: 0;
+      }
 
-  
-  <meta name="theme-color" content="#303F9F">
+      :root {
+        /** --theme-primary: var(--google-pink-500) */
+        --theme-primary: #e91e63;
+      }
 
-  
-  <link rel="manifest" href="manifest.json">
+    </style>
 
-  
-  <meta name="msapplication-TileColor" content="#3372DF">
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700">
+<style is="custom-style">
 
-  
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="Polymer Starter Kit">
-  <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+  :root {
 
-  
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Polymer Starter Kit">
-  <link rel="apple-touch-icon" href="images/touch/apple-touch-icon.png">
+    /* Shared Styles */
 
-  
-  <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+    /*
+    Unfortunately, we can't use nested rules
+    See https://github.com/Polymer/polymer/issues/1399
+    */
+    --paper-font-common-base: {
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    };
 
-  
-  <style>
-/*
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-*/
+    --paper-font-common-code: {
+      font-family: 'Roboto Mono', 'Consolas', 'Menlo', monospace;
+      -webkit-font-smoothing: antialiased;
+    };
 
-body {
-  background: #fafafa;
-  font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: #333;
-}
+    --paper-font-common-expensive-kerning: {
+      text-rendering: optimizeLegibility;
+    };
+
+    --paper-font-common-nowrap: {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    };
+
+    /* Material Font Styles */
+
+    --paper-font-display4: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+      /* @apply(--paper-font-common-nowrap); */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      font-size: 112px;
+      font-weight: 300;
+      letter-spacing: -.044em;
+      line-height: 120px;
+    };
+
+    --paper-font-display3: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+      /* @apply(--paper-font-common-nowrap); */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      font-size: 56px;
+      font-weight: 400;
+      letter-spacing: -.026em;
+      line-height: 60px;
+    };
+
+    --paper-font-display2: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+
+      font-size: 45px;
+      font-weight: 400;
+      letter-spacing: -.018em;
+      line-height: 48px;
+    };
+
+    --paper-font-display1: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: -.01em;
+      line-height: 40px;
+    };
+
+    --paper-font-headline: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -.012em;
+      line-height: 32px;
+    };
+
+    --paper-font-title: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+      /* @apply(--paper-font-common-nowrap); */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 28px;
+    };
+
+    --paper-font-subhead: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 24px;
+    };
+
+    --paper-font-body2: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 24px;
+    };
+
+    --paper-font-body1: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+    };
+
+    --paper-font-caption: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-nowrap); */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.011em;
+      line-height: 20px;
+    };
+
+    --paper-font-menu: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+      /* @apply(--paper-font-common-nowrap); */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 24px;
+    };
+
+    --paper-font-button: {
+      /* @apply(--paper-font-common-base) */
+      font-family: 'Roboto', 'Noto', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      /* @apply(--paper-font-common-expensive-kerning); */
+      text-rendering: optimizeLegibility;
+      /* @apply(--paper-font-common-nowrap); */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.018em;
+      line-height: 24px;
+      text-transform: uppercase;
+    };
+
+    --paper-font-code2: {
+      /* @apply(--paper-font-common-code); */
+      font-family: 'Roboto Mono', 'Consolas', 'Menlo', monospace;
+      -webkit-font-smoothing: antialiased;
+
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 20px;
+    };
+
+    --paper-font-code1: {
+      /* @apply(--paper-font-common-code); */
+      font-family: 'Roboto Mono', 'Consolas', 'Menlo', monospace;
+      -webkit-font-smoothing: antialiased;
+
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+    };
+
+  }
 
 </style>
-  
 
-  
-  <style>
+<style>
 
   /*******************************
             Flex Layout
@@ -638,6 +831,8 @@ body {
   }
 
 </style>
+
+
 <style is="custom-style">
 
   :root {
@@ -1226,9 +1421,9 @@ body {
     --paper-orange-a400: #ff9100;
     --paper-orange-a700: #ff6500;
  
-    --paper-deep-orange-50: #ff5722;
-    --paper-deep-orange-100: #fbe9e7;
-    --paper-deep-orange-200: #ffccbc;
+    --paper-deep-orange-50: #fbe9e7;
+    --paper-deep-orange-100: #ffccbc;
+    --paper-deep-orange-200: #ffab91;
     --paper-deep-orange-300: #ff8a65;
     --paper-deep-orange-400: #ff7043;
     --paper-deep-orange-500: #ff5722;
@@ -1342,238 +1537,8 @@ body {
   }
 
 </style>
-<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic">
-<style is="custom-style">
-
-  :root {
-
-    /* Shared Styles */
-
-    /*
-    Unfortunately, we can't use nested rules
-    See https://github.com/Polymer/polymer/issues/1399
-    */
-    --paper-font-common-base: {
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-    };
-
-    --paper-font-common-code: {
-      font-family: 'Inconsolata', 'Consolas', 'Source Code Pro', 'Monaco', 'Menlo', monospace;
-      -webkit-font-smoothing: antialiased;
-    };
-
-    --paper-font-common-expensive-kerning: {
-      text-rendering: optimizeLegibility;
-    };
-
-    --paper-font-common-nowrap: {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    };
-
-    /* Material Font Styles */
-
-    --paper-font-display4: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-      /* @apply(--paper-font-common-nowrap); */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      font-size: 112px;
-      font-weight: 300;
-      letter-spacing: -.044em;
-      line-height: 120px;
-    };
-
-    --paper-font-display3: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-      /* @apply(--paper-font-common-nowrap); */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      font-size: 56px;
-      font-weight: 400;
-      letter-spacing: -.026em;
-      line-height: 60px;
-    };
-
-    --paper-font-display2: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-
-      font-size: 45px;
-      font-weight: 400;
-      letter-spacing: -.018em;
-      line-height: 48px;
-    };
-
-    --paper-font-display1: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-
-      font-size: 34px;
-      font-weight: 400;
-      letter-spacing: -.01em;
-      line-height: 40px;
-    };
-
-    --paper-font-headline: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-
-      font-size: 24px;
-      font-weight: 400;
-      letter-spacing: -.012em;
-      line-height: 32px;
-    };
-
-    --paper-font-title: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-      /* @apply(--paper-font-common-nowrap); */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      font-size: 20px;
-      font-weight: 500;
-      line-height: 28px;
-    };
-
-    --paper-font-subhead: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-
-      font-size: 16px;
-      font-weight: 400;
-      line-height: 24px;
-    };
-
-    --paper-font-body2: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 24px;
-    };
-
-    --paper-font-body1: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 20px;
-    };
-
-    --paper-font-caption: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-nowrap); */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      font-size: 12px;
-      font-weight: 400;
-      letter-spacing: 0.011em;
-      line-height: 20px;
-    };
-
-    --paper-font-menu: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-      /* @apply(--paper-font-common-nowrap); */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      font-size: 13px;
-      font-weight: 500;
-      line-height: 24px;
-    };
-
-    --paper-font-button: {
-      /* @apply(--paper-font-common-base) */
-      font-family: 'Roboto', 'Noto', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      /* @apply(--paper-font-common-expensive-kerning); */
-      text-rendering: optimizeLegibility;
-      /* @apply(--paper-font-common-nowrap); */
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      font-size: 14px;
-      font-weight: 500;
-      letter-spacing: 0.018em;
-      line-height: 24px;
-      text-transform: uppercase;
-    };
-
-    --paper-font-code2: {
-      /* @apply(--paper-font-common-code); */
-      font-family: 'Inconsolata', 'Consolas', 'Source Code Pro', 'Monaco', 'Menlo', monospace;
-      -webkit-font-smoothing: antialiased;
-
-      font-size: 14px;
-      font-weight: 700;
-      line-height: 20px;
-    };
-
-    --paper-font-code1: {
-      /* @apply(--paper-font-common-code); */
-      font-family: 'Inconsolata', 'Consolas', 'Source Code Pro', 'Monaco', 'Menlo', monospace;
-      -webkit-font-smoothing: antialiased;
-
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 20px;
-    };
-
-  }
-
-</style>
 
 
-
-
-<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic">
-<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Inconsolata:400,700">
 
 
 <style>
@@ -1596,7 +1561,7 @@ body {
 
 .paper-font-code2,
 .paper-font-code1 {
-  font-family: 'Inconsolata', 'Consolas', 'Source Code Pro', 'Monaco', 'Menlo', monospace;
+  font-family: 'Roboto Mono', 'Consolas', 'Menlo', monospace;
   -webkit-font-smoothing: antialiased;  /* OS X subpixel AA bleed bug */
 }
 
@@ -1773,209 +1738,36 @@ styles. All other styles should exist as single lines."
 
 
 
-
-
-<style is="custom-style">
-
-  /*
-   Polymer includes a shim for CSS Custom Properties that we can use for application theming.
-   Below, you'll find the default palette for the Polymer Starter Kit layout. Feel free to play
-   with changing the colors used or generate your own palette of colours at MaterialPalette.com.
-
-   See https://www.polymer-project.org/1.0/docs/devguide/styling.html#xscope-styling-details
-   for further information on custom CSS properties.
-   */
-
-  /* Application theme */
-
-  :root {
-    --dark-primary-color: #303F9F;
-    --default-primary-color: #3F51B5;
-    --light-primary-color: #C5CAE9;
-    --text-primary-color: #ffffff; /*text/icons*/
-    --accent-color: #FF4081;
-    --primary-background-color: #c5cae9;
-    --primary-text-color: #212121;
-    --secondary-text-color: #727272;
-    --disabled-text-color: #bdbdbd;
-    --divider-color: #B6B6B6;
-
-    /* Components */
-
-    /* paper-drawer-panel */
-    --drawer-menu-color: #ffffff;
-    --drawer-border-color: 1px solid #ccc;
-    --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
-
-    /* paper-menu */
-    --paper-menu-background-color: #fff;
-    --menu-link-color: #111111;
-  }
-
-  /* General styles */
-
-  #drawerToolbar {
-    color: var(--secondary-text-color);
-    background-color: var(--drawer-menu-color);
-    border-bottom: var(--drawer-toolbar-border-color);
-    height: 64px;
-  }
-
-  paper-material {
-    border-radius: 2px;
-    height: 100%;
-    padding: 16px 0 16px 0;
-    width: calc(98.66% - 16px);
-    margin: 16px auto;
-    background: white;
-  }
-
-  paper-menu iron-icon {
-    margin-right: 33px;
-    opacity: 0.54;
-  }
-
-  .paper-menu > .iron-selected {
-    color: var(--default-primary-color);
-  }
-
-  paper-menu a {
-    text-decoration: none;
-    color: var(--menu-link-color);
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -ms-flex-direction: row;
-    -webkit-flex-direction: row;
-    flex-direction: row;
-    -ms-flex-align: center;
-    -webkit-align-items: center;
-    align-items: center;
-    font-family: 'Roboto', 'Noto', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 24px;
-    min-height: 48px;
-    padding: 0 16px;
-  }
-
-  #mainToolbar .middle {
-    margin-left: 48px;
-  }
-
-  #mainToolbar.has-shadow .middle {
-    font-size: 20px;
-    padding-bottom: 0;
-    margin-left: 48px;
-  }
-
-  /* Height of the scroll area */
-  .content {
-    height: 900px;
-  }
-
-  /* Breakpoints */
-
-  /* Small */
-  @media (max-width: 600px) {
-
-    paper-material {
-      --menu-container-display: none;
-      width: calc(97.33% - 32px);
-      padding-left: 16px;
-      padding-right: 16px;
-    }
-
-    .paper-font-display1 {
-      font-size: 12px;
-    }
-
-    .app-name {
-      font-size: 26px;
-    }
-
-    #drawer .paper-toolbar {
-      margin-left: 16px;
-    }
-
-    #overlay {
-      min-width: 360px;
-    }
-
-    .bg {
-      background: white;
-    }
-
-  }
-
-  /* Tablet+ */
-  @media (min-width: 601px) {
-
-    paper-material {
-      width: calc(98% - 46px);
-      margin-bottom: 32px;
-      padding-left: 30px;
-      padding-right: 30px;
-    }
-
-    #drawer.paper-drawer-panel > [drawer] {
-      border-right: 1px solid rgba(0, 0, 0, 0.14);
-    }
-
-    iron-pages {
-      padding: 48px 62px;
-    }
-
-  }
-
-  /* Material Design Adaptive Breakpoints */
-  /*
-    Below you'll find CSS media queries based on the breakpoint guidance
-    published by the Material Design team. You can choose to use, customise
-    or remove these breakpoints based on your needs.
-
-    http://www.google.com/design/spec/layout/adaptive-ui.html#adaptive-ui-breakpoints
-   */
-
-  /* mobile-small */
-  @media all and (min-width: 0) and (max-width: 360px) and (orientation: portrait) { }
-  /* mobile-large */
-  @media all and (min-width: 361px) and (orientation: portrait) { }
-  /* mobile-small-landscape */
-  @media all and (min-width: 0) and (max-width: 480px) and (orientation: landscape) { }
-  /* mobile-large-landscape */
-  @media all and (min-width: 481px) and (orientation: landscape) { }
-  /* tablet-small-landscape */
-  @media all and (min-width: 600px) and (max-width: 960px) and (orientation: landscape) { }
-  /* tablet-large-landscape */
-  @media all and (min-width: 961px) and (orientation: landscape) { }
-  /* tablet-small */
-  @media all and (min-width: 600px) and (orientation: portrait) { }
-  /* tablet-large */
-  @media all and (min-width: 601px) and (max-width: 840px) and (orientation : portrait) { }
-  /* desktop-x-small-landscape */
-  @media all and (min-width: 0) and (max-width: 480px) and (orientation: landscape) { }
-  /* desktop-x-small */
-  @media all and (min-width: 0) and (max-width: 480px) and (max-aspect-ratio: 4/3) { }
-  /* desktop-small-landscape */
-  @media all and (min-width: 481px) and (max-width: 840px) and (orientation: landscape) { }
-  /* desktop-small */
-  @media all and (min-width: 481px) and (max-width: 840px) and (max-aspect-ratio: 4/3) { }
-  /* desktop-medium-landscape */
-  @media all and (min-width: 841px) and (max-width: 1280px) and (orientation: landscape) { }
-  /* desktop-medium */
-  @media all and (min-width: 841px) and (max-width: 1280px) and (max-aspect-ratio: 4/3) { }
-  /* desktop-large */
-  @media all and (min-width: 1281px) and (max-width: 1600px) { }
-  /* desktop-xlarge */
-  @media all and (min-width: 1601px) and (max-width: 1920px) { }
-</style>
-
 </head>
+  <body><div hidden="" by-vulcanize=""><more-routing-config driver="hash"></more-routing-config>
 
-<body style="width: 400px; height: 500px"><div hidden="" by-vulcanize=""><dom-module id="iron-icon" assetpath="bower_components/iron-icon/">
+
+<more-route name="root" path="/"></more-route>
+
+<more-route name="apps" path="/apps">
+  <more-route name="appdetail" path="/:appId"></more-route>
+</more-route>
+
+<more-route name="blocks" path="/blocks">
+  <more-route name="blockdetail" path="/:blockId"></more-route>
+</more-route>
+
+<more-route name="templates" path="/templates">
+  <more-route name="templatedetail" path="/:templateId"></more-route>
+</more-route>
+
+<more-route name="covers" path="/covers">
+  <more-route name="coverselect" path="/select"></more-route>
+  <more-route name="coverdetail" path="/:coverId/:coverTemplateId"></more-route>
+</more-route>
+<dom-module id="more-route-selector" assetpath="bower_components/more-routing/">
+  <template>
+    <more-route-selection id="selection" routes="[[routes]]" on-more-route-change="_onMoreRouteChange">
+    </more-route-selection>
+    <content></content>
+  </template>
+</dom-module>
+<dom-module id="iron-icon" assetpath="bower_components/iron-icon/">
 
   <style>
     :host {
@@ -2673,6 +2465,7 @@ styles. All other styles should exist as single lines."
       border: none;
       resize: none;
       background: inherit;
+      color: inherit;
       /* see comments in template */
       width: 100%;
       height: 100%;
@@ -2691,7 +2484,7 @@ styles. All other styles should exist as single lines."
 
     
     <div class="textarea-container fit">
-      <textarea id="textarea" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" name$="[[name]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" required$="[[required]]" rows$="[[rows]]" maxlength$="[[maxlength]]"></textarea>
+      <textarea id="textarea" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" required$="[[required]]" rows$="[[rows]]" maxlength$="[[maxlength]]"></textarea>
     </div>
   </template>
 </dom-module>
@@ -2875,127 +2668,148 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
 <dom-module id="paper-header-panel" assetpath="bower_components/paper-header-panel/">
 
   <style>
-    :host {
-      @apply(--layout);
-      @apply(--layout-vertical);
+/**
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
+The complete set of authors may be found at http://polymer.github.io/AUTHORS
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
+*/
 
-      display: block;
-      position: relative;
-      height: 100%;
+:host {
+  @apply(--layout-vertical);
 
-      /* Create a stack context, we will need it for the shadow*/
-      z-index: 0;
-    }
+  position: relative;
+  height: 100%;
+}
 
-    :root {
-      /**
-       * Default paper header panel shadow
-       */
-      --paper-header-panel-shadow: {
-        height: 6px;
-        bottom: -6px;
-        box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-      };
-    }
+/**
+ * Default paper header panel shadow
+ */
+:root {
+  --paper-header-panel-shadow: {
+    height: 6px;
+    bottom: -6px;
+    box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+  };
+}
 
-    #mainContainer {
-      @apply(--layout-flex);
+#mainContainer {
+  @apply(--layout-flex);
 
-      position: relative;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      flex-basis: 0.0001px;
-    }
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
 
-    /*
-     * mode: scroll
-     */
-    :host([mode=scroll]) #mainContainer {
-      @apply(--paper-header-panel-scroll-container);
-      overflow: visible;
-    }
+#mainPanel {
+  @apply(--layout-vertical);
+  @apply(--layout-flex);
 
-    :host([mode=scroll]) {
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
+  position: relative;
+}
 
-    /*
-     * mode: cover
-     */
-    :host([mode=cover]) #mainContainer {
-      @apply(--paper-header-panel-cover-container);
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
+/*
+ * mode: scroll
+ */
+:host([mode=scroll]) #mainContainer {
+  @apply(--paper-header-panel-scroll-container);
 
-    /*
-     * mode: standard
-     */
-    :host([mode=standard]) #mainContainer {
-      @apply(--paper-header-panel-standard-container);
-    }
+  overflow: visible;
+}
 
-    /*
-     * mode: waterfall
-     */
-    :host([mode=waterfall]) #mainContainer {
-      @apply(--paper-header-panel-waterfall-container);
-    }
+:host([mode=scroll]) {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
 
-    /*
-     * mode: waterfall-tall
-     */
-    :host([mode=waterfall-tall]) #mainContainer {
-      @apply(--paper-header-panel-waterfall-tall-container);
-    }
+/*
+ * mode: cover
+ */
+:host([mode=cover]) #mainContainer {
+  @apply(--paper-header-panel-cover-container);
 
-    :host ::content paper-toolbar,
-    :host ::content .paper-header {
-      position: relative;
-      overflow: visible !important;
-    }
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
 
-    :host ::content paper-toolbar:after,
-    :host ::content .paper-header:after {
-      @apply(--paper-header-panel-shadow);
+:host([mode=cover]) #mainPanel {
+  position: static;
+}
 
-      -webkit-transition: opacity 0.5s, -webkit-transform 0.5s;
-      transition: opacity 0.5s, transform 0.5s;
+/*
+ * mode: standard
+ */
+:host([mode=standard]) #mainContainer {
+  @apply(--paper-header-panel-standard-container);
+}
 
-      opacity: 0;
-      content: "";
+/*
+ * mode: seamed
+ */
+:host([mode=seamed]) #mainContainer {
+  @apply(--paper-header-panel-seamed-container);
+}
 
-      width: 100%;
-      position: absolute;
-      left: 0px;
-      right: 0px;
-      z-index: 1;
 
-      -webkit-transform: scale3d(1, 0, 1);
-      -webkit-transform-origin: 0% 0%;
+/*
+ * mode: waterfall
+ */
+:host([mode=waterfall]) #mainContainer {
+  @apply(--paper-header-panel-waterfall-container);
+}
 
-      transform: scale3d(1, 0, 1);
-      transform-origin: 0% 0%;
-    }
+/*
+ * mode: waterfall-tall
+ */
+:host([mode=waterfall-tall]) #mainContainer {
+  @apply(--paper-header-panel-waterfall-tall-container);
+}
 
-    :host ::content paper-toolbar.has-shadow:after,
-    :host ::content .paper-header.has-shadow:after {
-      opacity: 1;
-      -webkit-transform: scale3d(1, 1, 1);
-      transform: scale3d(1, 1, 1);
-    }
-  </style>
+#dropShadow {
+  @apply(--paper-header-panel-shadow);
+
+  -webkit-transition: opacity 0.5s, -webkit-transform 0.5s;
+  transition: opacity 0.5s, transform 0.5s;
+
+  -webkit-transform: scale3d(1, 0, 1);
+  transform: scale3d(1, 0, 1);
+
+  -webkit-transform-origin: left top;
+  transform-origin: left top;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  opacity: 0;
+}
+
+#dropShadow.has-shadow {
+  opacity: 1;
+
+  -webkit-transform: scale3d(1, 1, 1);
+  transform: scale3d(1, 1, 1);
+}
+
+</style>
 
   <template>
     <content id="headerContent" select="paper-toolbar, .paper-header"></content>
-    <div id="mainContainer" class$="[[_computeMainContainerClass(mode)]]">
-      <content id="mainContent" select="*"></content>
+
+    <div id="mainPanel">
+      <div id="mainContainer" class$="[[_computeMainContainerClass(mode)]]">
+        <content id="mainContent" select="*"></content>
+      </div>
+      <div id="dropShadow"></div>
     </div>
   </template>
 
@@ -3083,6 +2897,7 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
       position: relative;
       padding: 8px;
       outline: none;
+      -webkit-tap-highlight-color: rgba(0,0,0,0);
       -webkit-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
@@ -3214,7 +3029,7 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
       position: relative;
       outline: 0;
 
-      @apply(--paper-menu-colored-focused-item);
+      @apply(--paper-menu-focused-item);
     }
 
     .content > ::content > *:focus:after {
@@ -3224,7 +3039,7 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
       opacity: 0.12;
       content: '';
 
-      @apply(--paper-menu-colored-focused-item-after);
+      @apply(--paper-menu-focused-item-after);
     }
 
     .content > ::content > *[colored]:focus:after {
@@ -3280,6 +3095,8 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
       transform: scale3d(0,1,1);
 
       background: var(--paper-input-container-focus-color, --default-primary-color);
+
+      @apply(--paper-input-container-underline-focus);
     }
 
     .underline.is-highlighted .focused-line {
@@ -3305,12 +3122,16 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
     .unfocused-line {
       height: 1px;
       background: var(--paper-input-container-color, --secondary-text-color);
+
+      @apply(--paper-input-container-underline);
     }
 
     :host([disabled]) .unfocused-line {
       border-bottom: 1px dashed;
       border-color: var(--paper-input-container-color, --secondary-text-color);
       background: transparent;
+
+      @apply(--paper-input-container-underline-disabled);
     }
 
     .input-content {
@@ -3345,6 +3166,8 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
     .input-content.label-is-highlighted ::content label,
     .input-content.label-is-highlighted ::content .paper-input-label {
       color: var(--paper-input-container-focus-color, --default-primary-color);
+
+      @apply(--paper-input-container-label-focus);
     }
 
     .input-content.is-invalid ::content label,
@@ -3421,8 +3244,8 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
   <style>
 
     :host {
-      /* need to use display: none for role="alert" */
-      display: none;
+      display: inline-block;
+      visibility: hidden;
       float: left;
 
       color: var(--paper-input-container-invalid-color, --google-red-500);
@@ -3432,7 +3255,7 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
     }
 
     :host([invalid]) {
-      display: inline-block;
+      visibility: visible;
     };
 
   </style>
@@ -3499,7 +3322,7 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
 
       <label hidden$="[[!label]]">[[label]]</label>
 
-      <input is="iron-input" id="input" aria-labelledby$="[[_ariaLabelledBy]]" aria-describedby$="[[_ariaDescribedBy]]" disabled$="[[disabled]]" bind-value="{{value}}" invalid="{{invalid}}" prevent-invalid-input="[[preventInvalidInput]]" allowed-pattern="[[allowedPattern]]" validator="[[validator]]" type$="[[type]]" pattern$="[[pattern]]" maxlength$="[[maxlength]]" required$="[[required]]" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" minlength$="[[minlength]]" name$="[[name]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" list$="[[list]]" size$="[[size]]">
+      <input is="iron-input" id="input" aria-labelledby$="[[_ariaLabelledBy]]" aria-describedby$="[[_ariaDescribedBy]]" disabled$="[[disabled]]" bind-value="{{value}}" invalid="{{invalid}}" prevent-invalid-input="[[preventInvalidInput]]" allowed-pattern="[[allowedPattern]]" validator="[[validator]]" type$="[[type]]" pattern$="[[pattern]]" maxlength$="[[maxlength]]" required$="[[required]]" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" minlength$="[[minlength]]" name$="[[name]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" list$="[[list]]" size$="[[size]]" autocapitalize$="[[autocapitalize]]" autocorrect$="[[autocorrect]]">
 
       <template is="dom-if" if="[[errorMessage]]">
         <paper-input-error>[[errorMessage]]</paper-input-error>
@@ -3717,6 +3540,17 @@ iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
     .toolbar-tools > ::content[select=".bottom"] paper-icon-button + .title {
       margin-left: 0;
     }
+
+    .toolbar-tools > ::content > .fit {
+      position: absolute;
+      top: auto;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: auto;
+      margin: 0;
+    }
+
   </style>
 
   <template>
@@ -3838,6 +3672,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   vertical-align: middle;
+  background-color: var(--paper-checkbox-unchecked-background-color, transparent);
 }
 
 :host #ink {
@@ -3848,6 +3683,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   height: 48px;
   color: var(--paper-checkbox-unchecked-ink-color, --primary-text-color);
   opacity: 0.6;
+  pointer-events: none;
 }
 
 :host #ink[checked] {
@@ -3920,7 +3756,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   border-left: none;
   border-right-width: 2px;
   border-bottom-width: 2px;
-  border-color: white;
+  border-color: var(--paper-checkbox-checkmark-color, white);
 }
 
 /* label */
@@ -3973,14 +3809,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   </dom-module>
-<dom-module id="more-route-selector" assetpath="bower_components/more-routing/">
-  <template>
-    <more-route-selection id="selection" routes="[[routes]]" on-more-route-change="_onMoreRouteChange">
-    </more-route-selection>
-    <content></content>
-  </template>
-</dom-module>
-<dom-module id="apps-list" assetpath="elements/apps-list/">
+<dom-module id="apps-list" assetpath="bower_components/cork/">
 
   <style>
 
@@ -4005,6 +3834,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
+
+    <more-route context="" name="apps" params="{{params}}"></more-route>
+
     <iron-ajax id="my_iron" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponse"></iron-ajax>
     <paper-material levation="1">
       <div>
@@ -4048,7 +3880,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 
-<dom-module id="apps-detail" assetpath="elements/apps-detail/">
+<dom-module id="apps-detail" assetpath="bower_components/cork/">
 
   <style>
     :host {
@@ -4076,6 +3908,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
+    <more-route context="" name="appdetail" params="{{params}}"></more-route>
+
+
     <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
     <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
@@ -4151,7 +3986,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 </dom-module>
 
-<dom-module id="blocks-list" assetpath="elements/blocks-list/">
+<dom-module id="blocks-list" assetpath="bower_components/cork/">
 
   <style>
 
@@ -4175,6 +4010,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
+
+    <more-route context="" name="blocks" params="{{params}}"></more-route>
+
     <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
 
@@ -4196,7 +4034,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 
-<dom-module id="blocks-detail" assetpath="elements/blocks-detail/">
+<dom-module id="blocks-detail" assetpath="bower_components/cork/">
 
   <style>
     paper-button[raised].colorful {
@@ -4220,6 +4058,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
   <template>
+
+    <more-route context="" name="blockdetail" params="{{params}}"></more-route>
+
     <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
     <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
@@ -4245,7 +4086,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 </dom-module>
 
-<dom-module id="templates-list" assetpath="elements/templates-list/">
+<dom-module id="templates-list" assetpath="bower_components/cork/">
 
   <style>
 
@@ -4269,6 +4110,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
+
+    <more-route context="" name="templates" params="{{params}}"></more-route>
+
     <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
@@ -4291,7 +4135,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 
-<dom-module id="templates-detail" assetpath="elements/templates-detail/">
+<dom-module id="templates-detail" assetpath="bower_components/cork/">
 
   <style>
     paper-button[raised].colorful {
@@ -4315,6 +4159,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
   <template>
+    <more-route context="" name="templatedetail" params="{{params}}"></more-route>
+
+
     <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
     <iron-ajax id="my_iron_get_template" auto="" method="GET" url="{{templategetURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
     <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
@@ -4360,7 +4207,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 </dom-module>
 
-<dom-module id="covers-list" assetpath="elements/covers-list/">
+<dom-module id="covers-list" assetpath="bower_components/cork/">
 
   <style>
 
@@ -4384,6 +4231,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
+    <more-route context="" name="covers" params="{{params}}"></more-route>
+
     <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
 
     <template is="dom-repeat" items="{{onlineItems}}">
@@ -4405,7 +4254,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 
-<dom-module id="covers-detail" assetpath="elements/covers-detail/">
+<dom-module id="covers-detail" assetpath="bower_components/cork/">
 
   <style>
     paper-button[raised].colorful {
@@ -4429,6 +4278,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
   <template>
+    <more-route context="" name="coverdetail" params="{{params}}"></more-route>
+
+
     <iron-ajax id="my_iron_get_template" auto="" method="GET" url="{{templategetURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
     <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
     <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
@@ -4456,7 +4308,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 </dom-module>
 
-<dom-module id="covers-new" assetpath="elements/covers-detail/">
+<dom-module id="covers-new" assetpath="bower_components/cork/">
 
   <style>
 
@@ -4480,6 +4332,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
   <template>
+
+    <more-route context="" name="coverselect" params="{{params}}"></more-route>
+
     <iron-ajax id="my_iron" url="/categories" handle-as="json" on-response="handleResponse"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
@@ -4502,112 +4357,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 
-</div>
-  <span id="browser-sync-binding"></span>
-  <template is="dom-bind" id="app">
+<dom-module id="cork-app" assetpath="bower_components/cork/">
+
+  <style>
+
+    iron-selector > * {
+      display: none;
+    }
+    iron-selector > .iron-selected {
+      display: block;
+    }
+
+    header {
+      @apply(--paper-font-display2);
+      background-color: var(--theme-primary);
+      color: white;
+      padding: 16px;
+      cursor: pointer;
+    }
+
+  </style>
+
+  <template>
+    <header on-tap="_onTapHome">Cork</header>
 
     
-
-
-      <paper-header-panel main="" mode="waterfall-tall">
-
-        <a data-route="home" href="/">
-          <iron-icon icon="home"></iron-icon>
-          <span>Home</span>
-        </a>
-
-        <a data-route="apps-list" href="/apps">
-          <iron-icon icon="mail"></iron-icon>
-          <span>Applications</span>
-        </a>
-
-        <a data-route="blocks-list" href="/blocks">
-          <iron-icon icon="info"></iron-icon>
-          <span>Blocks</span>
-        </a>
-
-        <a data-route="templates-list" href="/templates">
-          <iron-icon icon="mail"></iron-icon>
-          <span>Templates</span>
-        </a>
-
-        <a data-route="covers-list" href="/covers">
-          <iron-icon icon="mail"></iron-icon>
-          <span>Covers</span>
-        </a>
-
-        
-        <paper-toolbar id="mainToolbar">
-          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle=""></paper-icon-button>
-          <span class="flex"></span>
-
-          
-          <paper-icon-button icon="refresh"></paper-icon-button>
-          <paper-icon-button icon="search"></paper-icon-button>
-
-          
-          <div class="middle paper-font-display2 app-name">Yard</div>
-
-          
-          <div class="bottom title"></div>
-
-        </paper-toolbar>
-
-        
-        <div class="content">
-          <iron-pages attr-for-selected="data-route" selected="{{route}}">
-
-            <section data-route="home">
-              <paper-material elevation="1">
-              </paper-material>
-            </section>
-
-            <section data-route="apps-list">
-                <apps-list debug="" serverurl="http://rusty.blue/applications"></apps-list>
-            </section>
-
-            <section data-route="apps-detail">
-                <apps-detail objid="{{params.name}}" debug="" serverurl="http://rusty.blue/applications"></apps-detail>
-            </section>
-
-            <section data-route="blocks-list">
-                <blocks-list debug="" serverurl="http://rusty.blue/pieces"></blocks-list>
-            </section>
-
-            <section data-route="blocks-detail">
-                <blocks-detail debug="" serverurl="http://rusty.blue/pieces" objid="{{params.name}}"></blocks-detail>
-            </section>
-
-            <section data-route="templates-list">
-                <templates-list debug="" serverurl="http://rusty.blue/documents"></templates-list>
-            </section>
-
-            <section data-route="templates-detail">
-                <templates-detail objid="{{params.name}}" debug="" serverurl="http://rusty.blue/categories"></templates-detail>
-            </section>
-
-            <section data-route="covers-list">
-                <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
-            </section>
-
-            <section data-route="covers-new">
-                <covers-new></covers-new>
-            </section>
-
-            <section data-route="covers-detail">
-                <covers-detail objid="{{params.name}}" objtempl="{{params.template}}" debug="" serverurl="http://rusty.blue/documents/" templateserverurl="http://rusty.blue/categories"></covers-detail>
-            </section>
-
-
-          </iron-pages>
-        </div>
-      </paper-header-panel>
-
-    <paper-toast id="caching-complete" duration="6000" text="Caching complete! This app will work offline.">
-    </paper-toast>
-
+    <more-route-selector>
+      <iron-selector>
+        <apps-list debug="" serverurl="http://rusty.blue/applications"></apps-list>
+        <apps-detail debug="" serverurl="http://rusty.blue/applications"></apps-detail>
+        <blocks-list debug="" serverurl="http://rusty.blue/pieces"></blocks-list>
+        <blocks-detail debug="" serverurl="http://rusty.blue/pieces"></blocks-detail>
+        <templates-list debug="" serverurl="http://rusty.blue/categories"></templates-list>
+        <templates-detail debug="" serverurl="http://rusty.blue/categories" templateserverurl="http://rusty.blue/pieces"></templates-detail>
+        <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
+        <covers-detail debug="" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
+        <covers-new></covers-new>
+      </iron-selector>
+    </more-route-selector>
 
   </template>
 
+  </dom-module>
+</div>
+    <cork-app></cork-app>
   
-  <script src="yard.js"></script></body></html>
+
+
+<script src="yard.js"></script></body></html>
