@@ -1,0 +1,96 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="bower_components/paper-styles/typography.html">
+
+<link rel="import" href="bower_components/more-routing/more-routing.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="bower_components/paper-header-panel/paper-header-panel.html">
+
+<link rel="import" href="bower_components/cork/apps-list.html">
+<link rel="import" href="bower_components/cork/apps-detail.html">
+<link rel="import" href="bower_components/cork/blocks-list.html">
+<link rel="import" href="bower_components/cork/blocks-detail.html">
+<link rel="import" href="bower_components/cork/templates-list.html">
+<link rel="import" href="bower_components/cork/templates-detail.html">
+<link rel="import" href="bower_components/cork/covers-list.html">
+<link rel="import" href="bower_components/cork/covers-detail.html">
+<link rel="import" href="bower_components/cork/covers-new.html">
+
+
+
+<!--
+The top level element for Polyfora.
+-->
+<dom-module id="cork-app">
+
+  <style>
+  iron-selector > * {
+    display: none;
+  }
+  iron-selector > .iron-selected {
+    display: block;
+  }
+
+  header {
+    @apply(--paper-font-display2);
+    background-color: var(--theme-primary);
+    color: white;
+    padding: 16px;
+    cursor: pointer;
+  }
+  </style>
+
+  <template>
+
+
+          <!--
+          `more-route-selector` manages any element that extends `core-selector`,
+          allowing you to associate each with a route. By default, it looks for
+          the `route` attribute on each item in the `core-selector`. You can see
+          an example of that default behavior in `polyfora-user.html`.
+
+          In this example, we have opted to construct our base pages such that
+          they declare _routing contexts_. Each element declares the route that it
+          represents, and `more-route-selector` uses this to select the correct
+          route to display.
+
+          See each page's `<more-route context ...>`.
+          -->
+          <more-route-selector>
+            <iron-selector>
+              <apps-list  debug serverurl="http://rusty.blue/applications"></apps-list>
+              <apps-detail debug serverurl="http://rusty.blue/applications"></apps-detail>
+              <blocks-list  debug serverurl="http://rusty.blue/pieces"></blocks-list>
+              <blocks-detail debug serverurl="http://rusty.blue/pieces"></blocks-detail>
+              <templates-list debug  serverurl="http://rusty.blue/categories"></templates-list>
+              <templates-detail debug serverurl="http://rusty.blue/categories" templateserverurl="http://rusty.blue/pieces"></templates-detail>
+              <covers-list  debug serverurl="http://rusty.blue/documents"></covers-list>
+              <covers-detail debug serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
+              <covers-new ></covers-new>
+            </iron-selector>
+          </more-route-selector>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'cork-app',
+
+      /**
+       * Navigates to the root URL, in response to a tap on the home "link".
+       */
+      _onTapHome: function(event) {
+        // If you wish to navigate imperatively, `MoreRouting.navigateTo` is the
+        // way to go:
+        MoreRouting.navigateTo('root');
+        event.preventDefault();
+      },
+
+    });
+
+  </script>
+
+</dom-module>
