@@ -13,40 +13,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
     <link rel="import" href="bower_components/polymer/polymer.html">
 
-    <style is="custom-style">
-
-      html, body {
-        height: 100%;
-        margin: 0;
-      }
-
-      :root {
-        /** --theme-primary: var(--google-pink-500) */
-        --theme-primary: #e91e63;
-      }
-
-    </style>
-
-    <!--
-    `routes.html` configures more-routing, and specifies all of the named routes
-    used by this application. Take a look at it.
-
-    Note that we are declaring these routes _outside_ of `<polyfora-app>` for a
-    few reasons:
-
-     * There can only be one `<more-route-config>` defined per page.
-
-     * The `<polyfora-*>` elements refer to all the routes by name; so you could
-       change the URLs of those routes without breaking the application.
-
-    -->
-
+    <link rel="import" href="bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
 
 
     <link rel="import" href="routes.html">
-    <link rel="import" href="app-theme.html">
-
     <link rel="import" href="cork-app.html">
+
+    <link rel="import" href="app-theme.html">
 
   </head>
   <body>
@@ -61,21 +34,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         </paper-toolbar>
 
         <!-- Drawer Content -->
-        <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
-          <a data-route="home" href="/">
+        <paper-menu class="list" >
+          <a href="#!/apps">
             <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
+            <span>applications</span>
           </a>
 
-          <a data-route="users" href="/users">
+          <a href="#!/blocks">
             <iron-icon icon="info"></iron-icon>
-            <span>Users</span>
+            <span>blocks</span>
           </a>
 
-          <a data-route="contact" href="/contact">
+          <a href="#!/templates">
             <iron-icon icon="mail"></iron-icon>
-            <span>Contact</span>
+            <span>templates</span>
           </a>
+
+          <a href="#!/covers">
+            <iron-icon icon="mail"></iron-icon>
+            <span>covers</span>
+          </a>
+
         </paper-menu>
       </paper-scroll-header-panel>
 
