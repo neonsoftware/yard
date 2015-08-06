@@ -21832,7 +21832,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
         this.pushmethod = ( isNew ) ? "POST" : "PUT";
         this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + String(this.objid) ;
-        this.templategetURL = ( current_template_id === "new") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
+        this.templategetURL = ( current_template_id === "empty") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
         if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
       },
 
@@ -21989,7 +21989,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <templates-list debug="" serverurl="http://rusty.blue/categories"></templates-list>
               <templates-detail debug="" serverurl="http://rusty.blue/categories" templateserverurl="http://rusty.blue/pieces"></templates-detail>
               <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
-              <covers-detail debug="" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
+              <covers-detail debug="" serverurl="http://rusty.blue/documents/" templateserverurl="http://rusty.blue/categories"></covers-detail>
               <covers-new></covers-new>
             </iron-selector>
           </more-route-selector>

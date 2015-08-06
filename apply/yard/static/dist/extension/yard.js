@@ -17144,7 +17144,7 @@ Polymer({
         this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
         this.pushmethod = ( isNew ) ? "POST" : "PUT";
         this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + String(this.objid) ;
-        this.templategetURL = ( current_template_id === "new") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
+        this.templategetURL = ( current_template_id === "empty") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
         if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
       },
 
