@@ -8368,6 +8368,186 @@ this.fire('dom-change');
 }
 });
 ;
+  /**
+   * `IronResizableBehavior` is a behavior that can be used in Polymer elements to
+   * coordinate the flow of resize events between "resizers" (elements that control the
+   * size or hidden state of their children) and "resizables" (elements that need to be
+   * notified when they are resized or un-hidden by their parents in order to take
+   * action on their new measurements).
+   * Elements that perform measurement should add the `IronResizableBehavior` behavior to
+   * their element definition and listen for the `iron-resize` event on themselves.
+   * This event will be fired when they become showing after having been hidden,
+   * when they are resized explicitly by another resizable, or when the window has been
+   * resized.
+   * Note, the `iron-resize` event is non-bubbling.
+   *
+   * @polymerBehavior Polymer.IronResizableBehavior
+   * @demo demo/index.html
+   **/
+  Polymer.IronResizableBehavior = {
+    properties: {
+      /**
+       * The closest ancestor element that implements `IronResizableBehavior`.
+       */
+      _parentResizable: {
+        type: Object,
+        observer: '_parentResizableChanged'
+      },
+
+      /**
+       * True if this element is currently notifying its descedant elements of
+       * resize.
+       */
+      _notifyingDescendant: {
+        type: Boolean,
+        value: false
+      }
+    },
+
+    listeners: {
+      'iron-request-resize-notifications': '_onIronRequestResizeNotifications'
+    },
+
+    created: function() {
+      // We don't really need property effects on these, and also we want them
+      // to be created before the `_parentResizable` observer fires:
+      this._interestedResizables = [];
+      this._boundNotifyResize = this.notifyResize.bind(this);
+    },
+
+    attached: function() {
+      this.fire('iron-request-resize-notifications', null, {
+        node: this,
+        bubbles: true,
+        cancelable: true
+      });
+
+      if (!this._parentResizable) {
+        window.addEventListener('resize', this._boundNotifyResize);
+        this.notifyResize();
+      }
+    },
+
+    detached: function() {
+      if (this._parentResizable) {
+        this._parentResizable.stopResizeNotificationsFor(this);
+      } else {
+        window.removeEventListener('resize', this._boundNotifyResize);
+      }
+
+      this._parentResizable = null;
+    },
+
+    /**
+     * Can be called to manually notify a resizable and its descendant
+     * resizables of a resize change.
+     */
+    notifyResize: function() {
+      if (!this.isAttached) {
+        return;
+      }
+
+      this._interestedResizables.forEach(function(resizable) {
+        if (this.resizerShouldNotify(resizable)) {
+          this._notifyDescendant(resizable);
+        }
+      }, this);
+
+      this._fireResize();
+    },
+
+    /**
+     * Used to assign the closest resizable ancestor to this resizable
+     * if the ancestor detects a request for notifications.
+     */
+    assignParentResizable: function(parentResizable) {
+      this._parentResizable = parentResizable;
+    },
+
+    /**
+     * Used to remove a resizable descendant from the list of descendants
+     * that should be notified of a resize change.
+     */
+    stopResizeNotificationsFor: function(target) {
+      var index = this._interestedResizables.indexOf(target);
+
+      if (index > -1) {
+        this._interestedResizables.splice(index, 1);
+        this.unlisten(target, 'iron-resize', '_onDescendantIronResize');
+      }
+    },
+
+    /**
+     * This method can be overridden to filter nested elements that should or
+     * should not be notified by the current element. Return true if an element
+     * should be notified, or false if it should not be notified.
+     *
+     * @param {HTMLElement} element A candidate descendant element that
+     * implements `IronResizableBehavior`.
+     * @return {boolean} True if the `element` should be notified of resize.
+     */
+    resizerShouldNotify: function(element) { return true; },
+
+    _onDescendantIronResize: function(event) {
+      if (this._notifyingDescendant) {
+        event.stopPropagation();
+        return;
+      }
+
+      // NOTE(cdata): In ShadowDOM, event retargetting makes echoing of the
+      // otherwise non-bubbling event "just work." We do it manually here for
+      // the case where Polymer is not using shadow roots for whatever reason:
+      if (!Polymer.Settings.useShadow) {
+        this._fireResize();
+      }
+    },
+
+    _fireResize: function() {
+      this.fire('iron-resize', null, {
+        node: this,
+        bubbles: false
+      });
+    },
+
+    _onIronRequestResizeNotifications: function(event) {
+      var target = event.path ? event.path[0] : event.target;
+
+      if (target === this) {
+        return;
+      }
+
+      if (this._interestedResizables.indexOf(target) === -1) {
+        this._interestedResizables.push(target);
+        this.listen(target, 'iron-resize', '_onDescendantIronResize');
+      }
+
+      target.assignParentResizable(this);
+      this._notifyDescendant(target);
+
+      event.stopPropagation();
+    },
+
+    _parentResizableChanged: function(parentResizable) {
+      if (parentResizable) {
+        window.removeEventListener('resize', this._boundNotifyResize);
+      }
+    },
+
+    _notifyDescendant: function(descendant) {
+      // NOTE(cdata): In IE10, attached is fired on children first, so it's
+      // important not to notify them if the parent is not attached yet (or
+      // else they will get redundantly notified when the parent attaches).
+      if (!this.isAttached) {
+        return;
+      }
+
+      this._notifyingDescendant = true;
+      descendant.notifyResize();
+      this._notifyingDescendant = false;
+    }
+  };
+
+;
 (function(scope) {
 var MoreRouting = scope.MoreRouting = scope.MoreRouting || {};
 MoreRouting.Emitter = Object.create(null);  // Minimal set of properties.
@@ -9295,6 +9475,187 @@ PathDriver.prototype._read = function _read() {
 
 ;
 
+  Polymer({
+
+    is: 'more-route-selection',
+
+    behaviors: [
+      MoreRouting.ContextAware,
+    ],
+
+    properties: {
+
+      /**
+       * Routes to select from, as either a path expression or route name.
+       *
+       * You can either specify routes via this attribute, or as child nodes
+       * to this element, but not both.
+       *
+       * @type {String|Array<string|MoreRouting.Route>}
+       */
+      routes: {
+        type:     String,
+        observer: '_routesChanged',
+      },
+
+      /**
+       * The selected `MoreRouting.Route` object, or `null`.
+       *
+       * @type {MoreRouting.Route}
+       */
+      selectedRoute: {
+        type:     Object,
+        value:    null,
+        readOnly: true,
+        notify:   true,
+      },
+
+      /**
+       * The index of the selected route (relative to `routes`). -1 when there
+       * is no active route.
+       */
+      selectedIndex: {
+        type:     Number,
+        value:    -1,
+        readOnly: true,
+        notify:   true,
+      },
+
+      /**
+       * The _full_ path expression of the selected route, or `null`.
+       */
+      selectedPath: {
+        type:     String,
+        readOnly: true,
+        notify:   true,
+      },
+
+      /**
+       * The params of the selected route, or an empty object if no route.
+       */
+      selectedParams: {
+        type:     Object,
+        readOnly: true,
+        notify:   true,
+      },
+
+    },
+
+    /**
+     * @event more-route-change fires when a new route is selected.
+     * @detail {{
+     *   newRoute:  MoreRouting.Route, oldRoute: MoreRouting.Route,
+     *   newIndex:  number,  oldIndex:  number,
+     *   newPath:   ?string, oldPath:   ?string,
+     *   newParams: Object,  oldParams: Object,
+     * }}
+     */
+
+    routingReady: function() {
+      this._routesChanged();
+    },
+
+    _routesChanged: function() {
+      if (!this.routingIsReady) return;
+      var routes = this.routes || [];
+      if (typeof routes === 'string') {
+        routes = routes.split(/\s+/);
+      }
+      this._routeInfo = this._sortIndexes(routes.map(function(route, index) {
+        return {
+          model: MoreRouting.getRoute(route, this.parentRoute),
+          index: index,
+        };
+      }.bind(this)));
+
+      this._observeRoutes();
+      this._evaluate();
+    },
+
+    /**
+     * Tracks changes to the routes.
+     */
+    _observeRoutes: function() {
+      if (this._routeListeners) {
+        for (var i = 0, listener; listener = this._routeListeners[i]; i++) {
+          listener.close();
+        }
+      }
+
+      this._routeListeners = this._routeInfo.map(function(routeInfo) {
+        return routeInfo.model.__subscribe(this._evaluate.bind(this));
+      }.bind(this));
+    },
+
+    _evaluate: function() {
+      var newIndex = -1;
+      var newRoute = null;
+      var oldIndex = this.selectedIndex;
+
+      for (var i = 0, routeInfo; routeInfo = this._routeInfo[i]; i++) {
+        if (routeInfo.model && routeInfo.model.active) {
+          newIndex = routeInfo.index;
+          newRoute = routeInfo.model;
+          break;
+        }
+      }
+      if (newIndex === oldIndex) return;
+
+      var oldRoute  = this.selectedRoute;
+      var oldPath   = this.selectedPath;
+      var oldParams = this.selectedParams;
+
+      var newPath   = newRoute ? newRoute.fullPath : null;
+      var newParams = newRoute ? newRoute.params   : {};
+
+      this._setSelectedRoute(newRoute);
+      this._setSelectedIndex(newIndex);
+      this._setSelectedPath(newPath);
+      this._setSelectedParams(newParams);
+
+      this.fire('more-route-change', {
+        newRoute:  newRoute,  oldRoute:  oldRoute,
+        newIndex:  newIndex,  oldIndex:  oldIndex,
+        newPath:   newPath,   oldPath:   oldPath,
+        newParams: newParams, oldParams: oldParams,
+      });
+    },
+    /**
+     * We want the most specific routes to match first, so we must create a
+     * mapping of indexes within `routes` that map
+     */
+    _sortIndexes: function(routeInfo) {
+      return routeInfo.sort(function(a, b) {
+        if (!a.model) {
+          return 1;
+        } else if (!b.model) {
+          return -1;
+        // Routes with more path parts are most definitely more specific.
+        } else if (a.model.depth < b.model.depth) {
+          return 1;
+        } if (a.model.depth > b.model.depth) {
+          return -1;
+        } else {
+
+          // Also, routes with fewer params are more specific. For example
+          // `/users/foo` is more specific than `/users/:id`.
+          if (a.model.numParams < b.model.numParams) {
+            return -1;
+          } else if (a.model.numParams > b.model.numParams) {
+            return 1;
+          } else {
+            // Equally specific; we fall back to the default (and hopefully
+            // stable) sort order.
+            return 0;
+          }
+        }
+      });
+    },
+
+  });
+
+;
+
   /**
    * @param {!Function} selectCallback
    * @constructor
@@ -9858,187 +10219,6 @@ PathDriver.prototype._read = function _read() {
 
 ;
 
-  Polymer({
-
-    is: 'more-route-selection',
-
-    behaviors: [
-      MoreRouting.ContextAware,
-    ],
-
-    properties: {
-
-      /**
-       * Routes to select from, as either a path expression or route name.
-       *
-       * You can either specify routes via this attribute, or as child nodes
-       * to this element, but not both.
-       *
-       * @type {String|Array<string|MoreRouting.Route>}
-       */
-      routes: {
-        type:     String,
-        observer: '_routesChanged',
-      },
-
-      /**
-       * The selected `MoreRouting.Route` object, or `null`.
-       *
-       * @type {MoreRouting.Route}
-       */
-      selectedRoute: {
-        type:     Object,
-        value:    null,
-        readOnly: true,
-        notify:   true,
-      },
-
-      /**
-       * The index of the selected route (relative to `routes`). -1 when there
-       * is no active route.
-       */
-      selectedIndex: {
-        type:     Number,
-        value:    -1,
-        readOnly: true,
-        notify:   true,
-      },
-
-      /**
-       * The _full_ path expression of the selected route, or `null`.
-       */
-      selectedPath: {
-        type:     String,
-        readOnly: true,
-        notify:   true,
-      },
-
-      /**
-       * The params of the selected route, or an empty object if no route.
-       */
-      selectedParams: {
-        type:     Object,
-        readOnly: true,
-        notify:   true,
-      },
-
-    },
-
-    /**
-     * @event more-route-change fires when a new route is selected.
-     * @detail {{
-     *   newRoute:  MoreRouting.Route, oldRoute: MoreRouting.Route,
-     *   newIndex:  number,  oldIndex:  number,
-     *   newPath:   ?string, oldPath:   ?string,
-     *   newParams: Object,  oldParams: Object,
-     * }}
-     */
-
-    routingReady: function() {
-      this._routesChanged();
-    },
-
-    _routesChanged: function() {
-      if (!this.routingIsReady) return;
-      var routes = this.routes || [];
-      if (typeof routes === 'string') {
-        routes = routes.split(/\s+/);
-      }
-      this._routeInfo = this._sortIndexes(routes.map(function(route, index) {
-        return {
-          model: MoreRouting.getRoute(route, this.parentRoute),
-          index: index,
-        };
-      }.bind(this)));
-
-      this._observeRoutes();
-      this._evaluate();
-    },
-
-    /**
-     * Tracks changes to the routes.
-     */
-    _observeRoutes: function() {
-      if (this._routeListeners) {
-        for (var i = 0, listener; listener = this._routeListeners[i]; i++) {
-          listener.close();
-        }
-      }
-
-      this._routeListeners = this._routeInfo.map(function(routeInfo) {
-        return routeInfo.model.__subscribe(this._evaluate.bind(this));
-      }.bind(this));
-    },
-
-    _evaluate: function() {
-      var newIndex = -1;
-      var newRoute = null;
-      var oldIndex = this.selectedIndex;
-
-      for (var i = 0, routeInfo; routeInfo = this._routeInfo[i]; i++) {
-        if (routeInfo.model && routeInfo.model.active) {
-          newIndex = routeInfo.index;
-          newRoute = routeInfo.model;
-          break;
-        }
-      }
-      if (newIndex === oldIndex) return;
-
-      var oldRoute  = this.selectedRoute;
-      var oldPath   = this.selectedPath;
-      var oldParams = this.selectedParams;
-
-      var newPath   = newRoute ? newRoute.fullPath : null;
-      var newParams = newRoute ? newRoute.params   : {};
-
-      this._setSelectedRoute(newRoute);
-      this._setSelectedIndex(newIndex);
-      this._setSelectedPath(newPath);
-      this._setSelectedParams(newParams);
-
-      this.fire('more-route-change', {
-        newRoute:  newRoute,  oldRoute:  oldRoute,
-        newIndex:  newIndex,  oldIndex:  oldIndex,
-        newPath:   newPath,   oldPath:   oldPath,
-        newParams: newParams, oldParams: oldParams,
-      });
-    },
-    /**
-     * We want the most specific routes to match first, so we must create a
-     * mapping of indexes within `routes` that map
-     */
-    _sortIndexes: function(routeInfo) {
-      return routeInfo.sort(function(a, b) {
-        if (!a.model) {
-          return 1;
-        } else if (!b.model) {
-          return -1;
-        // Routes with more path parts are most definitely more specific.
-        } else if (a.model.depth < b.model.depth) {
-          return 1;
-        } if (a.model.depth > b.model.depth) {
-          return -1;
-        } else {
-
-          // Also, routes with fewer params are more specific. For example
-          // `/users/foo` is more specific than `/users/:id`.
-          if (a.model.numParams < b.model.numParams) {
-            return -1;
-          } else if (a.model.numParams > b.model.numParams) {
-            return 1;
-          } else {
-            // Equally specific; we fall back to the default (and hopefully
-            // stable) sort order.
-            return 0;
-          }
-        }
-      });
-    },
-
-  });
-
-;
-
   (function() {
 
     // monostate data
@@ -10481,184 +10661,55 @@ PathDriver.prototype._read = function _read() {
   });
 
 ;
-  /**
-   * `IronResizableBehavior` is a behavior that can be used in Polymer elements to
-   * coordinate the flow of resize events between "resizers" (elements that control the
-   * size or hidden state of their children) and "resizables" (elements that need to be
-   * notified when they are resized or un-hidden by their parents in order to take
-   * action on their new measurements).
-   * Elements that perform measurement should add the `IronResizableBehavior` behavior to
-   * their element definition and listen for the `iron-resize` event on themselves.
-   * This event will be fired when they become showing after having been hidden,
-   * when they are resized explicitly by another resizable, or when the window has been
-   * resized.
-   * Note, the `iron-resize` event is non-bubbling.
-   *
-   * @polymerBehavior Polymer.IronResizableBehavior
-   * @demo demo/index.html
-   **/
-  Polymer.IronResizableBehavior = {
+
+  Polymer({
+
+    is: 'iron-media-query',
+
     properties: {
+
       /**
-       * The closest ancestor element that implements `IronResizableBehavior`.
+       * The Boolean return value of the media query.
        */
-      _parentResizable: {
-        type: Object,
-        observer: '_parentResizableChanged'
+      queryMatches: {
+        type: Boolean,
+        value: false,
+        readOnly: true,
+        notify: true
       },
 
       /**
-       * True if this element is currently notifying its descedant elements of
-       * resize.
+       * The CSS media query to evaluate.
        */
-      _notifyingDescendant: {
-        type: Boolean,
-        value: false
+      query: {
+        type: String,
+        observer: 'queryChanged'
       }
-    },
 
-    listeners: {
-      'iron-request-resize-notifications': '_onIronRequestResizeNotifications'
     },
 
     created: function() {
-      // We don't really need property effects on these, and also we want them
-      // to be created before the `_parentResizable` observer fires:
-      this._interestedResizables = [];
-      this._boundNotifyResize = this.notifyResize.bind(this);
+      this._mqHandler = this.queryHandler.bind(this);
     },
 
-    attached: function() {
-      this.fire('iron-request-resize-notifications', null, {
-        node: this,
-        bubbles: true,
-        cancelable: true
-      });
-
-      if (!this._parentResizable) {
-        window.addEventListener('resize', this._boundNotifyResize);
-        this.notifyResize();
+    queryChanged: function(query) {
+      if (this._mq) {
+        this._mq.removeListener(this._mqHandler);
       }
+      if (query[0] !== '(') {
+        query = '(' + query + ')';
+      }
+      this._mq = window.matchMedia(query);
+      this._mq.addListener(this._mqHandler);
+      this.queryHandler(this._mq);
     },
 
-    detached: function() {
-      if (this._parentResizable) {
-        this._parentResizable.stopResizeNotificationsFor(this);
-      } else {
-        window.removeEventListener('resize', this._boundNotifyResize);
-      }
-
-      this._parentResizable = null;
-    },
-
-    /**
-     * Can be called to manually notify a resizable and its descendant
-     * resizables of a resize change.
-     */
-    notifyResize: function() {
-      if (!this.isAttached) {
-        return;
-      }
-
-      this._interestedResizables.forEach(function(resizable) {
-        if (this.resizerShouldNotify(resizable)) {
-          this._notifyDescendant(resizable);
-        }
-      }, this);
-
-      this._fireResize();
-    },
-
-    /**
-     * Used to assign the closest resizable ancestor to this resizable
-     * if the ancestor detects a request for notifications.
-     */
-    assignParentResizable: function(parentResizable) {
-      this._parentResizable = parentResizable;
-    },
-
-    /**
-     * Used to remove a resizable descendant from the list of descendants
-     * that should be notified of a resize change.
-     */
-    stopResizeNotificationsFor: function(target) {
-      var index = this._interestedResizables.indexOf(target);
-
-      if (index > -1) {
-        this._interestedResizables.splice(index, 1);
-        this.unlisten(target, 'iron-resize', '_onDescendantIronResize');
-      }
-    },
-
-    /**
-     * This method can be overridden to filter nested elements that should or
-     * should not be notified by the current element. Return true if an element
-     * should be notified, or false if it should not be notified.
-     *
-     * @param {HTMLElement} element A candidate descendant element that
-     * implements `IronResizableBehavior`.
-     * @return {boolean} True if the `element` should be notified of resize.
-     */
-    resizerShouldNotify: function(element) { return true; },
-
-    _onDescendantIronResize: function(event) {
-      if (this._notifyingDescendant) {
-        event.stopPropagation();
-        return;
-      }
-
-      // NOTE(cdata): In ShadowDOM, event retargetting makes echoing of the
-      // otherwise non-bubbling event "just work." We do it manually here for
-      // the case where Polymer is not using shadow roots for whatever reason:
-      if (!Polymer.Settings.useShadow) {
-        this._fireResize();
-      }
-    },
-
-    _fireResize: function() {
-      this.fire('iron-resize', null, {
-        node: this,
-        bubbles: false
-      });
-    },
-
-    _onIronRequestResizeNotifications: function(event) {
-      var target = event.path ? event.path[0] : event.target;
-
-      if (target === this) {
-        return;
-      }
-
-      if (this._interestedResizables.indexOf(target) === -1) {
-        this._interestedResizables.push(target);
-        this.listen(target, 'iron-resize', '_onDescendantIronResize');
-      }
-
-      target.assignParentResizable(this);
-      this._notifyDescendant(target);
-
-      event.stopPropagation();
-    },
-
-    _parentResizableChanged: function(parentResizable) {
-      if (parentResizable) {
-        window.removeEventListener('resize', this._boundNotifyResize);
-      }
-    },
-
-    _notifyDescendant: function(descendant) {
-      // NOTE(cdata): In IE10, attached is fired on children first, so it's
-      // important not to notify them if the parent is not attached yet (or
-      // else they will get redundantly notified when the parent attaches).
-      if (!this.isAttached) {
-        return;
-      }
-
-      this._notifyingDescendant = true;
-      descendant.notifyResize();
-      this._notifyingDescendant = false;
+    queryHandler: function(mq) {
+      this._setQueryMatches(mq.matches);
     }
-  };
+
+  });
+
 
 ;function MakePromise (asap) {
   function Promise(fn) {
@@ -12040,57 +12091,6 @@ is separate from validation, and `allowed-pattern` does not affect how the input
 
 
 ;
-
-  Polymer({
-
-    is: 'iron-media-query',
-
-    properties: {
-
-      /**
-       * The Boolean return value of the media query.
-       */
-      queryMatches: {
-        type: Boolean,
-        value: false,
-        readOnly: true,
-        notify: true
-      },
-
-      /**
-       * The CSS media query to evaluate.
-       */
-      query: {
-        type: String,
-        observer: 'queryChanged'
-      }
-
-    },
-
-    created: function() {
-      this._mqHandler = this.queryHandler.bind(this);
-    },
-
-    queryChanged: function(query) {
-      if (this._mq) {
-        this._mq.removeListener(this._mqHandler);
-      }
-      if (query[0] !== '(') {
-        query = '(' + query + ')';
-      }
-      this._mq = window.matchMedia(query);
-      this._mq.addListener(this._mqHandler);
-      this.queryHandler(this._mq);
-    },
-
-    queryHandler: function(mq) {
-      this._setQueryMatches(mq.matches);
-    }
-
-  });
-
-
-;
   (function() {
     'use strict';
 
@@ -13366,6 +13366,375 @@ is separate from validation, and `allowed-pattern` does not affect how the input
 
 
 ;
+(function() {
+
+  'use strict';
+
+  Polymer({
+
+    /**
+     * Fired when the content has been scrolled.
+     *
+     * @event content-scroll
+     */
+
+    /**
+     * Fired when the header is transformed.
+     *
+     * @event paper-header-transform
+     */
+
+    is: 'paper-scroll-header-panel',
+
+    behaviors: [
+      Polymer.IronResizableBehavior
+    ],
+
+    properties: {
+
+      /**
+       * If true, the header's height will condense to `condensedHeaderHeight`
+       * as the user scrolls down from the top of the content area.
+       */
+      condenses: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, no cross-fade transition from one background to another.
+       */
+      noDissolve: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the header doesn't slide back in when scrolling back up.
+       */
+      noReveal: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the header is fixed to the top and never moves away.
+       */
+      fixed: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the condensed header is always shown and does not move away.
+       */
+      keepCondensedHeader: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * The height of the header when it is at its full size.
+       *
+       * By default, the height will be measured when it is ready.  If the height
+       * changes later the user needs to either set this value to reflect the
+       * new height or invoke `measureHeaderHeight()`.
+       */
+      headerHeight: {
+        type: Number,
+        value: 0
+      },
+
+      /**
+       * The height of the header when it is condensed.
+       *
+       * By default, `condensedHeaderHeight` is 1/3 of `headerHeight` unless
+       * this is specified.
+       */
+      condensedHeaderHeight: {
+        type: Number,
+        value: 0
+      },
+
+      /**
+       * By default, the top part of the header stays when the header is being
+       * condensed.  Set this to true if you want the top part of the header
+       * to be scrolled away.
+       */
+      scrollAwayTopbar: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * The state of the header. The initial value is `HEADER_STATE_EXPANDED`.
+       * Depending on the configuration and the `scrollTop` value,
+       * the header state could change to
+       * `HEADER_STATE_HIDDEN`, `HEADER_STATE_CONDENSED` and `HEADER_STATE_INTERPOLATED`
+       */
+      headerState: {
+        type: Number,
+        readOnly: true,
+        value: 0
+      },
+
+      _prevScrollTop: {
+        type: Number,
+        value: 0
+      },
+
+      _y: {
+        type: Number,
+        value: 0
+      },
+
+      /** @type {number|null} */
+      _defaultCondsensedHeaderHeight: {
+        type: Number,
+        value: 0
+      }
+    },
+
+    observers: [
+      '_setup(headerHeight, condensedHeaderHeight, fixed)',
+      '_condensedHeaderHeightChanged(condensedHeaderHeight)',
+      '_headerHeightChanged(headerHeight, condensedHeaderHeight)',
+      '_condensesChanged(condenses)',
+    ],
+
+    listeners: {
+      'iron-resize': 'measureHeaderHeight'
+    },
+
+    ready: function() {
+      this.async(this.measureHeaderHeight, 5);
+      this._scrollHandler = this._scroll.bind(this);
+      this.scroller.addEventListener('scroll', this._scrollHandler);
+    },
+
+    /**
+     * The header's initial state
+     *
+     * @property HEADER_STATE_EXPANDED
+     * @type number
+     */
+    HEADER_STATE_EXPANDED: 0,
+
+    /**
+     * The header's state when it's hidden.
+     *
+     * @property HEADER_STATE_HIDDEN
+     * @type number
+     */
+    HEADER_STATE_HIDDEN: 1,
+
+    /**
+     * The header's state when it's condensed.
+     *
+     * @property HEADER_STATE_CONDENSED
+     * @type number
+     */
+    HEADER_STATE_CONDENSED: 2,
+
+    /**
+     * The header's state when its progress is somewhere between
+     * the `hidden` and `condensed` state.
+     *
+     * @property HEADER_STATE_INTERPOLATED
+     * @type number
+     */
+    HEADER_STATE_INTERPOLATED: 3,
+
+    /**
+     * Returns the header element.
+     *
+     * @property header
+     * @type Object
+     */
+    get header() {
+      return Polymer.dom(this.$.headerContent).getDistributedNodes()[0];
+    },
+
+    /**
+     * Returns the content element.
+     *
+     * @property content
+     * @type Object
+     */
+    get content() {
+      return Polymer.dom(this.$.mainContent).getDistributedNodes()[0];
+    },
+
+    /**
+     * Returns the scrollable element.
+     *
+     * @property scroller
+     * @type Object
+     */
+    get scroller() {
+      return this.$.mainContainer;
+    },
+
+    get _headerMaxDelta() {
+      return this.keepCondensedHeader ? this._headerMargin : this.headerHeight;
+    },
+
+    get _headerMargin() {
+      return this.headerHeight - this.condensedHeaderHeight;
+    },
+
+    /**
+     * Invoke this to tell `paper-scroll-header-panel` to re-measure the header's
+     * height.
+     *
+     * @method measureHeaderHeight
+     */
+    measureHeaderHeight: function() {
+      var header = this.header;
+      if (header && header.offsetHeight) {
+        this.headerHeight = header.offsetHeight;
+      }
+    },
+
+    _headerHeightChanged: function(headerHeight) {
+      if (this._defaultCondsensedHeaderHeight !== null) {
+        this._defaultCondsensedHeaderHeight = headerHeight * 1/3;
+        this.condensedHeaderHeight = this._defaultCondsensedHeaderHeight;
+      }
+    },
+
+    _condensedHeaderHeightChanged: function(condensedHeaderHeight) {
+      if (condensedHeaderHeight) {
+        // a user custom value
+        if (this._defaultCondsensedHeaderHeight != condensedHeaderHeight) {
+          // disable the default value
+          this._defaultCondsensedHeaderHeight = null;
+        }
+      }
+    },
+
+    _condensesChanged: function() {
+      if (this.condenses) {
+        this._scroll();
+      } else {
+        // reset transform/opacity set on the header
+        this._condenseHeader(null);
+      }
+    },
+
+    _setup: function() {
+      var s = this.scroller.style;
+
+      s.paddingTop = this.fixed ? '' : this.headerHeight + 'px';
+      s.top = this.fixed ? this.headerHeight + 'px' : '';
+
+      if (this.fixed) {
+        this._setHeaderState(this.HEADER_STATE_EXPANDED);
+        this._transformHeader(null);
+      } else {
+        switch (this.headerState) {
+          case this.HEADER_STATE_HIDDEN:
+            this._transformHeader(this._headerMaxDelta);
+            break;
+          case this.HEADER_STATE_CONDENSED:
+            this._transformHeader(this._headerMargin);
+            break;
+        }
+      }
+    },
+
+    _transformHeader: function(y) {
+      this._translateY(this.$.headerContainer, -y);
+
+      if (this.condenses) {
+        this._condenseHeader(y);
+      }
+
+      this.fire('paper-header-transform',
+        { y: y,
+          height: this.headerHeight,
+          condensedHeight: this.condensedHeaderHeight
+        }
+      );
+    },
+
+    _condenseHeader: function(y) {
+      var reset = (y === null);
+
+      // adjust top bar in paper-header so the top bar stays at the top
+      if (!this.scrollAwayTopbar && this.header && this.header.$ && this.header.$.topBar) {
+        this._translateY(this.header.$.topBar,
+            reset ? null : Math.min(y, this._headerMargin));
+      }
+      // transition header bg
+      if (!this.noDissolve) {
+        this.$.headerBg.style.opacity = reset ? '' :
+            ( (this._headerMargin - y) / this._headerMargin);
+      }
+      // adjust header bg so it stays at the center
+      this._translateY(this.$.headerBg, reset ? null : y / 2);
+      // transition condensed header bg
+      if (!this.noDissolve) {
+        this.$.condensedHeaderBg.style.opacity = reset ? '' :
+            (y / this._headerMargin);
+
+        // adjust condensed header bg so it stays at the center
+        this._translateY(this.$.condensedHeaderBg, reset ? null : y / 2);
+      }
+    },
+
+    _translateY: function(node, y) {
+      this.transform((y === null) ? '' : 'translate3d(0, ' + y + 'px, 0)', node);
+    },
+
+    /** @param {Event=} event */
+    _scroll: function(event) {
+      if (!this.header) {
+        return;
+      }
+
+      this._y = this._y || 0;
+      this._prevScrollTop = this._prevScrollTop || 0;
+
+      var sTop = this.scroller.scrollTop;
+
+      var deltaScrollTop = sTop - this._prevScrollTop;
+      var y = Math.max(0, (this.noReveal) ? sTop : this._y + deltaScrollTop);
+
+      if (y > this._headerMaxDelta) {
+        y = this._headerMaxDelta;
+        this._setHeaderState(this.HEADER_STATE_HIDDEN);
+
+      } else if (this.condenses && this._prevScrollTop >= sTop && sTop > this._headerMargin) {
+        y = Math.max(y, this._headerMargin);
+        this._setHeaderState(this.HEADER_STATE_CONDENSED);
+
+      } else if (y === 0) {
+        this._setHeaderState(this.HEADER_STATE_EXPANDED);
+
+      } else {
+        this._setHeaderState(this.HEADER_STATE_INTERPOLATED);
+
+      }
+
+      if (!event || !this.fixed && y !== this._y) {
+        this._transformHeader(y);
+      }
+
+      this._prevScrollTop = Math.max(sTop, 0);
+      this._y = y;
+
+      if (event) {
+        this.fire('content-scroll', {target: this.scroller}, {cancelable: false});
+      }
+    }
+
+  });
+
+})();
+
+
+;
 Polymer({
 
   is: 'more-route-selector',
@@ -13616,255 +13985,6 @@ Polymer({
     });
 
   
-;
-
-  Polymer({
-
-    is: 'iron-pages',
-
-    behaviors: [
-      Polymer.IronResizableBehavior,
-      Polymer.IronSelectableBehavior
-    ],
-
-    properties: {
-
-      // as the selected page is the only one visible, activateEvent
-      // is both non-sensical and problematic; e.g. in cases where a user
-      // handler attempts to change the page and the activateEvent
-      // handler immediately changes it back
-      activateEvent: {
-        type: String,
-        value: null
-      }
-
-    },
-
-    observers: [
-      '_selectedPageChanged(selected)'
-    ],
-
-    _selectedPageChanged: function(selected, old) {
-      this.async(this.notifyResize);
-    }
-  });
-
-
-;
-
-  Polymer({
-
-    is: 'iron-autogrow-textarea',
-
-    behaviors: [
-      Polymer.IronFormElementBehavior,
-      Polymer.IronValidatableBehavior,
-      Polymer.IronControlState
-    ],
-
-    properties: {
-
-      /**
-       * Use this property instead of `value` for two-way data binding.
-       */
-      bindValue: {
-        observer: '_bindValueChanged',
-        type: String
-      },
-
-      /**
-       * The initial number of rows.
-       *
-       * @attribute rows
-       * @type number
-       * @default 1
-       */
-      rows: {
-        type: Number,
-        value: 1,
-        observer: '_updateCached'
-      },
-
-      /**
-       * The maximum number of rows this element can grow to until it
-       * scrolls. 0 means no maximum.
-       *
-       * @attribute maxRows
-       * @type number
-       * @default 0
-       */
-      maxRows: {
-       type: Number,
-       value: 0,
-       observer: '_updateCached'
-      },
-
-      /**
-       * Bound to the textarea's `autocomplete` attribute.
-       */
-      autocomplete: {
-        type: String,
-        value: 'off'
-      },
-
-      /**
-       * Bound to the textarea's `autofocus` attribute.
-       */
-      autofocus: {
-        type: String,
-        value: 'off'
-      },
-
-      /**
-       * Bound to the textarea's `inputmode` attribute.
-       */
-      inputmode: {
-        type: String
-      },
-
-      /**
-       * Bound to the textarea's `name` attribute.
-       */
-      name: {
-        type: String
-      },
-
-      /**
-       * The value for this input, same as `bindValue`
-       */
-      value: {
-        notify: true,
-        type: String,
-        computed: '_computeValue(bindValue)'
-      },
-
-      /**
-       * Bound to the textarea's `placeholder` attribute.
-       */
-      placeholder: {
-        type: String
-      },
-
-      /**
-       * Bound to the textarea's `readonly` attribute.
-       */
-      readonly: {
-        type: String
-      },
-
-      /**
-       * Set to true to mark the textarea as required.
-       */
-      required: {
-        type: Boolean
-      },
-
-      /**
-       * The maximum length of the input value.
-       */
-      maxlength: {
-        type: Number
-      }
-
-    },
-
-    listeners: {
-      'input': '_onInput'
-    },
-
-    /**
-     * Returns the underlying textarea.
-     * @type HTMLTextAreaElement
-     */
-    get textarea() {
-      return this.$.textarea;
-    },
-
-    /**
-     * Returns true if `value` is valid. The validator provided in `validator`
-     * will be used first, if it exists; otherwise, the `textarea`'s validity
-     * is used.
-     * @return {boolean} True if the value is valid.
-     */
-    validate: function() {
-      // Empty, non-required input is valid.
-      if (!this.required && this.value == '') {
-        this.invalid = false;
-        return true;
-      }
-
-      var valid;
-      if (this.hasValidator()) {
-        valid = Polymer.IronValidatableBehavior.validate.call(this, this.value);
-      } else {
-        valid = this.$.textarea.validity.valid;
-        this.invalid = !valid;
-      }
-      this.fire('iron-input-validate');
-      return valid;
-    },
-
-    _update: function() {
-      this.$.mirror.innerHTML = this._valueForMirror();
-
-      var textarea = this.textarea;
-      // If the value of the textarea was updated imperatively, then we
-      // need to manually update bindValue as well.
-      if (textarea && this.bindValue != textarea.value) {
-        this.bindValue = textarea.value;
-      }
-    },
-
-    _bindValueChanged: function() {
-      var textarea = this.textarea;
-      if (!textarea) {
-        return;
-      }
-
-      textarea.value = this.bindValue;
-      this._update();
-      // manually notify because we don't want to notify until after setting value
-      this.fire('bind-value-changed', {value: this.bindValue});
-    },
-
-    _onInput: function(event) {
-      this.bindValue = event.path ? event.path[0].value : event.target.value;
-      this._update();
-    },
-
-    _constrain: function(tokens) {
-      var _tokens;
-      tokens = tokens || [''];
-      // Enforce the min and max heights for a multiline input to avoid measurement
-      if (this.maxRows > 0 && tokens.length > this.maxRows) {
-        _tokens = tokens.slice(0, this.maxRows);
-      } else {
-        _tokens = tokens.slice(0);
-      }
-      while (this.rows > 0 && _tokens.length < this.rows) {
-        _tokens.push('');
-      }
-      return _tokens.join('<br>') + '&nbsp;';
-    },
-
-    _valueForMirror: function() {
-      var input = this.textarea;
-      if (!input) {
-        return;
-      }
-      this.tokens = (input && input.value) ? input.value.replace(/&/gm, '&amp;').replace(/"/gm, '&quot;').replace(/'/gm, '&#39;').replace(/</gm, '&lt;').replace(/>/gm, '&gt;').split('\n') : [''];
-      return this._constrain(this.tokens);
-    },
-
-    _updateCached: function() {
-      this.$.mirror.innerHTML = this._constrain(this.tokens);
-    },
-
-    _computeValue: function() {
-      return this.bindValue;
-    }
-  })
-
 ;
 
   (function() {
@@ -14572,6 +14692,255 @@ Polymer({
 
   })();
 
+
+;
+
+  Polymer({
+
+    is: 'iron-pages',
+
+    behaviors: [
+      Polymer.IronResizableBehavior,
+      Polymer.IronSelectableBehavior
+    ],
+
+    properties: {
+
+      // as the selected page is the only one visible, activateEvent
+      // is both non-sensical and problematic; e.g. in cases where a user
+      // handler attempts to change the page and the activateEvent
+      // handler immediately changes it back
+      activateEvent: {
+        type: String,
+        value: null
+      }
+
+    },
+
+    observers: [
+      '_selectedPageChanged(selected)'
+    ],
+
+    _selectedPageChanged: function(selected, old) {
+      this.async(this.notifyResize);
+    }
+  });
+
+
+;
+
+  Polymer({
+
+    is: 'iron-autogrow-textarea',
+
+    behaviors: [
+      Polymer.IronFormElementBehavior,
+      Polymer.IronValidatableBehavior,
+      Polymer.IronControlState
+    ],
+
+    properties: {
+
+      /**
+       * Use this property instead of `value` for two-way data binding.
+       */
+      bindValue: {
+        observer: '_bindValueChanged',
+        type: String
+      },
+
+      /**
+       * The initial number of rows.
+       *
+       * @attribute rows
+       * @type number
+       * @default 1
+       */
+      rows: {
+        type: Number,
+        value: 1,
+        observer: '_updateCached'
+      },
+
+      /**
+       * The maximum number of rows this element can grow to until it
+       * scrolls. 0 means no maximum.
+       *
+       * @attribute maxRows
+       * @type number
+       * @default 0
+       */
+      maxRows: {
+       type: Number,
+       value: 0,
+       observer: '_updateCached'
+      },
+
+      /**
+       * Bound to the textarea's `autocomplete` attribute.
+       */
+      autocomplete: {
+        type: String,
+        value: 'off'
+      },
+
+      /**
+       * Bound to the textarea's `autofocus` attribute.
+       */
+      autofocus: {
+        type: String,
+        value: 'off'
+      },
+
+      /**
+       * Bound to the textarea's `inputmode` attribute.
+       */
+      inputmode: {
+        type: String
+      },
+
+      /**
+       * Bound to the textarea's `name` attribute.
+       */
+      name: {
+        type: String
+      },
+
+      /**
+       * The value for this input, same as `bindValue`
+       */
+      value: {
+        notify: true,
+        type: String,
+        computed: '_computeValue(bindValue)'
+      },
+
+      /**
+       * Bound to the textarea's `placeholder` attribute.
+       */
+      placeholder: {
+        type: String
+      },
+
+      /**
+       * Bound to the textarea's `readonly` attribute.
+       */
+      readonly: {
+        type: String
+      },
+
+      /**
+       * Set to true to mark the textarea as required.
+       */
+      required: {
+        type: Boolean
+      },
+
+      /**
+       * The maximum length of the input value.
+       */
+      maxlength: {
+        type: Number
+      }
+
+    },
+
+    listeners: {
+      'input': '_onInput'
+    },
+
+    /**
+     * Returns the underlying textarea.
+     * @type HTMLTextAreaElement
+     */
+    get textarea() {
+      return this.$.textarea;
+    },
+
+    /**
+     * Returns true if `value` is valid. The validator provided in `validator`
+     * will be used first, if it exists; otherwise, the `textarea`'s validity
+     * is used.
+     * @return {boolean} True if the value is valid.
+     */
+    validate: function() {
+      // Empty, non-required input is valid.
+      if (!this.required && this.value == '') {
+        this.invalid = false;
+        return true;
+      }
+
+      var valid;
+      if (this.hasValidator()) {
+        valid = Polymer.IronValidatableBehavior.validate.call(this, this.value);
+      } else {
+        valid = this.$.textarea.validity.valid;
+        this.invalid = !valid;
+      }
+      this.fire('iron-input-validate');
+      return valid;
+    },
+
+    _update: function() {
+      this.$.mirror.innerHTML = this._valueForMirror();
+
+      var textarea = this.textarea;
+      // If the value of the textarea was updated imperatively, then we
+      // need to manually update bindValue as well.
+      if (textarea && this.bindValue != textarea.value) {
+        this.bindValue = textarea.value;
+      }
+    },
+
+    _bindValueChanged: function() {
+      var textarea = this.textarea;
+      if (!textarea) {
+        return;
+      }
+
+      textarea.value = this.bindValue;
+      this._update();
+      // manually notify because we don't want to notify until after setting value
+      this.fire('bind-value-changed', {value: this.bindValue});
+    },
+
+    _onInput: function(event) {
+      this.bindValue = event.path ? event.path[0].value : event.target.value;
+      this._update();
+    },
+
+    _constrain: function(tokens) {
+      var _tokens;
+      tokens = tokens || [''];
+      // Enforce the min and max heights for a multiline input to avoid measurement
+      if (this.maxRows > 0 && tokens.length > this.maxRows) {
+        _tokens = tokens.slice(0, this.maxRows);
+      } else {
+        _tokens = tokens.slice(0);
+      }
+      while (this.rows > 0 && _tokens.length < this.rows) {
+        _tokens.push('');
+      }
+      return _tokens.join('<br>') + '&nbsp;';
+    },
+
+    _valueForMirror: function() {
+      var input = this.textarea;
+      if (!input) {
+        return;
+      }
+      this.tokens = (input && input.value) ? input.value.replace(/&/gm, '&amp;').replace(/"/gm, '&quot;').replace(/'/gm, '&#39;').replace(/</gm, '&lt;').replace(/>/gm, '&gt;').split('\n') : [''];
+      return this._constrain(this.tokens);
+    },
+
+    _updateCached: function() {
+      this.$.mirror.innerHTML = this._constrain(this.tokens);
+    },
+
+    _computeValue: function() {
+      return this.bindValue;
+    }
+  })
 
 ;
   (function() {
@@ -16043,6 +16412,65 @@ Polymer({
     })
   
 ;
+  Polymer({
+    is: 'paper-fab',
+
+    behaviors: [
+      Polymer.PaperButtonBehavior
+    ],
+
+    properties: {
+      /**
+       * The URL of an image for the icon. If the src property is specified,
+       * the icon property should not be.
+       *
+       * @attribute src
+       * @type string
+       * @default ''
+       */
+      src: {
+        type: String,
+        value: ''
+      },
+
+      /**
+       * Specifies the icon name or index in the set of icons available in
+       * the icon's icon set. If the icon property is specified,
+       * the src property should not be.
+       *
+       * @attribute icon
+       * @type string
+       * @default ''
+       */
+      icon: {
+        type: String,
+        value: ''
+      },
+
+      /**
+       * Set this to true to style this is a "mini" FAB.
+       *
+       * @attribute mini
+       * @type boolean
+       * @default false
+       */
+      mini: {
+        type: Boolean,
+        value: false
+      }
+    },
+
+    _computeContentClass: function(receivedFocusFromKeyboard) {
+      var className = 'content';
+      if (receivedFocusFromKeyboard) {
+        className += ' keyboard-focus';
+      }
+      return className;
+    }
+
+  });
+
+;
   (function () {
     Polymer({
 
@@ -16814,6 +17242,13 @@ Polymer({
         MoreRouting.navigateTo('root');
         event.preventDefault();
       },
+
+      _onMenuSelect : function() {
+        var drawerPanel = document.querySelector('#paperDrawerPanel');
+        if (drawerPanel.narrow) {
+          drawerPanel.closeDrawer();
+        }
+      }
 
     });
 

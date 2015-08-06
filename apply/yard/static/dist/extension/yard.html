@@ -1,21 +1,6 @@
 <!DOCTYPE html><html><head>
-    <meta charset="utf-8">
-    <style is="custom-style">
-      html, body {
-        height: 500px;
-        width: 400px;
-        margin: 0;
-      }
-
-      :root {
-        /** --theme-primary: var(--google-pink-500) */
-        --theme-primary: #e91e63;
-      }
-
-    </style>
-
-    
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic">
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700">
 <style is="custom-style">
 
@@ -242,6 +227,310 @@
   }
 
 </style>
+
+
+<style is="custom-style">
+
+  :root {
+
+    --layout: {
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+    };
+
+    --layout-inline: {
+      display: -ms-inline-flexbox;
+      display: -webkit-inline-flex;
+      display: inline-flex;
+    };
+
+    --layout-horizontal: {
+      /* @apply(--layout); */
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+
+      -ms-flex-direction: row;
+      -webkit-flex-direction: row;
+      flex-direction: row;
+    };
+
+    --layout-horizontal-reverse: {
+      -ms-flex-direction: row-reverse;
+      -webkit-flex-direction: row-reverse;
+      flex-direction: row-reverse;
+    };
+
+    --layout-vertical: {
+      /* @apply(--layout); */
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+
+      -ms-flex-direction: column;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+    };
+
+    --layout-vertical-reverse: {
+      -ms-flex-direction: column-reverse;
+      -webkit-flex-direction: column-reverse;
+      flex-direction: column-reverse;
+    };
+
+    --layout-wrap: {
+      -ms-flex-wrap: wrap;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+    };
+
+    --layout-wrap-reverse: {
+      -ms-flex-wrap: wrap-reverse;
+      -webkit-flex-wrap: wrap-reverse;
+      flex-wrap: wrap-reverse;
+    };
+
+    --layout-flex-auto: {
+      -ms-flex: 1 1 auto;
+      -webkit-flex: 1 1 auto;
+      flex: 1 1 auto;
+    };
+
+    --layout-flex-none: {
+      -ms-flex: none;
+      -webkit-flex: none;
+      flex: none;
+    };
+
+    --layout-flex: {
+      -ms-flex: 1 1 0.000000001px;
+      -webkit-flex: 1;
+      flex: 1;
+      -webkit-flex-basis: 0.000000001px;
+      flex-basis: 0.000000001px;
+    };
+
+    --layout-flex-2: {
+      -ms-flex: 2;
+      -webkit-flex: 2;
+      flex: 2;
+    };
+
+    --layout-flex-3: {
+      -ms-flex: 3;
+      -webkit-flex: 3;
+      flex: 3;
+    };
+
+    --layout-flex-4: {
+      -ms-flex: 4;
+      -webkit-flex: 4;
+      flex: 4;
+    };
+
+    --layout-flex-5: {
+      -ms-flex: 5;
+      -webkit-flex: 5;
+      flex: 5;
+    };
+
+    --layout-flex-6: {
+      -ms-flex: 6;
+      -webkit-flex: 6;
+      flex: 6;
+    };
+
+    --layout-flex-7: {
+      -ms-flex: 7;
+      -webkit-flex: 7;
+      flex: 7;
+    };
+
+    --layout-flex-8: {
+      -ms-flex: 8;
+      -webkit-flex: 8;
+      flex: 8;
+    };
+
+    --layout-flex-9: {
+      -ms-flex: 9;
+      -webkit-flex: 9;
+      flex: 9;
+    };
+
+    --layout-flex-10: {
+      -ms-flex: 10;
+      -webkit-flex: 10;
+      flex: 10;
+    };
+
+    --layout-flex-11: {
+      -ms-flex: 11;
+      -webkit-flex: 11;
+      flex: 11;
+    };
+
+    --layout-flex-12: {
+      -ms-flex: 12;
+      -webkit-flex: 12;
+      flex: 12;
+    };
+
+    /* alignment in cross axis */
+
+    --layout-start: {
+      -ms-flex-align: start;
+      -webkit-align-items: flex-start;
+      align-items: flex-start;
+    };
+
+    --layout-center: {
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+    };
+
+    --layout-end: {
+      -ms-flex-align: end;
+      -webkit-align-items: flex-end;
+      align-items: flex-end;
+    };
+
+    /* alignment in main axis */
+
+    --layout-start-justified: {
+      -ms-flex-pack: start;
+      -webkit-justify-content: flex-start;
+      justify-content: flex-start;
+    };
+
+    --layout-center-justified: {
+      -ms-flex-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+    };
+
+    --layout-end-justified: {
+      -ms-flex-pack: end;
+      -webkit-justify-content: flex-end;
+      justify-content: flex-end;
+    };
+
+    --layout-around-justified: {
+      -ms-flex-pack: around;
+      -webkit-justify-content: space-around;
+      justify-content: space-around;
+    };
+
+    --layout-justified: {
+      -ms-flex-pack: justify;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+    };
+
+    --layout-center-center: {
+      /* @apply(--layout-center --layout-center-justified); */
+      -ms-flex-align: center;
+      -webkit-align-items: center;
+      align-items: center;
+      -ms-flex-pack: center;
+      -webkit-justify-content: center;
+      justify-content: center;
+    };
+
+    /* self alignment */
+
+    --layout-self-start: {
+      -ms-align-self: flex-start;
+      -webkit-align-self: flex-start;
+      align-self: flex-start;
+    };
+
+    --layout-self-center: {
+      -ms-align-self: center;
+      -webkit-align-self: center;
+      align-self: center;
+    };
+
+    --layout-self-end: {
+      -ms-align-self: flex-end;
+      -webkit-align-self: flex-end;
+      align-self: flex-end;
+    };
+
+    --layout-self-stretch: {
+      -ms-align-self: stretch;
+      -webkit-align-self: stretch;
+      align-self: stretch;
+    };
+
+    /*******************************
+              Other Layout
+    *******************************/
+
+    --layout-block: {
+      display: block;
+    };
+
+    --layout-invisible: {
+      visibility: hidden !important;
+    };
+
+    --layout-relative: {
+      position: relative;
+    };
+
+    --layout-fit: {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    };
+
+    --layout-scroll: {
+      -webkit-overflow-scrolling: touch;
+      overflow: auto;
+    };
+
+    /* fixed position */
+
+    --layout-fixed-bottom:,
+    --layout-fixed-left:,
+    --layout-fixed-right:,
+    --layout-fixed-top: {
+      position: fixed;
+    };
+
+    --layout-fixed-top: {
+      top: 0;
+      left: 0;
+      right: 0;
+    };
+
+    --layout-fixed-right: {
+      top: 0;
+      right: 0;
+      bottom: 0;
+    };
+
+    --layout-fixed-bottom: {
+      right: 0;
+      bottom: 0;
+      left: 0;
+    };
+
+    --layout-fixed-left: {
+      top: 0;
+      bottom: 0;
+      left: 0;
+    };
+
+  }
+
+</style>
+
 
 <style>
 
@@ -828,309 +1117,6 @@
     top: 0;
     bottom: 0;
     left: 0;
-  }
-
-</style>
-
-
-<style is="custom-style">
-
-  :root {
-
-    --layout: {
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-    };
-
-    --layout-inline: {
-      display: -ms-inline-flexbox;
-      display: -webkit-inline-flex;
-      display: inline-flex;
-    };
-
-    --layout-horizontal: {
-      /* @apply(--layout); */
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-
-      -ms-flex-direction: row;
-      -webkit-flex-direction: row;
-      flex-direction: row;
-    };
-
-    --layout-horizontal-reverse: {
-      -ms-flex-direction: row-reverse;
-      -webkit-flex-direction: row-reverse;
-      flex-direction: row-reverse;
-    };
-
-    --layout-vertical: {
-      /* @apply(--layout); */
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-
-      -ms-flex-direction: column;
-      -webkit-flex-direction: column;
-      flex-direction: column;
-    };
-
-    --layout-vertical-reverse: {
-      -ms-flex-direction: column-reverse;
-      -webkit-flex-direction: column-reverse;
-      flex-direction: column-reverse;
-    };
-
-    --layout-wrap: {
-      -ms-flex-wrap: wrap;
-      -webkit-flex-wrap: wrap;
-      flex-wrap: wrap;
-    };
-
-    --layout-wrap-reverse: {
-      -ms-flex-wrap: wrap-reverse;
-      -webkit-flex-wrap: wrap-reverse;
-      flex-wrap: wrap-reverse;
-    };
-
-    --layout-flex-auto: {
-      -ms-flex: 1 1 auto;
-      -webkit-flex: 1 1 auto;
-      flex: 1 1 auto;
-    };
-
-    --layout-flex-none: {
-      -ms-flex: none;
-      -webkit-flex: none;
-      flex: none;
-    };
-
-    --layout-flex: {
-      -ms-flex: 1 1 0.000000001px;
-      -webkit-flex: 1;
-      flex: 1;
-      -webkit-flex-basis: 0.000000001px;
-      flex-basis: 0.000000001px;
-    };
-
-    --layout-flex-2: {
-      -ms-flex: 2;
-      -webkit-flex: 2;
-      flex: 2;
-    };
-
-    --layout-flex-3: {
-      -ms-flex: 3;
-      -webkit-flex: 3;
-      flex: 3;
-    };
-
-    --layout-flex-4: {
-      -ms-flex: 4;
-      -webkit-flex: 4;
-      flex: 4;
-    };
-
-    --layout-flex-5: {
-      -ms-flex: 5;
-      -webkit-flex: 5;
-      flex: 5;
-    };
-
-    --layout-flex-6: {
-      -ms-flex: 6;
-      -webkit-flex: 6;
-      flex: 6;
-    };
-
-    --layout-flex-7: {
-      -ms-flex: 7;
-      -webkit-flex: 7;
-      flex: 7;
-    };
-
-    --layout-flex-8: {
-      -ms-flex: 8;
-      -webkit-flex: 8;
-      flex: 8;
-    };
-
-    --layout-flex-9: {
-      -ms-flex: 9;
-      -webkit-flex: 9;
-      flex: 9;
-    };
-
-    --layout-flex-10: {
-      -ms-flex: 10;
-      -webkit-flex: 10;
-      flex: 10;
-    };
-
-    --layout-flex-11: {
-      -ms-flex: 11;
-      -webkit-flex: 11;
-      flex: 11;
-    };
-
-    --layout-flex-12: {
-      -ms-flex: 12;
-      -webkit-flex: 12;
-      flex: 12;
-    };
-
-    /* alignment in cross axis */
-
-    --layout-start: {
-      -ms-flex-align: start;
-      -webkit-align-items: flex-start;
-      align-items: flex-start;
-    };
-
-    --layout-center: {
-      -ms-flex-align: center;
-      -webkit-align-items: center;
-      align-items: center;
-    };
-
-    --layout-end: {
-      -ms-flex-align: end;
-      -webkit-align-items: flex-end;
-      align-items: flex-end;
-    };
-
-    /* alignment in main axis */
-
-    --layout-start-justified: {
-      -ms-flex-pack: start;
-      -webkit-justify-content: flex-start;
-      justify-content: flex-start;
-    };
-
-    --layout-center-justified: {
-      -ms-flex-pack: center;
-      -webkit-justify-content: center;
-      justify-content: center;
-    };
-
-    --layout-end-justified: {
-      -ms-flex-pack: end;
-      -webkit-justify-content: flex-end;
-      justify-content: flex-end;
-    };
-
-    --layout-around-justified: {
-      -ms-flex-pack: around;
-      -webkit-justify-content: space-around;
-      justify-content: space-around;
-    };
-
-    --layout-justified: {
-      -ms-flex-pack: justify;
-      -webkit-justify-content: space-between;
-      justify-content: space-between;
-    };
-
-    --layout-center-center: {
-      /* @apply(--layout-center --layout-center-justified); */
-      -ms-flex-align: center;
-      -webkit-align-items: center;
-      align-items: center;
-      -ms-flex-pack: center;
-      -webkit-justify-content: center;
-      justify-content: center;
-    };
-
-    /* self alignment */
-
-    --layout-self-start: {
-      -ms-align-self: flex-start;
-      -webkit-align-self: flex-start;
-      align-self: flex-start;
-    };
-
-    --layout-self-center: {
-      -ms-align-self: center;
-      -webkit-align-self: center;
-      align-self: center;
-    };
-
-    --layout-self-end: {
-      -ms-align-self: flex-end;
-      -webkit-align-self: flex-end;
-      align-self: flex-end;
-    };
-
-    --layout-self-stretch: {
-      -ms-align-self: stretch;
-      -webkit-align-self: stretch;
-      align-self: stretch;
-    };
-
-    /*******************************
-              Other Layout
-    *******************************/
-
-    --layout-block: {
-      display: block;
-    };
-
-    --layout-invisible: {
-      visibility: hidden !important;
-    };
-
-    --layout-relative: {
-      position: relative;
-    };
-
-    --layout-fit: {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    };
-
-    --layout-scroll: {
-      -webkit-overflow-scrolling: touch;
-      overflow: auto;
-    };
-
-    /* fixed position */
-
-    --layout-fixed-bottom:,
-    --layout-fixed-left:,
-    --layout-fixed-right:,
-    --layout-fixed-top: {
-      position: fixed;
-    };
-
-    --layout-fixed-top: {
-      top: 0;
-      left: 0;
-      right: 0;
-    };
-
-    --layout-fixed-right: {
-      top: 0;
-      right: 0;
-      bottom: 0;
-    };
-
-    --layout-fixed-bottom: {
-      right: 0;
-      bottom: 0;
-      left: 0;
-    };
-
-    --layout-fixed-left: {
-      top: 0;
-      bottom: 0;
-      left: 0;
-    };
-
   }
 
 </style>
@@ -1738,9 +1724,326 @@ styles. All other styles should exist as single lines."
 
 
 
-</head>
-  <body><div hidden="" by-vulcanize=""><more-routing-config driver="hash"></more-routing-config>
 
+
+<style is="custom-style">
+
+  /*
+   Polymer includes a shim for CSS Custom Properties that we can use for application theming.
+   Below, you'll find the default palette for the Polymer Starter Kit layout. Feel free to play
+   with changing the colors used or generate your own palette of colours at MaterialPalette.com.
+
+   See https://www.polymer-project.org/1.0/docs/devguide/styling.html#xscope-styling-details
+   for further information on custom CSS properties.
+   */
+
+  /* Application theme */
+
+  :root {
+    --dark-primary-color: #303F9F;
+    --default-primary-color: #3F51B5;
+    --light-primary-color: #C5CAE9;
+    --text-primary-color: #ffffff; /*text/icons*/
+    --accent-color: #FF4081;
+    --primary-background-color: #c5cae9;
+    --primary-text-color: #212121;
+    --secondary-text-color: #727272;
+    --disabled-text-color: #bdbdbd;
+    --divider-color: #B6B6B6;
+
+    /* Components */
+
+    /* paper-drawer-panel */
+    --drawer-menu-color: #ffffff;
+    --drawer-border-color: 1px solid #ccc;
+    --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+
+    /* paper-menu */
+    --paper-menu-background-color: #fff;
+    --menu-link-color: #111111;
+  }
+
+  /* General styles */
+
+  #drawerToolbar {
+    color: var(--secondary-text-color);
+    background-color: var(--drawer-menu-color);
+    border-bottom: var(--drawer-toolbar-border-color);
+  }
+
+  paper-scroll-header-panel {
+    height: 100%;
+  }
+
+  paper-material {
+    border-radius: 2px;
+    height: 100%;
+    padding: 16px 0 16px 0;
+    width: calc(98.66% - 16px);
+    margin: 16px auto;
+    background: white;
+  }
+
+  paper-menu iron-icon {
+    margin-right: 33px;
+    opacity: 0.54;
+  }
+
+  .paper-menu > .iron-selected {
+    color: var(--default-primary-color);
+  }
+
+  paper-menu a {
+    text-decoration: none;
+    color: var(--menu-link-color);
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    font-family: 'Roboto', 'Noto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 24px;
+    min-height: 48px;
+    padding: 0 16px;
+  }
+
+  paper-toolbar.tall .app-name {
+    font-size: 40px;
+    font-weight: 300;
+    /* Required for main area's paper-scroll-header-panel custom condensing transformation */
+    -webkit-transform-origin: left center;
+    transform-origin: left center;
+  }
+
+  #mainToolbar .middle-container  {
+    height: 100%;
+    margin-left: 48px;
+  }
+
+  #mainToolbar:not(.tall) .middle {
+    font-size: 18px;
+    padding-bottom: 0;
+  }
+
+  #mainToolbar .bottom {
+    margin-left: 48px;
+    /* Required for main area's paper-scroll-header-panel custom condensing transformation */
+    -webkit-transform-origin: left center;
+    transform-origin: left center;
+  }
+
+  /* Height of the scroll area */
+  .content {
+    height: 900px;
+  }
+
+  /* Breakpoints */
+
+  /* Small */
+  @media (max-width: 600px) {
+
+    paper-material {
+      --menu-container-display: none;
+      width: calc(97.33% - 32px);
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    .paper-font-display1 {
+      font-size: 12px;
+    }
+
+    paper-toolbar.tall .app-name {
+      font-size: 24px;
+      font-weight: 400;
+    }
+
+    #drawer .paper-toolbar {
+      margin-left: 16px;
+    }
+
+    #overlay {
+      min-width: 360px;
+    }
+
+    .bg {
+      background: white;
+    }
+
+  }
+
+  /* Tablet+ */
+  @media (min-width: 601px) {
+
+    paper-material {
+      width: calc(98% - 46px);
+      margin-bottom: 32px;
+      padding-left: 30px;
+      padding-right: 30px;
+    }
+
+    #drawer.paper-drawer-panel > [drawer] {
+      border-right: 1px solid rgba(0, 0, 0, 0.14);
+    }
+
+    iron-pages {
+      padding: 48px 62px;
+    }
+
+  }
+
+  /* Material Design Adaptive Breakpoints */
+  /*
+    Below you'll find CSS media queries based on the breakpoint guidance
+    published by the Material Design team. You can choose to use, customise
+    or remove these breakpoints based on your needs.
+
+    http://www.google.com/design/spec/layout/adaptive-ui.html#adaptive-ui-breakpoints
+   */
+
+  /* mobile-small */
+  @media all and (min-width: 0) and (max-width: 360px) and (orientation: portrait) { }
+  /* mobile-large */
+  @media all and (min-width: 361px) and (orientation: portrait) { }
+  /* mobile-small-landscape */
+  @media all and (min-width: 0) and (max-width: 480px) and (orientation: landscape) { }
+  /* mobile-large-landscape */
+  @media all and (min-width: 481px) and (orientation: landscape) { }
+  /* tablet-small-landscape */
+  @media all and (min-width: 600px) and (max-width: 960px) and (orientation: landscape) { }
+  /* tablet-large-landscape */
+  @media all and (min-width: 961px) and (orientation: landscape) { }
+  /* tablet-small */
+  @media all and (min-width: 600px) and (orientation: portrait) { }
+  /* tablet-large */
+  @media all and (min-width: 601px) and (max-width: 840px) and (orientation : portrait) { }
+  /* desktop-x-small-landscape */
+  @media all and (min-width: 0) and (max-width: 480px) and (orientation: landscape) { }
+  /* desktop-x-small */
+  @media all and (min-width: 0) and (max-width: 480px) and (max-aspect-ratio: 4/3) { }
+  /* desktop-small-landscape */
+  @media all and (min-width: 481px) and (max-width: 840px) and (orientation: landscape) { }
+  /* desktop-small */
+  @media all and (min-width: 481px) and (max-width: 840px) and (max-aspect-ratio: 4/3) { }
+  /* desktop-medium-landscape */
+  @media all and (min-width: 841px) and (max-width: 1280px) and (orientation: landscape) { }
+  /* desktop-medium */
+  @media all and (min-width: 841px) and (max-width: 1280px) and (max-aspect-ratio: 4/3) { }
+  /* desktop-large */
+  @media all and (min-width: 1281px) and (max-width: 1600px) { }
+  /* desktop-xlarge */
+  @media all and (min-width: 1601px) and (max-width: 1920px) { }
+</style>
+<style is="custom-style">
+              html, body {
+                height: 500px;
+                width: 400px;
+                margin: 0;
+              }
+
+              :root {
+                /** --theme-primary: var(--google-pink-500) */
+                --theme-primary: #e91e63;
+              }
+
+            </style>
+
+      </head>
+
+      <body><div hidden="" by-vulcanize=""><dom-module id="paper-scroll-header-panel" assetpath="bower_components/paper-scroll-header-panel/">
+
+  <style>
+    :host {
+      display: block;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #mainContainer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+
+      -webkit-overflow-scrolling: touch;
+
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    #headerContainer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+    }
+
+    .bg-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #headerBg {
+      @apply(--paper-scroll-header-panel-full-header);
+    }
+
+    #condensedHeaderBg {
+      @apply(--paper-scroll-header-panel-condensed-header);
+    }
+
+    #headerBg, #condensedHeaderBg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center center;
+    }
+
+    #condensedHeaderBg {
+      opacity: 0;
+    }
+  </style>
+  <template>
+    <div id="mainContainer">
+      <content id="mainContent" select=":not(paper-toolbar):not(.paper-header)"></content>
+    </div>
+    <div id="headerContainer">
+      <div class="bg-container">
+        <div id="condensedHeaderBg"></div>
+        <div id="headerBg"></div>
+      </div>
+      <content id="headerContent" select="paper-toolbar, .paper-header"></content>
+    </div>
+  </template>
+</dom-module>
+
+<dom-module id="more-route-selector" assetpath="bower_components/more-routing/">
+  <template>
+    <more-route-selection id="selection" routes="[[routes]]" on-more-route-change="_onMoreRouteChange">
+    </more-route-selection>
+    <content></content>
+  </template>
+</dom-module>
+<more-routing-config driver="hash"></more-routing-config>
 
 <more-route name="root" path="/"></more-route>
 
@@ -1760,13 +2063,6 @@ styles. All other styles should exist as single lines."
   <more-route name="coverselect" path="/select"></more-route>
   <more-route name="coverdetail" path="/:coverId/:coverTemplateId"></more-route>
 </more-route>
-<dom-module id="more-route-selector" assetpath="bower_components/more-routing/">
-  <template>
-    <more-route-selection id="selection" routes="[[routes]]" on-more-route-change="_onMoreRouteChange">
-    </more-route-selection>
-    <content></content>
-  </template>
-</dom-module>
 <dom-module id="iron-icon" assetpath="bower_components/iron-icon/">
 
   <style>
@@ -2057,6 +2353,332 @@ styles. All other styles should exist as single lines."
 <g id="zoom-out"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14zM7 9h5v1H7z"></path></g>
 </defs></svg>
 </iron-iconset-svg>
+<dom-module id="paper-drawer-panel" assetpath="bower_components/paper-drawer-panel/">
+  <style>
+/**
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+:host {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+iron-selector > #drawer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: white;
+
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+
+  @apply(--paper-drawer-panel-drawer-container);
+}
+
+.transition > #drawer {
+  transition: -webkit-transform ease-in-out 0.3s, width ease-in-out 0.3s, visibility 0.3s;
+  transition: transform ease-in-out 0.3s, width ease-in-out 0.3s, visibility 0.3s;
+}
+
+.left-drawer > #drawer {
+  @apply(--paper-drawer-panel-left-drawer-container);
+}
+
+.right-drawer > #drawer {
+  left: auto;
+  right: 0;
+
+  @apply(--paper-drawer-panel-right-drawer-container);
+}
+
+iron-selector > #main {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  @apply(--paper-drawer-panel-main-container);
+}
+
+.transition > #main {
+  transition: left ease-in-out 0.3s, padding ease-in-out 0.3s;
+}
+
+.right-drawer > #main {
+  left: 0;
+}
+
+.right-drawer.transition > #main {
+  transition: right ease-in-out 0.3s, padding ease-in-out 0.3s;
+}
+
+#main > ::content > [main] {
+  height: 100%;
+}
+
+#drawer > ::content > [drawer] {
+  height: 100%;
+}
+
+#scrim {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity ease-in-out 0.38s, visibility ease-in-out 0.38s;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.narrow-layout > #drawer {
+  will-change: transform;
+}
+
+.narrow-layout > #drawer.iron-selected {
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.right-drawer.narrow-layout > #drawer.iron-selected {
+  box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.narrow-layout > #drawer > ::content > [drawer] {
+  border: 0;
+}
+
+.left-drawer.narrow-layout > #drawer:not(.iron-selected) {
+  -webkit-transform: translateX(-100%);
+  transform: translateX(-100%);
+}
+
+.right-drawer.narrow-layout > #drawer:not(.iron-selected) {
+  left: auto;
+  visibility: hidden;
+
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+}
+
+.right-drawer.narrow-layout.dragging > #drawer:not(.iron-selected),
+.right-drawer.narrow-layout.peeking > #drawer:not(.iron-selected) {
+  visibility: visible;
+}
+
+.narrow-layout > #main {
+  padding: 0;
+}
+
+.right-drawer.narrow-layout > #main {
+  left: 0;
+  right: 0;
+}
+
+.narrow-layout > #main:not(.iron-selected) > #scrim,
+.dragging > #main > #scrim {
+  visibility: visible;
+  opacity: var(--paper-drawer-panel-scrim-opacity, 1);
+}
+
+.narrow-layout > #main > * {
+  margin: 0;
+  min-height: 100%;
+  left: 0;
+  right: 0;
+
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
+  display: none;
+}
+</style>
+
+  <template>
+    <iron-media-query id="mq" on-query-matches-changed="_onQueryMatchesChanged" query="[[_computeMediaQuery(forceNarrow, responsiveWidth)]]">
+    </iron-media-query>
+
+    <iron-selector attr-for-selected="id" class$="[[_computeIronSelectorClass(narrow, transition, dragging, rightDrawer, peeking)]]" activate-event="" selected="[[selected]]">
+
+      <div id="main" style$="[[_computeMainStyle(narrow, rightDrawer, drawerWidth)]]">
+        <content select="[main]"></content>
+        <div id="scrim" on-tap="closeDrawer"></div>
+      </div>
+
+      <div id="drawer" style$="[[_computeDrawerStyle(drawerWidth)]]">
+        <content select="[drawer]"></content>
+      </div>
+
+    </iron-selector>
+  </template>
+
+</dom-module>
+
+<dom-module id="paper-header-panel" assetpath="bower_components/paper-header-panel/">
+
+  <style>
+/**
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
+The complete set of authors may be found at http://polymer.github.io/AUTHORS
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
+*/
+
+:host {
+  @apply(--layout-vertical);
+
+  position: relative;
+  height: 100%;
+}
+
+/**
+ * Default paper header panel shadow
+ */
+:root {
+  --paper-header-panel-shadow: {
+    height: 6px;
+    bottom: -6px;
+    box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
+  };
+}
+
+#mainContainer {
+  @apply(--layout-flex);
+
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+#mainPanel {
+  @apply(--layout-vertical);
+  @apply(--layout-flex);
+
+  position: relative;
+}
+
+/*
+ * mode: scroll
+ */
+:host([mode=scroll]) #mainContainer {
+  @apply(--paper-header-panel-scroll-container);
+
+  overflow: visible;
+}
+
+:host([mode=scroll]) {
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/*
+ * mode: cover
+ */
+:host([mode=cover]) #mainContainer {
+  @apply(--paper-header-panel-cover-container);
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+:host([mode=cover]) #mainPanel {
+  position: static;
+}
+
+/*
+ * mode: standard
+ */
+:host([mode=standard]) #mainContainer {
+  @apply(--paper-header-panel-standard-container);
+}
+
+/*
+ * mode: seamed
+ */
+:host([mode=seamed]) #mainContainer {
+  @apply(--paper-header-panel-seamed-container);
+}
+
+
+/*
+ * mode: waterfall
+ */
+:host([mode=waterfall]) #mainContainer {
+  @apply(--paper-header-panel-waterfall-container);
+}
+
+/*
+ * mode: waterfall-tall
+ */
+:host([mode=waterfall-tall]) #mainContainer {
+  @apply(--paper-header-panel-waterfall-tall-container);
+}
+
+#dropShadow {
+  @apply(--paper-header-panel-shadow);
+
+  -webkit-transition: opacity 0.5s, -webkit-transform 0.5s;
+  transition: opacity 0.5s, transform 0.5s;
+
+  -webkit-transform: scale3d(1, 0, 1);
+  transform: scale3d(1, 0, 1);
+
+  -webkit-transform-origin: left top;
+  transform-origin: left top;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  opacity: 0;
+}
+
+#dropShadow.has-shadow {
+  opacity: 1;
+
+  -webkit-transform: scale3d(1, 1, 1);
+  transform: scale3d(1, 1, 1);
+}
+
+</style>
+
+  <template>
+    <content id="headerContent" select="paper-toolbar, .paper-header"></content>
+
+    <div id="mainPanel">
+      <div id="mainContainer" class$="[[_computeMainContainerClass(mode)]]">
+        <content id="mainContent" select="*"></content>
+      </div>
+      <div id="dropShadow"></div>
+    </div>
+  </template>
+
+</dom-module>
+
 <iron-iconset-svg name="image" size="24">
 <svg><defs>
 <g id="add-to-photos"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"></path></g>
@@ -2487,332 +3109,6 @@ styles. All other styles should exist as single lines."
       <textarea id="textarea" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" required$="[[required]]" rows$="[[rows]]" maxlength$="[[maxlength]]"></textarea>
     </div>
   </template>
-</dom-module>
-
-<dom-module id="paper-drawer-panel" assetpath="bower_components/paper-drawer-panel/">
-  <style>
-/**
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-*/
-
-:host {
-  display: block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
-iron-selector > #drawer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background-color: white;
-
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-
-  @apply(--paper-drawer-panel-drawer-container);
-}
-
-.transition > #drawer {
-  transition: -webkit-transform ease-in-out 0.3s, width ease-in-out 0.3s, visibility 0.3s;
-  transition: transform ease-in-out 0.3s, width ease-in-out 0.3s, visibility 0.3s;
-}
-
-.left-drawer > #drawer {
-  @apply(--paper-drawer-panel-left-drawer-container);
-}
-
-.right-drawer > #drawer {
-  left: auto;
-  right: 0;
-
-  @apply(--paper-drawer-panel-right-drawer-container);
-}
-
-iron-selector > #main {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-
-  @apply(--paper-drawer-panel-main-container);
-}
-
-.transition > #main {
-  transition: left ease-in-out 0.3s, padding ease-in-out 0.3s;
-}
-
-.right-drawer > #main {
-  left: 0;
-}
-
-.right-drawer.transition > #main {
-  transition: right ease-in-out 0.3s, padding ease-in-out 0.3s;
-}
-
-#main > ::content > [main] {
-  height: 100%;
-}
-
-#drawer > ::content > [drawer] {
-  height: 100%;
-}
-
-#scrim {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity ease-in-out 0.38s, visibility ease-in-out 0.38s;
-  background-color: rgba(0, 0, 0, 0.3);
-}
-
-.narrow-layout > #drawer {
-  will-change: transform;
-}
-
-.narrow-layout > #drawer.iron-selected {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.right-drawer.narrow-layout > #drawer.iron-selected {
-  box-shadow: -2px 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-.narrow-layout > #drawer > ::content > [drawer] {
-  border: 0;
-}
-
-.left-drawer.narrow-layout > #drawer:not(.iron-selected) {
-  -webkit-transform: translateX(-100%);
-  transform: translateX(-100%);
-}
-
-.right-drawer.narrow-layout > #drawer:not(.iron-selected) {
-  left: auto;
-  visibility: hidden;
-
-  -webkit-transform: translateX(100%);
-  transform: translateX(100%);
-}
-
-.right-drawer.narrow-layout.dragging > #drawer:not(.iron-selected),
-.right-drawer.narrow-layout.peeking > #drawer:not(.iron-selected) {
-  visibility: visible;
-}
-
-.narrow-layout > #main {
-  padding: 0;
-}
-
-.right-drawer.narrow-layout > #main {
-  left: 0;
-  right: 0;
-}
-
-.narrow-layout > #main:not(.iron-selected) > #scrim,
-.dragging > #main > #scrim {
-  visibility: visible;
-  opacity: var(--paper-drawer-panel-scrim-opacity, 1);
-}
-
-.narrow-layout > #main > * {
-  margin: 0;
-  min-height: 100%;
-  left: 0;
-  right: 0;
-
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-iron-selector:not(.narrow-layout) #main ::content [paper-drawer-toggle] {
-  display: none;
-}
-</style>
-
-  <template>
-    <iron-media-query id="mq" on-query-matches-changed="_onQueryMatchesChanged" query="[[_computeMediaQuery(forceNarrow, responsiveWidth)]]">
-    </iron-media-query>
-
-    <iron-selector attr-for-selected="id" class$="[[_computeIronSelectorClass(narrow, transition, dragging, rightDrawer, peeking)]]" activate-event="" selected="[[selected]]">
-
-      <div id="main" style$="[[_computeMainStyle(narrow, rightDrawer, drawerWidth)]]">
-        <content select="[main]"></content>
-        <div id="scrim" on-tap="closeDrawer"></div>
-      </div>
-
-      <div id="drawer" style$="[[_computeDrawerStyle(drawerWidth)]]">
-        <content select="[drawer]"></content>
-      </div>
-
-    </iron-selector>
-  </template>
-
-</dom-module>
-
-<dom-module id="paper-header-panel" assetpath="bower_components/paper-header-panel/">
-
-  <style>
-/**
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE
-The complete set of authors may be found at http://polymer.github.io/AUTHORS
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS
-*/
-
-:host {
-  @apply(--layout-vertical);
-
-  position: relative;
-  height: 100%;
-}
-
-/**
- * Default paper header panel shadow
- */
-:root {
-  --paper-header-panel-shadow: {
-    height: 6px;
-    bottom: -6px;
-    box-shadow: inset 0px 5px 6px -3px rgba(0, 0, 0, 0.4);
-  };
-}
-
-#mainContainer {
-  @apply(--layout-flex);
-
-  position: relative;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-#mainPanel {
-  @apply(--layout-vertical);
-  @apply(--layout-flex);
-
-  position: relative;
-}
-
-/*
- * mode: scroll
- */
-:host([mode=scroll]) #mainContainer {
-  @apply(--paper-header-panel-scroll-container);
-
-  overflow: visible;
-}
-
-:host([mode=scroll]) {
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-/*
- * mode: cover
- */
-:host([mode=cover]) #mainContainer {
-  @apply(--paper-header-panel-cover-container);
-
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-}
-
-:host([mode=cover]) #mainPanel {
-  position: static;
-}
-
-/*
- * mode: standard
- */
-:host([mode=standard]) #mainContainer {
-  @apply(--paper-header-panel-standard-container);
-}
-
-/*
- * mode: seamed
- */
-:host([mode=seamed]) #mainContainer {
-  @apply(--paper-header-panel-seamed-container);
-}
-
-
-/*
- * mode: waterfall
- */
-:host([mode=waterfall]) #mainContainer {
-  @apply(--paper-header-panel-waterfall-container);
-}
-
-/*
- * mode: waterfall-tall
- */
-:host([mode=waterfall-tall]) #mainContainer {
-  @apply(--paper-header-panel-waterfall-tall-container);
-}
-
-#dropShadow {
-  @apply(--paper-header-panel-shadow);
-
-  -webkit-transition: opacity 0.5s, -webkit-transform 0.5s;
-  transition: opacity 0.5s, transform 0.5s;
-
-  -webkit-transform: scale3d(1, 0, 1);
-  transform: scale3d(1, 0, 1);
-
-  -webkit-transform-origin: left top;
-  transform-origin: left top;
-
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  opacity: 0;
-}
-
-#dropShadow.has-shadow {
-  opacity: 1;
-
-  -webkit-transform: scale3d(1, 1, 1);
-  transform: scale3d(1, 1, 1);
-}
-
-</style>
-
-  <template>
-    <content id="headerContent" select="paper-toolbar, .paper-header"></content>
-
-    <div id="mainPanel">
-      <div id="mainContainer" class$="[[_computeMainContainerClass(mode)]]">
-        <content id="mainContent" select="*"></content>
-      </div>
-      <div id="dropShadow"></div>
-    </div>
-  </template>
-
 </dom-module>
 
 <dom-module id="paper-ripple" assetpath="bower_components/paper-ripple/">
@@ -3809,6 +4105,65 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 
   </dom-module>
+<dom-module id="paper-fab" assetpath="bower_components/paper-fab/">
+  <style>
+
+    :host {
+      display: inline-block;
+      position: relative;
+      outline: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      -webkit-user-select: none;
+      user-select: none;
+      cursor: pointer;
+
+      box-sizing: border-box;
+      min-width: 0;
+      width: 56px;
+      height: 56px;
+      background: var(--paper-fab-background, --accent-color);
+      color: var(--text-primary-color);
+      border-radius: 50%;
+      padding: 16px;
+
+      z-index: 0;
+
+      @apply(--paper-fab);
+    }
+
+    :host([mini]) {
+      width: 40px;
+      height: 40px;
+      padding: 8px;
+
+      @apply(--paper-fab-mini);
+    }
+
+    :host([disabled]) {
+      color: var(--paper-fab-disabled-text, --paper-grey-500);
+      background: var(--paper-fab-disabled-background, --paper-grey-300);
+      @apply(--paper-fab-disabled);
+    }
+
+    paper-material {
+      border-radius: inherit;
+      @apply(--layout-fit);
+      @apply(--layout-vertical);
+      @apply(--layout-center-center);
+    }
+
+    .keyboard-focus {
+      background: var(--paper-fab-keyboard-focus-background, --paper-pink-900);
+    }
+  </style>
+  <template>
+    <paper-ripple></paper-ripple>
+    <paper-material class$="[[_computeContentClass(receivedFocusFromKeyboard)]]" elevation="[[_elevation]]" animated="">
+      <iron-icon id="icon" src="[[src]]" icon="[[icon]]"></iron-icon>
+    </paper-material>
+  </template>
+</dom-module>
 <dom-module id="apps-list" assetpath="bower_components/cork/">
 
   <style>
@@ -3874,7 +4229,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        </tbody></table>
      </div>
      <div centerbutton="">
-         <paper-button tabindex="0" raised="" class="colorful" on-click="open_new">new</paper-button>
+         <paper-fab icon="add" on-click="open_new"></paper-fab>
      </div>
     </paper-material>
   </template>
@@ -4028,7 +4383,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        
 
        <div centerbutton="">
-           <paper-button tabindex="0" raised="" class="colorful" on-click="open_new">new</paper-button>
+         <paper-fab icon="add" on-click="open_new"></paper-fab>
        </div>
 
   </template>
@@ -4129,7 +4484,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        
 
        <div centerbutton="">
-           <paper-button tabindex="0" raised="" class="colorful" on-click="open_new">new</paper-button>
+         <paper-fab icon="add" on-click="open_new"></paper-fab>
        </div>
 
   </template>
@@ -4248,7 +4603,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
 
    <div centerbutton="">
-       <paper-button tabindex="0" raised="" class="colorful" on-click="open_new">new</paper-button>
+         <paper-fab icon="add" on-click="open_new"></paper-fab>
    </div>
 
   </template>
@@ -4357,51 +4712,108 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 
-<dom-module id="cork-app" assetpath="bower_components/cork/">
+<dom-module id="cork-app" assetpath="../../../../../../../../../">
 
   <style>
-
-    iron-selector > * {
-      display: none;
-    }
-    iron-selector > .iron-selected {
-      display: block;
-    }
-
-    header {
-      @apply(--paper-font-display2);
-      background-color: var(--theme-primary);
-      color: white;
-      padding: 16px;
-      cursor: pointer;
-    }
+  iron-selector > * {
+    display: none;
+  }
+  iron-selector > .iron-selected {
+    display: block;
+  }
 
   </style>
 
   <template>
-    <header on-tap="_onTapHome">Cork</header>
 
-    
-    <more-route-selector>
-      <iron-selector>
-        <apps-list debug="" serverurl="http://rusty.blue/applications"></apps-list>
-        <apps-detail debug="" serverurl="http://rusty.blue/applications"></apps-detail>
-        <blocks-list debug="" serverurl="http://rusty.blue/pieces"></blocks-list>
-        <blocks-detail debug="" serverurl="http://rusty.blue/pieces"></blocks-detail>
-        <templates-list debug="" serverurl="http://rusty.blue/categories"></templates-list>
-        <templates-detail debug="" serverurl="http://rusty.blue/categories" templateserverurl="http://rusty.blue/pieces"></templates-detail>
-        <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
-        <covers-detail debug="" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
-        <covers-new></covers-new>
-      </iron-selector>
-    </more-route-selector>
+
+          
+          <more-route-selector>
+            <iron-selector on-iron-select="_onMenuSelect">
+              <apps-list debug="" serverurl="http://rusty.blue/applications"></apps-list>
+              <apps-detail debug="" serverurl="http://rusty.blue/applications"></apps-detail>
+              <blocks-list debug="" serverurl="http://rusty.blue/pieces"></blocks-list>
+              <blocks-detail debug="" serverurl="http://rusty.blue/pieces"></blocks-detail>
+              <templates-list debug="" serverurl="http://rusty.blue/categories"></templates-list>
+              <templates-detail debug="" serverurl="http://rusty.blue/categories" templateserverurl="http://rusty.blue/pieces"></templates-detail>
+              <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
+              <covers-detail debug="" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
+              <covers-new></covers-new>
+            </iron-selector>
+          </more-route-selector>
 
   </template>
 
   </dom-module>
 </div>
-    <cork-app></cork-app>
-  
+        <template is="dom-bind" id="app">
+          <paper-drawer-panel id="paperDrawerPanel">
+          
+          <paper-scroll-header-panel drawer="" fixed="">
 
+            
+            <paper-toolbar id="drawerToolbar">
+              <span class="paper-font-title">Menu</span>
+            </paper-toolbar>
+
+            
+            <paper-menu class="list">
+              <a href="#!/apps">
+                <iron-icon icon="home"></iron-icon>
+                <span>applications</span>
+              </a>
+
+              <a href="#!/blocks">
+                <iron-icon icon="info"></iron-icon>
+                <span>blocks</span>
+              </a>
+
+              <a href="#!/templates">
+                <iron-icon icon="mail"></iron-icon>
+                <span>templates</span>
+              </a>
+
+              <a href="#!/covers">
+                <iron-icon icon="mail"></iron-icon>
+                <span>covers</span>
+              </a>
+
+            </paper-menu>
+          </paper-scroll-header-panel>
+
+          
+          <paper-scroll-header-panel main="" condenses="" keep-condensed-header="">
+
+            
+            <paper-toolbar id="mainToolbar" class="tall">
+              <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle=""></paper-icon-button>
+              <span class="flex"></span>
+
+              
+              <paper-icon-button icon="refresh"></paper-icon-button>
+              <paper-icon-button icon="search"></paper-icon-button>
+
+              
+              <div class="middle middle-container center horizontal layout">
+                <div class="app-name">Polymer Starter Kit</div>
+              </div>
+
+              
+              <div class="bottom bottom-container center horizontal layout">
+                <div class="bottom-title paper-font-subhead">The future of the web today</div>
+              </div>
+
+            </paper-toolbar>
+
+            
+            <div class="content">
+              <cork-app></cork-app>
+            </div>
+          </paper-scroll-header-panel>
+        </paper-drawer-panel>
+
+        </template>
+      
+    
 
 <script src="yard.js"></script></body></html>

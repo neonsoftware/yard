@@ -51,7 +51,7 @@ The top level element for Polyfora.
           See each page's `<more-route context ...>`.
           -->
           <more-route-selector>
-            <iron-selector>
+            <iron-selector on-iron-select="_onMenuSelect">
               <apps-list  debug serverurl="http://rusty.blue/applications"></apps-list>
               <apps-detail debug serverurl="http://rusty.blue/applications"></apps-detail>
               <blocks-list  debug serverurl="http://rusty.blue/pieces"></blocks-list>
@@ -81,6 +81,13 @@ The top level element for Polyfora.
         MoreRouting.navigateTo('root');
         event.preventDefault();
       },
+
+      _onMenuSelect : function() {
+        var drawerPanel = document.querySelector('#paperDrawerPanel');
+        if (drawerPanel.narrow) {
+          drawerPanel.closeDrawer();
+        }
+      }
 
     });
 
