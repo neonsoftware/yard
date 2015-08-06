@@ -20715,9 +20715,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <td>{{item.next}}</td>
     					<td>
-    						<iron-icon icon="create" style="width: 18px; height: 18px;"></iron-icon>
-    						<iron-icon icon="delete" style="width: 18px; height: 18px;">
-    					</iron-icon></td>
+    						<paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab>
+    						<paper-fab icon="delete" style="width: 18px; height: 18px;"></paper-fab>
+    					</td>
   				  </tr>
           </template>
        </tbody></table>
@@ -20865,9 +20865,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <br><br>
 
       <div centerbutton="">
-          <paper-button>discard</paper-button>
-          <paper-button on-click="save_me" tabindex="0" raised="" class="colorful">save</paper-button>
-          <paper-toast id="saving-complete" duration="6000" text="Saving successful!"> </paper-toast>
+        <paper-fab icon="close"></paper-fab>
+        <paper-fab icon="save" on-click="save_me"></paper-fab>
+        <paper-toast id="saving-complete" duration="6000" text="Saving successful!"> </paper-toast>
       </div>
 
     </paper-material>
@@ -21104,7 +21104,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </template>
 
       <div centerbutton="">
-          <paper-button tabindex="0" raised="" class="colorful" on-click="save_me">save</paper-button>
+          <paper-fab icon="save" on-click="save_me"></paper-fab>
       </div>
     </paper-material>
 
@@ -21386,7 +21386,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </template>
 
       <div centerbutton="">
-          <paper-button tabindex="0" raised="" class="colorful" on-click="save_me">save</paper-button>
+          <paper-fab icon="save" on-click="save_me">discard</paper-fab>
       </div>
     </paper-material>
 
@@ -21719,8 +21719,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <br><br>
 
       <div centerbutton="">
-          <paper-button tabindex="0" raised="" class="colorful" on-click="fill_me">edit</paper-button>
-          <paper-button tabindex="0" raised="" class="colorful" on-click="save_me">save</paper-button>
+          <paper-fab icon="create" on-click="fill_me"></paper-fab>
+          <paper-fab icon="save" on-click="save_me"></paper-fab>
+
       </div>
     </paper-material>
 
@@ -22074,7 +22075,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           
           <div class="middle middle-container center horizontal layout">
-            <div class="app-name">Polymer Starter Kit</div>
+            <div class="app-name">Cork</div>
           </div>
 
           
