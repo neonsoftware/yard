@@ -4691,7 +4691,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <more-route context="" name="coverselect" params="{{params}}"></more-route>
 
-    <iron-ajax id="my_iron" url="/categories" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax auto="" url="{{serverurl}}" handle-as="json" on-response="handleResponse"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
             <paper-material card="" elevation="1">
@@ -4738,8 +4738,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <templates-list debug="" serverurl="http://rusty.blue/categories"></templates-list>
               <templates-detail debug="" serverurl="http://rusty.blue/categories" templateserverurl="http://rusty.blue/pieces"></templates-detail>
               <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
-              <covers-detail debug="" serverurl="http://rusty.blue/documents/" templateserverurl="http://rusty.blue/categories"></covers-detail>
-              <covers-new></covers-new>
+              <covers-detail debug="" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
+              <covers-new debug="" serverurl="http://rusty.blue/categories"></covers-new>
             </iron-selector>
           </more-route-selector>
 

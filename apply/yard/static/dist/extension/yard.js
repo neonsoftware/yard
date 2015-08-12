@@ -16493,13 +16493,11 @@ Polymer({
         var id = model.item.id;
         if(this.debug) console.log('app-list : opening ', id);
         MoreRouting.navigateTo('appdetail', {appId: id});
-        event.stopPropagation();
       },
 
       open_new: function(e) {
         if(this.debug) console.log('app-list : creating new');
         MoreRouting.navigateTo('appdetail', {appId: 'new'});
-        event.stopPropagation();
       },
 
       handleResponse:function(response){
@@ -16559,10 +16557,10 @@ Polymer({
           }
         },
         objid: Number,
-        getURL: String,
-        pushmethod: String,
-        pushURL: String,
-        serverurl: String
+        getURL: { type: String, value: ""},
+        pushmethod: { type: String, value: ""},
+        pushURL: { type: String, value: ""},
+        serverurl: { type: String, value: ""},
       },
 
       observers:['updateAjaxParameters(objid, serverurl)',
@@ -16629,14 +16627,12 @@ Polymer({
         var id = model.item.id;
         console.log('the id is', id);
         MoreRouting.navigateTo('blockdetail', {blockId: id});
-        event.stopPropagation();
         //model.set('item.ordered', model.item.ordered+1);
       },
 
       open_new: function(e) {
         console.log('To new !!');
         MoreRouting.navigateTo('blockdetail', {blockId: 'new'});
-        event.stopPropagation();
       },
 
       handleResponse:function(response){
@@ -16653,10 +16649,7 @@ Polymer({
 
       is: 'blocks-detail',
       properties: {
-        debug: {
-          type: Boolean,
-          value: false
-        },
+        debug: { type: Boolean, value: false },
         currentitem: {
           type: Object,
           value: {"language":"en",
@@ -16671,10 +16664,10 @@ Polymer({
           value: ""
         },
         objid: Number,
-        getURL: String,
-        pushmethod: String,
-        pushURL: String,
-        serverurl: String,
+        getURL: { type: String, value: ""},
+        pushmethod: { type: String, value: ""},
+        pushURL: { type: String, value: ""},
+        serverurl: { type: String, value: ""},
         lettersymbols: {
           type: Array,
           value: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ']
@@ -16827,11 +16820,11 @@ Polymer({
                   }
         },
         objid: Number,
-        getURL: String,
-        pushmethod: String,
-        pushURL: String,
-        templateserverurl: String,
-        serverurl: String,
+        getURL: { type: String, value: ""},
+        pushmethod: { type: String, value: ""},
+        pushURL: { type: String, value: ""},
+        templateserverurl:{ type: String, value: ""},
+        serverurl: { type: String, value: ""},
         isnotabselected: Boolean,
         tags: {
           type: Array,
@@ -17022,15 +17015,11 @@ Polymer({
         var id = model.item.id;
         console.log('the id is', id);
         MoreRouting.navigateTo('coverdetail', {coverId: id, coverTemplateId: 'empty'});
-        event.stopPropagation();
-        //model.set('item.ordered', model.item.ordered+1);
       },
 
       open_new: function(e) {
         console.log('To new !!');
         MoreRouting.navigateTo('coverselect', {});
-        event.stopPropagation();
-
       },
 
       handleResponse:function(response){
@@ -17047,39 +17036,30 @@ Polymer({
 
       is: 'covers-detail',
       properties: {
-        debug: {
-          type: Boolean,
-          value: false
-        },
-        edit_disabled: {
-          type: Boolean,
-          value: true
-        },
+        debug: { type: Boolean, value: false },
+        edit_disabled: { type: Boolean, value: true },
         objid: Number,
-        getURL: String,
-        pushmethod: String,
-        pushURL: String,
-        serverurl: String,
-        templategetURL: String,
-        templateserverurl: String,
         objtempl: Number,
-        currentlegend: Array,
-        currentcontent: String,
-        currentitem:{
-          type: Object,
-          value: {"content":"", "name":""}
-        },
-        originalcontent: String,
-        lettersymbols: {
-          type: String,
-          value: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ']
-        }
+        getURL: { type: String, value: ""},
+        pushmethod: { type: String, value: ""},
+        pushURL: { type: String, value: ""},
+        serverurl: { type: String, value: ""},
+        templategetURL: { type: String, value: ""},
+        templateserverurl: { type: String, value: ""},
+        currentlegend: { type: Array, value: []},
+        currentcontent: { type: String, value: ""},
+        currentitem: { type: Object, value: {"content":"", "name":""} },
+        originalcontent: { type: String, value: ""}
       },
 
       observers:['updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)',
                   '_on_legend_change(currentlegend.*)',
-                  '_someChanged(params.coverId ,params.coverTemplateId)'
+                  '_someChanged(params.coverId )'
                 ],
+
+      ready: function(){
+        this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
+      },
 
       save_me: function(){
         this.currentitem.content = this.currentcontent;
@@ -17099,18 +17079,23 @@ Polymer({
       },
 
       _handle_response_get_template: function(response){
-        if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
+        if ( typeof response.detail.response != 'undefined' && this.templategetURL !== '' ){
           console.log('Received response from GET template : ', response.detail.response);
-          this.currentpieces = JSON.parse(response.detail.response.pieces);
-          this.currentcontent = "";
+
+          var newCurrentContent = "";
           this.currentlegend = [];
+
+          // Now reordering the blocks (AAA, BBB, CCC, DDD) in order to place them in the legend
+          this.currentpieces = JSON.parse(response.detail.response.pieces);
           var symbolsToAssign = this.lettersymbols;
+
           for (index = 0, len = this.currentpieces.length; index < len; ++index) {
             var currentPiece = this.currentpieces[index];
-            console.log('New piece :', currentPiece );
-            console.log('Now content is ', this.currentcontent );
-            for (j = 0, lenLegend = currentPiece.legend.length; j < lenLegend; ++j) {
-              var currentLegendItem = currentPiece.legend[j];
+            var currentLegend = JSON.parse(currentPiece.legend);
+            console.log('New block :', currentPiece );
+            console.log('Now content is ', newCurrentContent );
+            for (j = 0, lenLegend = currentLegend.length; j < lenLegend; ++j) {
+              var currentLegendItem = currentLegend[j];
               console.log('New legend item is :', currentLegendItem );
               var oldSymbol = currentLegendItem.key;
               var newSymbol = symbolsToAssign[0];
@@ -17125,9 +17110,10 @@ Polymer({
               console.log('OOOOO current legend : ', this.currentlegend );
 
             }
-            this.currentcontent = this.currentcontent.concat(currentPiece.content);
-            this.originalcontent = this.currentcontent;
+            newCurrentContent = newCurrentContent.concat(currentPiece.content);
+            this.originalcontent = newCurrentContent;
           }
+          this.set('currentcontent', newCurrentContent);
           console.log('The legend got from the GET is :', this.currentpieces );
           console.log('Current legend is now :', this.currentlegend );
         }
@@ -17143,7 +17129,7 @@ Polymer({
         var isNew = Boolean(current_id === "new");;
         this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
         this.pushmethod = ( isNew ) ? "POST" : "PUT";
-        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + String(this.objid) ;
+        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
         this.templategetURL = ( current_template_id === "empty") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
         if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
       },
@@ -17182,7 +17168,7 @@ Polymer({
 
       _someChanged: function() {
         if (typeof this.params.coverId != 'undefined' && typeof this.params.coverTemplateId != 'undefined'){
-          console.log("The cover ID is", this.params.coverId, 'the coverTemplateId is ', this.params.coverTemplateId);
+          console.log("The cover ID is ", this.params.coverId, ' the coverTemplateId is ', this.params.coverTemplateId);
           this.objid = this.params.coverId;
           this.objtempl = this.params.coverTemplateId;
         }
@@ -17196,27 +17182,21 @@ Polymer({
     Polymer({
 
       is: 'covers-new',
-      properties: {
-      },
 
-      ready: function() {
-        console.log('template-list. I am ready');
-        this.$.my_iron.generateRequest();
+      properties: {
+        serverurl: String
       },
 
       open_me: function(e) {
         var model = e.model;
         var id = model.item.id;
         console.log('the id is', id);
-        window.location = '#!/covers/new/' + String(id);
-        window.location.reload();
-        //model.set('item.ordered', model.item.ordered+1);
+        MoreRouting.navigateTo('coverdetail', {coverId: 'new', coverTemplateId: id});
       },
 
       open_empty: function(e) {
         console.log('To new !!');
-        window.location = '#!/covers/new/empty';
-        window.location.reload();
+        MoreRouting.navigateTo('coverdetail', {coverId: 'new', coverTemplateId: 'empty'});
       },
 
       handleResponse:function(response){
