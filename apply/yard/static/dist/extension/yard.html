@@ -229,8 +229,14 @@
 </style>
 
 
-<style is="custom-style">
+<style>
+  /* IE 10 support for HTML5 hidden attr */
+  [hidden] {
+    display: none !important;
+  }
+</style>
 
+<style is="custom-style">
   :root {
 
     --layout: {
@@ -496,32 +502,29 @@
 
     /* fixed position */
 
-    --layout-fixed-bottom:,
-    --layout-fixed-left:,
-    --layout-fixed-right:,
     --layout-fixed-top: {
       position: fixed;
-    };
-
-    --layout-fixed-top: {
       top: 0;
       left: 0;
       right: 0;
     };
 
     --layout-fixed-right: {
+      position: fixed;
       top: 0;
       right: 0;
       bottom: 0;
     };
 
     --layout-fixed-bottom: {
+      position: fixed;
       right: 0;
       bottom: 0;
       left: 0;
     };
 
     --layout-fixed-left: {
+      position: fixed;
       top: 0;
       bottom: 0;
       left: 0;
@@ -3093,6 +3096,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 100%;
       font-size: inherit;
       font-family: inherit;
+      line-height: inherit;
     }
 
     ::content textarea:invalid {
@@ -3297,9 +3301,51 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </template>
 </dom-module>
 <dom-module id="paper-menu" assetpath="bower_components/paper-menu/">
+  <style>
+/**
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+*/
+
+/* need a wrapper element to make this higher specificity than the :host rule in paper-item */
+.selectable-content > ::content > .iron-selected {
+  font-weight: bold;
+
+  @apply(--paper-menu-selected-item);
+}
+
+.selectable-content > ::content > [disabled] {
+  color: var(--paper-menu-disabled-color, --disabled-text-color);
+}
+
+.selectable-content > ::content > *:focus {
+  position: relative;
+  outline: 0;
+
+  @apply(--paper-menu-focused-item);
+}
+
+.selectable-content > ::content > *:focus:after {
+  @apply(--layout-fit);
+  background: currentColor;
+  opacity: var(--dark-divider-opacity);
+  content: '';
+
+  @apply(--paper-menu-focused-item-after);
+}
+
+.selectable-content > ::content > *[colored]:focus:after {
+  opacity: 0.26;
+}
+
+</style>
 
   <style>
-
     :host {
       display: block;
       padding: 8px 0;
@@ -3309,44 +3355,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       @apply(--paper-menu);
     }
-
-    /* need a wrapper element to make this higher specificity than the :host rule in paper-item */
-    .content > ::content > .iron-selected {
-      font-weight: bold;
-
-      @apply(--paper-menu-selected-item);
-    }
-
-    .content > ::content > [disabled] {
-      color: var(--paper-menu-disabled-color, --disabled-text-color);
-    }
-
-    .content > ::content > *:focus {
-      position: relative;
-      outline: 0;
-
-      @apply(--paper-menu-focused-item);
-    }
-
-    .content > ::content > *:focus:after {
-      @apply(--layout-fit);
-      background: currentColor;
-      /* FIXME move to paper-styles for next widget */
-      opacity: 0.12;
-      content: '';
-
-      @apply(--paper-menu-focused-item-after);
-    }
-
-    .content > ::content > *[colored]:focus:after {
-      opacity: 0.26;
-    }
-
   </style>
-
   <template>
 
-    <div class="content">
+    <div class="selectable-content">
       <content></content>
     </div>
 
@@ -3372,6 +3384,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     :host([disabled]) {
       pointer-events: none;
       opacity: 0.33;
+
+      @apply(--paper-input-container-disabled);
     }
 
     .floated-label-placeholder {
@@ -3430,8 +3444,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       @apply(--paper-input-container-underline-disabled);
     }
 
+    .label-and-input-container {
+      @apply(--layout-flex);
+      @apply(--layout-relative);
+    }
+
     .input-content {
       position: relative;
+      @apply(--layout-horizontal);
+      @apply(--layout-end);
     }
 
     .input-content ::content label,
@@ -3493,6 +3514,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       @apply(--paper-input-container-input);
     }
 
+    ::content [prefix] {
+      @apply(--paper-font-subhead);
+      @apply(--paper-input-prefix);
+    }
+
+    ::content [suffix] {
+      @apply(--paper-font-subhead);
+      @apply(--paper-input-suffix);
+    }
+
     /* Firefox sets a min-width on the input, which can cause layout issues */
     .input-content ::content input {
       min-width: 0;
@@ -3519,7 +3550,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
 
     <div class$="[[_computeInputContentClass(noLabelFloat,alwaysFloatLabel,focused,invalid,_inputHasContent)]]">
-      <content select=":not([add-on])"></content>
+      <content select="[prefix]" id="prefix"></content>
+      <div class="label-and-input-container">
+        <content select=":not([add-on]):not([prefix]):not([suffix])"></content>
+      </div>
+      <content select="[suffix]"></content>
     </div>
 
     <div class$="[[_computeUnderlineClass(focused,invalid)]]">
@@ -3616,9 +3651,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <paper-input-container no-label-float="[[noLabelFloat]]" always-float-label="[[_computeAlwaysFloatLabel(alwaysFloatLabel,placeholder)]]" auto-validate$="[[autoValidate]]" disabled$="[[disabled]]" invalid="[[invalid]]">
 
+      <content select="[prefix]"></content>
+
       <label hidden$="[[!label]]">[[label]]</label>
 
-      <input is="iron-input" id="input" aria-labelledby$="[[_ariaLabelledBy]]" aria-describedby$="[[_ariaDescribedBy]]" disabled$="[[disabled]]" bind-value="{{value}}" invalid="{{invalid}}" prevent-invalid-input="[[preventInvalidInput]]" allowed-pattern="[[allowedPattern]]" validator="[[validator]]" type$="[[type]]" pattern$="[[pattern]]" maxlength$="[[maxlength]]" required$="[[required]]" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" minlength$="[[minlength]]" name$="[[name]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" list$="[[list]]" size$="[[size]]" autocapitalize$="[[autocapitalize]]" autocorrect$="[[autocorrect]]">
+      <input is="iron-input" id="input" aria-labelledby$="[[_ariaLabelledBy]]" aria-describedby$="[[_ariaDescribedBy]]" disabled$="[[disabled]]" bind-value="{{value}}" invalid="{{invalid}}" prevent-invalid-input="[[preventInvalidInput]]" allowed-pattern="[[allowedPattern]]" validator="[[validator]]" type$="[[type]]" pattern$="[[pattern]]" required$="[[required]]" autocomplete$="[[autocomplete]]" autofocus$="[[autofocus]]" inputmode$="[[inputmode]]" minlength$="[[minlength]]" maxlength$="[[maxlength]]" min$="[[min]]" max$="[[max]]" step$="[[step]]" name$="[[name]]" placeholder$="[[placeholder]]" readonly$="[[readonly]]" list$="[[list]]" size$="[[size]]" autocapitalize$="[[autocapitalize]]" autocorrect$="[[autocorrect]]">
+
+      <content select="[suffix]"></content>
 
       <template is="dom-if" if="[[errorMessage]]">
         <paper-input-error>[[errorMessage]]</paper-input-error>
@@ -3937,7 +3976,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <dom-module id="paper-checkbox" assetpath="bower_components/paper-checkbox/">
   <style>
-/*
+/**
+@license
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
 This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
 The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
@@ -4166,36 +4206,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 </dom-module>
 <dom-module id="apps-list" assetpath="bower_components/cork/">
 
-  <style>
+<style>
+  [card] {
+    margin: 16px;
+    padding: 16px;
+    @apply(--layout-vertical --layout-center-center);
+  }
 
-    paper-button[raised].colorful {
-      background: #4285f4;
-      color: #fff;
-      @apply(--layout-vertical --layout-center-center);
-    }
-
-    [card] {
-      width: 90%;
-      margin: 16px auto;
-      padding: 16px;
-      @apply(--layout-vertical --layout-center-center);
-    }
-
-    [centerButton] {
-      text-align: center;
-      padding: 16px;
-    }
-
-  </style>
+  [centerButton] {
+    text-align: center;
+    padding: 16px;
+  }
+</style>
 
   <template>
 
     <more-route context="" name="apps" params="{{params}}"></more-route>
 
     <iron-ajax id="my_iron" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponse"></iron-ajax>
-    <paper-material levation="1">
-      <div>
-       <table card="">
+    <paper-material card="" levation="1">
+       <table>
   				<tbody><tr>
   					<th>Position</th>
   					<th><iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon></th>
@@ -4227,11 +4257,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   				  </tr>
           </template>
        </tbody></table>
-     </div>
+    </paper-material>
      <div centerbutton="">
          <paper-fab icon="add" on-click="open_new"></paper-fab>
      </div>
-    </paper-material>
   </template>
 </dom-module>
 
@@ -4242,15 +4271,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       display: block;
     }
 
-    paper-button[raised].colorful {
-      background: #4285f4;
-      color: #fff;
-      @apply(--layout-vertical --layout-center-center);
-    }
-
     [card] {
-      width: 600px;
-      margin: 16px auto;
+      margin: 16px;
       padding: 16px;
       @apply(--layout-vertical --layout-center-center);
     }
@@ -4344,16 +4366,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="blocks-list" assetpath="bower_components/cork/">
 
   <style>
-
-    paper-button[raised].colorful {
-      background: #4285f4;
-      color: #fff;
-      @apply(--layout-vertical --layout-center-center);
-    }
-
     [card] {
-      width: 90%;
-      margin: 16px auto;
+      margin: 16px;
       padding: 16px;
       @apply(--layout-vertical --layout-center-center);
     }
@@ -4368,22 +4382,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <more-route context="" name="blocks" params="{{params}}"></more-route>
 
-    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="get_ajax" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponseGet"></iron-ajax>
+    <iron-ajax id="delete_ajax" url="{{deleteurl}}" method="DELETE" handle-as="json" on-response="handleResponseDelete"></iron-ajax>
 
 
           <template is="dom-repeat" items="{{onlineItems}}">
             <paper-material card="" elevation="1">
-            <div on-click="open_me">
+
+            <div class="layout horizontal center">
+              <div class="flex">
     						<span style="font-size: 16px;">{{item.content}}</span><br>
     						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
                 <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+              </div>
+              <div>
+                <a href="{{openURL(item.id)}}">
+                  <paper-fab mini="" icon="create"></paper-fab>
+                </a>
+                <paper-fab mini="" icon="delete" on-click="closeURL"></paper-fab>
+              </div>
             </div>
             </paper-material>
           </template>
        
 
        <div centerbutton="">
-         <paper-fab icon="add" on-click="open_new"></paper-fab>
+         <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
        </div>
 
   </template>
@@ -4392,15 +4416,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="blocks-detail" assetpath="bower_components/cork/">
 
   <style>
-    paper-button[raised].colorful {
-      background: #4285f4;
-      color: #fff;
-      @apply(--layout-vertical --layout-center-center);
-    }
 
     [card] {
-      width: 600px;
-      margin: 16px auto;
+      margin: 16px;
       padding: 16px;
       @apply(--layout-vertical --layout-center-center);
     }
@@ -4444,16 +4462,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <dom-module id="templates-list" assetpath="bower_components/cork/">
 
   <style>
-
-    paper-button[raised].colorful {
-      background: #4285f4;
-      color: #fff;
-      @apply(--layout-vertical --layout-center-center);
-    }
-
     [card] {
-      width: 90%;
-      margin: 16px auto;
+      margin: 16px;
       padding: 16px;
       @apply(--layout-vertical --layout-center-center);
     }
@@ -4468,23 +4478,31 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <more-route context="" name="templates" params="{{params}}"></more-route>
 
-    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="get_ajax" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="delete_ajax" url="{{deleteurl}}" method="DELETE" handle-as="json" on-response="handleResponseDelete"></iron-ajax>
 
           <template is="dom-repeat" items="{{onlineItems}}">
             <paper-material card="" elevation="1">
-            <div on-click="open_me">
-              <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
-              <span style="font-size: 16px;">{{item.content}}</span><br>
-    						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
-                <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
-              <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
-          </div>
-            </paper-material>
-          </template>
+              <div class="layout horizontal center">
+                <div class="flex">
+                  <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
+                  <span style="font-size: 16px;">{{item.content}}</span><br>
+    						  <span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+                  <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+                  <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
+                </div>
+                <div>
+                  <a href="{{openURL(item.id)}}">
+                    <paper-fab mini="" icon="create"></paper-fab>
+                  </a>
+                  <paper-fab mini="" icon="delete" on-click="closeURL"></paper-fab>
+              </div>
+            
+          </div></paper-material></template>
        
 
        <div centerbutton="">
-         <paper-fab icon="add" on-click="open_new"></paper-fab>
+         <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
        </div>
 
   </template>
@@ -4566,15 +4584,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <style>
 
-    paper-button[raised].colorful {
-      background: #4285f4;
-      color: #fff;
-      @apply(--layout-vertical --layout-center-center);
-    }
-
     [card] {
-      width: 90%;
-      margin: 16px auto;
+      margin: 16px;
       padding: 16px;
       @apply(--layout-vertical --layout-center-center);
     }
@@ -4588,23 +4599,32 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <more-route context="" name="covers" params="{{params}}"></more-route>
 
-    <iron-ajax id="my_iron" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="get_ajax" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="delete_ajax" url="{{deleteurl}}" method="DELETE" handle-as="json" on-response="handleResponseDelete"></iron-ajax>
 
     <template is="dom-repeat" items="{{onlineItems}}">
       <paper-material card="" elevation="1">
-      <div on-click="open_me">
-        <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
-        <span style="font-size: 16px;">{{item.content}}</span><br>
-					<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
-          <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
-        <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
-      </div>
+        <div class="layout horizontal center">
+          <div class="flex">
+            <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
+            <span style="font-size: 16px;">{{item.content}}</span><br>
+					  <span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+            <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+            <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
+          </div>
+          <div>
+            <a href="{{openURL(item.id)}}">
+              <paper-fab mini="" icon="create"></paper-fab>
+            </a>
+            <paper-fab mini="" icon="delete" on-click="closeURL"></paper-fab>
+          </div>
+        </div>
       </paper-material>
     </template>
 
-   <div centerbutton="">
-         <paper-fab icon="add" on-click="open_new"></paper-fab>
-   </div>
+    <div centerbutton="">
+      <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
+    </div>
 
   </template>
 </dom-module>
@@ -4675,8 +4695,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
 
     [card] {
-      width: 600px;
-      margin: 16px auto;
+      margin: 16px;
       padding: 16px;
       @apply(--layout-vertical --layout-center-center);
     }
@@ -4693,22 +4712,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <iron-ajax auto="" url="{{serverurl}}" handle-as="json" on-response="handleResponse"></iron-ajax>
 
-          <template is="dom-repeat" items="{{onlineItems}}">
-            <paper-material card="" elevation="1">
-            <div on-click="open_me">
-              <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
-              <span style="font-size: 16px;">{{item.content}}</span><br>
-    						<span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
-                <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
-              <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
+    <template is="dom-repeat" items="{{onlineItems}}">
+      <paper-material card="" elevation="1">
+        <div class="layout horizontal center">
+          <div class="flex">
+            <span style="font-size: 12px; color: grey; ">{{item.description}}</span><br>
+            <span style="font-size: 16px;">{{item.content}}</span><br>
+    		    <span style="font-size: 12px; color: grey; ">{{item.language}}</span><br>
+            <span style="font-size: 12px; color: grey; ">{{item.tags}}</span><br>
+            <span style="font-size: 12px; color: grey; ">{{item.pieces}}</span><br>
           </div>
-            </paper-material>
-          </template>
-       
+          <div>
+            <a href="{{openURL(item.id)}}"> <paper-button tabindex="0">use</paper-button> </a>
+          </div>
+      
+    </div></paper-material></template>
 
-       <div centerbutton="">
-           <paper-button tabindex="0" raised="" class="colorful" on-click="open_empty">empty</paper-button>
-       </div>
+    <div centerbutton="">
+      <a href="{{newURL()}}"> <paper-button tabindex="0" raised="" class="colorful">empty</paper-button> </a>
+    </div>
 
   </template>
 </dom-module>

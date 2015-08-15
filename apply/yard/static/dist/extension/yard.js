@@ -7,7 +7,7 @@
  * Code distributed by Google as part of the polymer project is also
  * subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
  */
-// @version 0.7.7
+// @version 0.7.11
 window.WebComponents = window.WebComponents || {};
 
 (function(scope) {
@@ -1265,7 +1265,7 @@ window.HTMLImports.addModule(function(scope) {
   var IMPORT_SELECTOR = "link[rel=" + IMPORT_LINK_TYPE + "]";
   var importParser = {
     documentSelectors: IMPORT_SELECTOR,
-    importsSelectors: [ IMPORT_SELECTOR, "link[rel=stylesheet]", "style", "script:not([type])", 'script[type="application/javascript"]', 'script[type="text/javascript"]' ].join(","),
+    importsSelectors: [ IMPORT_SELECTOR, "link[rel=stylesheet]:not([type])", "style:not([type])", "script:not([type])", 'script[type="application/javascript"]', 'script[type="text/javascript"]' ].join(","),
     map: {
       link: "parseLink",
       script: "parseScript",
@@ -1316,6 +1316,7 @@ window.HTMLImports.addModule(function(scope) {
       }
     },
     parseImport: function(elt) {
+      elt.import = elt.__doc;
       if (window.HTMLImports.__importsParsingHook) {
         window.HTMLImports.__importsParsingHook(elt);
       }
@@ -1378,6 +1379,8 @@ window.HTMLImports.addModule(function(scope) {
     trackElement: function(elt, callback) {
       var self = this;
       var done = function(e) {
+        elt.removeEventListener("load", done);
+        elt.removeEventListener("error", done);
         if (callback) {
           callback(e);
         }
@@ -1433,7 +1436,7 @@ window.HTMLImports.addModule(function(scope) {
         for (var i = 0, l = nodes.length, p = 0, n; i < l && (n = nodes[i]); i++) {
           if (!this.isParsed(n)) {
             if (this.hasResource(n)) {
-              return nodeIsImport(n) ? this.nextToParseInDoc(n.import, n) : n;
+              return nodeIsImport(n) ? this.nextToParseInDoc(n.__doc, n) : n;
             } else {
               return;
             }
@@ -1456,7 +1459,7 @@ window.HTMLImports.addModule(function(scope) {
       return this.dynamicElements.indexOf(elt) >= 0;
     },
     hasResource: function(node) {
-      if (nodeIsImport(node) && node.import === undefined) {
+      if (nodeIsImport(node) && node.__doc === undefined) {
         return false;
       }
       return true;
@@ -1530,7 +1533,7 @@ window.HTMLImports.addModule(function(scope) {
           }
           this.documents[url] = doc;
         }
-        elt.import = doc;
+        elt.__doc = doc;
       }
       parser.parseNext();
     },
@@ -1912,6 +1915,7 @@ window.CustomElements.addModule(function(scope) {
   }
   scope.watchShadow = watchShadow;
   scope.upgradeDocumentTree = upgradeDocumentTree;
+  scope.upgradeDocument = upgradeDocument;
   scope.upgradeSubtree = addedSubtree;
   scope.upgradeAll = addedNode;
   scope.attached = attached;
@@ -1923,11 +1927,9 @@ window.CustomElements.addModule(function(scope) {
   function upgrade(node, isAttached) {
     if (!node.__upgraded__ && node.nodeType === Node.ELEMENT_NODE) {
       var is = node.getAttribute("is");
-      var definition = scope.getRegisteredDefinition(is || node.localName);
+      var definition = scope.getRegisteredDefinition(node.localName) || scope.getRegisteredDefinition(is);
       if (definition) {
-        if (is && definition.tag == node.localName) {
-          return upgradeWithDefinition(node, definition, isAttached);
-        } else if (!is && !definition.extends) {
+        if (is && definition.tag == node.localName || !is && !definition.extends) {
           return upgradeWithDefinition(node, definition, isAttached);
         }
       }
@@ -2221,6 +2223,7 @@ window.CustomElements.addModule(function(scope) {
     initializeModules();
   }
   var upgradeDocumentTree = scope.upgradeDocumentTree;
+  var upgradeDocument = scope.upgradeDocument;
   if (!window.wrap) {
     if (window.ShadowDOMPolyfill) {
       window.wrap = window.ShadowDOMPolyfill.wrapIfNeeded;
@@ -2231,22 +2234,26 @@ window.CustomElements.addModule(function(scope) {
       };
     }
   }
+  if (window.HTMLImports) {
+    window.HTMLImports.__importsParsingHook = function(elt) {
+      if (elt.import) {
+        upgradeDocument(wrap(elt.import));
+      }
+    };
+  }
   function bootstrap() {
     upgradeDocumentTree(window.wrap(document));
-    if (window.HTMLImports) {
-      window.HTMLImports.__importsParsingHook = function(elt) {
-        upgradeDocumentTree(window.wrap(elt.import));
-      };
-    }
     window.CustomElements.ready = true;
-    setTimeout(function() {
-      window.CustomElements.readyTime = Date.now();
-      if (window.HTMLImports) {
-        window.CustomElements.elapsed = window.CustomElements.readyTime - window.HTMLImports.readyTime;
-      }
-      document.dispatchEvent(new CustomEvent("WebComponentsReady", {
-        bubbles: true
-      }));
+    requestAnimationFrame(function() {
+      setTimeout(function() {
+        window.CustomElements.readyTime = Date.now();
+        if (window.HTMLImports) {
+          window.CustomElements.elapsed = window.CustomElements.readyTime - window.HTMLImports.readyTime;
+        }
+        document.dispatchEvent(new CustomEvent("WebComponentsReady", {
+          bubbles: true
+        }));
+      });
     });
   }
   if (isIE11OrOlder && typeof window.CustomEvent !== "function") {
@@ -2279,15 +2286,43 @@ window.CustomElements.addModule(function(scope) {
 if (typeof HTMLTemplateElement === "undefined") {
   (function() {
     var TEMPLATE_TAG = "template";
+    var contentDoc = document.implementation.createHTMLDocument("template");
+    var canDecorate = true;
     HTMLTemplateElement = function() {};
     HTMLTemplateElement.prototype = Object.create(HTMLElement.prototype);
     HTMLTemplateElement.decorate = function(template) {
       if (!template.content) {
-        template.content = template.ownerDocument.createDocumentFragment();
+        template.content = contentDoc.createDocumentFragment();
       }
       var child;
       while (child = template.firstChild) {
         template.content.appendChild(child);
+      }
+      if (canDecorate) {
+        try {
+          Object.defineProperty(template, "innerHTML", {
+            get: function() {
+              var o = "";
+              for (var e = this.content.firstChild; e; e = e.nextSibling) {
+                o += e.outerHTML || escapeData(e.data);
+              }
+              return o;
+            },
+            set: function(text) {
+              contentDoc.body.innerHTML = text;
+              HTMLTemplateElement.bootstrap(contentDoc);
+              while (this.content.firstChild) {
+                this.content.removeChild(this.content.firstChild);
+              }
+              while (contentDoc.body.firstChild) {
+                this.content.appendChild(contentDoc.body.firstChild);
+              }
+            },
+            configurable: true
+          });
+        } catch (err) {
+          canDecorate = false;
+        }
       }
     };
     HTMLTemplateElement.bootstrap = function(doc) {
@@ -2308,6 +2343,25 @@ if (typeof HTMLTemplateElement === "undefined") {
       }
       return el;
     };
+    var escapeDataRegExp = /[&\u00A0<>]/g;
+    function escapeReplace(c) {
+      switch (c) {
+       case "&":
+        return "&amp;";
+
+       case "<":
+        return "&lt;";
+
+       case ">":
+        return "&gt;";
+
+       case " ":
+        return "&nbsp;";
+      }
+    }
+    function escapeData(s) {
+      return s.replace(escapeDataRegExp, escapeReplace);
+    }
   })();
 }
 
@@ -2406,6 +2460,38 @@ get: function () {
 return (document._currentScript || document.currentScript).ownerDocument;
 }
 });
+Polymer.RenderStatus = {
+_ready: false,
+_callbacks: [],
+whenReady: function (cb) {
+if (this._ready) {
+cb();
+} else {
+this._callbacks.push(cb);
+}
+},
+_makeReady: function () {
+this._ready = true;
+this._callbacks.forEach(function (cb) {
+cb();
+});
+this._callbacks = [];
+},
+_catchFirstRender: function () {
+requestAnimationFrame(function () {
+Polymer.RenderStatus._makeReady();
+});
+}
+};
+if (window.HTMLImports) {
+HTMLImports.whenReady(function () {
+Polymer.RenderStatus._catchFirstRender();
+});
+} else {
+Polymer.RenderStatus._catchFirstRender();
+}
+Polymer.ImportStatus = Polymer.RenderStatus;
+Polymer.ImportStatus.whenLoaded = Polymer.ImportStatus.whenReady;
 Polymer.Base = {
 __isPolymerInstance__: true,
 _addFeature: function (feature) {
@@ -2422,16 +2508,21 @@ this._doBehavior('created');
 this._initFeatures();
 },
 attachedCallback: function () {
+Polymer.RenderStatus.whenReady(function () {
 this.isAttached = true;
 this._doBehavior('attached');
+}.bind(this));
 },
 detachedCallback: function () {
 this.isAttached = false;
 this._doBehavior('detached');
 },
 attributeChangedCallback: function (name) {
-this._setAttributeToProperty(this, name);
+this._attributeChangedImpl(name);
 this._doBehavior('attributeChanged', arguments);
+},
+_attributeChangedImpl: function (name) {
+this._setAttributeToProperty(this, name);
 },
 extend: function (prototype, api) {
 if (prototype && api) {
@@ -2490,6 +2581,7 @@ return Boolean(obj && obj.__isPolymerInstance__);
 Polymer.telemetry.instanceCount = 0;
 (function () {
 var modules = {};
+var lcModules = {};
 var DomModule = function () {
 return document.createElement('dom-module');
 };
@@ -2504,10 +2596,11 @@ var id = id || this.id || this.getAttribute('name') || this.getAttribute('is');
 if (id) {
 this.id = id;
 modules[id] = this;
+lcModules[id.toLowerCase()] = this;
 }
 },
 import: function (id, selector) {
-var m = modules[id];
+var m = modules[id] || lcModules[id.toLowerCase()];
 if (!m) {
 forceDocumentUpgrade();
 m = modules[id];
@@ -2519,19 +2612,14 @@ return m;
 }
 });
 var cePolyfill = window.CustomElements && !CustomElements.useNative;
-if (cePolyfill) {
-var ready = CustomElements.ready;
-CustomElements.ready = true;
-}
 document.registerElement('dom-module', DomModule);
-if (cePolyfill) {
-CustomElements.ready = ready;
-}
 function forceDocumentUpgrade() {
 if (cePolyfill) {
 var script = document._currentScript || document.currentScript;
-if (script) {
-CustomElements.upgradeAll(script.ownerDocument);
+var doc = script && script.ownerDocument;
+if (doc && !doc.__customElementsForceUpgraded) {
+doc.__customElementsForceUpgraded = true;
+CustomElements.upgradeAll(doc);
 }
 }
 }
@@ -2544,6 +2632,9 @@ if (module.localName === 'dom-module') {
 var id = module.id || module.getAttribute('name') || module.getAttribute('is');
 this.is = id;
 }
+}
+if (this.is) {
+this.is = this.is.toLowerCase();
 }
 }
 });
@@ -2832,7 +2923,7 @@ debouncer.stop();
 }
 }
 });
-Polymer.version = '1.0.8';
+Polymer.version = '1.1.0';
 Polymer.Base._addFeature({
 _registerFeatures: function () {
 this._prepIs();
@@ -2856,6 +2947,10 @@ _prepTemplate: function () {
 this._template = this._template || Polymer.DomModule.import(this.is, 'template');
 if (this._template && this._template.hasAttribute('is')) {
 this._warn(this._logf('_prepTemplate', 'top-level Polymer template ' + 'must not be a type-extension, found', this._template, 'Move inside simple <template>.'));
+}
+if (this._template && !this._template.content && HTMLTemplateElement.bootstrap) {
+HTMLTemplateElement.decorate(this._template);
+HTMLTemplateElement.bootstrap(this._template.content);
 }
 },
 _stampTemplate: function () {
@@ -3277,6 +3372,14 @@ if (this.patch) {
 this.patch();
 }
 };
+if (window.wrap && Settings.useShadow && !Settings.useNativeShadow) {
+DomApi = function (node) {
+this.node = wrap(node);
+if (this.patch) {
+this.patch();
+}
+};
+}
 DomApi.prototype = {
 flush: function () {
 Polymer.dom.flush();
@@ -3289,11 +3392,14 @@ Polymer.dom.addDebouncer(host.debounce('_distribute', host._distributeContent));
 },
 appendChild: function (node) {
 var handled;
+this._ensureContentLogicalInfo(node);
 this._removeNodeFromHost(node, true);
 if (this._nodeIsInLogicalTree(this.node)) {
 this._addLogicalInfo(node, this.node);
 this._addNodeToHost(node);
 handled = this._maybeDistribute(node, this.node);
+} else {
+this._addNodeToHost(node);
 }
 if (!handled && !this._tryRemoveUndistributedNode(node)) {
 var container = this.node._isShadyRoot ? this.node.host : this.node;
@@ -3307,9 +3413,9 @@ if (!ref_node) {
 return this.appendChild(node);
 }
 var handled;
+this._ensureContentLogicalInfo(node);
 this._removeNodeFromHost(node, true);
 if (this._nodeIsInLogicalTree(this.node)) {
-saveLightChildrenIfNeeded(this.node);
 var children = this.childNodes;
 var index = children.indexOf(ref_node);
 if (index < 0) {
@@ -3318,6 +3424,8 @@ throw Error('The ref_node to be inserted before is not a child ' + 'of this node
 this._addLogicalInfo(node, this.node, index);
 this._addNodeToHost(node);
 handled = this._maybeDistribute(node, this.node);
+} else {
+this._addNodeToHost(node);
 }
 if (!handled && !this._tryRemoveUndistributedNode(node)) {
 ref_node = ref_node.localName === CONTENT ? this._firstComposedNode(ref_node) : ref_node;
@@ -3335,6 +3443,8 @@ var handled;
 if (this._nodeIsInLogicalTree(this.node)) {
 this._removeNodeFromHost(node);
 handled = this._maybeDistribute(node, this.node);
+} else {
+this._removeNodeFromHost(node);
 }
 if (!handled) {
 var container = this.node._isShadyRoot ? this.node.host : this.node;
@@ -3349,6 +3459,9 @@ replaceChild: function (node, ref_node) {
 this.insertBefore(node, ref_node);
 this.removeChild(ref_node);
 return node;
+},
+_hasCachedOwnerRoot: function (node) {
+return Boolean(node._ownerShadyRoot !== undefined);
 },
 getOwnerRoot: function () {
 return this._ownerShadyRootForNode(this.node);
@@ -3400,10 +3513,27 @@ return true;
 }
 },
 _updateInsertionPoints: function (host) {
-host.shadyRoot._insertionPoints = factory(host.shadyRoot).querySelectorAll(CONTENT);
+var i$ = host.shadyRoot._insertionPoints = factory(host.shadyRoot).querySelectorAll(CONTENT);
+for (var i = 0, c; i < i$.length; i++) {
+c = i$[i];
+saveLightChildrenIfNeeded(c);
+saveLightChildrenIfNeeded(factory(c).parentNode);
+}
 },
 _nodeIsInLogicalTree: function (node) {
-return Boolean(node._lightParent !== undefined || node._isShadyRoot || this._ownerShadyRootForNode(node) || node.shadyRoot);
+return Boolean(node._lightParent !== undefined || node._isShadyRoot || node.shadyRoot);
+},
+_ensureContentLogicalInfo: function (node) {
+if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+saveLightChildrenIfNeeded(this.node);
+var c$ = Array.prototype.slice.call(node.childNodes);
+for (var i = 0, n; i < c$.length && (n = c$[i]); i++) {
+this._ensureContentLogicalInfo(n);
+}
+} else if (node.localName === CONTENT) {
+saveLightChildrenIfNeeded(this.node);
+saveLightChildrenIfNeeded(node);
+}
 },
 _parentNeedsDistribution: function (parent) {
 return parent && parent.shadyRoot && hasInsertionPoint(parent.shadyRoot);
@@ -3457,14 +3587,12 @@ node = factory(node).parentNode;
 }
 },
 _addNodeToHost: function (node) {
-var checkNode = node.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? node.firstChild : node;
-var root = this._ownerShadyRootForNode(checkNode);
+var root = this.getOwnerRoot();
 if (root) {
 root.host._elementAdd(node);
 }
 },
 _addLogicalInfo: function (node, container, index) {
-saveLightChildrenIfNeeded(container);
 var children = factory(container).childNodes;
 index = index === undefined ? children.length : index;
 if (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
@@ -3488,8 +3616,7 @@ children.splice(index, 1);
 node._lightParent = null;
 },
 _removeOwnerShadyRoot: function (node) {
-var hasCachedRoot = factory(node).getOwnerRoot() !== undefined;
-if (hasCachedRoot) {
+if (this._hasCachedOwnerRoot(node)) {
 var c$ = factory(node).childNodes;
 for (var i = 0, l = c$.length, n; i < l && (n = c$[i]); i++) {
 this._removeOwnerShadyRoot(n);
@@ -3992,8 +4119,13 @@ this.shadyRoot = this.root;
 this.shadyRoot._distributionClean = false;
 this.shadyRoot._isShadyRoot = true;
 this.shadyRoot._dirtyRoots = [];
-this.shadyRoot._insertionPoints = !this._notes || this._notes._hasContent ? this.shadyRoot.querySelectorAll('content') : [];
+var i$ = this.shadyRoot._insertionPoints = !this._notes || this._notes._hasContent ? this.shadyRoot.querySelectorAll('content') : [];
 saveLightChildrenIfNeeded(this.shadyRoot);
+for (var i = 0, c; i < i$.length; i++) {
+c = i$[i];
+saveLightChildrenIfNeeded(c);
+saveLightChildrenIfNeeded(c.parentNode);
+}
 this.shadyRoot.host = this;
 },
 get domHost() {
@@ -4228,14 +4360,12 @@ if (newChildParent !== parentNode) {
 removeFromComposedParent(newChildParent, newChild);
 }
 remove(newChild);
-saveLightChildrenIfNeeded(parentNode);
 nativeInsertBefore.call(parentNode, newChild, refChild || null);
 newChild._composedParent = parentNode;
 }
 function remove(node) {
 var parentNode = getComposedParent(node);
 if (parentNode) {
-saveLightChildrenIfNeeded(parentNode);
 node._composedParent = null;
 nativeRemoveChild.call(parentNode, node);
 }
@@ -4720,6 +4850,19 @@ var MOUSE_EVENTS = [
 'mouseup',
 'click'
 ];
+var MOUSE_WHICH_TO_BUTTONS = [
+0,
+1,
+4,
+2
+];
+var MOUSE_HAS_BUTTONS = function () {
+try {
+return new MouseEvent('test', { buttons: 1 }).buttons === 1;
+} catch (e) {
+return false;
+}
+}();
 var IS_TOUCH_ONLY = navigator.userAgent.match(/iP(?:[oa]d|hone)|Android/);
 var mouseCanceller = function (mouseEvent) {
 mouseEvent[HANDLED_OBJ] = { skip: true };
@@ -4758,6 +4901,34 @@ POINTERSTATE.mouse.mouseIgnoreJob = null;
 };
 POINTERSTATE.mouse.mouseIgnoreJob = Polymer.Debounce(POINTERSTATE.mouse.mouseIgnoreJob, unset, MOUSE_TIMEOUT);
 }
+function hasLeftMouseButton(ev) {
+var type = ev.type;
+if (MOUSE_EVENTS.indexOf(type) === -1) {
+return false;
+}
+if (type === 'mousemove') {
+var buttons = ev.buttons === undefined ? 1 : ev.buttons;
+if (ev instanceof window.MouseEvent && !MOUSE_HAS_BUTTONS) {
+buttons = MOUSE_WHICH_TO_BUTTONS[ev.which] || 0;
+}
+return Boolean(buttons & 1);
+} else {
+var button = ev.button === undefined ? 0 : ev.button;
+return button === 0;
+}
+}
+function isSyntheticClick(ev) {
+if (ev.type === 'click') {
+if (ev.detail === 0) {
+return true;
+}
+var t = Gestures.findOriginalTarget(ev);
+var bcr = t.getBoundingClientRect();
+var x = ev.pageX, y = ev.pageY;
+return !(x >= bcr.left && x <= bcr.right && (y >= bcr.top && y <= bcr.bottom));
+}
+return false;
+}
 var POINTERSTATE = {
 mouse: {
 target: null,
@@ -4781,6 +4952,16 @@ break;
 }
 }
 return ta;
+}
+function trackDocument(stateObj, movefn, upfn) {
+stateObj.movefn = movefn;
+stateObj.upfn = upfn;
+document.addEventListener('mousemove', movefn);
+document.addEventListener('mouseup', upfn);
+}
+function untrackDocument(stateObj) {
+document.removeEventListener('mousemove', stateObj.movefn);
+document.removeEventListener('mouseup', stateObj.upfn);
 }
 var Gestures = {
 gestures: {},
@@ -4987,18 +5168,48 @@ deps: [
 'touchstart',
 'touchend'
 ],
+flow: {
+start: [
+'mousedown',
+'touchstart'
+],
+end: [
+'mouseup',
+'touchend'
+]
+},
 emits: [
 'down',
 'up'
 ],
+info: {
+movefn: function () {
+},
+upfn: function () {
+}
+},
+reset: function () {
+untrackDocument(this.info);
+},
 mousedown: function (e) {
+if (!hasLeftMouseButton(e)) {
+return;
+}
 var t = Gestures.findOriginalTarget(e);
 var self = this;
-var upfn = function upfn(e) {
+var movefn = function movefn(e) {
+if (!hasLeftMouseButton(e)) {
 self.fire('up', t, e);
-document.removeEventListener('mouseup', upfn);
+untrackDocument(self.info);
+}
 };
-document.addEventListener('mouseup', upfn);
+var upfn = function upfn(e) {
+if (hasLeftMouseButton(e)) {
+self.fire('up', t, e);
+}
+untrackDocument(self.info);
+};
+trackDocument(this.info, movefn, upfn);
 this.fire('down', t, e);
 },
 touchstart: function (e) {
@@ -5049,6 +5260,10 @@ this.moves.shift();
 }
 this.moves.push(move);
 },
+movefn: function () {
+},
+upfn: function () {
+},
 prevent: false
 },
 reset: function () {
@@ -5058,6 +5273,7 @@ this.info.moves = [];
 this.info.x = 0;
 this.info.y = 0;
 this.info.prevent = false;
+untrackDocument(this.info);
 },
 hasMovedEnough: function (x, y) {
 if (this.info.prevent) {
@@ -5071,6 +5287,9 @@ var dy = Math.abs(this.info.y - y);
 return dx >= TRACK_DISTANCE || dy >= TRACK_DISTANCE;
 },
 mousedown: function (e) {
+if (!hasLeftMouseButton(e)) {
+return;
+}
 var t = Gestures.findOriginalTarget(e);
 var self = this;
 var movefn = function movefn(e) {
@@ -5081,6 +5300,10 @@ self.info.addMove({
 x: x,
 y: y
 });
+if (!hasLeftMouseButton(e)) {
+self.info.state = 'end';
+untrackDocument(self.info);
+}
 self.fire(t, e);
 self.info.started = true;
 }
@@ -5090,11 +5313,9 @@ if (self.info.started) {
 Gestures.prevent('tap');
 movefn(e);
 }
-document.removeEventListener('mousemove', movefn);
-document.removeEventListener('mouseup', upfn);
+untrackDocument(self.info);
 };
-document.addEventListener('mousemove', movefn);
-document.addEventListener('mouseup', upfn);
+trackDocument(this.info, movefn, upfn);
 this.info.x = e.clientX;
 this.info.y = e.clientY;
 },
@@ -5189,10 +5410,14 @@ this.info.x = e.clientX;
 this.info.y = e.clientY;
 },
 mousedown: function (e) {
+if (hasLeftMouseButton(e)) {
 this.save(e);
+}
 },
 click: function (e) {
+if (hasLeftMouseButton(e)) {
 this.forward(e);
+}
 },
 touchstart: function (e) {
 this.save(e.changedTouches[0]);
@@ -5204,7 +5429,7 @@ forward: function (e) {
 var dx = Math.abs(e.clientX - this.info.x);
 var dy = Math.abs(e.clientY - this.info.y);
 var t = Gestures.findOriginalTarget(e);
-if (isNaN(dx) || isNaN(dy) || dx <= TAP_DISTANCE && dy <= TAP_DISTANCE) {
+if (isNaN(dx) || isNaN(dy) || dx <= TAP_DISTANCE && dy <= TAP_DISTANCE || isSyntheticClick(e)) {
 if (!this.info.prevent) {
 Gestures.fire(t, 'tap', {
 x: e.clientX,
@@ -5825,7 +6050,7 @@ trigger: trigger
 });
 },
 _parseMethod: function (expression) {
-var m = expression.match(/(\w*)\((.*)\)/);
+var m = expression.match(/([^\s]+)\((.*)\)/);
 if (m) {
 var sig = {
 method: m[1],
@@ -5919,6 +6144,10 @@ this._handlers = [];
 },
 _marshalAttributes: function () {
 this._takeAttributesToModel(this._config);
+},
+_attributeChangedImpl: function (name) {
+var model = this._clientsReadied ? this : this._config;
+this._setAttributeToProperty(model, name);
 },
 _configValue: function (name, value) {
 this._config[name] = value;
@@ -6199,36 +6428,56 @@ var array = this.get(path);
 var args = Array.prototype.slice.call(arguments, 1);
 var len = array.length;
 var ret = array.push.apply(array, args);
+if (args.length) {
 this._notifySplice(array, path, len, args.length, []);
+}
 return ret;
 },
 pop: function (path) {
 var array = this.get(path);
+var hadLength = Boolean(array.length);
 var args = Array.prototype.slice.call(arguments, 1);
-var rem = array.slice(-1);
 var ret = array.pop.apply(array, args);
-this._notifySplice(array, path, array.length, 0, rem);
+if (hadLength) {
+this._notifySplice(array, path, array.length, 0, [ret]);
+}
 return ret;
 },
 splice: function (path, start, deleteCount) {
 var array = this.get(path);
+if (start < 0) {
+start = array.length - Math.floor(-start);
+} else {
+start = Math.floor(start);
+}
+if (!start) {
+start = 0;
+}
 var args = Array.prototype.slice.call(arguments, 1);
 var ret = array.splice.apply(array, args);
-this._notifySplice(array, path, start, args.length - 2, ret);
+var addedCount = Math.max(args.length - 2, 0);
+if (addedCount || ret.length) {
+this._notifySplice(array, path, start, addedCount, ret);
+}
 return ret;
 },
 shift: function (path) {
 var array = this.get(path);
+var hadLength = Boolean(array.length);
 var args = Array.prototype.slice.call(arguments, 1);
 var ret = array.shift.apply(array, args);
+if (hadLength) {
 this._notifySplice(array, path, 0, 0, [ret]);
+}
 return ret;
 },
 unshift: function (path) {
 var array = this.get(path);
 var args = Array.prototype.slice.call(arguments, 1);
 var ret = array.unshift.apply(array, args);
+if (args.length) {
 this._notifySplice(array, path, 0, args.length, []);
+}
 return ret;
 }
 });
@@ -6251,7 +6500,7 @@ text = this._clean(text);
 return this._parseCss(this._lex(text), text);
 },
 _clean: function (cssText) {
-return cssText.replace(rx.comments, '').replace(rx.port, '');
+return cssText.replace(this._rx.comments, '').replace(this._rx.port, '');
 },
 _lex: function (text) {
 var root = {
@@ -6290,15 +6539,15 @@ var ss = node.previous ? node.previous.end : node.parent.start;
 t = text.substring(ss, node.start - 1);
 t = t.substring(t.lastIndexOf(';') + 1);
 var s = node.parsedSelector = node.selector = t.trim();
-node.atRule = s.indexOf(AT_START) === 0;
+node.atRule = s.indexOf(this.AT_START) === 0;
 if (node.atRule) {
-if (s.indexOf(MEDIA_START) === 0) {
+if (s.indexOf(this.MEDIA_START) === 0) {
 node.type = this.types.MEDIA_RULE;
-} else if (s.match(rx.keyframesRule)) {
+} else if (s.match(this._rx.keyframesRule)) {
 node.type = this.types.KEYFRAMES_RULE;
 }
 } else {
-if (s.indexOf(VAR_START) === 0) {
+if (s.indexOf(this.VAR_START) === 0) {
 node.type = this.types.MIXIN_RULE;
 } else {
 node.type = this.types.STYLE_RULE;
@@ -6318,12 +6567,12 @@ text = text || '';
 var cssText = '';
 if (node.cssText || node.rules) {
 var r$ = node.rules;
-if (r$ && (preserveProperties || !hasMixinRules(r$))) {
+if (r$ && (preserveProperties || !this._hasMixinRules(r$))) {
 for (var i = 0, l = r$.length, r; i < l && (r = r$[i]); i++) {
 cssText = this.stringify(r, preserveProperties, cssText);
 }
 } else {
-cssText = preserveProperties ? node.cssText : removeCustomProps(node.cssText);
+cssText = preserveProperties ? node.cssText : this.removeCustomProps(node.cssText);
 cssText = cssText.trim();
 if (cssText) {
 cssText = '  ' + cssText + '\n';
@@ -6341,6 +6590,19 @@ text += this.CLOSE_BRACE + '\n\n';
 }
 return text;
 },
+_hasMixinRules: function (rules) {
+return rules[0].selector.indexOf(this.VAR_START) >= 0;
+},
+removeCustomProps: function (cssText) {
+cssText = this.removeCustomPropAssignment(cssText);
+return this.removeCustomPropApply(cssText);
+},
+removeCustomPropAssignment: function (cssText) {
+return cssText.replace(this._rx.customProp, '').replace(this._rx.mixinProp, '');
+},
+removeCustomPropApply: function (cssText) {
+return cssText.replace(this._rx.mixinApply, '').replace(this._rx.varApply, '');
+},
 types: {
 STYLE_RULE: 1,
 KEYFRAMES_RULE: 7,
@@ -6348,31 +6610,26 @@ MEDIA_RULE: 4,
 MIXIN_RULE: 1000
 },
 OPEN_BRACE: '{',
-CLOSE_BRACE: '}'
-};
-function hasMixinRules(rules) {
-return rules[0].selector.indexOf(VAR_START) >= 0;
-}
-function removeCustomProps(cssText) {
-return cssText.replace(rx.customProp, '').replace(rx.mixinProp, '').replace(rx.mixinApply, '').replace(rx.varApply, '');
-}
-var VAR_START = '--';
-var MEDIA_START = '@media';
-var AT_START = '@';
-var rx = {
-comments: /\/\*[^*]*\*+([^\/*][^*]*\*+)*\//gim,
+CLOSE_BRACE: '}',
+_rx: {
+comments: /\/\*[^*]*\*+([^/*][^*]*\*+)*\//gim,
 port: /@import[^;]*;/gim,
 customProp: /(?:^|[\s;])--[^;{]*?:[^{};]*?(?:[;\n]|$)/gim,
 mixinProp: /(?:^|[\s;])--[^;{]*?:[^{;]*?{[^}]*?}(?:[;\n]|$)?/gim,
 mixinApply: /@apply[\s]*\([^)]*?\)[\s]*(?:[;\n]|$)?/gim,
 varApply: /[^;:]*?:[^;]*var[^;]*(?:[;\n]|$)?/gim,
 keyframesRule: /^@[^\s]*keyframes/
+},
+VAR_START: '--',
+MEDIA_START: '@media',
+AT_START: '@'
 };
 return api;
 }();
 Polymer.StyleUtil = function () {
 return {
-MODULE_STYLES_SELECTOR: 'style, link[rel=import][type~=css]',
+MODULE_STYLES_SELECTOR: 'style, link[rel=import][type~=css], template',
+INCLUDE_ATTR: 'include',
 toCssText: function (rules, callback, preserveProperties) {
 if (typeof rules === 'string') {
 rules = this.parser.parse(rules);
@@ -6399,7 +6656,7 @@ clearStyleRules: function (style) {
 style.__cssRules = null;
 },
 forEachStyleRule: function (node, callback) {
-var s = node.selector;
+var s = node.parsedSelector;
 var skipRules = false;
 if (node.type === this.ruleTypes.STYLE_RULE) {
 callback(node);
@@ -6427,27 +6684,52 @@ afterNode = n$[n$.length - 1];
 target.insertBefore(style, afterNode && afterNode.nextSibling || target.firstChild);
 return style;
 },
+cssFromModules: function (moduleIds) {
+var modules = moduleIds.trim().split(' ');
+var cssText = '';
+for (var i = 0; i < modules.length; i++) {
+cssText += this.cssFromModule(modules[i]);
+}
+return cssText;
+},
 cssFromModule: function (moduleId) {
 var m = Polymer.DomModule.import(moduleId);
 if (m && !m._cssText) {
+m._cssText = this._cssFromElement(m);
+}
+return m && m._cssText || '';
+},
+_cssFromElement: function (element) {
 var cssText = '';
-var e$ = Array.prototype.slice.call(m.querySelectorAll(this.MODULE_STYLES_SELECTOR));
-for (var i = 0, e; i < e$.length; i++) {
+var content = element.content || element;
+var sourceDoc = element.ownerDocument;
+var e$ = Array.prototype.slice.call(content.querySelectorAll(this.MODULE_STYLES_SELECTOR));
+for (var i = 0, e, resolveDoc, addModule; i < e$.length; i++) {
 e = e$[i];
+resolveDoc = sourceDoc;
+addModule = null;
+if (e.localName === 'template') {
+cssText += this._cssFromElement(e);
+} else {
 if (e.localName === 'style') {
+addModule = e.getAttribute(this.INCLUDE_ATTR);
 e = e.__appliedElement || e;
 e.parentNode.removeChild(e);
 } else {
 e = e.import && e.import.body;
+resolveDoc = e.ownerDocument;
 }
 if (e) {
-cssText += Polymer.ResolveUrl.resolveCss(e.textContent, e.ownerDocument);
+cssText += this.resolveCss(e.textContent, resolveDoc);
 }
 }
-m._cssText = cssText;
+if (addModule) {
+cssText += this.cssFromModules(addModule);
 }
-return m && m._cssText || '';
+}
+return cssText;
 },
+resolveCss: Polymer.ResolveUrl.resolveCss,
 parser: Polymer.CssParse,
 ruleTypes: Polymer.CssParse.types
 };
@@ -6539,7 +6821,7 @@ var p$ = rule.selector.split(COMPLEX_SELECTOR_SEP);
 for (var i = 0, l = p$.length, p; i < l && (p = p$[i]); i++) {
 p$[i] = transformer.call(this, p, scope, hostScope);
 }
-rule.selector = p$.join(COMPLEX_SELECTOR_SEP);
+rule.selector = rule.transformedSelector = p$.join(COMPLEX_SELECTOR_SEP);
 },
 _transformComplexSelector: function (selector, scope, hostScope) {
 var stop = false;
@@ -6894,7 +7176,8 @@ return property && property.trim() || '';
 },
 valueForProperties: function (property, props) {
 var parts = property.split(';');
-for (var i = 0, p, m; i < parts.length && (p = parts[i]); i++) {
+for (var i = 0, p, m; i < parts.length; i++) {
+if (p = parts[i]) {
 m = p.match(this.rx.MIXIN_MATCH);
 if (m) {
 p = this.valueForProperty(props[m[1]], props);
@@ -6907,6 +7190,7 @@ pp[1] = this.valueForProperty(pp[1], props) || pp[1];
 p = pp.join(':');
 }
 parts[i] = p && p.lastIndexOf(';') === p.length - 1 ? p.slice(0, -1) : p || '';
+}
 }
 return parts.join(';');
 },
@@ -6927,7 +7211,7 @@ styleUtil.forRulesInStyles(styles, function (rule) {
 if (!rule.propertyInfo) {
 self.decorateRule(rule);
 }
-if (element && rule.propertyInfo.properties && matchesSelector.call(element, rule.selector)) {
+if (element && rule.propertyInfo.properties && matchesSelector.call(element, rule.transformedSelector || rule.parsedSelector)) {
 self.collectProperties(rule, props);
 addToBitMask(i, o);
 }
@@ -7325,9 +7609,9 @@ this._pushHost();
 this._stampTemplate();
 this._popHost();
 this._marshalAnnotationReferences();
-this._marshalHostAttributes();
 this._setupDebouncers();
 this._marshalInstanceEffects();
+this._marshalHostAttributes();
 this._marshalBehaviors();
 this._marshalAttributes();
 this._tryReady();
@@ -7340,12 +7624,14 @@ this._listenListeners(b.listeners);
 var nativeShadow = Polymer.Settings.useNativeShadow;
 var propertyUtils = Polymer.StyleProperties;
 var styleUtil = Polymer.StyleUtil;
+var cssParse = Polymer.CssParse;
 var styleDefaults = Polymer.StyleDefaults;
 var styleTransformer = Polymer.StyleTransformer;
 Polymer({
 is: 'custom-style',
 extends: 'style',
-created: function () {
+properties: { include: String },
+ready: function () {
 this._tryApply();
 },
 attached: function () {
@@ -7357,7 +7643,7 @@ if (this.parentNode && this.parentNode.localName !== 'dom-module') {
 this._appliesToDocument = true;
 var e = this.__appliedElement || this;
 styleDefaults.addStyle(e);
-if (e.textContent) {
+if (e.textContent || this.include) {
 this._apply();
 } else {
 var observer = new MutationObserver(function () {
@@ -7371,13 +7657,16 @@ observer.observe(e, { childList: true });
 },
 _apply: function () {
 var e = this.__appliedElement || this;
+if (this.include) {
+e.textContent += styleUtil.cssFromModules(this.include);
+}
 this._computeStyleProperties();
 var props = this._styleProperties;
 var self = this;
 e.textContent = styleUtil.toCssText(styleUtil.rulesForStyle(e), function (rule) {
 var css = rule.cssText = rule.parsedCssText;
 if (rule.propertyInfo && rule.propertyInfo.cssText) {
-css = css.replace(propertyUtils.rx.VAR_ASSIGN, '');
+css = cssParse.removeCustomPropAssignment(css);
 rule.cssText = propertyUtils.valueForProperties(css, props);
 }
 styleTransformer.documentRule(rule);
@@ -7425,10 +7714,24 @@ _showHideChildrenImpl: function (hide) {
 var c = this._children;
 for (var i = 0; i < c.length; i++) {
 var n = c[i];
-if (n.style) {
-n.style.display = hide ? 'none' : '';
-n.__hideTemplateChildren__ = hide;
+if (Boolean(hide) != Boolean(n.__hideTemplateChildren__)) {
+if (n.nodeType === Node.TEXT_NODE) {
+if (hide) {
+n.__polymerTextContent__ = n.textContent;
+n.textContent = '';
+} else {
+n.textContent = n.__polymerTextContent__;
 }
+} else if (n.style) {
+if (hide) {
+n.__polymerDisplay__ = n.style.display;
+n.style.display = 'none';
+} else {
+n.style.display = n.__polymerDisplay__;
+}
+}
+}
+n.__hideTemplateChildren__ = hide;
 }
 },
 _debounceTemplate: function (fn) {
@@ -7694,29 +7997,36 @@ items.push(store[key]);
 return items;
 },
 _applySplices: function (splices) {
-var keySplices = [];
-for (var i = 0; i < splices.length; i++) {
-var j, o, key, s = splices[i];
+var keyMap = {}, key, i;
+splices.forEach(function (s) {
+s.addedKeys = [];
+for (i = 0; i < s.removed.length; i++) {
+key = this.getKey(s.removed[i]);
+keyMap[key] = keyMap[key] ? null : -1;
+}
+for (i = 0; i < s.addedCount; i++) {
+var item = this.userArray[s.index + i];
+key = this.getKey(item);
+key = key === undefined ? this.add(item) : key;
+keyMap[key] = keyMap[key] ? null : 1;
+s.addedKeys.push(key);
+}
+}, this);
 var removed = [];
-for (j = 0; j < s.removed.length; j++) {
-o = s.removed[j];
-key = this.remove(o);
+var added = [];
+for (var key in keyMap) {
+if (keyMap[key] < 0) {
+this.removeKey(key);
 removed.push(key);
 }
-var added = [];
-for (j = 0; j < s.addedCount; j++) {
-o = this.userArray[s.index + j];
-key = this.add(o);
+if (keyMap[key] > 0) {
 added.push(key);
 }
-keySplices.push({
-index: s.index,
-removed: removed,
-removedItems: s.removed,
-added: added
-});
 }
-return keySplices;
+return [{
+removed: removed,
+added: added
+}];
 }
 };
 Polymer.Collection.get = function (userArray) {
@@ -7811,11 +8121,13 @@ this.collection = null;
 } else {
 this._error(this._logf('dom-repeat', 'expected array for `items`,' + ' found', this.items));
 }
-this._splices = [];
+this._keySplices = [];
+this._indexSplices = [];
 this._needFullRefresh = true;
 this._debounceTemplate(this._render);
 } else if (change.path == 'items.splices') {
-this._splices = this._splices.concat(change.value.keySplices);
+this._keySplices = this._keySplices.concat(change.value.keySplices);
+this._indexSplices = this._indexSplices.concat(change.value.indexSplices);
 this._debounceTemplate(this._render);
 } else {
 var subpath = change.path.slice(6);
@@ -7852,16 +8164,17 @@ this._applyFullRefresh();
 this._needFullRefresh = false;
 } else {
 if (this._sortFn) {
-this._applySplicesUserSort(this._splices);
+this._applySplicesUserSort(this._keySplices);
 } else {
 if (this._filterFn) {
 this._applyFullRefresh();
 } else {
-this._applySplicesArrayOrder(this._splices);
+this._applySplicesArrayOrder(this._indexSplices);
 }
 }
 }
-this._splices = [];
+this._keySplices = [];
+this._indexSplices = [];
 var keyToIdx = this._keyToInstIdx = {};
 for (var i = 0; i < this._instances.length; i++) {
 var inst = this._instances[i];
@@ -7999,10 +8312,10 @@ pool.push(inst);
 }
 }
 this._instances.splice(s.index, s.removed.length);
-for (var i = 0; i < s.added.length; i++) {
+for (var i = 0; i < s.addedKeys.length; i++) {
 var inst = {
 isPlaceholder: true,
-key: s.added[i]
+key: s.addedKeys[i]
 };
 this._instances.splice(s.index + i, 0, inst);
 }
@@ -8111,16 +8424,23 @@ is: 'array-selector',
 properties: {
 items: {
 type: Array,
-observer: '_itemsChanged'
+observer: 'clearSelection'
+},
+multi: {
+type: Boolean,
+value: false,
+observer: 'clearSelection'
 },
 selected: {
 type: Object,
 notify: true
 },
-toggle: Boolean,
-multi: Boolean
+toggle: {
+type: Boolean,
+value: false
+}
 },
-_itemsChanged: function () {
+clearSelection: function () {
 if (Array.isArray(this.selected)) {
 for (var i = 0; i < this.selected.length; i++) {
 this.unlinkPaths('selected.' + i);
@@ -8129,20 +8449,28 @@ this.unlinkPaths('selected.' + i);
 this.unlinkPaths('selected');
 }
 if (this.multi) {
+if (!this.selected || this.selected.length) {
 this.selected = [];
+this._selectedColl = Polymer.Collection.get(this.selected);
+}
 } else {
 this.selected = null;
+this._selectedColl = null;
+}
+},
+isSelected: function (item) {
+if (this.multi) {
+return this._selectedColl.getKey(item) !== undefined;
+} else {
+return this.selected == item;
 }
 },
 deselect: function (item) {
 if (this.multi) {
-var scol = Polymer.Collection.get(this.selected);
-var sidx = this.selected.indexOf(item);
-if (sidx >= 0) {
-var skey = scol.getKey(item);
-this.splice('selected', sidx, 1);
+if (this.isSelected(item)) {
+var skey = this._selectedColl.getKey(item);
+this.arrayDelete('selected', item);
 this.unlinkPaths('selected.' + skey);
-return true;
 }
 } else {
 this.selected = null;
@@ -8153,18 +8481,14 @@ select: function (item) {
 var icol = Polymer.Collection.get(this.items);
 var key = icol.getKey(item);
 if (this.multi) {
-var scol = Polymer.Collection.get(this.selected);
-var skey = scol.getKey(item);
-if (skey >= 0) {
+if (this.isSelected(item)) {
 if (this.toggle) {
 this.deselect(item);
 }
 } else {
 this.push('selected', item);
-this.async(function () {
-skey = scol.getKey(item);
+skey = this._selectedColl.getKey(item);
 this.linkPaths('selected.' + skey, 'items.' + key);
-});
 }
 } else {
 if (this.toggle && item == this.selected) {
@@ -8209,7 +8533,6 @@ this._flushTemplates();
 _render: function () {
 if (this.if) {
 if (!this.ctor) {
-this._wrapTextNodes(this._content || this.content);
 this.templatize(this);
 }
 this._ensureInstance();
@@ -8245,16 +8568,6 @@ parent.removeChild(n);
 this._instance = null;
 }
 },
-_wrapTextNodes: function (root) {
-for (var n = root.firstChild; n; n = n.nextSibling) {
-if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) {
-var s = document.createElement('span');
-root.insertBefore(s, n);
-s.appendChild(n);
-n = s;
-}
-}
-},
 _showHideChildren: function () {
 var hidden = this.__hideTemplateChildren__ || !this.if;
 if (this._instance) {
@@ -8272,37 +8585,11 @@ this._instance.notifyPath(path, value, true);
 }
 }
 });
-Polymer.ImportStatus = {
-_ready: false,
-_callbacks: [],
-whenLoaded: function (cb) {
-if (this._ready) {
-cb();
-} else {
-this._callbacks.push(cb);
-}
-},
-_importsLoaded: function () {
-this._ready = true;
-this._callbacks.forEach(function (cb) {
-cb();
-});
-this._callbacks = [];
-}
-};
-window.addEventListener('load', function () {
-Polymer.ImportStatus._importsLoaded();
-});
-if (window.HTMLImports) {
-HTMLImports.whenReady(function () {
-Polymer.ImportStatus._importsLoaded();
-});
-}
 Polymer({
 is: 'dom-bind',
 extends: 'template',
 created: function () {
-Polymer.ImportStatus.whenLoaded(this._markImportsReady.bind(this));
+Polymer.RenderStatus.whenReady(this._markImportsReady.bind(this));
 },
 _ensureReady: function () {
 if (!this._readied) {
@@ -10891,7 +11178,6 @@ if (!window.Promise) {
        * A reference to the status code, if the `xhr` has completely resolved.
        *
        * @attribute status
-       * @type short
        * @default 0
        */
       status: {
@@ -10905,7 +11191,6 @@ if (!window.Promise) {
        * A reference to the status text, if the `xhr` has completely resolved.
        *
        * @attribute statusText
-       * @type String
        * @default ""
        */
       statusText: {
@@ -11065,7 +11350,6 @@ if (!window.Promise) {
       }
       var body = this._encodeBodyObject(options.body, contentType);
 
-
       // In IE, `xhr.responseType` is an empty string when the response
       // returns. Hence, caching it as `xhr._responseType`.
       xhr.responseType = xhr._responseType = (options.handleAs || 'text');
@@ -11073,7 +11357,10 @@ if (!window.Promise) {
 
 
 
-      xhr.send(body);
+      xhr.send(
+        /** @type {ArrayBuffer|ArrayBufferView|Blob|Document|FormData|
+                   null|string|undefined} */
+        (body));
 
       return this.completes;
     },
@@ -11103,7 +11390,7 @@ if (!window.Promise) {
               // If accessing `xhr.responseText` throws, responseType `json`
               // is supported and the result is rightly `undefined`.
               try {
-                xhr.responseText;
+                /** @suppress {suspiciousCode} */ xhr.responseText;
               } catch (e) {
                 return xhr.response;
               }
@@ -11142,20 +11429,21 @@ if (!window.Promise) {
      * @param {*} body The given body of the request to try and encode.
      * @param {?string} contentType The given content type, to infer an encoding
      *     from.
-     * @return {?string|*} Either the encoded body as a string, if successful,
+     * @return {*} Either the encoded body as a string, if successful,
      *     or the unaltered body object if no encoding could be inferred.
      */
     _encodeBodyObject: function(body, contentType) {
       if (typeof body == 'string') {
         return body;  // Already encoded.
       }
+      var bodyObj = /** @type {Object} */ (body);
       switch(contentType) {
         case('application/json'):
-          return JSON.stringify(body);
+          return JSON.stringify(bodyObj);
         case('application/x-www-form-urlencoded'):
-          return this._wwwFormUrlEncode(body);
+          return this._wwwFormUrlEncode(bodyObj);
       }
-      return body;  // Unknown, make no change.
+      return body;
     },
 
     /**
@@ -11662,11 +11950,6 @@ if (!window.Promise) {
     ],
 
     ready: function() {
-      // TODO(sjmiles): ensure read-only property is valued so the compound
-      // observer will fire
-      if (this.focused === undefined) {
-        this._setFocused(false);
-      }
       this.addEventListener('focus', this._boundFocusBlurHandler, true);
       this.addEventListener('blur', this._boundFocusBlurHandler, true);
     },
@@ -11677,7 +11960,6 @@ if (!window.Promise) {
         var focused = event.type === 'focus';
         this._setFocused(focused);
       } else if (!this.shadowRoot) {
-        event.stopPropagation();
         this.fire(event.type, {sourceEvent: event}, {
           node: this,
           bubbles: event.bubbles,
@@ -11713,7 +11995,7 @@ if (!window.Promise) {
   /**
    * Use `Polymer.IronValidatableBehavior` to implement an element that validates user input.
    *
-   * ### Accessiblity
+   * ### Accessibility
    *
    * Changing the `invalid` property, either manually or by calling `validate()` will update the
    * `aria-invalid` attribute.
@@ -11784,29 +12066,45 @@ if (!window.Promise) {
     },
 
     /**
-     * @param {Object} values Passed to the validator's `validate()` function.
-     * @return {boolean} True if `values` is valid.
+     * Returns true if the `value` is valid, and updates `invalid`. If you want
+     * your element to have custom validation logic, do not override this method;
+     * override `_getValidity(value)` instead.
+
+     * @param {Object} value The value to be validated. By default, it is passed
+     * to the validator's `validate()` function, if a validator is set.
+     * @return {boolean} True if `value` is valid.
      */
-    validate: function(values) {
-      var valid = true;
+    validate: function(value) {
+      this.invalid = !this._getValidity(value);
+      return !this.invalid;
+    },
+
+    /**
+     * Returns true if `value` is valid.  By default, it is passed
+     * to the validator's `validate()` function, if a validator is set. You
+     * should override this method if you want to implement custom validity
+     * logic for your element.
+     *
+     * @param {Object} value The value to be validated.
+     * @return {boolean} True if `value` is valid.
+     */
+
+    _getValidity: function(value) {
       if (this.hasValidator()) {
-        valid = this._validator.validate(values);
+        return this._validator.validate(value);
       }
-
-      this.invalid = !valid;
-      return valid;
+      return true;
     }
-
   };
 
 
 ;
-
   /**
+  Polymer.IronFormElementBehavior enables a custom element to be included
+  in an `iron-form`.
 
   @demo demo/index.html
   @polymerBehavior
-
   */
   Polymer.IronFormElementBehavior = {
 
@@ -11836,6 +12134,19 @@ if (!window.Promise) {
       value: {
         notify: true,
         type: String
+      },
+
+      /**
+       * Set to true to mark the input as required. If used in a form, a
+       * custom element that uses this behavior should also use
+       * Polymer.IronValidatableBehavior and define a custom validation method.
+       * Otherwise, a `required` element will always be considered valid.
+       * It's also strongly recomended to provide a visual style for the element
+       * when it's value is invalid.
+       */
+      required: {
+        type: Boolean,
+        value: false
       },
 
       /**
@@ -11972,7 +12283,7 @@ is separate from validation, and `allowed-pattern` does not affect how the input
 
     _bindValueChanged: function() {
       if (this.value !== this.bindValue) {
-        this.value = !this.bindValue ? '' : this.bindValue;
+        this.value = !(this.bindValue || this.bindValue === 0) ? '' : this.bindValue;
       }
       // manually notify because we don't want to notify until after setting value
       this.fire('bind-value-changed', {value: this.bindValue});
@@ -12007,6 +12318,7 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       // For these keys, ASCII code == browser keycode.
       var anyNonPrintable =
         (event.keyCode == 8)   ||  // backspace
+        (event.keyCode == 9)   ||  // tab
         (event.keyCode == 13)  ||  // enter
         (event.keyCode == 27);     // escape
 
@@ -12537,8 +12849,7 @@ is separate from validation, and `allowed-pattern` does not affect how the input
         type: Boolean,
         value: false,
         notify: true,
-        reflectToAttribute: true,
-        observer: '_activeChanged'
+        reflectToAttribute: true
       },
 
       /**
@@ -12559,6 +12870,16 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       receivedFocusFromKeyboard: {
         type: Boolean,
         readOnly: true
+      },
+
+      /**
+       * The aria attribute to be set if the button is a toggle and in the
+       * active state.
+       */
+      ariaActiveAttribute: {
+        type: String,
+        value: 'aria-pressed',
+        observer: '_ariaActiveAttributeChanged'
       }
     },
 
@@ -12569,7 +12890,8 @@ is separate from validation, and `allowed-pattern` does not affect how the input
     },
 
     observers: [
-      '_detectKeyboardFocus(focused)'
+      '_detectKeyboardFocus(focused)',
+      '_activeChanged(active, ariaActiveAttribute)'
     ],
 
     keyBindings: {
@@ -12596,8 +12918,10 @@ is separate from validation, and `allowed-pattern` does not affect how the input
     // to emulate native checkbox, (de-)activations from a user interaction fire
     // 'change' events
     _userActivate: function(active) {
-      this.active = active;
-      this.fire('change');
+      if (this.active !== active) {
+        this.active = active;
+        this.fire('change');
+      }
     },
 
     _eventSourceIsPrimaryInput: function(event) {
@@ -12665,11 +12989,18 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       this._changedButtonState();
     },
 
-    _activeChanged: function(active) {
+    _ariaActiveAttributeChanged: function(value, oldValue) {
+      if (oldValue && oldValue != value && this.hasAttribute(oldValue)) {
+        this.removeAttribute(oldValue);
+      }
+    },
+
+    _activeChanged: function(active, ariaActiveAttribute) {
       if (this.toggles) {
-        this.setAttribute('aria-pressed', active ? 'true' : 'false');
+        this.setAttribute(this.ariaActiveAttribute,
+                          active ? 'true' : 'false');
       } else {
-        this.removeAttribute('aria-pressed');
+        this.removeAttribute(this.ariaActiveAttribute);
       }
       this._changedButtonState();
     },
@@ -13073,14 +13404,6 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       },
 
       /**
-       * The maximum length of the input value. Bind this to the `<input is="iron-input">`'s
-       * `maxlength` property.
-       */
-      maxlength: {
-        type: Number
-      },
-
-      /**
        * The error message to display when the input is invalid. Bind this to the
        * `<paper-input-error>`'s content, if using.
        */
@@ -13160,6 +13483,39 @@ is separate from validation, and `allowed-pattern` does not affect how the input
        */
       minlength: {
         type: Number
+      },
+
+      /**
+       * The maximum length of the input value. Bind this to the `<input is="iron-input">`'s
+       * `maxlength` property.
+       */
+      maxlength: {
+        type: Number
+      },
+
+      /**
+       * The minimum (numeric or date-time) input value.
+       * Bind this to the `<input is="iron-input">`'s `min` property.
+       */
+      min: {
+        type: String
+      },
+
+      /**
+       * The maximum (numeric or date-time) input value.
+       * Can be a String (e.g. `"2000-1-1"`) or a Number (e.g. `2`).
+       * Bind this to the `<input is="iron-input">`'s `max` property.
+       */
+      max: {
+        type: String
+      },
+
+      /**
+       * Limits the numeric or date-time increments.
+       * Bind this to the `<input is="iron-input">`'s `step` property.
+       */
+      step: {
+        type: String
       },
 
       /**
@@ -13583,6 +13939,10 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       return this.headerHeight - this.condensedHeaderHeight;
     },
 
+    _y: 0,
+
+    _prevScrollTop: 0,
+
     /**
      * Invoke this to tell `paper-scroll-header-panel` to re-measure the header's
      * height.
@@ -13596,9 +13956,86 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       }
     },
 
+    /**
+     * Scroll to a specific y coordinate.
+     *
+     * @method scroll
+     * @param {number} top The coordinate to scroll to, along the y-axis.
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    scroll: function(top, smooth) {
+      // the scroll event will trigger _updateScrollState directly, 
+      // However, _updateScrollState relies on the previous `scrollTop` to update the states.
+      // Calling _updateScrollState will ensure that the states are synced correctly.
+
+      if (smooth) {
+        // TODO(blasten): use CSS scroll-behavior once it ships in Chrome.
+        var easingFn = function easeOutQuad(t, b, c, d) {
+          t /= d;
+          return -c * t*(t-2) + b;
+        };
+        var animationId = Math.random();
+        var duration = 200;
+        var startTime = Date.now();
+        var currentScrollTop = this.scroller.scrollTop;
+        var deltaScrollTop = top - currentScrollTop;
+
+        this._currentAnimationId = animationId;
+
+        (function updateFrame() {
+          var now = Date.now();
+          var elapsedTime = now - startTime;
+
+          if (elapsedTime > duration) {
+            this.scroller.scrollTop = top;
+            this._updateScrollState(top);
+
+          } else if (this._currentAnimationId === animationId) {
+            this.scroller.scrollTop = easingFn(elapsedTime, currentScrollTop, deltaScrollTop, duration);
+            requestAnimationFrame(updateFrame.bind(this));
+          }
+
+        }).call(this);
+
+      } else {
+        this.scroller.scrollTop = top;
+        this._updateScrollState(top);
+      }
+    },
+
+   /**
+     * Condense the header.
+     *
+     * @method condense
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    condense: function(smooth) {
+      if (this.condenses && !this.fixed && !this.noReveal) {
+        switch (this.headerState) {
+          case this.HEADER_STATE_HIDDEN:
+            this.scroll(this.scroller.scrollTop - (this._headerMaxDelta - this._headerMargin), smooth);
+          break;
+          case this.HEADER_STATE_EXPANDED:
+          case this.HEADER_STATE_INTERPOLATED:
+            this.scroll(this._headerMargin, smooth);
+          break;
+        }
+      }
+    },
+
+    /**
+     * Scroll to the top of the content.
+     *
+     * @method scrollToTop
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    scrollToTop: function(smooth) {
+      this.scroll(0, smooth);
+    },
+
     _headerHeightChanged: function(headerHeight) {
       if (this._defaultCondsensedHeaderHeight !== null) {
-        this._defaultCondsensedHeaderHeight = headerHeight * 1/3;
+        this._defaultCondsensedHeaderHeight = Math.round(headerHeight * 1/3);
         this.condensedHeaderHeight = this._defaultCondsensedHeaderHeight;
       }
     },
@@ -13614,12 +14051,8 @@ is separate from validation, and `allowed-pattern` does not affect how the input
     },
 
     _condensesChanged: function() {
-      if (this.condenses) {
-        this._scroll();
-      } else {
-        // reset transform/opacity set on the header
-        this._condenseHeader(null);
-      }
+      this._updateScrollState(this.scroller.scrollTop);
+      this._condenseHeader(null);
     },
 
     _setup: function() {
@@ -13689,23 +14122,27 @@ is separate from validation, and `allowed-pattern` does not affect how the input
 
     /** @param {Event=} event */
     _scroll: function(event) {
-      if (!this.header) {
-        return;
+      if (this.header) {
+        this._updateScrollState(this.scroller.scrollTop);
+
+        this.fire('content-scroll', {
+          target: this.scroller
+        },
+        {
+          cancelable: false
+        });
       }
+    },
 
-      this._y = this._y || 0;
-      this._prevScrollTop = this._prevScrollTop || 0;
-
-      var sTop = this.scroller.scrollTop;
-
-      var deltaScrollTop = sTop - this._prevScrollTop;
-      var y = Math.max(0, (this.noReveal) ? sTop : this._y + deltaScrollTop);
+    _updateScrollState: function(scrollTop) {
+      var deltaScrollTop = scrollTop - this._prevScrollTop;
+      var y = Math.max(0, (this.noReveal) ? scrollTop : this._y + deltaScrollTop);
 
       if (y > this._headerMaxDelta) {
         y = this._headerMaxDelta;
         this._setHeaderState(this.HEADER_STATE_HIDDEN);
 
-      } else if (this.condenses && this._prevScrollTop >= sTop && sTop > this._headerMargin) {
+      } else if (this.condenses && this._prevScrollTop >= scrollTop && scrollTop >= this._headerMargin) {
         y = Math.max(y, this._headerMargin);
         this._setHeaderState(this.HEADER_STATE_CONDENSED);
 
@@ -13714,21 +14151,15 @@ is separate from validation, and `allowed-pattern` does not affect how the input
 
       } else {
         this._setHeaderState(this.HEADER_STATE_INTERPOLATED);
-
       }
 
-      if (!event || !this.fixed && y !== this._y) {
+      if (!this.fixed && y !== this._y) {
         this._transformHeader(y);
       }
 
-      this._prevScrollTop = Math.max(sTop, 0);
+      this._prevScrollTop = Math.max(scrollTop, 0);
       this._y = y;
-
-      if (event) {
-        this.fire('content-scroll', {target: this.scroller}, {cancelable: false});
-      }
     }
-
   });
 
 })();
@@ -13960,6 +14391,7 @@ Polymer({
         return this.icon || !this.src;
       },
 
+      /** @suppress {visibility} */
       _updateIcon: function() {
         if (this._usesIconset()) {
           if (this._iconsetName) {
@@ -13976,6 +14408,7 @@ Polymer({
             this._img = document.createElement('img');
             this._img.style.width = '100%';
             this._img.style.height = '100%';
+            this._img.draggable = false;
           }
           this._img.src = this.src;
           Polymer.dom(this.root).appendChild(this._img);
@@ -14788,8 +15221,8 @@ Polymer({
        * Bound to the textarea's `autofocus` attribute.
        */
       autofocus: {
-        type: String,
-        value: 'off'
+        type: Boolean,
+        value: false
       },
 
       /**
@@ -14940,7 +15373,7 @@ Polymer({
     _computeValue: function() {
       return this.bindValue;
     }
-  })
+  });
 
 ;
   (function() {
@@ -15815,7 +16248,7 @@ Polymer({
       }
 
       // type="number" hack needed because this.value is empty until it's valid
-      if (value || (inputElement.type === 'number' && !inputElement.checkValidity())) {
+      if (value || value === 0 || (inputElement.type === 'number' && !inputElement.checkValidity())) {
         this._inputHasContent = true;
       } else {
         this._inputHasContent = false;
@@ -15851,12 +16284,25 @@ Polymer({
     _computeInputContentClass: function(noLabelFloat, alwaysFloatLabel, focused, invalid, _inputHasContent) {
       var cls = 'input-content';
       if (!noLabelFloat) {
+        var label = this.querySelector('label');
+
         if (alwaysFloatLabel || _inputHasContent) {
           cls += ' label-is-floating';
           if (invalid) {
             cls += ' is-invalid';
           } else if (focused) {
             cls += " label-is-highlighted";
+          }
+          // The label might have a horizontal offset if a prefix element exists
+          // which needs to be undone when displayed as a floating label.
+          if (this.$.prefix && label && label.offsetParent &&
+              Polymer.dom(this.$.prefix).getDistributedNodes().length > 0) {
+           label.style.left = -label.offsetParent.offsetLeft + 'px';
+          }
+        } else {
+          // When the label is not floating, it should overlap the input element.
+          if (label) {
+            label.style.left = 0;
           }
         }
       } else {
@@ -16371,11 +16817,14 @@ Polymer({
         }
       },
 
-      ready: function() {
-        if (Polymer.dom(this).textContent == '') {
+      attached: function() {
+        var trimmedText = Polymer.dom(this).textContent.trim();
+        if (trimmedText === '') {
           this.$.checkboxLabel.hidden = true;
-        } else {
-          this.setAttribute('aria-label', Polymer.dom(this).textContent);
+        }
+        // Don't stomp over a user-set aria-label.
+        if (trimmedText !== '' && !this.getAttribute('aria-label')) {
+          this.setAttribute('aria-label', trimmedText);
         }
         this._isReady = true;
       },
@@ -16619,23 +17068,30 @@ Polymer({
 
       is: 'blocks-list',
       properties: {
-        serverurl: String
+        serverurl: {type: String, value: ""},
+        deleteurl: {type: String, value: ""}
       },
 
-      open_me: function(e) {
-        var model = e.model;
-        var id = model.item.id;
-        console.log('the id is', id);
-        MoreRouting.navigateTo('blockdetail', {blockId: id});
-        //model.set('item.ordered', model.item.ordered+1);
+      newURL(){
+        return MoreRouting.urlFor('blockdetail', {blockId: 'new'}) ;
       },
 
-      open_new: function(e) {
-        console.log('To new !!');
-        MoreRouting.navigateTo('blockdetail', {blockId: 'new'});
+      openURL(itemId) {
+        return MoreRouting.urlFor('blockdetail', {blockId: itemId});
       },
 
-      handleResponse:function(response){
+      closeURL: function(e) {
+        console.log("Now deleting ", e.model.item.id);
+        this.deleteurl = this.serverurl + "/" + e.model.item.id;
+        this.$.delete_ajax.generateRequest();
+      },
+
+      handleResponseDelete:function(response){
+        console.log("Delete done. Refreshing");
+        this.$.get_ajax.generateRequest();
+      },
+
+      handleResponseGet:function(response){
         console.log(response.detail.response);
         this.onlineItems = response.detail.response;
       }
@@ -16775,22 +17231,27 @@ Polymer({
 
       is: 'templates-list',
       properties: {
-        serverurl: String
+        serverurl: {type: String, value: ""},
+        deleteurl: {type: String, value: ""}
       },
 
-      open_me: function(e) {
-        var model = e.model;
-        var id = model.item.id;
-        console.log('the id is', id);
-        MoreRouting.navigateTo('templatedetail', {templateId: id});
-        event.stopPropagation();
-        //model.set('item.ordered', model.item.ordered+1);
+      newURL(){
+        return MoreRouting.urlFor('templatedetail', {templateId: 'new'});
       },
 
-      open_new: function(e) {
-        console.log('To new !!');
-        MoreRouting.navigateTo('templatedetail', {templateId: 'new'});
-        event.stopPropagation();
+      openURL(itemId) {
+        return MoreRouting.urlFor('templatedetail', {templateId: itemId});
+      },
+
+      closeURL: function(e) {
+        console.log("Now deleting ", e.model.item.id);
+        this.deleteurl = this.serverurl + "/" + e.model.item.id;
+        this.$.delete_ajax.generateRequest();
+      },
+
+      handleResponseDelete:function(response){
+        console.log("Delete done. Refreshing");
+        this.$.get_ajax.generateRequest();
       },
 
       handleResponse:function(response){
@@ -17007,19 +17468,27 @@ Polymer({
 
       is: 'covers-list',
       properties: {
-        serverurl: String
+        serverurl: {type: String, value: ""},
+        deleteurl: {type: String, value: ""}
       },
 
-      open_me: function(e) {
-        var model = e.model;
-        var id = model.item.id;
-        console.log('the id is', id);
-        MoreRouting.navigateTo('coverdetail', {coverId: id, coverTemplateId: 'empty'});
+      newURL(){
+        return MoreRouting.urlFor('coverselect', {}) ;
       },
 
-      open_new: function(e) {
-        console.log('To new !!');
-        MoreRouting.navigateTo('coverselect', {});
+      openURL(itemId) {
+        return MoreRouting.urlFor('coverdetail', {coverId: itemId, coverTemplateId: 'empty'});
+      },
+
+      closeURL: function(e) {
+        console.log("Now deleting ", e.model.item.id);
+        this.deleteurl = this.serverurl + "/" + e.model.item.id;
+        this.$.delete_ajax.generateRequest();
+      },
+
+      handleResponseDelete:function(response){
+        console.log("Delete done. Refreshing");
+        this.$.get_ajax.generateRequest();
       },
 
       handleResponse:function(response){
@@ -17187,17 +17656,26 @@ Polymer({
         serverurl: String
       },
 
-      open_me: function(e) {
-        var model = e.model;
-        var id = model.item.id;
-        console.log('the id is', id);
-        MoreRouting.navigateTo('coverdetail', {coverId: 'new', coverTemplateId: id});
+      newURL(){
+        return MoreRouting.urlFor('coverdetail', {coverId: 'new', coverTemplateId: 'empty'}) ;
       },
 
-      open_empty: function(e) {
-        console.log('To new !!');
-        MoreRouting.navigateTo('coverdetail', {coverId: 'new', coverTemplateId: 'empty'});
+      openURL(itemId) {
+        return MoreRouting.urlFor('coverdetail', {coverId: 'new', coverTemplateId: itemId});
       },
+
+
+      // open_me: function(e) {
+      //   var model = e.model;
+      //   var id = model.item.id;
+      //   console.log('the id is', id);
+      //   MoreRouting.navigateTo('coverdetail', {coverId: 'new', coverTemplateId: id});
+      // },
+      //
+      // newURL: function(e) {
+      //   console.log('To new !!');
+      //   MoreRouting.navigateTo('coverdetail', {coverId: 'new', coverTemplateId: 'empty'});
+      // },
 
       handleResponse:function(response){
         console.log(response.detail.response);
