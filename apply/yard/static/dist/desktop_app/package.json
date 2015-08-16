@@ -4,7 +4,7 @@
   "main": "./main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager ./ Cork --platform=darwin --arch=x64 --version=0.30.4 --out=/Users/showandtell/Desktop  --icon=/Users/showandtell/Desktop/icon.icns"
+    "build": "electron-packager ./ Cork --platform=darwin --arch=x64 --version=0.30.4 --out=./build  --icon=/Users/showandtell/Desktop/icon.icns"
   },
   "devDependencies": {
     "electron-prebuilt": "latest",

@@ -2,9 +2,9 @@ PROJECT_NAME=yard
 
 EXTENSION_BUILD_FOLDER=dist/extension
 ONEFILE_BUILD_FOLDER=dist/onefile
-DESKTOP_BUILD_FOLDER=dist/desktop_app/app
+DESKTOP_BUILD_FOLDER=dist/desktop_app
 
-all: onefile extension_crisp desktop_app_crisp
+all: onefile extension_crisp
 
 onefile:
 	@echo "--> onefile"
@@ -16,11 +16,14 @@ extension_crisp:
 	crisper --source $(EXTENSION_BUILD_FOLDER)/vulcanized.html --html $(EXTENSION_BUILD_FOLDER)/$(PROJECT_NAME).html --js $(EXTENSION_BUILD_FOLDER)/$(PROJECT_NAME).js
 	rm -fr $(EXTENSION_BUILD_FOLDER)/vulcanized.html
 
-desktop_app_crisp:
+desktop:
 	@echo "--> desktop"
 	vulcanize --inline-css --inline-scripts extension.html > $(DESKTOP_BUILD_FOLDER)/vulcanized.html
 	crisper --source $(DESKTOP_BUILD_FOLDER)/vulcanized.html --html $(DESKTOP_BUILD_FOLDER)/$(PROJECT_NAME).html --js $(DESKTOP_BUILD_FOLDER)/$(PROJECT_NAME).js
 	rm -fr $(DESKTOP_BUILD_FOLDER)/vulcanized.html
+	mkdir -p $(DESKTOP_BUILD_FOLDER)/build
+	cd $(DESKTOP_BUILD_FOLDER) && npm run build
+
 
 clean:
 	rm -fr $(EXTENSION_BUILD_FOLDER)/*.html $(EXTENSION_BUILD_FOLDER)/*.js
