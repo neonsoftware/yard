@@ -16929,29 +16929,34 @@ Polymer({
           type: String,
           value: ""
         },
+        deleteurl: {type: String, value: ""},
         debug: {
           type: Boolean,
           value: false
         }
       },
 
-
-
-      open_me: function(e) {
-        var model = e.model;
-        var id = model.item.id;
-        if(this.debug) console.log('app-list : opening ', id);
-        MoreRouting.navigateTo('appdetail', {appId: id});
+      newURL(){
+        return MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
       },
 
-      open_new: function(e) {
-        if(this.debug) console.log('app-list : creating new');
-        MoreRouting.navigateTo('appdetail', {appId: 'new'});
+      openURL(itemId) {
+        return MoreRouting.urlFor('appdetail', {appId: itemId});
       },
 
-      handleResponse:function(response){
-        console.log("ebug is switched  ", this.debug);
-        if(this.debug) console.log("app-list : GET returned ", response.detail.response);
+      closeURL: function(e) {
+        console.log("Now deleting ", e.model.item.id);
+        this.deleteurl = this.serverurl + "/" + e.model.item.id;
+        this.$.delete_ajax.generateRequest();
+      },
+
+      handleResponseDelete:function(response){
+        console.log("Delete done. Refreshing");
+        this.$.get_ajax.generateRequest();
+      },
+
+      handleResponseGet:function(response){
+        console.log(response.detail.response);
         this.onlineItems = response.detail.response;
       }
 
@@ -17518,12 +17523,13 @@ Polymer({
         currentlegend: { type: Array, value: []},
         currentcontent: { type: String, value: ""},
         currentitem: { type: Object, value: {"content":"", "name":""} },
-        originalcontent: { type: String, value: ""}
+        originalcontent: { type: String, value: ""},
+        isactive: { type: Boolean }
       },
 
-      observers:['updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)',
-                  '_on_legend_change(currentlegend.*)',
-                  '_someChanged(params.coverId )'
+      observers:['_updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)',
+                  '_routeChanged(params.coverId, params.coverTemplateId, isactive )',
+                  '_on_legend_change(currentlegend.*)'
                 ],
 
       ready: function(){
@@ -17594,22 +17600,10 @@ Polymer({
         window.location.reload();
       },
 
-      updateAjaxParameters: function(current_id, current_template_id, current_serverurl, current_template_server){
-        var isNew = Boolean(current_id === "new");;
-        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
-        this.pushmethod = ( isNew ) ? "POST" : "PUT";
-        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
-        this.templategetURL = ( current_template_id === "empty") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
-        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
-      },
-
-      _on_content_change: function(new_value){
-
-      }, // _on_content_change
 
       fill_me: function(){
         this.edit_disabled = false;
-      }, // _on_content_change
+      },
 
 
       _on_legend_change: function(new_value){
@@ -17633,10 +17627,24 @@ Polymer({
           }
         }
         this.currentcontent = currentOriginalContent;
-      }, // _on_content_change
+      },
 
-      _someChanged: function() {
-        if (typeof this.params.coverId != 'undefined' && typeof this.params.coverTemplateId != 'undefined'){
+
+      _updateAjaxParameters: function(current_id, current_template_id,  current_serverurl, current_template_server){
+        if (typeof this.params.coverId != 'undefined' && typeof this.params.coverTemplateId != 'undefined' && this.isactive == true ){
+          var isNew = Boolean(current_id === "new");;
+          this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
+          this.pushmethod = ( isNew ) ? "POST" : "PUT";
+          this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
+          this.templategetURL = ( current_template_id === "empty") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
+          if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
+        }
+      },
+
+      _routeChanged: function() {
+        console.log("Route changed id: ", this.params.coverId, ', templateId id : ', this.params.coverTemplateId, ' -  active : ', this.isactive);
+
+        if (typeof this.params.coverId != 'undefined' && typeof this.params.coverTemplateId != 'undefined' && this.isactive == true ){
           console.log("The cover ID is ", this.params.coverId, ' the coverTemplateId is ', this.params.coverTemplateId);
           this.objid = this.params.coverId;
           this.objtempl = this.params.coverTemplateId;

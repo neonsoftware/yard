@@ -4223,7 +4223,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <more-route context="" name="apps" params="{{params}}"></more-route>
 
-    <iron-ajax id="my_iron" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponse"></iron-ajax>
+    <iron-ajax id="get_ajax" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet"></iron-ajax>
+    <iron-ajax id="delete_ajax" method="DELETE" url="{{deleteurl}}" handle-as="json" on-response="handleResponseDelete"></iron-ajax>
     <paper-material card="" levation="1">
        <table>
   				<tbody><tr>
@@ -4237,7 +4238,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   				</tr>
 
           <template is="dom-repeat" items="{{onlineItems}}">
-            <tr on-click="open_me">
+            <tr>
     					<td>
     						<span style="font-size: 12px;">{{item.position}}</span><br>
     						<span style="font-size: 11px;">{{item.company}}</span>
@@ -4251,16 +4252,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
               <td>{{item.next}}</td>
     					<td>
-    						<paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab>
-    						<paper-fab icon="delete" style="width: 18px; height: 18px;"></paper-fab>
+                <a href="{{openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a>
+                <paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="closeURL"></paper-fab>
     					</td>
   				  </tr>
           </template>
        </tbody></table>
     </paper-material>
-     <div centerbutton="">
-         <paper-fab icon="add" on-click="open_new"></paper-fab>
-     </div>
+    <div centerbutton="">
+      <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
+    </div>
   </template>
 </dom-module>
 
@@ -4653,8 +4654,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
   <template>
-    <more-route context="" name="coverdetail" params="{{params}}"></more-route>
-
+    <more-route context="" name="coverdetail" params="{{params}}" active="{{isactive}}"></more-route>
 
     <iron-ajax id="my_iron_get_template" auto="" method="GET" url="{{templategetURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
     <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
@@ -4676,7 +4676,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <div centerbutton="">
           <paper-fab icon="create" on-click="fill_me"></paper-fab>
           <paper-fab icon="save" on-click="save_me"></paper-fab>
-
       </div>
     </paper-material>
 
