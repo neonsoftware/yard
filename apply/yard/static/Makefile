@@ -6,6 +6,9 @@ DESKTOP_BUILD_FOLDER=dist/desktop_app
 
 all: onefile extension_crisp
 
+serve:
+	. ../../../venv/bin/activate && cd ../.. && python manage.py runserver
+
 onefile:
 	@echo "--> onefile"
 	vulcanize --inline-css --inline-scripts index.html > $(ONEFILE_BUILD_FOLDER)/yard.html
