@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.conf import settings
@@ -26,6 +27,22 @@ def my_view( request ):
 	username = request.user.username
 	print '\n++++++ User name is :' , username, '\n'
 	return redirect('/static/dist/onefile/yard.html')
+
+@csrf_exempt
+def simplelogin(request) :
+	if request.method == 'POST':
+		print 'POST is ', request.POST
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(username=username, password=password)
+		if user is not None:
+			print 'User is ', user
+			login(request, user)
+			print 'Ciao ! hai triggerato il login semplice ! ', username, ' ' , password
+			return HttpResponse( json.dumps( {'success':True} ), content_type="application/json" )
+		else:
+			return HttpResponse( json.dumps( {'success':False} ), content_type="application/json" )
+
 
 @csrf_exempt
 def skills_list(request) :
