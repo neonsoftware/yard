@@ -21,8 +21,17 @@ whitelist = ['ish', 'frankie', 'bomber', 'redbeard', 'bryan']
 
 import json, subprocess
 
+
+def authenticated_or_401(function):
+    def wrapper(request, *args, **kw):
+        if request.user.is_anonymous():
+			return HttpResponse(status=401)
+        else:
+            return function(request, *args, **kw)
+    return wrapper
+
+
 @csrf_exempt
-@login_required
 def my_view( request ):
 	username = request.user.username
 	print '\n++++++ User name is :' , username, '\n'
@@ -45,6 +54,7 @@ def simplelogin(request) :
 
 
 @csrf_exempt
+@authenticated_or_401
 def skills_list(request) :
 	if request.method == 'GET':
 		return HttpResponse( json.dumps( [ skill.myToObj() for skill in Skill.objects.filter(user=request.user) ] ), content_type="application/json" )
@@ -56,6 +66,7 @@ def skills_list(request) :
 		s.save()
 		return redirect('/static/index.html#/skills')
 
+@authenticated_or_401
 def skills_detail(request, id) :
 	if request.method == 'GET':
 		skill = get_object_or_404( Skill, id=id )
@@ -63,6 +74,7 @@ def skills_detail(request, id) :
 
 
 @csrf_exempt
+@authenticated_or_401
 def pieces_list(request) :
 
 	if request.method == 'GET':
@@ -80,6 +92,7 @@ def pieces_list(request) :
 		return HttpResponse( json.dumps( p.myToObj() ), content_type="application/json" )
 
 @csrf_exempt
+@authenticated_or_401
 def pieces_detail(request, id) :
 	if request.method == 'GET':
 		piece = get_object_or_404( Piece, id=id )
@@ -98,6 +111,7 @@ def pieces_detail(request, id) :
 
 
 @csrf_exempt
+@authenticated_or_401
 def categories_list(request) :
 
 	if request.method == 'GET':
@@ -113,6 +127,7 @@ def categories_list(request) :
 		return HttpResponse( json.dumps( c.myToObj() ), content_type="application/json" )
 
 @csrf_exempt
+@authenticated_or_401
 def categories_detail(request, id) :
 	if request.method == 'GET':
 		category = get_object_or_404( PieceCategory, id=id )
@@ -133,6 +148,7 @@ def categories_detail(request, id) :
 
 
 @csrf_exempt
+@authenticated_or_401
 def documents_list(request) :
 	if request.method == 'GET':
 		return HttpResponse( json.dumps( [ doc.myToObj() for doc in Cover.objects.filter(user=request.user) ] ), content_type="application/json" )
@@ -147,6 +163,7 @@ def documents_list(request) :
 		return HttpResponse( json.dumps( d.myToObj() ), content_type="application/json" )
 
 @csrf_exempt
+@authenticated_or_401
 def documents_detail(request, id) :
 
 	if request.method == 'GET':
@@ -189,11 +206,12 @@ def documents_docx(request, id) :
 		return HttpResponse( json.dumps( {"path":"static/docs/" + str(request.user) + "/" + filename + ".pdf" } ), content_type="application/json" )
 
 @csrf_exempt
+@authenticated_or_401
 def applications_list(request) :
 	if request.method == 'GET':
 		print 'request is ', request
 		print 'user is ', request.user
-		if request.user != None:
+		if request.user.is_anonymous():
 			return HttpResponse(status=403)
 		else:
 			return HttpResponse( json.dumps( [ app.myToObj() for app in Application.objects.filter(user=request.user) ] ), content_type="application/json" )
@@ -209,6 +227,7 @@ def applications_list(request) :
 		return HttpResponse( json.dumps( {"result":"success"} ), content_type="application/json" )
 
 @csrf_exempt
+@authenticated_or_401
 def applications_detail( request, id ) :
 	if request.method == 'GET':
 		application = get_object_or_404( Application, id=id )
@@ -229,6 +248,7 @@ def applications_detail( request, id ) :
 		application.delete()
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
 
+@authenticated_or_401
 def applications_written( request, id ) :
 	if request.method == 'GET':
 		print 'called written of ', id
@@ -237,6 +257,7 @@ def applications_written( request, id ) :
 		application.save()
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
 
+@authenticated_or_401
 def applications_called( request, id ) :
 	if request.method == 'GET':
 		print 'called called of ', id
@@ -245,6 +266,7 @@ def applications_called( request, id ) :
 		application.save()
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
 
+@authenticated_or_401
 def applications_interviewed( request, id ) :
 	if request.method == 'GET':
 		print 'called interviewed of ', id
@@ -253,7 +275,7 @@ def applications_interviewed( request, id ) :
 		application.save()
 		return HttpResponse( json.dumps( application.myToObj() ), content_type="application/json" )
 
-
+@authenticated_or_401
 def applications_followup( request, id ) :
 	if request.method == 'GET':
 		print 'called followup of ', id

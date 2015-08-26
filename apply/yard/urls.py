@@ -1,5 +1,4 @@
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.decorators import login_required
 
 from yard import views
 
@@ -11,10 +10,10 @@ urlpatterns = patterns('',
 	url(r'simplelogin$',  views.simplelogin , name ='simplelogin' ),
 
 	url(r'^$',  views.my_view , name ='index' ),
-	url(r'applications/(?P<id>[-\w\d]+)/written$',  login_required(views.applications_written) , name ='applications_written' ),
-	url(r'applications/(?P<id>[-\w\d]+)/called$',  login_required(views.applications_called) , name ='applications_called' ),
-	url(r'applications/(?P<id>[-\w\d]+)/interviewed$',  login_required(views.applications_interviewed) , name ='applications_interviewed' ),
-	url(r'applications/(?P<id>[-\w\d]+)/followup$',  login_required(views.applications_followup) , name ='applications_followup' ),
+	url(r'applications/(?P<id>[-\w\d]+)/written$',  views.applications_written , name ='applications_written' ),
+	url(r'applications/(?P<id>[-\w\d]+)/called$',  views.applications_called , name ='applications_called' ),
+	url(r'applications/(?P<id>[-\w\d]+)/interviewed$',  views.applications_interviewed , name ='applications_interviewed' ),
+	url(r'applications/(?P<id>[-\w\d]+)/followup$',  views.applications_followup , name ='applications_followup' ),
 	url(r'applications$',  views.applications_list , name ='applications_list' ),
 	url(r'applications/$',  views.applications_list , name ='applications_list' ),
 	url(r'applications/(?P<id>[-\w\d]+)/$',  views.applications_detail , name ='applications_detail' ),
