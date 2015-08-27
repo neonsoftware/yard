@@ -4267,40 +4267,46 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <iron-ajax id="get_ajax" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
     <iron-ajax id="delete_ajax" method="DELETE" url="{{deleteurl}}" handle-as="json" on-response="handleResponseDelete"></iron-ajax>
+
     <paper-material card="" levation="1">
-       <table>
-  				<tbody><tr>
-  					<th>Position</th>
-  					<th><iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon></th>
-  					<th><iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon></th>
-  					<th><iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon></th>
-  					<th><iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon></th>
-  					<th>Next</th>
-  					<th></th>
-  				</tr>
+      <template is="dom-repeat" items="{{onlineItems}}">
 
-          <template is="dom-repeat" items="{{onlineItems}}">
-            <tr>
-    					<td>
-    						<span style="font-size: 12px;">{{item.position}}</span><br>
-    						<span style="font-size: 11px;">{{item.company}}</span>
-    						<span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
-    						<span style="font-size: 9px; color: grey; ">{{item.portal}}</span>
-    					</td>
-              <td> <paper-checkbox checked="{{item.written}}"></paper-checkbox></td>
-              <td> <paper-checkbox checked="{{item.called}}"></paper-checkbox></td>
-              <td> <paper-checkbox checked="{{item.interviewed}}"></paper-checkbox></td>
-              <td> <paper-checkbox checked="{{item.followup}}"></paper-checkbox></td>
+      <div class="layout horizontal center">
+        <div class="flex">
+          <div class="layout vertical">
+            <div class="flex">
+              <span style="font-size: 12px;">{{item.position}}</span><br>
+              <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;at</span>
+              <span style="font-size: 11px;">{{item.company}}</span>
+              <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
+              <span style="font-size: 9px; color: grey; ">{{item.portal}}</span>
+            </div>
+            <div>
+              <br>
+            </div>
+            <div>
+              <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon>
+    					<iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon>
+    					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
+    					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
+              <br>
+              <paper-checkbox checked="{{item.written}}"></paper-checkbox>
+              <paper-checkbox checked="{{item.called}}"></paper-checkbox>
+              <paper-checkbox checked="{{item.interviewed}}"></paper-checkbox>
+              <paper-checkbox checked="{{item.followup}}"></paper-checkbox>
+            </div>
+          </div>
+        </div>
+        <div>
+          <a href="{{openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a>
+          <paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="closeURL"></paper-fab>
+        </div>
+      </div>
 
-              <td>{{item.next}}</td>
-    					<td>
-                <a href="{{openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a>
-                <paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="closeURL"></paper-fab>
-    					</td>
-  				  </tr>
-          </template>
-       </tbody></table>
+
+      </template>
     </paper-material>
+
     <div centerbutton="">
       <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
     </div>
