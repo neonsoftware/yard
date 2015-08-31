@@ -17365,6 +17365,10 @@ Polymer({
         }
       },
 
+      ready: function(){
+        this.areInactiveVisible = true;
+      },
+
       newURL(){
         return MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
       },
@@ -17399,6 +17403,14 @@ Polymer({
         this.$.trigger_ajax.generateRequest();
       },
 
+      _showInactive:function(){
+        this.areInactiveVisible = true;
+      },
+      _hideInactive:function(){
+        this.areInactiveVisible = false;
+      },
+
+
       handleResponseOkRefresh:function(response){
         console.log("Delete done. Refreshing");
         this.$.get_ajax.generateRequest();
@@ -17411,7 +17423,22 @@ Polymer({
           console.log('Woooo. not logged int. Routing to login.');
           MoreRouting.navigateTo('login', {});
         }else{
+          var activeItems = [];
+          var inactiveItems = [];
           this.onlineItems = response.detail.response;
+          for(var i = 0; i < this.onlineItems.length; i++){
+            if(this.onlineItems[i].followup) {
+              console.log('UUU - Active. Pushing ', this.onlineItems[i]);
+              activeItems.push(this.onlineItems[i]);
+            }else{
+              console.log('UUU - Inctive. Pushing ', this.onlineItems[i]);
+
+              inactiveItems.push(this.onlineItems[i]);
+            }
+          }
+          this.activeItems = activeItems;
+          this.inactiveItems = inactiveItems;
+
         }
       },
       handleResponseError:function(response){
