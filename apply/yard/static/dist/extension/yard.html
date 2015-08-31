@@ -1728,7 +1728,6 @@ styles. All other styles should exist as single lines."
 
 
 
-
 <style is="custom-style">
 
   /*
@@ -2680,46 +2679,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
       <div id="dropShadow"></div>
     </div>
-  </template>
-
-</dom-module>
-
-<dom-module id="apps-login" assetpath="bower_components/cork/">
-
-  <style>
-    :host {
-      display: block;
-    }
-
-    [card] {
-      margin: 16px;
-      padding: 16px;
-      @apply(--layout-vertical --layout-center-center);
-    }
-
-    [centerButton] {
-      text-align: center;
-      padding: 16px;
-    }
-
-  </style>
-
-  <template>
-    <more-route context="" name="login"></more-route>
-
-    <paper-material card="" elevation="1">
-
-      <form is="iron-form" id="form_post" method="post" action="{{loginurl}}">
-        <paper-input name="username" label="Name" required=""></paper-input>
-        <paper-input name="password" label="password" required=""></paper-input>
-
-        <div centerbutton="">
-          <paper-fab icon="input" on-click="_clickHandler"></paper-fab>
-        </div>
-      </form>
-
-    </paper-material>
-
   </template>
 
 </dom-module>
@@ -4246,6 +4205,84 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </paper-material>
   </template>
 </dom-module>
+<dom-module id="apps-home" assetpath="bower_components/cork/">
+
+  <style>
+    [card] {
+      margin: 16px;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
+    }
+
+    .countNumber{
+      color: gray;
+      font-size: 50px;
+    }
+    .recap{
+      font-family: sans-serif;
+    }
+  </style>
+
+  <template>
+
+    <iron-ajax id="get_ajax" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
+    <more-route context="" name="root" params="{{params}}"></more-route>
+
+    <div class="recap">
+      You have <span class="countNumber">{{activeOnes(onlineItems)}}</span> open positions <br>
+      You have <span class="countNumber">{{writtenOnes(onlineItems)}}</span> witten positions <br>
+      You have <span class="countNumber">{{interviewedOnes(onlineItems)}}</span> interviewed positions <br>
+      You have <span class="countNumber">{{calledOnes(onlineItems)}}</span> called positions <br>
+      You have <span class="countNumber">{{closedOnes(onlineItems)}}</span> closed positions <br>
+    </div>
+  </template>
+</dom-module>
+
+<dom-module id="apps-login" assetpath="bower_components/cork/">
+
+  <style>
+    :host {
+      display: block;
+    }
+
+    [card] {
+      margin: 16px;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
+    }
+
+  </style>
+
+  <template>
+    <more-route context="" name="login"></more-route>
+
+    <paper-material card="" elevation="1">
+
+      <form is="iron-form" id="form_post" method="post" action="{{loginurl}}">
+        <paper-input name="username" label="Name" required=""></paper-input>
+        <paper-input name="password" label="password" required=""></paper-input>
+
+        <div centerbutton="">
+          <paper-fab icon="input" on-click="_clickHandler"></paper-fab>
+        </div>
+      </form>
+
+    </paper-material>
+
+  </template>
+
+</dom-module>
+
 <dom-module id="apps-list" assetpath="bower_components/cork/">
 
 <style>
@@ -4266,10 +4303,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <more-route context="" name="apps" params="{{params}}"></more-route>
 
     <iron-ajax id="get_ajax" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
-    <iron-ajax id="delete_ajax" method="DELETE" url="{{deleteurl}}" handle-as="json" on-response="handleResponseDelete"></iron-ajax>
+    <iron-ajax id="delete_ajax" method="DELETE" url="{{deleteurl}}" handle-as="json" on-response="handleResponseOkRefresh"></iron-ajax>
+    <iron-ajax id="trigger_ajax" method="GET" url="{{triggerurl}}" handle-as="json" on-response="handleResponseOkRefresh"></iron-ajax>
 
-    <paper-material card="" levation="1">
-      <template is="dom-repeat" items="{{onlineItems}}">
+    <template is="dom-repeat" items="{{onlineItems}}">
+      <paper-material card="" levation="1">
 
       <div class="layout horizontal center">
         <div class="flex">
@@ -4290,10 +4328,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
     					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
               <br>
-              <paper-checkbox checked="{{item.written}}"></paper-checkbox>
-              <paper-checkbox checked="{{item.called}}"></paper-checkbox>
-              <paper-checkbox checked="{{item.interviewed}}"></paper-checkbox>
-              <paper-checkbox checked="{{item.followup}}"></paper-checkbox>
+              <paper-checkbox checked="{{item.written}}" on-click="triggerWritten" toggles="false"></paper-checkbox>
+              <paper-checkbox checked="{{item.called}}" on-click="triggerCalled" toggles="false"></paper-checkbox>
+              <paper-checkbox checked="{{item.interviewed}}" on-click="triggerInterviewed" toggles="false"></paper-checkbox>
+              <paper-checkbox checked="{{item.followup}}" on-click="triggerFollowup" toggles="false"></paper-checkbox>
             </div>
           </div>
         </div>
@@ -4304,8 +4342,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </div>
 
 
-      </template>
-    </paper-material>
+      </paper-material>
+    </template>
 
     <div centerbutton="">
       <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
@@ -4800,6 +4838,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           
           <more-route-selector>
             <iron-selector on-iron-select="_onMenuSelect">
+              <apps-home debug="" serverurl="http://rusty.blue/applications"></apps-home>
               <apps-login debug="" loginurl="http://rusty.blue/simplelogin"></apps-login>
               <apps-list debug="" serverurl="http://rusty.blue/applications"></apps-list>
               <apps-detail debug="" serverurl="http://rusty.blue/applications"></apps-detail>
