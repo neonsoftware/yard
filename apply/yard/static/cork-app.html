@@ -18,6 +18,8 @@
 <link rel="import" href="bower_components/cork/covers-list.html">
 <link rel="import" href="bower_components/cork/covers-detail.html">
 <link rel="import" href="bower_components/cork/covers-new.html">
+<link rel="import" href="bower_components/cork/cork-badges.html">
+<link rel="import" href="bower_components/cork/cork-language.html">
 
 
 
@@ -52,11 +54,25 @@ The top level element for Polyfora.
 
           See each page's `<more-route context ...>`.
           -->
+
           <more-route-selector>
             <iron-selector on-iron-select="_onMenuSelect">
-              <apps-home  debug serverurl="http://rusty.blue/applications"></apps-home>
-              <apps-login  debug loginurl="http://rusty.blue/simplelogin"></apps-login>
-              <apps-list  debug serverurl="http://rusty.blue/applications"></apps-list>
+
+              <section>
+                <more-route context name="root" params="{{params}}"></more-route>
+                <apps-home  debug serverurl="http://rusty.blue/applications"></apps-home>
+              </section>
+
+              <section>
+                <more-route context name="login"></more-route>
+                <apps-login  debug loginurl="http://rusty.blue/simplelogin"></apps-login>
+              </section>
+
+              <section>
+                <more-route context name="apps" params="{{params}}"></more-route>
+                <apps-list  debug serverurl="http://rusty.blue/applications"></apps-list>
+              </section>
+
               <apps-detail debug serverurl="http://rusty.blue/applications"></apps-detail>
               <blocks-list  debug serverurl="http://rusty.blue/pieces"></blocks-list>
               <blocks-detail debug serverurl="http://rusty.blue/pieces"></blocks-detail>

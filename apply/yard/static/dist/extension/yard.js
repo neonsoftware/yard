@@ -17208,6 +17208,7 @@ Polymer({
         deleteurl: {type: String, value: ""},
         triggerurl: {type: String, value: ""},
         onlineItems: Array,
+        theselected:Array,
         debug: {
           type: Boolean,
           value: false
@@ -18179,6 +18180,81 @@ Polymer({
       handleResponse:function(response){
         console.log(response.detail.response);
         this.onlineItems = response.detail.response;
+      }
+
+    });
+  })();
+
+;
+  (function () {
+    Polymer({
+
+      is: 'cork-badges',
+      properties: {
+        badgesList:[],
+        badges:{
+          type:String,
+          observer:'onBadgesStringChanged'
+        }
+      },
+
+      onBadgesStringChanged : function(newValue, oldValue){
+        console.log('new badges string is ', newValue);
+        this.badgesList = newValue.split(",");
+      }
+
+    });
+  })();
+
+;
+  (function () {
+    Polymer({
+
+      is: 'cork-select-badges',
+      properties: {
+        badgesList:[],
+        badges:{
+          type:String,
+          observer:'onBadgesStringChanged'
+        },
+        selectedones:{
+          type:Array,
+          reflectToAttribute:true,
+           notify: true
+        }
+      },
+
+      onBadgesStringChanged : function(newValue, oldValue){
+        console.log('new badges string is ', newValue);
+        this.badgesList = newValue.split(",");
+        this.selectedones = [];
+      },
+
+      beentoggled:function(e){
+
+        var cssClasses = e.target.classList;
+        console.log("toggling ", e.model.item, 'current selected is ', this.selectedones);
+        var position = this.selectedones.indexOf(e.model.item);
+        if( position == -1 ){
+          this.push( 'selectedones', e.model.item );
+          cssClasses.add('boldy');
+        }else{
+          this.splice( 'selectedones', position, 1);
+          cssClasses.remove('boldy');
+        }
+        console.log('Added. now selected is ', this.selectedones);
+      }
+
+    });
+  })();
+
+;
+  (function () {
+    Polymer({
+
+      is: 'cork-language',
+      properties: {
+        language: String
       }
 
     });
