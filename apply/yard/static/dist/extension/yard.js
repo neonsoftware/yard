@@ -8719,6 +8719,449 @@ this.fire('dom-change');
 }
 });
 ;
+
+  (function() {
+
+    // monostate data
+    var metaDatas = {};
+    var metaArrays = {};
+
+    Polymer.IronMeta = Polymer({
+
+      is: 'iron-meta',
+
+      properties: {
+
+        /**
+         * The type of meta-data.  All meta-data of the same type is stored
+         * together.
+         */
+        type: {
+          type: String,
+          value: 'default',
+          observer: '_typeChanged'
+        },
+
+        /**
+         * The key used to store `value` under the `type` namespace.
+         */
+        key: {
+          type: String,
+          observer: '_keyChanged'
+        },
+
+        /**
+         * The meta-data to store or retrieve.
+         */
+        value: {
+          type: Object,
+          notify: true,
+          observer: '_valueChanged'
+        },
+
+        /**
+         * If true, `value` is set to the iron-meta instance itself.
+         */
+         self: {
+          type: Boolean,
+          observer: '_selfChanged'
+        },
+
+        /**
+         * Array of all meta-data values for the given type.
+         */
+        list: {
+          type: Array,
+          notify: true
+        }
+
+      },
+
+      /**
+       * Only runs if someone invokes the factory/constructor directly
+       * e.g. `new Polymer.IronMeta()`
+       */
+      factoryImpl: function(config) {
+        if (config) {
+          for (var n in config) {
+            switch(n) {
+              case 'type':
+              case 'key':
+              case 'value':
+                this[n] = config[n];
+                break;
+            }
+          }
+        }
+      },
+
+      created: function() {
+        // TODO(sjmiles): good for debugging?
+        this._metaDatas = metaDatas;
+        this._metaArrays = metaArrays;
+      },
+
+      _keyChanged: function(key, old) {
+        this._resetRegistration(old);
+      },
+
+      _valueChanged: function(value) {
+        this._resetRegistration(this.key);
+      },
+
+      _selfChanged: function(self) {
+        if (self) {
+          this.value = this;
+        }
+      },
+
+      _typeChanged: function(type) {
+        this._unregisterKey(this.key);
+        if (!metaDatas[type]) {
+          metaDatas[type] = {};
+        }
+        this._metaData = metaDatas[type];
+        if (!metaArrays[type]) {
+          metaArrays[type] = [];
+        }
+        this.list = metaArrays[type];
+        this._registerKeyValue(this.key, this.value);
+      },
+
+      /**
+       * Retrieves meta data value by key.
+       *
+       * @method byKey
+       * @param {string} key The key of the meta-data to be returned.
+       * @return {*}
+       */
+      byKey: function(key) {
+        return this._metaData && this._metaData[key];
+      },
+
+      _resetRegistration: function(oldKey) {
+        this._unregisterKey(oldKey);
+        this._registerKeyValue(this.key, this.value);
+      },
+
+      _unregisterKey: function(key) {
+        this._unregister(key, this._metaData, this.list);
+      },
+
+      _registerKeyValue: function(key, value) {
+        this._register(key, value, this._metaData, this.list);
+      },
+
+      _register: function(key, value, data, list) {
+        if (key && data && value !== undefined) {
+          data[key] = value;
+          list.push(value);
+        }
+      },
+
+      _unregister: function(key, data, list) {
+        if (key && data) {
+          if (key in data) {
+            var value = data[key];
+            delete data[key];
+            this.arrayDelete(list, value);
+          }
+        }
+      }
+
+    });
+
+    /**
+    `iron-meta-query` can be used to access infomation stored in `iron-meta`.
+
+    Examples:
+
+    If I create an instance like this:
+
+        <iron-meta key="info" value="foo/bar"></iron-meta>
+
+    Note that value="foo/bar" is the metadata I've defined. I could define more
+    attributes or use child nodes to define additional metadata.
+
+    Now I can access that element (and it's metadata) from any `iron-meta-query` instance:
+
+         var value = new Polymer.IronMetaQuery({key: 'info'}).value;
+
+    @group Polymer Iron Elements
+    @element iron-meta-query
+    */
+    Polymer.IronMetaQuery = Polymer({
+
+      is: 'iron-meta-query',
+
+      properties: {
+
+        /**
+         * The type of meta-data.  All meta-data of the same type is stored
+         * together.
+         */
+        type: {
+          type: String,
+          value: 'default',
+          observer: '_typeChanged'
+        },
+
+        /**
+         * Specifies a key to use for retrieving `value` from the `type`
+         * namespace.
+         */
+        key: {
+          type: String,
+          observer: '_keyChanged'
+        },
+
+        /**
+         * The meta-data to store or retrieve.
+         */
+        value: {
+          type: Object,
+          notify: true,
+          readOnly: true
+        },
+
+        /**
+         * Array of all meta-data values for the given type.
+         */
+        list: {
+          type: Array,
+          notify: true
+        }
+
+      },
+
+      /**
+       * Actually a factory method, not a true constructor. Only runs if
+       * someone invokes it directly (via `new Polymer.IronMeta()`);
+       */
+      factoryImpl: function(config) {
+        if (config) {
+          for (var n in config) {
+            switch(n) {
+              case 'type':
+              case 'key':
+                this[n] = config[n];
+                break;
+            }
+          }
+        }
+      },
+
+      created: function() {
+        // TODO(sjmiles): good for debugging?
+        this._metaDatas = metaDatas;
+        this._metaArrays = metaArrays;
+      },
+
+      _keyChanged: function(key) {
+        this._setValue(this._metaData && this._metaData[key]);
+      },
+
+      _typeChanged: function(type) {
+        this._metaData = metaDatas[type];
+        this.list = metaArrays[type];
+        if (this.key) {
+          this._keyChanged(this.key);
+        }
+      },
+
+      /**
+       * Retrieves meta data value by key.
+       * @param {string} key The key of the meta-data to be returned.
+       * @return {*}
+       */
+      byKey: function(key) {
+        return this._metaData && this._metaData[key];
+      }
+
+    });
+
+  })();
+
+;
+  /**
+   * The `iron-iconset-svg` element allows users to define their own icon sets
+   * that contain svg icons. The svg icon elements should be children of the
+   * `iron-iconset-svg` element. Multiple icons should be given distinct id's.
+   *
+   * Using svg elements to create icons has a few advantages over traditional
+   * bitmap graphics like jpg or png. Icons that use svg are vector based so they
+   * are resolution independent and should look good on any device. They are
+   * stylable via css. Icons can be themed, colorized, and even animated.
+   *
+   * Example:
+   *
+   *     <iron-iconset-svg name="my-svg-icons" size="24">
+   *       <svg>
+   *         <defs>
+   *           <g id="shape">
+   *             <rect x="50" y="50" width="50" height="50" />
+   *             <circle cx="50" cy="50" r="50" />
+   *           </g>
+   *         </defs>
+   *       </svg>
+   *     </iron-iconset-svg>
+   *
+   * This will automatically register the icon set "my-svg-icons" to the iconset
+   * database.  To use these icons from within another element, make a
+   * `iron-iconset` element and call the `byId` method
+   * to retrieve a given iconset. To apply a particular icon inside an
+   * element use the `applyIcon` method. For example:
+   *
+   *     iconset.applyIcon(iconNode, 'car');
+   *
+   * @element iron-iconset-svg
+   * @demo demo/index.html
+   */
+  Polymer({
+
+    is: 'iron-iconset-svg',
+
+    properties: {
+
+      /**
+       * The name of the iconset.
+       *
+       * @attribute name
+       * @type string
+       */
+      name: {
+        type: String,
+        observer: '_nameChanged'
+      },
+
+      /**
+       * The size of an individual icon. Note that icons must be square.
+       *
+       * @attribute iconSize
+       * @type number
+       * @default 24
+       */
+      size: {
+        type: Number,
+        value: 24
+      }
+
+    },
+
+    /**
+     * Construct an array of all icon names in this iconset.
+     *
+     * @return {!Array} Array of icon names.
+     */
+    getIconNames: function() {
+      this._icons = this._createIconMap();
+      return Object.keys(this._icons).map(function(n) {
+        return this.name + ':' + n;
+      }, this);
+    },
+
+    /**
+     * Applies an icon to the given element.
+     *
+     * An svg icon is prepended to the element's shadowRoot if it exists,
+     * otherwise to the element itself.
+     *
+     * @method applyIcon
+     * @param {Element} element Element to which the icon is applied.
+     * @param {string} iconName Name of the icon to apply.
+     * @return {Element} The svg element which renders the icon.
+     */
+    applyIcon: function(element, iconName) {
+      // insert svg element into shadow root, if it exists
+      element = element.root || element;
+      // Remove old svg element
+      this.removeIcon(element);
+      // install new svg element
+      var svg = this._cloneIcon(iconName);
+      if (svg) {
+        var pde = Polymer.dom(element);
+        pde.insertBefore(svg, pde.childNodes[0]);
+        return element._svgIcon = svg;
+      }
+      return null;
+    },
+
+    /**
+     * Remove an icon from the given element by undoing the changes effected
+     * by `applyIcon`.
+     *
+     * @param {Element} element The element from which the icon is removed.
+     */
+    removeIcon: function(element) {
+      // Remove old svg element
+      if (element._svgIcon) {
+        Polymer.dom(element).removeChild(element._svgIcon);
+        element._svgIcon = null;
+      }
+    },
+
+    /**
+     *
+     * When name is changed, register iconset metadata
+     *
+     */
+    _nameChanged: function() {
+      new Polymer.IronMeta({type: 'iconset', key: this.name, value: this});
+    },
+
+    /**
+     * Create a map of child SVG elements by id.
+     *
+     * @return {!Object} Map of id's to SVG elements.
+     */
+    _createIconMap: function() {
+      // Objects chained to Object.prototype (`{}`) have members. Specifically,
+      // on FF there is a `watch` method that confuses the icon map, so we
+      // need to use a null-based object here.
+      var icons = Object.create(null);
+      Polymer.dom(this).querySelectorAll('[id]')
+        .forEach(function(icon) {
+          icons[icon.id] = icon;
+        });
+      return icons;
+    },
+
+    /**
+     * Produce installable clone of the SVG element matching `id` in this
+     * iconset, or `undefined` if there is no matching element.
+     *
+     * @return {Element} Returns an installable clone of the SVG element
+     * matching `id`.
+     */
+    _cloneIcon: function(id) {
+      // create the icon map on-demand, since the iconset itself has no discrete
+      // signal to know when it's children are fully parsed
+      this._icons = this._icons || this._createIconMap();
+      return this._prepareSvgClone(this._icons[id], this.size);
+    },
+
+    /**
+     * @param {Element} sourceSvg
+     * @param {number} size
+     * @return {Element}
+     */
+    _prepareSvgClone: function(sourceSvg, size) {
+      if (sourceSvg) {
+        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('viewBox', ['0', '0', size, size].join(' '));
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        // TODO(dfreedm): `pointer-events: none` works around https://crbug.com/370136
+        // TODO(sjmiles): inline style may not be ideal, but avoids requiring a shadow-root
+        svg.style.cssText = 'pointer-events: none; display: block; width: 100%; height: 100%;';
+        svg.appendChild(sourceSvg.cloneNode(true)).removeAttribute('id');
+        return svg;
+      }
+      return null;
+    }
+
+  });
+
+;
   /**
    * `IronResizableBehavior` is a behavior that can be used in Polymer elements to
    * coordinate the flow of resize events between "resizers" (elements that control the
@@ -8897,6 +9340,1639 @@ this.fire('dom-change');
       this._notifyingDescendant = false;
     }
   };
+
+;
+
+  Polymer({
+
+    is: 'iron-media-query',
+
+    properties: {
+
+      /**
+       * The Boolean return value of the media query.
+       */
+      queryMatches: {
+        type: Boolean,
+        value: false,
+        readOnly: true,
+        notify: true
+      },
+
+      /**
+       * The CSS media query to evaluate.
+       */
+      query: {
+        type: String,
+        observer: 'queryChanged'
+      }
+
+    },
+
+    created: function() {
+      this._mqHandler = this.queryHandler.bind(this);
+    },
+
+    queryChanged: function(query) {
+      if (this._mq) {
+        this._mq.removeListener(this._mqHandler);
+      }
+      if (query[0] !== '(') {
+        query = '(' + query + ')';
+      }
+      this._mq = window.matchMedia(query);
+      this._mq.addListener(this._mqHandler);
+      this.queryHandler(this._mq);
+    },
+
+    queryHandler: function(mq) {
+      this._setQueryMatches(mq.matches);
+    }
+
+  });
+
+
+;
+
+  /**
+   * @param {!Function} selectCallback
+   * @constructor
+   */
+  Polymer.IronSelection = function(selectCallback) {
+    this.selection = [];
+    this.selectCallback = selectCallback;
+  };
+
+  Polymer.IronSelection.prototype = {
+
+    /**
+     * Retrieves the selected item(s).
+     *
+     * @method get
+     * @returns Returns the selected item(s). If the multi property is true,
+     * `get` will return an array, otherwise it will return
+     * the selected item or undefined if there is no selection.
+     */
+    get: function() {
+      return this.multi ? this.selection : this.selection[0];
+    },
+
+    /**
+     * Clears all the selection except the ones indicated.
+     *
+     * @method clear
+     * @param {Array} excludes items to be excluded.
+     */
+    clear: function(excludes) {
+      this.selection.slice().forEach(function(item) {
+        if (!excludes || excludes.indexOf(item) < 0) {
+          this.setItemSelected(item, false);
+        }
+      }, this);
+    },
+
+    /**
+     * Indicates if a given item is selected.
+     *
+     * @method isSelected
+     * @param {*} item The item whose selection state should be checked.
+     * @returns Returns true if `item` is selected.
+     */
+    isSelected: function(item) {
+      return this.selection.indexOf(item) >= 0;
+    },
+
+    /**
+     * Sets the selection state for a given item to either selected or deselected.
+     *
+     * @method setItemSelected
+     * @param {*} item The item to select.
+     * @param {boolean} isSelected True for selected, false for deselected.
+     */
+    setItemSelected: function(item, isSelected) {
+      if (item != null) {
+        if (isSelected) {
+          this.selection.push(item);
+        } else {
+          var i = this.selection.indexOf(item);
+          if (i >= 0) {
+            this.selection.splice(i, 1);
+          }
+        }
+        if (this.selectCallback) {
+          this.selectCallback(item, isSelected);
+        }
+      }
+    },
+
+    /**
+     * Sets the selection state for a given item. If the `multi` property
+     * is true, then the selected state of `item` will be toggled; otherwise
+     * the `item` will be selected.
+     *
+     * @method select
+     * @param {*} item The item to select.
+     */
+    select: function(item) {
+      if (this.multi) {
+        this.toggle(item);
+      } else if (this.get() !== item) {
+        this.setItemSelected(this.get(), false);
+        this.setItemSelected(item, true);
+      }
+    },
+
+    /**
+     * Toggles the selection state for `item`.
+     *
+     * @method toggle
+     * @param {*} item The item to toggle.
+     */
+    toggle: function(item) {
+      this.setItemSelected(item, !this.isSelected(item));
+    }
+
+  };
+
+
+;
+
+  /** @polymerBehavior */
+  Polymer.IronSelectableBehavior = {
+
+      /**
+       *  Fired when iron-selector is activated (selected or deselected).
+       *  It is fired before the selected items are changed.
+       *  Cancel the event to abort selection.
+       *
+       * @event iron-activate
+       *
+       **/
+      /**
+       *  Fired when an item is selected
+       *
+       * @event iron-select
+       *
+       **/
+      /**
+       *  Fired when an item is deselected
+       *
+       * @event iron-deselect
+       *
+       **/
+
+    properties: {
+
+      /**
+       * If you want to use the attribute value of an element for `selected` instead of the index,
+       * set this to the name of the attribute.
+       *
+       * @attribute attrForSelected
+       * @type {string}
+       */
+      attrForSelected: {
+        type: String,
+        value: null
+      },
+
+      /**
+       * Gets or sets the selected element. The default is to use the index of the item.
+       *
+       * @attribute selected
+       * @type {string}
+       */
+      selected: {
+        type: String,
+        notify: true
+      },
+
+      /**
+       * Returns the currently selected item.
+       *
+       * @attribute selectedItem
+       * @type {Object}
+       */
+      selectedItem: {
+        type: Object,
+        readOnly: true,
+        notify: true
+      },
+
+      /**
+       * The event that fires from items when they are selected. Selectable
+       * will listen for this event from items and update the selection state.
+       * Set to empty string to listen to no events.
+       *
+       * @attribute activateEvent
+       * @type {string}
+       * @default 'tap'
+       */
+      activateEvent: {
+        type: String,
+        value: 'tap',
+        observer: '_activateEventChanged'
+      },
+
+      /**
+       * This is a CSS selector string.  If this is set, only items that match the CSS selector
+       * are selectable.
+       *
+       * @attribute selectable
+       * @type {string}
+       */
+      selectable: String,
+
+      /**
+       * The class to set on elements when selected.
+       *
+       * @attribute selectedClass
+       * @type {string}
+       */
+      selectedClass: {
+        type: String,
+        value: 'iron-selected'
+      },
+
+      /**
+       * The attribute to set on elements when selected.
+       *
+       * @attribute selectedAttribute
+       * @type {string}
+       */
+      selectedAttribute: {
+        type: String,
+        value: null
+      },
+
+      /**
+       * The set of excluded elements where the key is the `localName` 
+       * of the element that will be ignored from the item list.
+       *
+       * @type {object}
+       * @default {template: 1}
+       */
+
+      excludedLocalNames: {
+        type: Object,
+        value: function() {
+          return {
+            'template': 1
+          };
+        }
+      }
+    },
+
+    observers: [
+      '_updateSelected(attrForSelected, selected)'
+    ],
+
+    created: function() {
+      this._bindFilterItem = this._filterItem.bind(this);
+      this._selection = new Polymer.IronSelection(this._applySelection.bind(this));
+    },
+
+    attached: function() {
+      this._observer = this._observeItems(this);
+      this._contentObserver = this._observeContent(this);
+    },
+
+    detached: function() {
+      if (this._observer) {
+        this._observer.disconnect();
+      }
+      if (this._contentObserver) {
+        this._contentObserver.disconnect();
+      }
+      this._removeListener(this.activateEvent);
+    },
+
+    /**
+     * Returns an array of selectable items.
+     *
+     * @property items
+     * @type Array
+     */
+    get items() {
+      var nodes = Polymer.dom(this).queryDistributedElements(this.selectable || '*');
+      return Array.prototype.filter.call(nodes, this._bindFilterItem);
+    },
+
+    /**
+     * Returns the index of the given item.
+     *
+     * @method indexOf
+     * @param {Object} item
+     * @returns Returns the index of the item
+     */
+    indexOf: function(item) {
+      return this.items.indexOf(item);
+    },
+
+    /**
+     * Selects the given value.
+     *
+     * @method select
+     * @param {string} value the value to select.
+     */
+    select: function(value) {
+      this.selected = value;
+    },
+
+    /**
+     * Selects the previous item.
+     *
+     * @method selectPrevious
+     */
+    selectPrevious: function() {
+      var length = this.items.length;
+      var index = (Number(this._valueToIndex(this.selected)) - 1 + length) % length;
+      this.selected = this._indexToValue(index);
+    },
+
+    /**
+     * Selects the next item.
+     *
+     * @method selectNext
+     */
+    selectNext: function() {
+      var index = (Number(this._valueToIndex(this.selected)) + 1) % this.items.length;
+      this.selected = this._indexToValue(index);
+    },
+
+    _addListener: function(eventName) {
+      this.listen(this, eventName, '_activateHandler');
+    },
+
+    _removeListener: function(eventName) {
+      this.unlisten(this, eventName, '_activateHandler');
+    },
+
+    _activateEventChanged: function(eventName, old) {
+      this._removeListener(old);
+      this._addListener(eventName);
+    },
+
+    _updateSelected: function() {
+      this._selectSelected(this.selected);
+    },
+
+    _selectSelected: function(selected) {
+      this._selection.select(this._valueToItem(this.selected));
+    },
+
+    _filterItem: function(node) {
+      return !this.excludedLocalNames[node.localName];
+    },
+
+    _valueToItem: function(value) {
+      return (value == null) ? null : this.items[this._valueToIndex(value)];
+    },
+
+    _valueToIndex: function(value) {
+      if (this.attrForSelected) {
+        for (var i = 0, item; item = this.items[i]; i++) {
+          if (this._valueForItem(item) == value) {
+            return i;
+          }
+        }
+      } else {
+        return Number(value);
+      }
+    },
+
+    _indexToValue: function(index) {
+      if (this.attrForSelected) {
+        var item = this.items[index];
+        if (item) {
+          return this._valueForItem(item);
+        }
+      } else {
+        return index;
+      }
+    },
+
+    _valueForItem: function(item) {
+      return item[this.attrForSelected] || item.getAttribute(this.attrForSelected);
+    },
+
+    _applySelection: function(item, isSelected) {
+      if (this.selectedClass) {
+        this.toggleClass(this.selectedClass, isSelected, item);
+      }
+      if (this.selectedAttribute) {
+        this.toggleAttribute(this.selectedAttribute, isSelected, item);
+      }
+      this._selectionChange();
+      this.fire('iron-' + (isSelected ? 'select' : 'deselect'), {item: item});
+    },
+
+    _selectionChange: function() {
+      this._setSelectedItem(this._selection.get());
+    },
+
+    // observe content changes under the given node.
+    _observeContent: function(node) {
+      var content = node.querySelector('content');
+      if (content && content.parentElement === node) {
+        return this._observeItems(node.domHost);
+      }
+    },
+
+    // observe items change under the given node.
+    _observeItems: function(node) {
+      var observer = new MutationObserver(function() {
+        if (this.selected != null) {
+          this._updateSelected();
+        }
+      }.bind(this));
+      observer.observe(node, {
+        childList: true,
+        subtree: true
+      });
+      return observer;
+    },
+
+    _activateHandler: function(e) {
+      var t = e.target;
+      var items = this.items;
+      while (t && t != this) {
+        var i = items.indexOf(t);
+        if (i >= 0) {
+          var value = this._indexToValue(i);
+          this._itemActivate(value, t);
+          return;
+        }
+        t = t.parentNode;
+      }
+    },
+
+    _itemActivate: function(value, item) {
+      if (!this.fire('iron-activate',
+          {selected: value, item: item}, {cancelable: true}).defaultPrevented) {
+        this.select(value);
+      }
+    }
+
+  };
+
+
+;
+  /** @polymerBehavior Polymer.IronMultiSelectableBehavior */
+  Polymer.IronMultiSelectableBehaviorImpl = {
+    properties: {
+
+      /**
+       * If true, multiple selections are allowed.
+       */
+      multi: {
+        type: Boolean,
+        value: false,
+        observer: 'multiChanged'
+      },
+
+      /**
+       * Gets or sets the selected elements. This is used instead of `selected` when `multi`
+       * is true.
+       */
+      selectedValues: {
+        type: Array,
+        notify: true
+      },
+
+      /**
+       * Returns an array of currently selected items.
+       */
+      selectedItems: {
+        type: Array,
+        readOnly: true,
+        notify: true
+      },
+
+    },
+
+    observers: [
+      '_updateSelected(attrForSelected, selectedValues)'
+    ],
+
+    /**
+     * Selects the given value. If the `multi` property is true, then the selected state of the
+     * `value` will be toggled; otherwise the `value` will be selected.
+     *
+     * @method select
+     * @param {string} value the value to select.
+     */
+    select: function(value) {
+      if (this.multi) {
+        if (this.selectedValues) {
+          this._toggleSelected(value);
+        } else {
+          this.selectedValues = [value];
+        }
+      } else {
+        this.selected = value;
+      }
+    },
+
+    multiChanged: function(multi) {
+      this._selection.multi = multi;
+    },
+
+    _updateSelected: function() {
+      if (this.multi) {
+        this._selectMulti(this.selectedValues);
+      } else {
+        this._selectSelected(this.selected);
+      }
+    },
+
+    _selectMulti: function(values) {
+      this._selection.clear();
+      if (values) {
+        for (var i = 0; i < values.length; i++) {
+          this._selection.setItemSelected(this._valueToItem(values[i]), true);
+        }
+      }
+    },
+
+    _selectionChange: function() {
+      var s = this._selection.get();
+      if (this.multi) {
+        this._setSelectedItems(s);
+      } else {
+        this._setSelectedItems([s]);
+        this._setSelectedItem(s);
+      }
+    },
+
+    _toggleSelected: function(value) {
+      var i = this.selectedValues.indexOf(value);
+      var unselected = i < 0;
+      if (unselected) {
+        this.selectedValues.push(value);
+      } else {
+        this.selectedValues.splice(i, 1);
+      }
+      this._selection.setItemSelected(this._valueToItem(value), unselected);
+    }
+  };
+
+  /** @polymerBehavior */
+  Polymer.IronMultiSelectableBehavior = [
+    Polymer.IronSelectableBehavior,
+    Polymer.IronMultiSelectableBehaviorImpl
+  ];
+
+
+;
+  /**
+  `iron-selector` is an element which can be used to manage a list of elements
+  that can be selected.  Tapping on the item will make the item selected.  The `selected` indicates
+  which item is being selected.  The default is to use the index of the item.
+
+  Example:
+
+      <iron-selector selected="0">
+        <div>Item 1</div>
+        <div>Item 2</div>
+        <div>Item 3</div>
+      </iron-selector>
+
+  If you want to use the attribute value of an element for `selected` instead of the index,
+  set `attrForSelected` to the name of the attribute.  For example, if you want to select item by
+  `name`, set `attrForSelected` to `name`.
+
+  Example:
+
+      <iron-selector attr-for-selected="name" selected="foo">
+        <div name="foo">Foo</div>
+        <div name="bar">Bar</div>
+        <div name="zot">Zot</div>
+      </iron-selector>
+
+  `iron-selector` is not styled. Use the `iron-selected` CSS class to style the selected element.
+
+  Example:
+
+      <style>
+        .iron-selected {
+          background: #eee;
+        }
+      </style>
+
+      ...
+
+      <iron-selector selected="0">
+        <div>Item 1</div>
+        <div>Item 2</div>
+        <div>Item 3</div>
+      </iron-selector>
+
+  @demo demo/index.html
+  */
+
+  Polymer({
+
+    is: 'iron-selector',
+
+    behaviors: [
+      Polymer.IronMultiSelectableBehavior
+    ]
+
+  });
+
+
+;
+  (function() {
+    'use strict';
+
+    /**
+     * Chrome uses an older version of DOM Level 3 Keyboard Events
+     *
+     * Most keys are labeled as text, but some are Unicode codepoints.
+     * Values taken from: http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/keyset.html#KeySet-Set
+     */
+    var KEY_IDENTIFIER = {
+      'U+0009': 'tab',
+      'U+001B': 'esc',
+      'U+0020': 'space',
+      'U+002A': '*',
+      'U+0030': '0',
+      'U+0031': '1',
+      'U+0032': '2',
+      'U+0033': '3',
+      'U+0034': '4',
+      'U+0035': '5',
+      'U+0036': '6',
+      'U+0037': '7',
+      'U+0038': '8',
+      'U+0039': '9',
+      'U+0041': 'a',
+      'U+0042': 'b',
+      'U+0043': 'c',
+      'U+0044': 'd',
+      'U+0045': 'e',
+      'U+0046': 'f',
+      'U+0047': 'g',
+      'U+0048': 'h',
+      'U+0049': 'i',
+      'U+004A': 'j',
+      'U+004B': 'k',
+      'U+004C': 'l',
+      'U+004D': 'm',
+      'U+004E': 'n',
+      'U+004F': 'o',
+      'U+0050': 'p',
+      'U+0051': 'q',
+      'U+0052': 'r',
+      'U+0053': 's',
+      'U+0054': 't',
+      'U+0055': 'u',
+      'U+0056': 'v',
+      'U+0057': 'w',
+      'U+0058': 'x',
+      'U+0059': 'y',
+      'U+005A': 'z',
+      'U+007F': 'del'
+    };
+
+    /**
+     * Special table for KeyboardEvent.keyCode.
+     * KeyboardEvent.keyIdentifier is better, and KeyBoardEvent.key is even better
+     * than that.
+     *
+     * Values from: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.keyCode#Value_of_keyCode
+     */
+    var KEY_CODE = {
+      9: 'tab',
+      13: 'enter',
+      27: 'esc',
+      33: 'pageup',
+      34: 'pagedown',
+      35: 'end',
+      36: 'home',
+      32: 'space',
+      37: 'left',
+      38: 'up',
+      39: 'right',
+      40: 'down',
+      46: 'del',
+      106: '*'
+    };
+
+    /**
+     * MODIFIER_KEYS maps the short name for modifier keys used in a key
+     * combo string to the property name that references those same keys
+     * in a KeyboardEvent instance.
+     */
+    var MODIFIER_KEYS = {
+      'shift': 'shiftKey',
+      'ctrl': 'ctrlKey',
+      'alt': 'altKey',
+      'meta': 'metaKey'
+    };
+
+    /**
+     * KeyboardEvent.key is mostly represented by printable character made by
+     * the keyboard, with unprintable keys labeled nicely.
+     *
+     * However, on OS X, Alt+char can make a Unicode character that follows an
+     * Apple-specific mapping. In this case, we
+     * fall back to .keyCode.
+     */
+    var KEY_CHAR = /[a-z0-9*]/;
+
+    /**
+     * Matches a keyIdentifier string.
+     */
+    var IDENT_CHAR = /U\+/;
+
+    /**
+     * Matches arrow keys in Gecko 27.0+
+     */
+    var ARROW_KEY = /^arrow/;
+
+    /**
+     * Matches space keys everywhere (notably including IE10's exceptional name
+     * `spacebar`).
+     */
+    var SPACE_KEY = /^space(bar)?/;
+
+    function transformKey(key) {
+      var validKey = '';
+      if (key) {
+        var lKey = key.toLowerCase();
+        if (lKey.length == 1) {
+          if (KEY_CHAR.test(lKey)) {
+            validKey = lKey;
+          }
+        } else if (ARROW_KEY.test(lKey)) {
+          validKey = lKey.replace('arrow', '');
+        } else if (SPACE_KEY.test(lKey)) {
+          validKey = 'space';
+        } else if (lKey == 'multiply') {
+          // numpad '*' can map to Multiply on IE/Windows
+          validKey = '*';
+        } else {
+          validKey = lKey;
+        }
+      }
+      return validKey;
+    }
+
+    function transformKeyIdentifier(keyIdent) {
+      var validKey = '';
+      if (keyIdent) {
+        if (IDENT_CHAR.test(keyIdent)) {
+          validKey = KEY_IDENTIFIER[keyIdent];
+        } else {
+          validKey = keyIdent.toLowerCase();
+        }
+      }
+      return validKey;
+    }
+
+    function transformKeyCode(keyCode) {
+      var validKey = '';
+      if (Number(keyCode)) {
+        if (keyCode >= 65 && keyCode <= 90) {
+          // ascii a-z
+          // lowercase is 32 offset from uppercase
+          validKey = String.fromCharCode(32 + keyCode);
+        } else if (keyCode >= 112 && keyCode <= 123) {
+          // function keys f1-f12
+          validKey = 'f' + (keyCode - 112);
+        } else if (keyCode >= 48 && keyCode <= 57) {
+          // top 0-9 keys
+          validKey = String(48 - keyCode);
+        } else if (keyCode >= 96 && keyCode <= 105) {
+          // num pad 0-9
+          validKey = String(96 - keyCode);
+        } else {
+          validKey = KEY_CODE[keyCode];
+        }
+      }
+      return validKey;
+    }
+
+    function normalizedKeyForEvent(keyEvent) {
+      // fall back from .key, to .keyIdentifier, to .keyCode, and then to
+      // .detail.key to support artificial keyboard events
+      return transformKey(keyEvent.key) ||
+        transformKeyIdentifier(keyEvent.keyIdentifier) ||
+        transformKeyCode(keyEvent.keyCode) ||
+        transformKey(keyEvent.detail.key) || '';
+    }
+
+    function keyComboMatchesEvent(keyCombo, keyEvent) {
+      return normalizedKeyForEvent(keyEvent) === keyCombo.key &&
+        !!keyEvent.shiftKey === !!keyCombo.shiftKey &&
+        !!keyEvent.ctrlKey === !!keyCombo.ctrlKey &&
+        !!keyEvent.altKey === !!keyCombo.altKey &&
+        !!keyEvent.metaKey === !!keyCombo.metaKey;
+    }
+
+    function parseKeyComboString(keyComboString) {
+      return keyComboString.split('+').reduce(function(parsedKeyCombo, keyComboPart) {
+        var eventParts = keyComboPart.split(':');
+        var keyName = eventParts[0];
+        var event = eventParts[1];
+
+        if (keyName in MODIFIER_KEYS) {
+          parsedKeyCombo[MODIFIER_KEYS[keyName]] = true;
+        } else {
+          parsedKeyCombo.key = keyName;
+          parsedKeyCombo.event = event || 'keydown';
+        }
+
+        return parsedKeyCombo;
+      }, {
+        combo: keyComboString.split(':').shift()
+      });
+    }
+
+    function parseEventString(eventString) {
+      return eventString.split(' ').map(function(keyComboString) {
+        return parseKeyComboString(keyComboString);
+      });
+    }
+
+
+    /**
+     * `Polymer.IronA11yKeysBehavior` provides a normalized interface for processing
+     * keyboard commands that pertain to [WAI-ARIA best practices](http://www.w3.org/TR/wai-aria-practices/#kbd_general_binding).
+     * The element takes care of browser differences with respect to Keyboard events
+     * and uses an expressive syntax to filter key presses.
+     *
+     * Use the `keyBindings` prototype property to express what combination of keys
+     * will trigger the event to fire.
+     *
+     * Use the `key-event-target` attribute to set up event handlers on a specific
+     * node.
+     * The `keys-pressed` event will fire when one of the key combinations set with the
+     * `keys` property is pressed.
+     *
+     * @demo demo/index.html
+     * @polymerBehavior IronA11yKeysBehavior
+     */
+    Polymer.IronA11yKeysBehavior = {
+      properties: {
+        /**
+         * The HTMLElement that will be firing relevant KeyboardEvents.
+         */
+        keyEventTarget: {
+          type: Object,
+          value: function() {
+            return this;
+          }
+        },
+
+        _boundKeyHandlers: {
+          type: Array,
+          value: function() {
+            return [];
+          }
+        },
+
+        // We use this due to a limitation in IE10 where instances will have
+        // own properties of everything on the "prototype".
+        _imperativeKeyBindings: {
+          type: Object,
+          value: function() {
+            return {};
+          }
+        }
+      },
+
+      observers: [
+        '_resetKeyEventListeners(keyEventTarget, _boundKeyHandlers)'
+      ],
+
+      keyBindings: {},
+
+      registered: function() {
+        this._prepKeyBindings();
+      },
+
+      attached: function() {
+        this._listenKeyEventListeners();
+      },
+
+      detached: function() {
+        this._unlistenKeyEventListeners();
+      },
+
+      /**
+       * Can be used to imperatively add a key binding to the implementing
+       * element. This is the imperative equivalent of declaring a keybinding
+       * in the `keyBindings` prototype property.
+       */
+      addOwnKeyBinding: function(eventString, handlerName) {
+        this._imperativeKeyBindings[eventString] = handlerName;
+        this._prepKeyBindings();
+        this._resetKeyEventListeners();
+      },
+
+      /**
+       * When called, will remove all imperatively-added key bindings.
+       */
+      removeOwnKeyBindings: function() {
+        this._imperativeKeyBindings = {};
+        this._prepKeyBindings();
+        this._resetKeyEventListeners();
+      },
+
+      keyboardEventMatchesKeys: function(event, eventString) {
+        var keyCombos = parseEventString(eventString);
+        var index;
+
+        for (index = 0; index < keyCombos.length; ++index) {
+          if (keyComboMatchesEvent(keyCombos[index], event)) {
+            return true;
+          }
+        }
+
+        return false;
+      },
+
+      _collectKeyBindings: function() {
+        var keyBindings = this.behaviors.map(function(behavior) {
+          return behavior.keyBindings;
+        });
+
+        if (keyBindings.indexOf(this.keyBindings) === -1) {
+          keyBindings.push(this.keyBindings);
+        }
+
+        return keyBindings;
+      },
+
+      _prepKeyBindings: function() {
+        this._keyBindings = {};
+
+        this._collectKeyBindings().forEach(function(keyBindings) {
+          for (var eventString in keyBindings) {
+            this._addKeyBinding(eventString, keyBindings[eventString]);
+          }
+        }, this);
+
+        for (var eventString in this._imperativeKeyBindings) {
+          this._addKeyBinding(eventString, this._imperativeKeyBindings[eventString]);
+        }
+      },
+
+      _addKeyBinding: function(eventString, handlerName) {
+        parseEventString(eventString).forEach(function(keyCombo) {
+          this._keyBindings[keyCombo.event] =
+            this._keyBindings[keyCombo.event] || [];
+
+          this._keyBindings[keyCombo.event].push([
+            keyCombo,
+            handlerName
+          ]);
+        }, this);
+      },
+
+      _resetKeyEventListeners: function() {
+        this._unlistenKeyEventListeners();
+
+        if (this.isAttached) {
+          this._listenKeyEventListeners();
+        }
+      },
+
+      _listenKeyEventListeners: function() {
+        Object.keys(this._keyBindings).forEach(function(eventName) {
+          var keyBindings = this._keyBindings[eventName];
+          var boundKeyHandler = this._onKeyBindingEvent.bind(this, keyBindings);
+
+          this._boundKeyHandlers.push([this.keyEventTarget, eventName, boundKeyHandler]);
+
+          this.keyEventTarget.addEventListener(eventName, boundKeyHandler);
+        }, this);
+      },
+
+      _unlistenKeyEventListeners: function() {
+        var keyHandlerTuple;
+        var keyEventTarget;
+        var eventName;
+        var boundKeyHandler;
+
+        while (this._boundKeyHandlers.length) {
+          // My kingdom for block-scope binding and destructuring assignment..
+          keyHandlerTuple = this._boundKeyHandlers.pop();
+          keyEventTarget = keyHandlerTuple[0];
+          eventName = keyHandlerTuple[1];
+          boundKeyHandler = keyHandlerTuple[2];
+
+          keyEventTarget.removeEventListener(eventName, boundKeyHandler);
+        }
+      },
+
+      _onKeyBindingEvent: function(keyBindings, event) {
+        keyBindings.forEach(function(keyBinding) {
+          var keyCombo = keyBinding[0];
+          var handlerName = keyBinding[1];
+
+          if (!event.defaultPrevented && keyComboMatchesEvent(keyCombo, event)) {
+            this._triggerKeyHandler(keyCombo, handlerName, event);
+          }
+        }, this);
+      },
+
+      _triggerKeyHandler: function(keyCombo, handlerName, keyboardEvent) {
+        var detail = Object.create(keyCombo);
+        detail.keyboardEvent = keyboardEvent;
+
+        this[handlerName].call(this, new CustomEvent(keyCombo.event, {
+          detail: detail
+        }));
+      }
+    };
+  })();
+
+;
+
+  /**
+   * `Polymer.IronMenuBehavior` implements accessible menu behavior.
+   *
+   * @demo demo/index.html
+   * @polymerBehavior Polymer.IronMenuBehavior
+   */
+  Polymer.IronMenuBehaviorImpl = {
+
+    properties: {
+
+      /**
+       * Returns the currently focused item.
+       * @type {?Object}
+       */
+      focusedItem: {
+        observer: '_focusedItemChanged',
+        readOnly: true,
+        type: Object
+      },
+
+      /**
+       * The attribute to use on menu items to look up the item title. Typing the first
+       * letter of an item when the menu is open focuses that item. If unset, `textContent`
+       * will be used.
+       */
+      attrForItemTitle: {
+        type: String
+      }
+    },
+
+    hostAttributes: {
+      'role': 'menu',
+      'tabindex': '0'
+    },
+
+    observers: [
+      '_updateMultiselectable(multi)'
+    ],
+
+    listeners: {
+      'focus': '_onFocus',
+      'keydown': '_onKeydown'
+    },
+
+    keyBindings: {
+      'up': '_onUpKey',
+      'down': '_onDownKey',
+      'esc': '_onEscKey',
+      'enter': '_onEnterKey',
+      'shift+tab:keydown': '_onShiftTabDown'
+    },
+
+    _updateMultiselectable: function(multi) {
+      if (multi) {
+        this.setAttribute('aria-multiselectable', 'true');
+      } else {
+        this.removeAttribute('aria-multiselectable');
+      }
+    },
+
+    _onShiftTabDown: function() {
+      var oldTabIndex;
+
+      Polymer.IronMenuBehaviorImpl._shiftTabPressed = true;
+
+      oldTabIndex = this.getAttribute('tabindex');
+
+      this.setAttribute('tabindex', '-1');
+
+      this.async(function() {
+        this.setAttribute('tabindex', oldTabIndex);
+        Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
+      // Note: polymer/polymer#1305
+      }, 1);
+    },
+
+    _applySelection: function(item, isSelected) {
+      if (isSelected) {
+        item.setAttribute('aria-selected', 'true');
+      } else {
+        item.removeAttribute('aria-selected');
+      }
+
+      Polymer.IronSelectableBehavior._applySelection.apply(this, arguments);
+    },
+
+    _focusedItemChanged: function(focusedItem, old) {
+      old && old.setAttribute('tabindex', '-1');
+      if (focusedItem) {
+        focusedItem.setAttribute('tabindex', '0');
+        focusedItem.focus();
+      }
+    },
+
+    select: function(value) {
+      if (this._defaultFocusAsync) {
+        this.cancelAsync(this._defaultFocusAsync);
+        this._defaultFocusAsync = null;
+      }
+      var item = this._valueToItem(value);
+      if (item && item.hasAttribute('disabled')) return;
+      this._setFocusedItem(item);
+      Polymer.IronMultiSelectableBehaviorImpl.select.apply(this, arguments);
+    },
+
+    _onFocus: function(event) {
+      if (Polymer.IronMenuBehaviorImpl._shiftTabPressed) {
+        return;
+      }
+      // do not focus the menu itself
+      this.blur();
+      // clear the cached focus item
+      this._setFocusedItem(null);
+      this._defaultFocusAsync = this.async(function() {
+        // focus the selected item when the menu receives focus, or the first item
+        // if no item is selected
+        var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
+        if (selectedItem) {
+          this._setFocusedItem(selectedItem);
+        } else {
+          this._setFocusedItem(this.items[0]);
+        }
+      // async 100ms to wait for `select` to get called from `_itemActivate`
+      }, 100);
+    },
+
+    _onUpKey: function() {
+      // up and down arrows moves the focus
+      this._focusPrevious();
+    },
+
+    _onDownKey: function() {
+      this._focusNext();
+    },
+
+    _onEscKey: function() {
+      // esc blurs the control
+      this.focusedItem.blur();
+    },
+
+    _onEnterKey: function(event) {
+      // enter activates the item unless it is disabled
+      this._activateFocused(event.detail.keyboardEvent);
+    },
+
+    _onKeydown: function(event) {
+      if (this.keyboardEventMatchesKeys(event, 'up down esc enter')) {
+        return;
+      }
+
+      // all other keys focus the menu item starting with that character
+      this._focusWithKeyboardEvent(event);
+    },
+
+    _focusWithKeyboardEvent: function(event) {
+      for (var i = 0, item; item = this.items[i]; i++) {
+        var attr = this.attrForItemTitle || 'textContent';
+        var title = item[attr] || item.getAttribute(attr);
+        if (title && title.trim().charAt(0).toLowerCase() === String.fromCharCode(event.keyCode).toLowerCase()) {
+          this._setFocusedItem(item);
+          break;
+        }
+      }
+    },
+
+    _activateFocused: function(event) {
+      if (!this.focusedItem.hasAttribute('disabled')) {
+        this._activateHandler(event);
+      }
+    },
+
+    _focusPrevious: function() {
+      var length = this.items.length;
+      var index = (Number(this.indexOf(this.focusedItem)) - 1 + length) % length;
+      this._setFocusedItem(this.items[index]);
+    },
+
+    _focusNext: function() {
+      var index = (Number(this.indexOf(this.focusedItem)) + 1) % this.items.length;
+      this._setFocusedItem(this.items[index]);
+    }
+
+  };
+
+  Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
+
+  /** @polymerBehavior Polymer.IronMenuBehavior */
+  Polymer.IronMenuBehavior = [
+    Polymer.IronMultiSelectableBehavior,
+    Polymer.IronA11yKeysBehavior,
+    Polymer.IronMenuBehaviorImpl
+  ];
+
+
+;
+
+  /**
+   * @demo demo/index.html
+   * @polymerBehavior
+   */
+  Polymer.IronControlState = {
+
+    properties: {
+
+      /**
+       * If true, the element currently has focus.
+       */
+      focused: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        readOnly: true,
+        reflectToAttribute: true
+      },
+
+      /**
+       * If true, the user cannot interact with this element.
+       */
+      disabled: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        observer: '_disabledChanged',
+        reflectToAttribute: true
+      },
+
+      _oldTabIndex: {
+        type: Number
+      },
+
+      _boundFocusBlurHandler: {
+        type: Function,
+        value: function() {
+          return this._focusBlurHandler.bind(this);
+        }
+      }
+
+    },
+
+    observers: [
+      '_changedControlState(focused, disabled)'
+    ],
+
+    ready: function() {
+      this.addEventListener('focus', this._boundFocusBlurHandler, true);
+      this.addEventListener('blur', this._boundFocusBlurHandler, true);
+    },
+
+    _focusBlurHandler: function(event) {
+      // NOTE(cdata):  if we are in ShadowDOM land, `event.target` will
+      // eventually become `this` due to retargeting; if we are not in
+      // ShadowDOM land, `event.target` will eventually become `this` due
+      // to the second conditional which fires a synthetic event (that is also
+      // handled). In either case, we can disregard `event.path`.
+
+      if (event.target === this) {
+        var focused = event.type === 'focus';
+        this._setFocused(focused);
+      } else if (!this.shadowRoot) {
+        this.fire(event.type, {sourceEvent: event}, {
+          node: this,
+          bubbles: event.bubbles,
+          cancelable: event.cancelable
+        });
+      }
+    },
+
+    _disabledChanged: function(disabled, old) {
+      this.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      this.style.pointerEvents = disabled ? 'none' : '';
+      if (disabled) {
+        this._oldTabIndex = this.tabIndex;
+        this.focused = false;
+        this.tabIndex = -1;
+      } else if (this._oldTabIndex !== undefined) {
+        this.tabIndex = this._oldTabIndex;
+      }
+    },
+
+    _changedControlState: function() {
+      // _controlStateChanged is abstract, follow-on behaviors may implement it
+      if (this._controlStateChanged) {
+        this._controlStateChanged();
+      }
+    }
+
+  };
+
+
+;
+
+  /**
+   * @demo demo/index.html
+   * @polymerBehavior Polymer.IronButtonState
+   */
+  Polymer.IronButtonStateImpl = {
+
+    properties: {
+
+      /**
+       * If true, the user is currently holding down the button.
+       */
+      pressed: {
+        type: Boolean,
+        readOnly: true,
+        value: false,
+        reflectToAttribute: true,
+        observer: '_pressedChanged'
+      },
+
+      /**
+       * If true, the button toggles the active state with each tap or press
+       * of the spacebar.
+       */
+      toggles: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
+      },
+
+      /**
+       * If true, the button is a toggle and is currently in the active state.
+       */
+      active: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        reflectToAttribute: true
+      },
+
+      /**
+       * True if the element is currently being pressed by a "pointer," which
+       * is loosely defined as mouse or touch input (but specifically excluding
+       * keyboard input).
+       */
+      pointerDown: {
+        type: Boolean,
+        readOnly: true,
+        value: false
+      },
+
+      /**
+       * True if the input device that caused the element to receive focus
+       * was a keyboard.
+       */
+      receivedFocusFromKeyboard: {
+        type: Boolean,
+        readOnly: true
+      },
+
+      /**
+       * The aria attribute to be set if the button is a toggle and in the
+       * active state.
+       */
+      ariaActiveAttribute: {
+        type: String,
+        value: 'aria-pressed',
+        observer: '_ariaActiveAttributeChanged'
+      }
+    },
+
+    listeners: {
+      down: '_downHandler',
+      up: '_upHandler',
+      tap: '_tapHandler'
+    },
+
+    observers: [
+      '_detectKeyboardFocus(focused)',
+      '_activeChanged(active, ariaActiveAttribute)'
+    ],
+
+    keyBindings: {
+      'enter:keydown': '_asyncClick',
+      'space:keydown': '_spaceKeyDownHandler',
+      'space:keyup': '_spaceKeyUpHandler',
+    },
+
+    _mouseEventRe: /^mouse/,
+
+    _tapHandler: function() {
+      if (this.toggles) {
+       // a tap is needed to toggle the active state
+        this._userActivate(!this.active);
+      } else {
+        this.active = false;
+      }
+    },
+
+    _detectKeyboardFocus: function(focused) {
+      this._setReceivedFocusFromKeyboard(!this.pointerDown && focused);
+    },
+
+    // to emulate native checkbox, (de-)activations from a user interaction fire
+    // 'change' events
+    _userActivate: function(active) {
+      if (this.active !== active) {
+        this.active = active;
+        this.fire('change');
+      }
+    },
+
+    _eventSourceIsPrimaryInput: function(event) {
+      event = event.detail.sourceEvent || event;
+
+      // Always true for non-mouse events....
+      if (!this._mouseEventRe.test(event.type)) {
+        return true;
+      }
+
+      // http://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
+      if ('buttons' in event) {
+        return event.buttons === 1;
+      }
+
+      // http://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/which
+      if (typeof event.which === 'number') {
+        return event.which < 2;
+      }
+
+      // http://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+      return event.button < 1;
+    },
+
+    _downHandler: function(event) {
+      if (!this._eventSourceIsPrimaryInput(event)) {
+        return;
+      }
+
+      this._setPointerDown(true);
+      this._setPressed(true);
+      this._setReceivedFocusFromKeyboard(false);
+    },
+
+    _upHandler: function() {
+      this._setPointerDown(false);
+      this._setPressed(false);
+    },
+
+    _spaceKeyDownHandler: function(event) {
+      var keyboardEvent = event.detail.keyboardEvent;
+      keyboardEvent.preventDefault();
+      keyboardEvent.stopImmediatePropagation();
+      this._setPressed(true);
+    },
+
+    _spaceKeyUpHandler: function() {
+      if (this.pressed) {
+        this._asyncClick();
+      }
+      this._setPressed(false);
+    },
+
+    // trigger click asynchronously, the asynchrony is useful to allow one
+    // event handler to unwind before triggering another event
+    _asyncClick: function() {
+      this.async(function() {
+        this.click();
+      }, 1);
+    },
+
+    // any of these changes are considered a change to button state
+
+    _pressedChanged: function(pressed) {
+      this._changedButtonState();
+    },
+
+    _ariaActiveAttributeChanged: function(value, oldValue) {
+      if (oldValue && oldValue != value && this.hasAttribute(oldValue)) {
+        this.removeAttribute(oldValue);
+      }
+    },
+
+    _activeChanged: function(active, ariaActiveAttribute) {
+      if (this.toggles) {
+        this.setAttribute(this.ariaActiveAttribute,
+                          active ? 'true' : 'false');
+      } else {
+        this.removeAttribute(this.ariaActiveAttribute);
+      }
+      this._changedButtonState();
+    },
+
+    _controlStateChanged: function() {
+      if (this.disabled) {
+        this._setPressed(false);
+      } else {
+        this._changedButtonState();
+      }
+    },
+
+    // provide hook for follow-on behaviors to react to button-state
+
+    _changedButtonState: function() {
+      if (this._buttonStateChanged) {
+        this._buttonStateChanged(); // abstract
+      }
+    }
+
+  };
+
+  /** @polymerBehavior */
+  Polymer.IronButtonState = [
+    Polymer.IronA11yKeysBehavior,
+    Polymer.IronButtonStateImpl
+  ];
+
+
+;
+
+  /** @polymerBehavior */
+  Polymer.PaperButtonBehaviorImpl = {
+
+    properties: {
+
+      _elevation: {
+        type: Number
+      }
+
+    },
+
+    observers: [
+      '_calculateElevation(focused, disabled, active, pressed, receivedFocusFromKeyboard)'
+    ],
+
+    hostAttributes: {
+      role: 'button',
+      tabindex: '0'
+    },
+
+    _calculateElevation: function() {
+      var e = 1;
+      if (this.disabled) {
+        e = 0;
+      } else if (this.active || this.pressed) {
+        e = 4;
+      } else if (this.receivedFocusFromKeyboard) {
+        e = 3;
+      }
+      this._elevation = e;
+    }
+  };
+
+  /** @polymerBehavior */
+  Polymer.PaperButtonBehavior = [
+    Polymer.IronButtonState,
+    Polymer.IronControlState,
+    Polymer.PaperButtonBehaviorImpl
+  ];
+
+
+;
+
+  /**
+   * `Polymer.PaperInkyFocusBehavior` implements a ripple when the element has keyboard focus.
+   *
+   * @polymerBehavior Polymer.PaperInkyFocusBehavior
+   */
+  Polymer.PaperInkyFocusBehaviorImpl = {
+
+    observers: [
+      '_focusedChanged(receivedFocusFromKeyboard)'
+    ],
+
+    _focusedChanged: function(receivedFocusFromKeyboard) {
+      if (!this.$.ink) {
+        return;
+      }
+
+      this.$.ink.holdDown = receivedFocusFromKeyboard;
+    }
+
+  };
+
+  /** @polymerBehavior Polymer.PaperInkyFocusBehavior */
+  Polymer.PaperInkyFocusBehavior = [
+    Polymer.IronButtonState,
+    Polymer.IronControlState,
+    Polymer.PaperInkyFocusBehaviorImpl
+  ];
+
 
 ;
 (function(scope) {
@@ -10005,595 +12081,6 @@ PathDriver.prototype._read = function _read() {
 
   });
 
-;
-
-  /**
-   * @param {!Function} selectCallback
-   * @constructor
-   */
-  Polymer.IronSelection = function(selectCallback) {
-    this.selection = [];
-    this.selectCallback = selectCallback;
-  };
-
-  Polymer.IronSelection.prototype = {
-
-    /**
-     * Retrieves the selected item(s).
-     *
-     * @method get
-     * @returns Returns the selected item(s). If the multi property is true,
-     * `get` will return an array, otherwise it will return
-     * the selected item or undefined if there is no selection.
-     */
-    get: function() {
-      return this.multi ? this.selection : this.selection[0];
-    },
-
-    /**
-     * Clears all the selection except the ones indicated.
-     *
-     * @method clear
-     * @param {Array} excludes items to be excluded.
-     */
-    clear: function(excludes) {
-      this.selection.slice().forEach(function(item) {
-        if (!excludes || excludes.indexOf(item) < 0) {
-          this.setItemSelected(item, false);
-        }
-      }, this);
-    },
-
-    /**
-     * Indicates if a given item is selected.
-     *
-     * @method isSelected
-     * @param {*} item The item whose selection state should be checked.
-     * @returns Returns true if `item` is selected.
-     */
-    isSelected: function(item) {
-      return this.selection.indexOf(item) >= 0;
-    },
-
-    /**
-     * Sets the selection state for a given item to either selected or deselected.
-     *
-     * @method setItemSelected
-     * @param {*} item The item to select.
-     * @param {boolean} isSelected True for selected, false for deselected.
-     */
-    setItemSelected: function(item, isSelected) {
-      if (item != null) {
-        if (isSelected) {
-          this.selection.push(item);
-        } else {
-          var i = this.selection.indexOf(item);
-          if (i >= 0) {
-            this.selection.splice(i, 1);
-          }
-        }
-        if (this.selectCallback) {
-          this.selectCallback(item, isSelected);
-        }
-      }
-    },
-
-    /**
-     * Sets the selection state for a given item. If the `multi` property
-     * is true, then the selected state of `item` will be toggled; otherwise
-     * the `item` will be selected.
-     *
-     * @method select
-     * @param {*} item The item to select.
-     */
-    select: function(item) {
-      if (this.multi) {
-        this.toggle(item);
-      } else if (this.get() !== item) {
-        this.setItemSelected(this.get(), false);
-        this.setItemSelected(item, true);
-      }
-    },
-
-    /**
-     * Toggles the selection state for `item`.
-     *
-     * @method toggle
-     * @param {*} item The item to toggle.
-     */
-    toggle: function(item) {
-      this.setItemSelected(item, !this.isSelected(item));
-    }
-
-  };
-
-
-;
-
-  /** @polymerBehavior */
-  Polymer.IronSelectableBehavior = {
-
-      /**
-       *  Fired when iron-selector is activated (selected or deselected).
-       *  It is fired before the selected items are changed.
-       *  Cancel the event to abort selection.
-       *
-       * @event iron-activate
-       *
-       **/
-      /**
-       *  Fired when an item is selected
-       *
-       * @event iron-select
-       *
-       **/
-      /**
-       *  Fired when an item is deselected
-       *
-       * @event iron-deselect
-       *
-       **/
-
-    properties: {
-
-      /**
-       * If you want to use the attribute value of an element for `selected` instead of the index,
-       * set this to the name of the attribute.
-       *
-       * @attribute attrForSelected
-       * @type {string}
-       */
-      attrForSelected: {
-        type: String,
-        value: null
-      },
-
-      /**
-       * Gets or sets the selected element. The default is to use the index of the item.
-       *
-       * @attribute selected
-       * @type {string}
-       */
-      selected: {
-        type: String,
-        notify: true
-      },
-
-      /**
-       * Returns the currently selected item.
-       *
-       * @attribute selectedItem
-       * @type {Object}
-       */
-      selectedItem: {
-        type: Object,
-        readOnly: true,
-        notify: true
-      },
-
-      /**
-       * The event that fires from items when they are selected. Selectable
-       * will listen for this event from items and update the selection state.
-       * Set to empty string to listen to no events.
-       *
-       * @attribute activateEvent
-       * @type {string}
-       * @default 'tap'
-       */
-      activateEvent: {
-        type: String,
-        value: 'tap',
-        observer: '_activateEventChanged'
-      },
-
-      /**
-       * This is a CSS selector string.  If this is set, only items that match the CSS selector
-       * are selectable.
-       *
-       * @attribute selectable
-       * @type {string}
-       */
-      selectable: String,
-
-      /**
-       * The class to set on elements when selected.
-       *
-       * @attribute selectedClass
-       * @type {string}
-       */
-      selectedClass: {
-        type: String,
-        value: 'iron-selected'
-      },
-
-      /**
-       * The attribute to set on elements when selected.
-       *
-       * @attribute selectedAttribute
-       * @type {string}
-       */
-      selectedAttribute: {
-        type: String,
-        value: null
-      },
-
-      /**
-       * The set of excluded elements where the key is the `localName` 
-       * of the element that will be ignored from the item list.
-       *
-       * @type {object}
-       * @default {template: 1}
-       */
-
-      excludedLocalNames: {
-        type: Object,
-        value: function() {
-          return {
-            'template': 1
-          };
-        }
-      }
-    },
-
-    observers: [
-      '_updateSelected(attrForSelected, selected)'
-    ],
-
-    created: function() {
-      this._bindFilterItem = this._filterItem.bind(this);
-      this._selection = new Polymer.IronSelection(this._applySelection.bind(this));
-    },
-
-    attached: function() {
-      this._observer = this._observeItems(this);
-      this._contentObserver = this._observeContent(this);
-    },
-
-    detached: function() {
-      if (this._observer) {
-        this._observer.disconnect();
-      }
-      if (this._contentObserver) {
-        this._contentObserver.disconnect();
-      }
-      this._removeListener(this.activateEvent);
-    },
-
-    /**
-     * Returns an array of selectable items.
-     *
-     * @property items
-     * @type Array
-     */
-    get items() {
-      var nodes = Polymer.dom(this).queryDistributedElements(this.selectable || '*');
-      return Array.prototype.filter.call(nodes, this._bindFilterItem);
-    },
-
-    /**
-     * Returns the index of the given item.
-     *
-     * @method indexOf
-     * @param {Object} item
-     * @returns Returns the index of the item
-     */
-    indexOf: function(item) {
-      return this.items.indexOf(item);
-    },
-
-    /**
-     * Selects the given value.
-     *
-     * @method select
-     * @param {string} value the value to select.
-     */
-    select: function(value) {
-      this.selected = value;
-    },
-
-    /**
-     * Selects the previous item.
-     *
-     * @method selectPrevious
-     */
-    selectPrevious: function() {
-      var length = this.items.length;
-      var index = (Number(this._valueToIndex(this.selected)) - 1 + length) % length;
-      this.selected = this._indexToValue(index);
-    },
-
-    /**
-     * Selects the next item.
-     *
-     * @method selectNext
-     */
-    selectNext: function() {
-      var index = (Number(this._valueToIndex(this.selected)) + 1) % this.items.length;
-      this.selected = this._indexToValue(index);
-    },
-
-    _addListener: function(eventName) {
-      this.listen(this, eventName, '_activateHandler');
-    },
-
-    _removeListener: function(eventName) {
-      this.unlisten(this, eventName, '_activateHandler');
-    },
-
-    _activateEventChanged: function(eventName, old) {
-      this._removeListener(old);
-      this._addListener(eventName);
-    },
-
-    _updateSelected: function() {
-      this._selectSelected(this.selected);
-    },
-
-    _selectSelected: function(selected) {
-      this._selection.select(this._valueToItem(this.selected));
-    },
-
-    _filterItem: function(node) {
-      return !this.excludedLocalNames[node.localName];
-    },
-
-    _valueToItem: function(value) {
-      return (value == null) ? null : this.items[this._valueToIndex(value)];
-    },
-
-    _valueToIndex: function(value) {
-      if (this.attrForSelected) {
-        for (var i = 0, item; item = this.items[i]; i++) {
-          if (this._valueForItem(item) == value) {
-            return i;
-          }
-        }
-      } else {
-        return Number(value);
-      }
-    },
-
-    _indexToValue: function(index) {
-      if (this.attrForSelected) {
-        var item = this.items[index];
-        if (item) {
-          return this._valueForItem(item);
-        }
-      } else {
-        return index;
-      }
-    },
-
-    _valueForItem: function(item) {
-      return item[this.attrForSelected] || item.getAttribute(this.attrForSelected);
-    },
-
-    _applySelection: function(item, isSelected) {
-      if (this.selectedClass) {
-        this.toggleClass(this.selectedClass, isSelected, item);
-      }
-      if (this.selectedAttribute) {
-        this.toggleAttribute(this.selectedAttribute, isSelected, item);
-      }
-      this._selectionChange();
-      this.fire('iron-' + (isSelected ? 'select' : 'deselect'), {item: item});
-    },
-
-    _selectionChange: function() {
-      this._setSelectedItem(this._selection.get());
-    },
-
-    // observe content changes under the given node.
-    _observeContent: function(node) {
-      var content = node.querySelector('content');
-      if (content && content.parentElement === node) {
-        return this._observeItems(node.domHost);
-      }
-    },
-
-    // observe items change under the given node.
-    _observeItems: function(node) {
-      var observer = new MutationObserver(function() {
-        if (this.selected != null) {
-          this._updateSelected();
-        }
-      }.bind(this));
-      observer.observe(node, {
-        childList: true,
-        subtree: true
-      });
-      return observer;
-    },
-
-    _activateHandler: function(e) {
-      var t = e.target;
-      var items = this.items;
-      while (t && t != this) {
-        var i = items.indexOf(t);
-        if (i >= 0) {
-          var value = this._indexToValue(i);
-          this._itemActivate(value, t);
-          return;
-        }
-        t = t.parentNode;
-      }
-    },
-
-    _itemActivate: function(value, item) {
-      if (!this.fire('iron-activate',
-          {selected: value, item: item}, {cancelable: true}).defaultPrevented) {
-        this.select(value);
-      }
-    }
-
-  };
-
-
-;
-  /** @polymerBehavior Polymer.IronMultiSelectableBehavior */
-  Polymer.IronMultiSelectableBehaviorImpl = {
-    properties: {
-
-      /**
-       * If true, multiple selections are allowed.
-       */
-      multi: {
-        type: Boolean,
-        value: false,
-        observer: 'multiChanged'
-      },
-
-      /**
-       * Gets or sets the selected elements. This is used instead of `selected` when `multi`
-       * is true.
-       */
-      selectedValues: {
-        type: Array,
-        notify: true
-      },
-
-      /**
-       * Returns an array of currently selected items.
-       */
-      selectedItems: {
-        type: Array,
-        readOnly: true,
-        notify: true
-      },
-
-    },
-
-    observers: [
-      '_updateSelected(attrForSelected, selectedValues)'
-    ],
-
-    /**
-     * Selects the given value. If the `multi` property is true, then the selected state of the
-     * `value` will be toggled; otherwise the `value` will be selected.
-     *
-     * @method select
-     * @param {string} value the value to select.
-     */
-    select: function(value) {
-      if (this.multi) {
-        if (this.selectedValues) {
-          this._toggleSelected(value);
-        } else {
-          this.selectedValues = [value];
-        }
-      } else {
-        this.selected = value;
-      }
-    },
-
-    multiChanged: function(multi) {
-      this._selection.multi = multi;
-    },
-
-    _updateSelected: function() {
-      if (this.multi) {
-        this._selectMulti(this.selectedValues);
-      } else {
-        this._selectSelected(this.selected);
-      }
-    },
-
-    _selectMulti: function(values) {
-      this._selection.clear();
-      if (values) {
-        for (var i = 0; i < values.length; i++) {
-          this._selection.setItemSelected(this._valueToItem(values[i]), true);
-        }
-      }
-    },
-
-    _selectionChange: function() {
-      var s = this._selection.get();
-      if (this.multi) {
-        this._setSelectedItems(s);
-      } else {
-        this._setSelectedItems([s]);
-        this._setSelectedItem(s);
-      }
-    },
-
-    _toggleSelected: function(value) {
-      var i = this.selectedValues.indexOf(value);
-      var unselected = i < 0;
-      if (unselected) {
-        this.selectedValues.push(value);
-      } else {
-        this.selectedValues.splice(i, 1);
-      }
-      this._selection.setItemSelected(this._valueToItem(value), unselected);
-    }
-  };
-
-  /** @polymerBehavior */
-  Polymer.IronMultiSelectableBehavior = [
-    Polymer.IronSelectableBehavior,
-    Polymer.IronMultiSelectableBehaviorImpl
-  ];
-
-
-;
-  /**
-  `iron-selector` is an element which can be used to manage a list of elements
-  that can be selected.  Tapping on the item will make the item selected.  The `selected` indicates
-  which item is being selected.  The default is to use the index of the item.
-
-  Example:
-
-      <iron-selector selected="0">
-        <div>Item 1</div>
-        <div>Item 2</div>
-        <div>Item 3</div>
-      </iron-selector>
-
-  If you want to use the attribute value of an element for `selected` instead of the index,
-  set `attrForSelected` to the name of the attribute.  For example, if you want to select item by
-  `name`, set `attrForSelected` to `name`.
-
-  Example:
-
-      <iron-selector attr-for-selected="name" selected="foo">
-        <div name="foo">Foo</div>
-        <div name="bar">Bar</div>
-        <div name="zot">Zot</div>
-      </iron-selector>
-
-  `iron-selector` is not styled. Use the `iron-selected` CSS class to style the selected element.
-
-  Example:
-
-      <style>
-        .iron-selected {
-          background: #eee;
-        }
-      </style>
-
-      ...
-
-      <iron-selector selected="0">
-        <div>Item 1</div>
-        <div>Item 2</div>
-        <div>Item 3</div>
-      </iron-selector>
-
-  @demo demo/index.html
-  */
-
-  Polymer({
-
-    is: 'iron-selector',
-
-    behaviors: [
-      Polymer.IronMultiSelectableBehavior
-    ]
-
-  });
-
-
 ;function MakePromise (asap) {
   function Promise(fn) {
 		if (typeof this !== 'object' || typeof fn !== 'function') throw new TypeError();
@@ -11495,1246 +12982,6 @@ if (!window.Promise) {
     },
 
   });
-
-;
-
-  (function() {
-
-    // monostate data
-    var metaDatas = {};
-    var metaArrays = {};
-
-    Polymer.IronMeta = Polymer({
-
-      is: 'iron-meta',
-
-      properties: {
-
-        /**
-         * The type of meta-data.  All meta-data of the same type is stored
-         * together.
-         */
-        type: {
-          type: String,
-          value: 'default',
-          observer: '_typeChanged'
-        },
-
-        /**
-         * The key used to store `value` under the `type` namespace.
-         */
-        key: {
-          type: String,
-          observer: '_keyChanged'
-        },
-
-        /**
-         * The meta-data to store or retrieve.
-         */
-        value: {
-          type: Object,
-          notify: true,
-          observer: '_valueChanged'
-        },
-
-        /**
-         * If true, `value` is set to the iron-meta instance itself.
-         */
-         self: {
-          type: Boolean,
-          observer: '_selfChanged'
-        },
-
-        /**
-         * Array of all meta-data values for the given type.
-         */
-        list: {
-          type: Array,
-          notify: true
-        }
-
-      },
-
-      /**
-       * Only runs if someone invokes the factory/constructor directly
-       * e.g. `new Polymer.IronMeta()`
-       */
-      factoryImpl: function(config) {
-        if (config) {
-          for (var n in config) {
-            switch(n) {
-              case 'type':
-              case 'key':
-              case 'value':
-                this[n] = config[n];
-                break;
-            }
-          }
-        }
-      },
-
-      created: function() {
-        // TODO(sjmiles): good for debugging?
-        this._metaDatas = metaDatas;
-        this._metaArrays = metaArrays;
-      },
-
-      _keyChanged: function(key, old) {
-        this._resetRegistration(old);
-      },
-
-      _valueChanged: function(value) {
-        this._resetRegistration(this.key);
-      },
-
-      _selfChanged: function(self) {
-        if (self) {
-          this.value = this;
-        }
-      },
-
-      _typeChanged: function(type) {
-        this._unregisterKey(this.key);
-        if (!metaDatas[type]) {
-          metaDatas[type] = {};
-        }
-        this._metaData = metaDatas[type];
-        if (!metaArrays[type]) {
-          metaArrays[type] = [];
-        }
-        this.list = metaArrays[type];
-        this._registerKeyValue(this.key, this.value);
-      },
-
-      /**
-       * Retrieves meta data value by key.
-       *
-       * @method byKey
-       * @param {string} key The key of the meta-data to be returned.
-       * @return {*}
-       */
-      byKey: function(key) {
-        return this._metaData && this._metaData[key];
-      },
-
-      _resetRegistration: function(oldKey) {
-        this._unregisterKey(oldKey);
-        this._registerKeyValue(this.key, this.value);
-      },
-
-      _unregisterKey: function(key) {
-        this._unregister(key, this._metaData, this.list);
-      },
-
-      _registerKeyValue: function(key, value) {
-        this._register(key, value, this._metaData, this.list);
-      },
-
-      _register: function(key, value, data, list) {
-        if (key && data && value !== undefined) {
-          data[key] = value;
-          list.push(value);
-        }
-      },
-
-      _unregister: function(key, data, list) {
-        if (key && data) {
-          if (key in data) {
-            var value = data[key];
-            delete data[key];
-            this.arrayDelete(list, value);
-          }
-        }
-      }
-
-    });
-
-    /**
-    `iron-meta-query` can be used to access infomation stored in `iron-meta`.
-
-    Examples:
-
-    If I create an instance like this:
-
-        <iron-meta key="info" value="foo/bar"></iron-meta>
-
-    Note that value="foo/bar" is the metadata I've defined. I could define more
-    attributes or use child nodes to define additional metadata.
-
-    Now I can access that element (and it's metadata) from any `iron-meta-query` instance:
-
-         var value = new Polymer.IronMetaQuery({key: 'info'}).value;
-
-    @group Polymer Iron Elements
-    @element iron-meta-query
-    */
-    Polymer.IronMetaQuery = Polymer({
-
-      is: 'iron-meta-query',
-
-      properties: {
-
-        /**
-         * The type of meta-data.  All meta-data of the same type is stored
-         * together.
-         */
-        type: {
-          type: String,
-          value: 'default',
-          observer: '_typeChanged'
-        },
-
-        /**
-         * Specifies a key to use for retrieving `value` from the `type`
-         * namespace.
-         */
-        key: {
-          type: String,
-          observer: '_keyChanged'
-        },
-
-        /**
-         * The meta-data to store or retrieve.
-         */
-        value: {
-          type: Object,
-          notify: true,
-          readOnly: true
-        },
-
-        /**
-         * Array of all meta-data values for the given type.
-         */
-        list: {
-          type: Array,
-          notify: true
-        }
-
-      },
-
-      /**
-       * Actually a factory method, not a true constructor. Only runs if
-       * someone invokes it directly (via `new Polymer.IronMeta()`);
-       */
-      factoryImpl: function(config) {
-        if (config) {
-          for (var n in config) {
-            switch(n) {
-              case 'type':
-              case 'key':
-                this[n] = config[n];
-                break;
-            }
-          }
-        }
-      },
-
-      created: function() {
-        // TODO(sjmiles): good for debugging?
-        this._metaDatas = metaDatas;
-        this._metaArrays = metaArrays;
-      },
-
-      _keyChanged: function(key) {
-        this._setValue(this._metaData && this._metaData[key]);
-      },
-
-      _typeChanged: function(type) {
-        this._metaData = metaDatas[type];
-        this.list = metaArrays[type];
-        if (this.key) {
-          this._keyChanged(this.key);
-        }
-      },
-
-      /**
-       * Retrieves meta data value by key.
-       * @param {string} key The key of the meta-data to be returned.
-       * @return {*}
-       */
-      byKey: function(key) {
-        return this._metaData && this._metaData[key];
-      }
-
-    });
-
-  })();
-
-;
-  /**
-   * The `iron-iconset-svg` element allows users to define their own icon sets
-   * that contain svg icons. The svg icon elements should be children of the
-   * `iron-iconset-svg` element. Multiple icons should be given distinct id's.
-   *
-   * Using svg elements to create icons has a few advantages over traditional
-   * bitmap graphics like jpg or png. Icons that use svg are vector based so they
-   * are resolution independent and should look good on any device. They are
-   * stylable via css. Icons can be themed, colorized, and even animated.
-   *
-   * Example:
-   *
-   *     <iron-iconset-svg name="my-svg-icons" size="24">
-   *       <svg>
-   *         <defs>
-   *           <g id="shape">
-   *             <rect x="50" y="50" width="50" height="50" />
-   *             <circle cx="50" cy="50" r="50" />
-   *           </g>
-   *         </defs>
-   *       </svg>
-   *     </iron-iconset-svg>
-   *
-   * This will automatically register the icon set "my-svg-icons" to the iconset
-   * database.  To use these icons from within another element, make a
-   * `iron-iconset` element and call the `byId` method
-   * to retrieve a given iconset. To apply a particular icon inside an
-   * element use the `applyIcon` method. For example:
-   *
-   *     iconset.applyIcon(iconNode, 'car');
-   *
-   * @element iron-iconset-svg
-   * @demo demo/index.html
-   */
-  Polymer({
-
-    is: 'iron-iconset-svg',
-
-    properties: {
-
-      /**
-       * The name of the iconset.
-       *
-       * @attribute name
-       * @type string
-       */
-      name: {
-        type: String,
-        observer: '_nameChanged'
-      },
-
-      /**
-       * The size of an individual icon. Note that icons must be square.
-       *
-       * @attribute iconSize
-       * @type number
-       * @default 24
-       */
-      size: {
-        type: Number,
-        value: 24
-      }
-
-    },
-
-    /**
-     * Construct an array of all icon names in this iconset.
-     *
-     * @return {!Array} Array of icon names.
-     */
-    getIconNames: function() {
-      this._icons = this._createIconMap();
-      return Object.keys(this._icons).map(function(n) {
-        return this.name + ':' + n;
-      }, this);
-    },
-
-    /**
-     * Applies an icon to the given element.
-     *
-     * An svg icon is prepended to the element's shadowRoot if it exists,
-     * otherwise to the element itself.
-     *
-     * @method applyIcon
-     * @param {Element} element Element to which the icon is applied.
-     * @param {string} iconName Name of the icon to apply.
-     * @return {Element} The svg element which renders the icon.
-     */
-    applyIcon: function(element, iconName) {
-      // insert svg element into shadow root, if it exists
-      element = element.root || element;
-      // Remove old svg element
-      this.removeIcon(element);
-      // install new svg element
-      var svg = this._cloneIcon(iconName);
-      if (svg) {
-        var pde = Polymer.dom(element);
-        pde.insertBefore(svg, pde.childNodes[0]);
-        return element._svgIcon = svg;
-      }
-      return null;
-    },
-
-    /**
-     * Remove an icon from the given element by undoing the changes effected
-     * by `applyIcon`.
-     *
-     * @param {Element} element The element from which the icon is removed.
-     */
-    removeIcon: function(element) {
-      // Remove old svg element
-      if (element._svgIcon) {
-        Polymer.dom(element).removeChild(element._svgIcon);
-        element._svgIcon = null;
-      }
-    },
-
-    /**
-     *
-     * When name is changed, register iconset metadata
-     *
-     */
-    _nameChanged: function() {
-      new Polymer.IronMeta({type: 'iconset', key: this.name, value: this});
-    },
-
-    /**
-     * Create a map of child SVG elements by id.
-     *
-     * @return {!Object} Map of id's to SVG elements.
-     */
-    _createIconMap: function() {
-      // Objects chained to Object.prototype (`{}`) have members. Specifically,
-      // on FF there is a `watch` method that confuses the icon map, so we
-      // need to use a null-based object here.
-      var icons = Object.create(null);
-      Polymer.dom(this).querySelectorAll('[id]')
-        .forEach(function(icon) {
-          icons[icon.id] = icon;
-        });
-      return icons;
-    },
-
-    /**
-     * Produce installable clone of the SVG element matching `id` in this
-     * iconset, or `undefined` if there is no matching element.
-     *
-     * @return {Element} Returns an installable clone of the SVG element
-     * matching `id`.
-     */
-    _cloneIcon: function(id) {
-      // create the icon map on-demand, since the iconset itself has no discrete
-      // signal to know when it's children are fully parsed
-      this._icons = this._icons || this._createIconMap();
-      return this._prepareSvgClone(this._icons[id], this.size);
-    },
-
-    /**
-     * @param {Element} sourceSvg
-     * @param {number} size
-     * @return {Element}
-     */
-    _prepareSvgClone: function(sourceSvg, size) {
-      if (sourceSvg) {
-        var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('viewBox', ['0', '0', size, size].join(' '));
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        // TODO(dfreedm): `pointer-events: none` works around https://crbug.com/370136
-        // TODO(sjmiles): inline style may not be ideal, but avoids requiring a shadow-root
-        svg.style.cssText = 'pointer-events: none; display: block; width: 100%; height: 100%;';
-        svg.appendChild(sourceSvg.cloneNode(true)).removeAttribute('id');
-        return svg;
-      }
-      return null;
-    }
-
-  });
-
-;
-  (function() {
-    'use strict';
-
-    /**
-     * Chrome uses an older version of DOM Level 3 Keyboard Events
-     *
-     * Most keys are labeled as text, but some are Unicode codepoints.
-     * Values taken from: http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/keyset.html#KeySet-Set
-     */
-    var KEY_IDENTIFIER = {
-      'U+0009': 'tab',
-      'U+001B': 'esc',
-      'U+0020': 'space',
-      'U+002A': '*',
-      'U+0030': '0',
-      'U+0031': '1',
-      'U+0032': '2',
-      'U+0033': '3',
-      'U+0034': '4',
-      'U+0035': '5',
-      'U+0036': '6',
-      'U+0037': '7',
-      'U+0038': '8',
-      'U+0039': '9',
-      'U+0041': 'a',
-      'U+0042': 'b',
-      'U+0043': 'c',
-      'U+0044': 'd',
-      'U+0045': 'e',
-      'U+0046': 'f',
-      'U+0047': 'g',
-      'U+0048': 'h',
-      'U+0049': 'i',
-      'U+004A': 'j',
-      'U+004B': 'k',
-      'U+004C': 'l',
-      'U+004D': 'm',
-      'U+004E': 'n',
-      'U+004F': 'o',
-      'U+0050': 'p',
-      'U+0051': 'q',
-      'U+0052': 'r',
-      'U+0053': 's',
-      'U+0054': 't',
-      'U+0055': 'u',
-      'U+0056': 'v',
-      'U+0057': 'w',
-      'U+0058': 'x',
-      'U+0059': 'y',
-      'U+005A': 'z',
-      'U+007F': 'del'
-    };
-
-    /**
-     * Special table for KeyboardEvent.keyCode.
-     * KeyboardEvent.keyIdentifier is better, and KeyBoardEvent.key is even better
-     * than that.
-     *
-     * Values from: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.keyCode#Value_of_keyCode
-     */
-    var KEY_CODE = {
-      9: 'tab',
-      13: 'enter',
-      27: 'esc',
-      33: 'pageup',
-      34: 'pagedown',
-      35: 'end',
-      36: 'home',
-      32: 'space',
-      37: 'left',
-      38: 'up',
-      39: 'right',
-      40: 'down',
-      46: 'del',
-      106: '*'
-    };
-
-    /**
-     * MODIFIER_KEYS maps the short name for modifier keys used in a key
-     * combo string to the property name that references those same keys
-     * in a KeyboardEvent instance.
-     */
-    var MODIFIER_KEYS = {
-      'shift': 'shiftKey',
-      'ctrl': 'ctrlKey',
-      'alt': 'altKey',
-      'meta': 'metaKey'
-    };
-
-    /**
-     * KeyboardEvent.key is mostly represented by printable character made by
-     * the keyboard, with unprintable keys labeled nicely.
-     *
-     * However, on OS X, Alt+char can make a Unicode character that follows an
-     * Apple-specific mapping. In this case, we
-     * fall back to .keyCode.
-     */
-    var KEY_CHAR = /[a-z0-9*]/;
-
-    /**
-     * Matches a keyIdentifier string.
-     */
-    var IDENT_CHAR = /U\+/;
-
-    /**
-     * Matches arrow keys in Gecko 27.0+
-     */
-    var ARROW_KEY = /^arrow/;
-
-    /**
-     * Matches space keys everywhere (notably including IE10's exceptional name
-     * `spacebar`).
-     */
-    var SPACE_KEY = /^space(bar)?/;
-
-    function transformKey(key) {
-      var validKey = '';
-      if (key) {
-        var lKey = key.toLowerCase();
-        if (lKey.length == 1) {
-          if (KEY_CHAR.test(lKey)) {
-            validKey = lKey;
-          }
-        } else if (ARROW_KEY.test(lKey)) {
-          validKey = lKey.replace('arrow', '');
-        } else if (SPACE_KEY.test(lKey)) {
-          validKey = 'space';
-        } else if (lKey == 'multiply') {
-          // numpad '*' can map to Multiply on IE/Windows
-          validKey = '*';
-        } else {
-          validKey = lKey;
-        }
-      }
-      return validKey;
-    }
-
-    function transformKeyIdentifier(keyIdent) {
-      var validKey = '';
-      if (keyIdent) {
-        if (IDENT_CHAR.test(keyIdent)) {
-          validKey = KEY_IDENTIFIER[keyIdent];
-        } else {
-          validKey = keyIdent.toLowerCase();
-        }
-      }
-      return validKey;
-    }
-
-    function transformKeyCode(keyCode) {
-      var validKey = '';
-      if (Number(keyCode)) {
-        if (keyCode >= 65 && keyCode <= 90) {
-          // ascii a-z
-          // lowercase is 32 offset from uppercase
-          validKey = String.fromCharCode(32 + keyCode);
-        } else if (keyCode >= 112 && keyCode <= 123) {
-          // function keys f1-f12
-          validKey = 'f' + (keyCode - 112);
-        } else if (keyCode >= 48 && keyCode <= 57) {
-          // top 0-9 keys
-          validKey = String(48 - keyCode);
-        } else if (keyCode >= 96 && keyCode <= 105) {
-          // num pad 0-9
-          validKey = String(96 - keyCode);
-        } else {
-          validKey = KEY_CODE[keyCode];
-        }
-      }
-      return validKey;
-    }
-
-    function normalizedKeyForEvent(keyEvent) {
-      // fall back from .key, to .keyIdentifier, to .keyCode, and then to
-      // .detail.key to support artificial keyboard events
-      return transformKey(keyEvent.key) ||
-        transformKeyIdentifier(keyEvent.keyIdentifier) ||
-        transformKeyCode(keyEvent.keyCode) ||
-        transformKey(keyEvent.detail.key) || '';
-    }
-
-    function keyComboMatchesEvent(keyCombo, keyEvent) {
-      return normalizedKeyForEvent(keyEvent) === keyCombo.key &&
-        !!keyEvent.shiftKey === !!keyCombo.shiftKey &&
-        !!keyEvent.ctrlKey === !!keyCombo.ctrlKey &&
-        !!keyEvent.altKey === !!keyCombo.altKey &&
-        !!keyEvent.metaKey === !!keyCombo.metaKey;
-    }
-
-    function parseKeyComboString(keyComboString) {
-      return keyComboString.split('+').reduce(function(parsedKeyCombo, keyComboPart) {
-        var eventParts = keyComboPart.split(':');
-        var keyName = eventParts[0];
-        var event = eventParts[1];
-
-        if (keyName in MODIFIER_KEYS) {
-          parsedKeyCombo[MODIFIER_KEYS[keyName]] = true;
-        } else {
-          parsedKeyCombo.key = keyName;
-          parsedKeyCombo.event = event || 'keydown';
-        }
-
-        return parsedKeyCombo;
-      }, {
-        combo: keyComboString.split(':').shift()
-      });
-    }
-
-    function parseEventString(eventString) {
-      return eventString.split(' ').map(function(keyComboString) {
-        return parseKeyComboString(keyComboString);
-      });
-    }
-
-
-    /**
-     * `Polymer.IronA11yKeysBehavior` provides a normalized interface for processing
-     * keyboard commands that pertain to [WAI-ARIA best practices](http://www.w3.org/TR/wai-aria-practices/#kbd_general_binding).
-     * The element takes care of browser differences with respect to Keyboard events
-     * and uses an expressive syntax to filter key presses.
-     *
-     * Use the `keyBindings` prototype property to express what combination of keys
-     * will trigger the event to fire.
-     *
-     * Use the `key-event-target` attribute to set up event handlers on a specific
-     * node.
-     * The `keys-pressed` event will fire when one of the key combinations set with the
-     * `keys` property is pressed.
-     *
-     * @demo demo/index.html
-     * @polymerBehavior IronA11yKeysBehavior
-     */
-    Polymer.IronA11yKeysBehavior = {
-      properties: {
-        /**
-         * The HTMLElement that will be firing relevant KeyboardEvents.
-         */
-        keyEventTarget: {
-          type: Object,
-          value: function() {
-            return this;
-          }
-        },
-
-        _boundKeyHandlers: {
-          type: Array,
-          value: function() {
-            return [];
-          }
-        },
-
-        // We use this due to a limitation in IE10 where instances will have
-        // own properties of everything on the "prototype".
-        _imperativeKeyBindings: {
-          type: Object,
-          value: function() {
-            return {};
-          }
-        }
-      },
-
-      observers: [
-        '_resetKeyEventListeners(keyEventTarget, _boundKeyHandlers)'
-      ],
-
-      keyBindings: {},
-
-      registered: function() {
-        this._prepKeyBindings();
-      },
-
-      attached: function() {
-        this._listenKeyEventListeners();
-      },
-
-      detached: function() {
-        this._unlistenKeyEventListeners();
-      },
-
-      /**
-       * Can be used to imperatively add a key binding to the implementing
-       * element. This is the imperative equivalent of declaring a keybinding
-       * in the `keyBindings` prototype property.
-       */
-      addOwnKeyBinding: function(eventString, handlerName) {
-        this._imperativeKeyBindings[eventString] = handlerName;
-        this._prepKeyBindings();
-        this._resetKeyEventListeners();
-      },
-
-      /**
-       * When called, will remove all imperatively-added key bindings.
-       */
-      removeOwnKeyBindings: function() {
-        this._imperativeKeyBindings = {};
-        this._prepKeyBindings();
-        this._resetKeyEventListeners();
-      },
-
-      keyboardEventMatchesKeys: function(event, eventString) {
-        var keyCombos = parseEventString(eventString);
-        var index;
-
-        for (index = 0; index < keyCombos.length; ++index) {
-          if (keyComboMatchesEvent(keyCombos[index], event)) {
-            return true;
-          }
-        }
-
-        return false;
-      },
-
-      _collectKeyBindings: function() {
-        var keyBindings = this.behaviors.map(function(behavior) {
-          return behavior.keyBindings;
-        });
-
-        if (keyBindings.indexOf(this.keyBindings) === -1) {
-          keyBindings.push(this.keyBindings);
-        }
-
-        return keyBindings;
-      },
-
-      _prepKeyBindings: function() {
-        this._keyBindings = {};
-
-        this._collectKeyBindings().forEach(function(keyBindings) {
-          for (var eventString in keyBindings) {
-            this._addKeyBinding(eventString, keyBindings[eventString]);
-          }
-        }, this);
-
-        for (var eventString in this._imperativeKeyBindings) {
-          this._addKeyBinding(eventString, this._imperativeKeyBindings[eventString]);
-        }
-      },
-
-      _addKeyBinding: function(eventString, handlerName) {
-        parseEventString(eventString).forEach(function(keyCombo) {
-          this._keyBindings[keyCombo.event] =
-            this._keyBindings[keyCombo.event] || [];
-
-          this._keyBindings[keyCombo.event].push([
-            keyCombo,
-            handlerName
-          ]);
-        }, this);
-      },
-
-      _resetKeyEventListeners: function() {
-        this._unlistenKeyEventListeners();
-
-        if (this.isAttached) {
-          this._listenKeyEventListeners();
-        }
-      },
-
-      _listenKeyEventListeners: function() {
-        Object.keys(this._keyBindings).forEach(function(eventName) {
-          var keyBindings = this._keyBindings[eventName];
-          var boundKeyHandler = this._onKeyBindingEvent.bind(this, keyBindings);
-
-          this._boundKeyHandlers.push([this.keyEventTarget, eventName, boundKeyHandler]);
-
-          this.keyEventTarget.addEventListener(eventName, boundKeyHandler);
-        }, this);
-      },
-
-      _unlistenKeyEventListeners: function() {
-        var keyHandlerTuple;
-        var keyEventTarget;
-        var eventName;
-        var boundKeyHandler;
-
-        while (this._boundKeyHandlers.length) {
-          // My kingdom for block-scope binding and destructuring assignment..
-          keyHandlerTuple = this._boundKeyHandlers.pop();
-          keyEventTarget = keyHandlerTuple[0];
-          eventName = keyHandlerTuple[1];
-          boundKeyHandler = keyHandlerTuple[2];
-
-          keyEventTarget.removeEventListener(eventName, boundKeyHandler);
-        }
-      },
-
-      _onKeyBindingEvent: function(keyBindings, event) {
-        keyBindings.forEach(function(keyBinding) {
-          var keyCombo = keyBinding[0];
-          var handlerName = keyBinding[1];
-
-          if (!event.defaultPrevented && keyComboMatchesEvent(keyCombo, event)) {
-            this._triggerKeyHandler(keyCombo, handlerName, event);
-          }
-        }, this);
-      },
-
-      _triggerKeyHandler: function(keyCombo, handlerName, keyboardEvent) {
-        var detail = Object.create(keyCombo);
-        detail.keyboardEvent = keyboardEvent;
-
-        this[handlerName].call(this, new CustomEvent(keyCombo.event, {
-          detail: detail
-        }));
-      }
-    };
-  })();
-
-;
-
-  /**
-   * @demo demo/index.html
-   * @polymerBehavior
-   */
-  Polymer.IronControlState = {
-
-    properties: {
-
-      /**
-       * If true, the element currently has focus.
-       */
-      focused: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        readOnly: true,
-        reflectToAttribute: true
-      },
-
-      /**
-       * If true, the user cannot interact with this element.
-       */
-      disabled: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        observer: '_disabledChanged',
-        reflectToAttribute: true
-      },
-
-      _oldTabIndex: {
-        type: Number
-      },
-
-      _boundFocusBlurHandler: {
-        type: Function,
-        value: function() {
-          return this._focusBlurHandler.bind(this);
-        }
-      }
-
-    },
-
-    observers: [
-      '_changedControlState(focused, disabled)'
-    ],
-
-    ready: function() {
-      this.addEventListener('focus', this._boundFocusBlurHandler, true);
-      this.addEventListener('blur', this._boundFocusBlurHandler, true);
-    },
-
-    _focusBlurHandler: function(event) {
-      // NOTE(cdata):  if we are in ShadowDOM land, `event.target` will
-      // eventually become `this` due to retargeting; if we are not in
-      // ShadowDOM land, `event.target` will eventually become `this` due
-      // to the second conditional which fires a synthetic event (that is also
-      // handled). In either case, we can disregard `event.path`.
-
-      if (event.target === this) {
-        var focused = event.type === 'focus';
-        this._setFocused(focused);
-      } else if (!this.shadowRoot) {
-        this.fire(event.type, {sourceEvent: event}, {
-          node: this,
-          bubbles: event.bubbles,
-          cancelable: event.cancelable
-        });
-      }
-    },
-
-    _disabledChanged: function(disabled, old) {
-      this.setAttribute('aria-disabled', disabled ? 'true' : 'false');
-      this.style.pointerEvents = disabled ? 'none' : '';
-      if (disabled) {
-        this._oldTabIndex = this.tabIndex;
-        this.focused = false;
-        this.tabIndex = -1;
-      } else if (this._oldTabIndex !== undefined) {
-        this.tabIndex = this._oldTabIndex;
-      }
-    },
-
-    _changedControlState: function() {
-      // _controlStateChanged is abstract, follow-on behaviors may implement it
-      if (this._controlStateChanged) {
-        this._controlStateChanged();
-      }
-    }
-
-  };
-
-
-;
-
-  /**
-   * @demo demo/index.html
-   * @polymerBehavior Polymer.IronButtonState
-   */
-  Polymer.IronButtonStateImpl = {
-
-    properties: {
-
-      /**
-       * If true, the user is currently holding down the button.
-       */
-      pressed: {
-        type: Boolean,
-        readOnly: true,
-        value: false,
-        reflectToAttribute: true,
-        observer: '_pressedChanged'
-      },
-
-      /**
-       * If true, the button toggles the active state with each tap or press
-       * of the spacebar.
-       */
-      toggles: {
-        type: Boolean,
-        value: false,
-        reflectToAttribute: true
-      },
-
-      /**
-       * If true, the button is a toggle and is currently in the active state.
-       */
-      active: {
-        type: Boolean,
-        value: false,
-        notify: true,
-        reflectToAttribute: true
-      },
-
-      /**
-       * True if the element is currently being pressed by a "pointer," which
-       * is loosely defined as mouse or touch input (but specifically excluding
-       * keyboard input).
-       */
-      pointerDown: {
-        type: Boolean,
-        readOnly: true,
-        value: false
-      },
-
-      /**
-       * True if the input device that caused the element to receive focus
-       * was a keyboard.
-       */
-      receivedFocusFromKeyboard: {
-        type: Boolean,
-        readOnly: true
-      },
-
-      /**
-       * The aria attribute to be set if the button is a toggle and in the
-       * active state.
-       */
-      ariaActiveAttribute: {
-        type: String,
-        value: 'aria-pressed',
-        observer: '_ariaActiveAttributeChanged'
-      }
-    },
-
-    listeners: {
-      down: '_downHandler',
-      up: '_upHandler',
-      tap: '_tapHandler'
-    },
-
-    observers: [
-      '_detectKeyboardFocus(focused)',
-      '_activeChanged(active, ariaActiveAttribute)'
-    ],
-
-    keyBindings: {
-      'enter:keydown': '_asyncClick',
-      'space:keydown': '_spaceKeyDownHandler',
-      'space:keyup': '_spaceKeyUpHandler',
-    },
-
-    _mouseEventRe: /^mouse/,
-
-    _tapHandler: function() {
-      if (this.toggles) {
-       // a tap is needed to toggle the active state
-        this._userActivate(!this.active);
-      } else {
-        this.active = false;
-      }
-    },
-
-    _detectKeyboardFocus: function(focused) {
-      this._setReceivedFocusFromKeyboard(!this.pointerDown && focused);
-    },
-
-    // to emulate native checkbox, (de-)activations from a user interaction fire
-    // 'change' events
-    _userActivate: function(active) {
-      if (this.active !== active) {
-        this.active = active;
-        this.fire('change');
-      }
-    },
-
-    _eventSourceIsPrimaryInput: function(event) {
-      event = event.detail.sourceEvent || event;
-
-      // Always true for non-mouse events....
-      if (!this._mouseEventRe.test(event.type)) {
-        return true;
-      }
-
-      // http://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
-      if ('buttons' in event) {
-        return event.buttons === 1;
-      }
-
-      // http://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/which
-      if (typeof event.which === 'number') {
-        return event.which < 2;
-      }
-
-      // http://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
-      return event.button < 1;
-    },
-
-    _downHandler: function(event) {
-      if (!this._eventSourceIsPrimaryInput(event)) {
-        return;
-      }
-
-      this._setPointerDown(true);
-      this._setPressed(true);
-      this._setReceivedFocusFromKeyboard(false);
-    },
-
-    _upHandler: function() {
-      this._setPointerDown(false);
-      this._setPressed(false);
-    },
-
-    _spaceKeyDownHandler: function(event) {
-      var keyboardEvent = event.detail.keyboardEvent;
-      keyboardEvent.preventDefault();
-      keyboardEvent.stopImmediatePropagation();
-      this._setPressed(true);
-    },
-
-    _spaceKeyUpHandler: function() {
-      if (this.pressed) {
-        this._asyncClick();
-      }
-      this._setPressed(false);
-    },
-
-    // trigger click asynchronously, the asynchrony is useful to allow one
-    // event handler to unwind before triggering another event
-    _asyncClick: function() {
-      this.async(function() {
-        this.click();
-      }, 1);
-    },
-
-    // any of these changes are considered a change to button state
-
-    _pressedChanged: function(pressed) {
-      this._changedButtonState();
-    },
-
-    _ariaActiveAttributeChanged: function(value, oldValue) {
-      if (oldValue && oldValue != value && this.hasAttribute(oldValue)) {
-        this.removeAttribute(oldValue);
-      }
-    },
-
-    _activeChanged: function(active, ariaActiveAttribute) {
-      if (this.toggles) {
-        this.setAttribute(this.ariaActiveAttribute,
-                          active ? 'true' : 'false');
-      } else {
-        this.removeAttribute(this.ariaActiveAttribute);
-      }
-      this._changedButtonState();
-    },
-
-    _controlStateChanged: function() {
-      if (this.disabled) {
-        this._setPressed(false);
-      } else {
-        this._changedButtonState();
-      }
-    },
-
-    // provide hook for follow-on behaviors to react to button-state
-
-    _changedButtonState: function() {
-      if (this._buttonStateChanged) {
-        this._buttonStateChanged(); // abstract
-      }
-    }
-
-  };
-
-  /** @polymerBehavior */
-  Polymer.IronButtonState = [
-    Polymer.IronA11yKeysBehavior,
-    Polymer.IronButtonStateImpl
-  ];
-
-
-;
-
-  /** @polymerBehavior */
-  Polymer.PaperButtonBehaviorImpl = {
-
-    properties: {
-
-      _elevation: {
-        type: Number
-      }
-
-    },
-
-    observers: [
-      '_calculateElevation(focused, disabled, active, pressed, receivedFocusFromKeyboard)'
-    ],
-
-    hostAttributes: {
-      role: 'button',
-      tabindex: '0'
-    },
-
-    _calculateElevation: function() {
-      var e = 1;
-      if (this.disabled) {
-        e = 0;
-      } else if (this.active || this.pressed) {
-        e = 4;
-      } else if (this.receivedFocusFromKeyboard) {
-        e = 3;
-      }
-      this._elevation = e;
-    }
-  };
-
-  /** @polymerBehavior */
-  Polymer.PaperButtonBehavior = [
-    Polymer.IronButtonState,
-    Polymer.IronControlState,
-    Polymer.PaperButtonBehaviorImpl
-  ];
-
-
-;
-
-  /**
-   * `Polymer.PaperInkyFocusBehavior` implements a ripple when the element has keyboard focus.
-   *
-   * @polymerBehavior Polymer.PaperInkyFocusBehavior
-   */
-  Polymer.PaperInkyFocusBehaviorImpl = {
-
-    observers: [
-      '_focusedChanged(receivedFocusFromKeyboard)'
-    ],
-
-    _focusedChanged: function(receivedFocusFromKeyboard) {
-      if (!this.$.ink) {
-        return;
-      }
-
-      this.$.ink.holdDown = receivedFocusFromKeyboard;
-    }
-
-  };
-
-  /** @polymerBehavior Polymer.PaperInkyFocusBehavior */
-  Polymer.PaperInkyFocusBehavior = [
-    Polymer.IronButtonState,
-    Polymer.IronControlState,
-    Polymer.PaperInkyFocusBehaviorImpl
-  ];
-
 
 ;
 
@@ -13971,6 +14218,92 @@ call the form's `submit` method.
 
 
 ;
+
+    Polymer({
+
+      is: 'iron-icon',
+
+      properties: {
+
+        /**
+         * The name of the icon to use. The name should be of the form:
+         * `iconset_name:icon_name`.
+         */
+        icon: {
+          type: String,
+          observer: '_iconChanged'
+        },
+
+        /**
+         * The name of the theme to used, if one is specified by the
+         * iconset.
+         */
+        theme: {
+          type: String,
+          observer: '_updateIcon'
+        },
+
+        /**
+         * If using iron-icon without an iconset, you can set the src to be
+         * the URL of an individual icon image file. Note that this will take
+         * precedence over a given icon attribute.
+         */
+        src: {
+          type: String,
+          observer: '_srcChanged'
+        },
+        
+        _meta: {
+          value: Polymer.Base.create('iron-meta', {type: 'iconset'})
+        }
+        
+      },
+
+      _DEFAULT_ICONSET: 'icons',
+
+      _iconChanged: function(icon) {
+        var parts = (icon || '').split(':');
+        this._iconName = parts.pop();
+        this._iconsetName = parts.pop() || this._DEFAULT_ICONSET;
+        this._updateIcon();
+      },
+
+      _srcChanged: function(src) {
+        this._updateIcon();
+      },
+
+      _usesIconset: function() {
+        return this.icon || !this.src;
+      },
+
+      /** @suppress {visibility} */
+      _updateIcon: function() {
+        if (this._usesIconset()) {
+          if (this._iconsetName) {
+            this._iconset = this._meta.byKey(this._iconsetName);
+            if (this._iconset) {
+              this._iconset.applyIcon(this, this._iconName, this.theme);
+            } else {
+              this._warn(this._logf('_updateIcon', 'could not find iconset `'
+                + this._iconsetName + '`, did you import the iconset?'));
+            }
+          }
+        } else {
+          if (!this._img) {
+            this._img = document.createElement('img');
+            this._img.style.width = '100%';
+            this._img.style.height = '100%';
+            this._img.draggable = false;
+          }
+          this._img.src = this.src;
+          Polymer.dom(this.root).appendChild(this._img);
+        }
+      }
+
+    });
+
+  
+;
 (function() {
 
   'use strict';
@@ -14415,391 +14748,870 @@ call the form's `submit` method.
 
 
 ;
-Polymer({
 
-  is: 'more-route-selector',
+  (function() {
 
-  behaviors: [
-    MoreRouting.ContextAware,
-  ],
+    'use strict';
 
-  properties: {
-
-    /**
-     * The attribute to read route expressions from (on children).
-     */
-    routeAttribute: {
-      type: String,
-      value: 'route',
-    },
-
-    /**
-     * The routes managed by this element (inferred from the items that are
-     * defined by the selector it targets).
-     */
-    routes: {
-      type:     Array,
-      readOnly: true,
-      notify:   true,
-    },
-
-    /**
-     * The selected `MoreRouting.Route` object, or `null`.
-     *
-     * @type {MoreRouting.Route}
-     */
-    selectedRoute: {
-      type:     Object,
-      value:    null,
-      readOnly: true,
-      notify:   true,
-    },
-
-    /**
-     * The index of the selected route (relative to `routes`). -1 when there
-     * is no active route.
-     */
-    selectedIndex: {
-      type:     Number,
-      value:    -1,
-      readOnly: true,
-      notify:   true,
-    },
-
-    /**
-     * The _full_ path expression of the selected route, or `null`.
-     */
-    selectedPath: {
-      type:     String,
-      readOnly: true,
-      notify:   true,
-    },
-
-    /**
-     * The params of the selected route, or an empty object if no route.
-     */
-    selectedParams: {
-      type:     Object,
-      readOnly: true,
-      notify:   true,
-    },
-
-  },
-
-  /**
-   * @event more-route-selected fires when a new route is selected.
-   * @param {{
-   *   newRoute:  MoreRouting.Route, oldRoute: MoreRouting.Route,
-   *   newIndex:  number,  oldIndex:  number,
-   *   newPath:   ?string, oldPath:   ?string,
-   *   newParams: Object,  oldParams: Object,
-   * }}
-   */
-
-  attached: function() {
-    this._managedSelector = this._findTargetSelector();
-    if (!this._managedSelector) {
-      console.warn(this, 'was built without a selector to manage. It will do nothing.');
-      return;
-    }
-
-    this._managedSelector.addEventListener(
-        'selected-item-changed', this._onSelectedItemChanged.bind(this));
-    this._updateRoutes();
-  },
-
-  /**
-   * Handle a change in selected item, driven by the targeted selector.
-   *
-   * Note that this will fail if a route is chosen that requires params not
-   * defined by the current URL.
-   */
-  _onSelectedItemChanged: function(event) {
-    if (this._settingSelection) return;
-    var route = this._routeForItem(event.detail.value);
-    if (!route) return;
-    route.navigateTo();
-  },
-
-  _updateRoutes: function() {
-    var routes = [];
-    if (this._managedSelector) {
-      routes = this._managedSelector.items.map(this._routeForItem.bind(this));
-    }
-    this._setRoutes(routes);
-  },
-
-  _onMoreRouteChange: function(event) {
-    if (!this._managedSelector) return;
-
-    var selected = '';
-
-    var index = this.routes.indexOf(event.detail.newRoute);
-    var attrForSelected = this._managedSelector.attrForSelected;
-    if (!attrForSelected) {
-      selected = index;
-    } else {
-      var item = this._managedSelector.items[index];
-      if (item)
-        selected = item[attrForSelected] || item.getAttribute(attrForSelected);
-    }
-
-    // Make sure that we don't turn around and re-navigate
-    this._settingSelection = true;
-    this._managedSelector.select(selected);
-    this._settingSelection = false;
-  },
-
-  _findTargetSelector: function() {
-    var children = Polymer.dom(this).children;
-    if (children.length !== 1) {
-      console.error(this, 'expects only a single selector child');
-      return null;
-    }
-
-    var child = children[0];
-    if ('selected' in child && 'items' in child) {
-      return child;
-    } else {
-      console.error(this, 'can only manage children that are selectors');
-      return null;
-    }
-  },
-
-  _routeForItem: function(item) {
-    if (!item) return null;
-    if (item.moreRouteContext && item.moreRouteContext instanceof MoreRouting.Route) {
-      return item.moreRouteContext;
-    }
-
-    if (!item.hasAttribute(this.routeAttribute)) {
-      console.warn(item, 'is missing a context route or "' + this.routeAttribute + '" attribute');
-      return null;
-    }
-    var expression = item.getAttribute(this.routeAttribute);
-    var route      = MoreRouting.getRoute(expression, this.parentRoute);
-    // Associate the route w/ its element while we're here.
-    item.moreRouteContext = route;
-
-    return route;
-  },
-
-});
-
-;
-  (function () {
-    Polymer({
-
-      is: 'apps-home',
-      properties: {
-        serverurl: {type: String, value: ""},
-        deleteurl: {type: String, value: ""},
-        triggerurl: {type: String, value: ""},
-        onlineItems: Array,
-        debug: {
-          type: Boolean,
-          value: false
+    function classNames(obj) {
+      var classNames = [];
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key) && obj[key]) {
+          classNames.push(key);
         }
-      },
-
-      _computeDelta:function( starobba ){
-
-        console.log("AAAARGGGGGGG", starobba);
-      },
-
-      newURL(){
-        return MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
-      },
-
-      openURL(itemId) {
-        return MoreRouting.urlFor('appdetail', {appId: itemId});
-      },
-
-      activeOnes(currentItems) {
-        var count = 0;
-        for(var i = 0; i < currentItems.length; i++){
-          if(currentItems[i].followup) { count++; }
-        }
-        return count;
-      },
-
-      closedOnes(currentItems) {
-        var count = 0;
-        for(var i = 0; i < currentItems.length; i++){
-          if(!(currentItems[i].followup)) { count++; }
-        }
-        return count;
-      },
-
-      writtenOnes(currentItems) {
-        var count = 0;
-        for(var i = 0; i < currentItems.length; i++){
-          if(currentItems[i].written) { count++; }
-        }
-        return count;
-      },
-
-      calledOnes(currentItems) {
-        var count = 0;
-        for(var i = 0; i < currentItems.length; i++){
-          if(currentItems[i].called) { count++; }
-        }
-        return count;
-      },
-
-      interviewedOnes(currentItems) {
-        var count = 0;
-        for(var i = 0; i < currentItems.length; i++){
-          if(currentItems[i].interviewed) { count++; }
-        }
-        return count;
-      },
-
-
-      closeURL: function(e) {
-        console.log("Now deleting ", e.model.item.id);
-        this.deleteurl = this.serverurl + "/" + e.model.item.id;
-        this.$.delete_ajax.generateRequest();
-      },
-
-      triggerWritten:function(e){
-        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/written';
-        this.$.trigger_ajax.generateRequest();
-      },
-
-      triggerCalled:function(e){
-        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/called';
-        this.$.trigger_ajax.generateRequest();
-      },
-
-      triggerInterviewed:function(e){
-        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/interviewed';
-        this.$.trigger_ajax.generateRequest();
-      },
-
-      triggerFollowup:function(e){
-        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/followup';
-        this.$.trigger_ajax.generateRequest();
-      },
-
-      handleResponseOkRefresh:function(response){
-        console.log("Delete done. Refreshing");
-        this.$.get_ajax.generateRequest();
-      },
-
-      handleResponseGet:function(response){
-        console.log(response.detail.response);
-        console.log('Status is', response.detail.status);
-        if( response.detail.status == 403 ){
-          console.log('Woooo. not logged int. Routing to login.');
-          MoreRouting.navigateTo('login', {});
-        }else{
-          this.onlineItems = response.detail.response;
-        }
-      },
-      handleResponseError:function(response){
-        console.log(response.detail.error.message);
-        console.log('Error is', response.detail.error.message);
-        if( response.detail.error.message.indexOf("401") >-1 ){
-          console.log('Woooo. not logged int. Routing to login.');
-          MoreRouting.navigateTo('login', {});
-        }
-      },
-
-      _wooo:function(new_value, old_value){
-        console.log("chaaaange");
       }
 
-
-    });
-  })();
-
-;
+      return classNames.join(' ');
+    }
 
     Polymer({
 
-      is: 'iron-icon',
+      is: 'paper-toolbar',
+
+      hostAttributes: {
+        'role': 'toolbar'
+      },
 
       properties: {
 
         /**
-         * The name of the icon to use. The name should be of the form:
-         * `iconset_name:icon_name`.
+         * Controls how the items are aligned horizontally when they are placed
+         * at the bottom.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         *
+         * @attribute bottomJustify
+         * @type string
+         * @default ''
          */
-        icon: {
+        bottomJustify: {
           type: String,
-          observer: '_iconChanged'
+          value: ''
         },
 
         /**
-         * The name of the theme to used, if one is specified by the
-         * iconset.
+         * Controls how the items are aligned horizontally.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         *
+         * @attribute justify
+         * @type string
+         * @default ''
          */
-        theme: {
+        justify: {
           type: String,
-          observer: '_updateIcon'
+          value: ''
         },
 
         /**
-         * If using iron-icon without an iconset, you can set the src to be
-         * the URL of an individual icon image file. Note that this will take
-         * precedence over a given icon attribute.
+         * Controls how the items are aligned horizontally when they are placed
+         * in the middle.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         *
+         * @attribute middleJustify
+         * @type string
+         * @default ''
          */
-        src: {
+        middleJustify: {
           type: String,
-          observer: '_srcChanged'
-        },
-        
-        _meta: {
-          value: Polymer.Base.create('iron-meta', {type: 'iconset'})
+          value: ''
         }
-        
+
       },
 
-      _DEFAULT_ICONSET: 'icons',
-
-      _iconChanged: function(icon) {
-        var parts = (icon || '').split(':');
-        this._iconName = parts.pop();
-        this._iconsetName = parts.pop() || this._DEFAULT_ICONSET;
-        this._updateIcon();
+      attached: function() {
+        this._observer = this._observe(this);
+        this._updateAriaLabelledBy();
       },
 
-      _srcChanged: function(src) {
-        this._updateIcon();
+      detached: function() {
+        if (this._observer) {
+          this._observer.disconnect();
+        }
       },
 
-      _usesIconset: function() {
-        return this.icon || !this.src;
+      _observe: function(node) {
+        var observer = new MutationObserver(function() {
+          this._updateAriaLabelledBy();
+        }.bind(this));
+        observer.observe(node, {
+          childList: true,
+          subtree: true
+        });
+        return observer;
       },
 
-      /** @suppress {visibility} */
-      _updateIcon: function() {
-        if (this._usesIconset()) {
-          if (this._iconsetName) {
-            this._iconset = this._meta.byKey(this._iconsetName);
-            if (this._iconset) {
-              this._iconset.applyIcon(this, this._iconName, this.theme);
-            } else {
-              this._warn(this._logf('_updateIcon', 'could not find iconset `'
-                + this._iconsetName + '`, did you import the iconset?'));
+      _updateAriaLabelledBy: function() {
+        var labelledBy = [];
+        var contents = Polymer.dom(this.root).querySelectorAll('content');
+        for (var content, index = 0; content = contents[index]; index++) {
+          var nodes = Polymer.dom(content).getDistributedNodes();
+          for (var node, jndex = 0; node = nodes[jndex]; jndex++) {
+            if (node.classList && node.classList.contains('title')) {
+              if (node.id) {
+                labelledBy.push(node.id);
+              } else {
+                var id = 'paper-toolbar-label-' + Math.floor(Math.random() * 10000);
+                node.id = id;
+                labelledBy.push(id);
+              }
             }
           }
-        } else {
-          if (!this._img) {
-            this._img = document.createElement('img');
-            this._img.style.width = '100%';
-            this._img.style.height = '100%';
-            this._img.draggable = false;
-          }
-          this._img.src = this.src;
-          Polymer.dom(this.root).appendChild(this._img);
         }
+        if (labelledBy.length > 0) {
+          this.setAttribute('aria-labelledby', labelledBy.join(' '));
+        }
+      },
+
+      _computeBarClassName: function(barJustify) {
+        var classObj = {
+          'center': true,
+          'horizontal': true,
+          'layout': true,
+          'toolbar-tools': true
+        };
+
+        // If a blank string or any falsy value is given, no other class name is
+        // added.
+        if (barJustify) {
+          var justifyClassName = (barJustify === 'justified') ?
+              barJustify :
+              barJustify + '-justified';
+
+          classObj[justifyClassName] = true;
+        }
+
+        return classNames(classObj);
       }
 
     });
 
-  
+  }());
+
+
+;
+
+  (function() {
+
+    'use strict';
+
+   // this would be the only `paper-drawer-panel` in
+   // the whole app that can be in `dragging` state
+    var sharedPanel = null;
+
+    function classNames(obj) {
+      var classes = [];
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key) && obj[key]) {
+          classes.push(key);
+        }
+      }
+
+      return classes.join(' ');
+    }
+
+    Polymer({
+
+      is: 'paper-drawer-panel',
+
+      /**
+       * Fired when the narrow layout changes.
+       *
+       * @event paper-responsive-change {{narrow: boolean}} detail -
+       *     narrow: true if the panel is in narrow layout.
+       */
+
+      /**
+       * Fired when the a panel is selected.
+       *
+       * Listening for this event is an alternative to observing changes in the `selected` attribute.
+       * This event is fired both when a panel is selected.
+       *
+       * @event iron-select {{item: Object}} detail -
+       *     item: The panel that the event refers to.
+       */
+
+      /**
+       * Fired when a panel is deselected.
+       *
+       * Listening for this event is an alternative to observing changes in the `selected` attribute.
+       * This event is fired both when a panel is deselected.
+       *
+       * @event iron-deselect {{item: Object}} detail -
+       *     item: The panel that the event refers to.
+       */
+      properties: {
+
+        /**
+         * The panel to be selected when `paper-drawer-panel` changes to narrow
+         * layout.
+         */
+        defaultSelected: {
+          type: String,
+          value: 'main'
+        },
+
+        /**
+         * If true, swipe from the edge is disable.
+         */
+        disableEdgeSwipe: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * If true, swipe to open/close the drawer is disabled.
+         */
+        disableSwipe: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * Whether the user is dragging the drawer interactively.
+         */
+        dragging: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true
+        },
+
+        /**
+         * Width of the drawer panel.
+         */
+        drawerWidth: {
+          type: String,
+          value: '256px'
+        },
+
+        /**
+         * How many pixels on the side of the screen are sensitive to edge
+         * swipes and peek.
+         */
+        edgeSwipeSensitivity: {
+          type: Number,
+          value: 30
+        },
+
+        /**
+         * If true, ignore `responsiveWidth` setting and force the narrow layout.
+         */
+        forceNarrow: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * Whether the browser has support for the transform CSS property.
+         */
+        hasTransform: {
+          type: Boolean,
+          value: function() {
+            return 'transform' in this.style;
+          }
+        },
+
+        /**
+         * Whether the browser has support for the will-change CSS property.
+         */
+        hasWillChange: {
+          type: Boolean,
+          value: function() {
+            return 'willChange' in this.style;
+          }
+        },
+
+        /**
+         * Returns true if the panel is in narrow layout.  This is useful if you
+         * need to show/hide elements based on the layout.
+         */
+        narrow: {
+          reflectToAttribute: true,
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true
+        },
+
+        /**
+         * Whether the drawer is peeking out from the edge.
+         */
+        peeking: {
+          type: Boolean,
+          value: false,
+          readOnly: true,
+          notify: true
+        },
+
+        /**
+         * Max-width when the panel changes to narrow layout.
+         */
+        responsiveWidth: {
+          type: String,
+          value: '640px'
+        },
+
+        /**
+         * If true, position the drawer to the right.
+         */
+        rightDrawer: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * The panel that is being selected. `drawer` for the drawer panel and
+         * `main` for the main panel.
+         */
+        selected: {
+          reflectToAttribute: true,
+          notify: true,
+          type: String,
+          value: null
+        },
+
+        /**
+         * The attribute on elements that should toggle the drawer on tap, also elements will
+         * automatically be hidden in wide layout.
+         */
+        drawerToggleAttribute: {
+          type: String,
+          value: 'paper-drawer-toggle'
+        },
+
+        /**
+         * Whether the transition is enabled.
+         */
+        transition: {
+          type: Boolean,
+          value: false
+        },
+
+      },
+
+      listeners: {
+        tap: '_onTap',
+        track: '_onTrack',
+        down: '_downHandler',
+        up: '_upHandler'
+      },
+
+      observers: [
+        '_forceNarrowChanged(forceNarrow, defaultSelected)'
+      ],
+
+      /**
+       * Toggles the panel open and closed.
+       *
+       * @method togglePanel
+       */
+      togglePanel: function() {
+        if (this._isMainSelected()) {
+          this.openDrawer();
+        } else {
+          this.closeDrawer();
+        }
+      },
+
+      /**
+       * Opens the drawer.
+       *
+       * @method openDrawer
+       */
+      openDrawer: function() {
+        this.selected = 'drawer';
+      },
+
+      /**
+       * Closes the drawer.
+       *
+       * @method closeDrawer
+       */
+      closeDrawer: function() {
+        this.selected = 'main';
+      },
+
+      ready: function() {
+        // Avoid transition at the beginning e.g. page loads and enable
+        // transitions only after the element is rendered and ready.
+        this.transition = true;
+      },
+
+      _computeIronSelectorClass: function(narrow, transition, dragging, rightDrawer, peeking) {
+        return classNames({
+          dragging: dragging,
+          'narrow-layout': narrow,
+          'right-drawer': rightDrawer,
+          'left-drawer': !rightDrawer,
+          transition: transition,
+          peeking: peeking
+        });
+      },
+
+      _computeDrawerStyle: function(drawerWidth) {
+        return 'width:' + drawerWidth + ';';
+      },
+
+      _computeMainStyle: function(narrow, rightDrawer, drawerWidth) {
+        var style = '';
+
+        style += 'left:' + ((narrow || rightDrawer) ? '0' : drawerWidth) + ';';
+
+        if (rightDrawer) {
+          style += 'right:' + (narrow ? '' : drawerWidth) + ';';
+        }
+
+        return style;
+      },
+
+      _computeMediaQuery: function(forceNarrow, responsiveWidth) {
+        return forceNarrow ? '' : '(max-width: ' + responsiveWidth + ')';
+      },
+
+      _computeSwipeOverlayHidden: function(narrow, disableEdgeSwipe) {
+        return !narrow || disableEdgeSwipe;
+      },
+
+      _onTrack: function(event) {
+        if (sharedPanel && this !== sharedPanel) {
+          return;
+        }
+        switch (event.detail.state) {
+          case 'start':
+            this._trackStart(event);
+            break;
+          case 'track':
+            this._trackX(event);
+            break;
+          case 'end':
+            this._trackEnd(event);
+            break;
+        }
+
+      },
+
+      _responsiveChange: function(narrow) {
+        this._setNarrow(narrow);
+
+        if (this.narrow) {
+          this.selected = this.defaultSelected;
+        }
+
+        this.setScrollDirection(this._swipeAllowed() ? 'y' : 'all');
+        this.fire('paper-responsive-change', {narrow: this.narrow});
+      },
+
+      _onQueryMatchesChanged: function(event) {
+        this._responsiveChange(event.detail.value);
+      },
+
+      _forceNarrowChanged: function() {
+        // set the narrow mode only if we reached the `responsiveWidth`
+        this._responsiveChange(this.forceNarrow || this.$.mq.queryMatches);
+      },
+
+      _swipeAllowed: function() {
+        return this.narrow && !this.disableSwipe;
+      },
+
+      _isMainSelected: function() {
+        return this.selected === 'main';
+      },
+
+      _startEdgePeek: function() {
+        this.width = this.$.drawer.offsetWidth;
+        this._moveDrawer(this._translateXForDeltaX(this.rightDrawer ?
+            -this.edgeSwipeSensitivity : this.edgeSwipeSensitivity));
+        this._setPeeking(true);
+      },
+
+      _stopEdgePeek: function() {
+        if (this.peeking) {
+          this._setPeeking(false);
+          this._moveDrawer(null);
+        }
+      },
+
+      _downHandler: function(event) {
+        if (!this.dragging && this._isMainSelected() && this._isEdgeTouch(event) && !sharedPanel) {
+          this._startEdgePeek();
+          // cancel selection
+          event.preventDefault();
+          // grab this panel
+          sharedPanel = this;
+        }
+      },
+
+      _upHandler: function() {
+        this._stopEdgePeek();
+        // release the panel
+        sharedPanel = null;
+      },
+
+      _onTap: function(event) {
+        var targetElement = Polymer.dom(event).localTarget;
+        var isTargetToggleElement = targetElement &&
+          this.drawerToggleAttribute &&
+          targetElement.hasAttribute(this.drawerToggleAttribute);
+
+        if (isTargetToggleElement) {
+          this.togglePanel();
+        }
+      },
+
+      _isEdgeTouch: function(event) {
+        var x = event.detail.x;
+
+        return !this.disableEdgeSwipe && this._swipeAllowed() &&
+          (this.rightDrawer ?
+            x >= this.offsetWidth - this.edgeSwipeSensitivity :
+            x <= this.edgeSwipeSensitivity);
+      },
+
+      _trackStart: function(event) {
+        if (this._swipeAllowed()) {
+          sharedPanel = this;
+          this._setDragging(true);
+
+          if (this._isMainSelected()) {
+            this._setDragging(this.peeking || this._isEdgeTouch(event));
+          }
+
+          if (this.dragging) {
+            this.width = this.$.drawer.offsetWidth;
+            this.transition = false;
+          }
+        }
+      },
+
+      _translateXForDeltaX: function(deltaX) {
+        var isMain = this._isMainSelected();
+
+        if (this.rightDrawer) {
+          return Math.max(0, isMain ? this.width + deltaX : deltaX);
+        } else {
+          return Math.min(0, isMain ? deltaX - this.width : deltaX);
+        }
+      },
+
+      _trackX: function(event) {
+        if (this.dragging) {
+          var dx = event.detail.dx;
+
+          if (this.peeking) {
+            if (Math.abs(dx) <= this.edgeSwipeSensitivity) {
+              // Ignore trackx until we move past the edge peek.
+              return;
+            }
+            this._setPeeking(false);
+          }
+
+          this._moveDrawer(this._translateXForDeltaX(dx));
+        }
+      },
+
+      _trackEnd: function(event) {
+        if (this.dragging) {
+          var xDirection = event.detail.dx > 0;
+
+          this._setDragging(false);
+          this.transition = true;
+          sharedPanel = null;
+          this._moveDrawer(null);
+
+          if (this.rightDrawer) {
+            this[xDirection ? 'closeDrawer' : 'openDrawer']();
+          } else {
+            this[xDirection ? 'openDrawer' : 'closeDrawer']();
+          }
+        }
+      },
+
+      _transformForTranslateX: function(translateX) {
+        if (translateX === null) {
+          return '';
+        }
+
+        return this.hasWillChange ? 'translateX(' + translateX + 'px)' :
+            'translate3d(' + translateX + 'px, 0, 0)';
+      },
+
+      _moveDrawer: function(translateX) {
+        this.transform(this._transformForTranslateX(translateX), this.$.drawer);
+      }
+
+    });
+
+  }());
+
+
+;
+
+  (function() {
+
+    'use strict';
+
+    var SHADOW_WHEN_SCROLLING = 1;
+    var SHADOW_ALWAYS = 2;
+
+
+    var MODE_CONFIGS = {
+
+      outerScroll: {
+        'scroll': true
+      },
+
+      shadowMode: {
+        'standard': SHADOW_ALWAYS,
+        'waterfall': SHADOW_WHEN_SCROLLING,
+        'waterfall-tall': SHADOW_WHEN_SCROLLING
+      },
+
+      tallMode: {
+        'waterfall-tall': true
+      }
+    };
+
+    Polymer({
+
+      is: 'paper-header-panel',
+
+      /**
+       * Fired when the content has been scrolled.  `event.detail.target` returns
+       * the scrollable element which you can use to access scroll info such as
+       * `scrollTop`.
+       *
+       *     <paper-header-panel on-content-scroll="scrollHandler">
+       *       ...
+       *     </paper-header-panel>
+       *
+       *
+       *     scrollHandler: function(event) {
+       *       var scroller = event.detail.target;
+       *       console.log(scroller.scrollTop);
+       *     }
+       *
+       * @event content-scroll
+       */
+
+      properties: {
+
+        /**
+         * Controls header and scrolling behavior. Options are
+         * `standard`, `seamed`, `waterfall`, `waterfall-tall`, `scroll` and
+         * `cover`. Default is `standard`.
+         *
+         * `standard`: The header is a step above the panel. The header will consume the
+         * panel at the point of entry, preventing it from passing through to the
+         * opposite side.
+         *
+         * `seamed`: The header is presented as seamed with the panel.
+         *
+         * `waterfall`: Similar to standard mode, but header is initially presented as
+         * seamed with panel, but then separates to form the step.
+         *
+         * `waterfall-tall`: The header is initially taller (`tall` class is added to
+         * the header).  As the user scrolls, the header separates (forming an edge)
+         * while condensing (`tall` class is removed from the header).
+         *
+         * `scroll`: The header keeps its seam with the panel, and is pushed off screen.
+         *
+         * `cover`: The panel covers the whole `paper-header-panel` including the
+         * header. This allows user to style the panel in such a way that the panel is
+         * partially covering the header.
+         *
+         *     <paper-header-panel mode="cover">
+         *       <paper-toolbar class="tall">
+         *         <core-icon-button icon="menu"></core-icon-button>
+         *       </paper-toolbar>
+         *       <div class="content"></div>
+         *     </paper-header-panel>
+         */
+        mode: {
+          type: String,
+          value: 'standard',
+          observer: '_modeChanged',
+          reflectToAttribute: true
+        },
+
+        /**
+         * If true, the drop-shadow is always shown no matter what mode is set to.
+         */
+        shadow: {
+          type: Boolean,
+          value: false
+        },
+
+        /**
+         * The class used in waterfall-tall mode.  Change this if the header
+         * accepts a different class for toggling height, e.g. "medium-tall"
+         */
+        tallClass: {
+          type: String,
+          value: 'tall'
+        },
+
+        /**
+         * If true, the scroller is at the top
+         */
+        atTop: {
+          type: Boolean,
+          value: true,
+          readOnly: true
+        }
+      },
+
+      observers: [
+        '_computeDropShadowHidden(atTop, mode, shadow)'
+      ],
+
+      ready: function() {
+        this.scrollHandler = this._scroll.bind(this);
+        this._addListener();
+
+        // Run `scroll` logic once to initialze class names, etc.
+        this._keepScrollingState();
+      },
+
+      detached: function() {
+        this._removeListener();
+      },
+
+      /**
+       * Returns the header element
+       *
+       * @property header
+       * @type Object
+       */
+      get header() {
+        return Polymer.dom(this.$.headerContent).getDistributedNodes()[0];
+      },
+
+      /**
+       * Returns the scrollable element.
+       *
+       * @property scroller
+       * @type Object
+       */
+      get scroller() {
+        return this._getScrollerForMode(this.mode);
+      },
+
+      /**
+       * Returns true if the scroller has a visible shadow.
+       *
+       * @property visibleShadow
+       * @type Boolean
+       */
+      get visibleShadow() {
+        return this.$.dropShadow.classList.contains('has-shadow');
+      },
+
+      _computeDropShadowHidden: function(atTop, mode, shadow) {
+
+        var shadowMode = MODE_CONFIGS.shadowMode[mode];
+
+        if (this.shadow) {
+          this.toggleClass('has-shadow', true, this.$.dropShadow);
+
+        } else if (shadowMode === SHADOW_ALWAYS) {
+          this.toggleClass('has-shadow', true, this.$.dropShadow);
+
+        } else if (shadowMode === SHADOW_WHEN_SCROLLING && !atTop) {
+          this.toggleClass('has-shadow', true, this.$.dropShadow);
+
+        } else {
+          this.toggleClass('has-shadow', false, this.$.dropShadow);
+
+        }
+      },
+
+      _computeMainContainerClass: function(mode) {
+        // TODO:  It will be useful to have a utility for classes
+        // e.g. Polymer.Utils.classes({ foo: true });
+
+        var classes = {};
+
+        classes['flex'] = mode !== 'cover';
+
+        return Object.keys(classes).filter(
+          function(className) {
+            return classes[className];
+          }).join(' ');
+      },
+
+      _addListener: function() {
+        this.scroller.addEventListener('scroll', this.scrollHandler, false);
+      },
+
+      _removeListener: function() {
+        this.scroller.removeEventListener('scroll', this.scrollHandler);
+      },
+
+      _modeChanged: function(newMode, oldMode) {
+        var configs = MODE_CONFIGS;
+        var header = this.header;
+        var animateDuration = 200;
+
+        if (header) {
+          // in tallMode it may add tallClass to the header; so do the cleanup
+          // when mode is changed from tallMode to not tallMode
+          if (configs.tallMode[oldMode] && !configs.tallMode[newMode]) {
+            header.classList.remove(this.tallClass);
+            this.async(function() {
+              header.classList.remove('animate');
+            }, animateDuration);
+          } else {
+            header.classList.toggle('animate', configs.tallMode[newMode]);
+          }
+        }
+        this._keepScrollingState();
+      },
+
+      _keepScrollingState: function() {
+        var main = this.scroller;
+        var header = this.header;
+
+        this._setAtTop(main.scrollTop === 0);
+
+        if (header && this.tallClass && MODE_CONFIGS.tallMode[this.mode]) {
+          this.toggleClass(this.tallClass, this.atTop ||
+              header.classList.contains(this.tallClass) &&
+              main.scrollHeight < this.offsetHeight, header);
+        }
+      },
+
+      _scroll: function() {
+        this._keepScrollingState();
+        this.fire('content-scroll', {target: this.scroller}, {bubbles: false});
+      },
+
+      _getScrollerForMode: function(mode) {
+        return MODE_CONFIGS.outerScroll[mode] ?
+            this : this.$.mainContainer;
+      }
+
+    });
+
+  })();
+
+
+;
+
+(function() {
+
+  Polymer({
+
+    is: 'paper-menu',
+
+    behaviors: [
+      Polymer.IronMenuBehavior
+    ]
+
+  });
+
+})();
+
+
 ;
   (function() {
     var Utility = {
@@ -15397,6 +16209,306 @@ Polymer({
       }
     }
   });
+
+;
+Polymer({
+
+  is: 'more-route-selector',
+
+  behaviors: [
+    MoreRouting.ContextAware,
+  ],
+
+  properties: {
+
+    /**
+     * The attribute to read route expressions from (on children).
+     */
+    routeAttribute: {
+      type: String,
+      value: 'route',
+    },
+
+    /**
+     * The routes managed by this element (inferred from the items that are
+     * defined by the selector it targets).
+     */
+    routes: {
+      type:     Array,
+      readOnly: true,
+      notify:   true,
+    },
+
+    /**
+     * The selected `MoreRouting.Route` object, or `null`.
+     *
+     * @type {MoreRouting.Route}
+     */
+    selectedRoute: {
+      type:     Object,
+      value:    null,
+      readOnly: true,
+      notify:   true,
+    },
+
+    /**
+     * The index of the selected route (relative to `routes`). -1 when there
+     * is no active route.
+     */
+    selectedIndex: {
+      type:     Number,
+      value:    -1,
+      readOnly: true,
+      notify:   true,
+    },
+
+    /**
+     * The _full_ path expression of the selected route, or `null`.
+     */
+    selectedPath: {
+      type:     String,
+      readOnly: true,
+      notify:   true,
+    },
+
+    /**
+     * The params of the selected route, or an empty object if no route.
+     */
+    selectedParams: {
+      type:     Object,
+      readOnly: true,
+      notify:   true,
+    },
+
+  },
+
+  /**
+   * @event more-route-selected fires when a new route is selected.
+   * @param {{
+   *   newRoute:  MoreRouting.Route, oldRoute: MoreRouting.Route,
+   *   newIndex:  number,  oldIndex:  number,
+   *   newPath:   ?string, oldPath:   ?string,
+   *   newParams: Object,  oldParams: Object,
+   * }}
+   */
+
+  attached: function() {
+    this._managedSelector = this._findTargetSelector();
+    if (!this._managedSelector) {
+      console.warn(this, 'was built without a selector to manage. It will do nothing.');
+      return;
+    }
+
+    this._managedSelector.addEventListener(
+        'selected-item-changed', this._onSelectedItemChanged.bind(this));
+    this._updateRoutes();
+  },
+
+  /**
+   * Handle a change in selected item, driven by the targeted selector.
+   *
+   * Note that this will fail if a route is chosen that requires params not
+   * defined by the current URL.
+   */
+  _onSelectedItemChanged: function(event) {
+    if (this._settingSelection) return;
+    var route = this._routeForItem(event.detail.value);
+    if (!route) return;
+    route.navigateTo();
+  },
+
+  _updateRoutes: function() {
+    var routes = [];
+    if (this._managedSelector) {
+      routes = this._managedSelector.items.map(this._routeForItem.bind(this));
+    }
+    this._setRoutes(routes);
+  },
+
+  _onMoreRouteChange: function(event) {
+    if (!this._managedSelector) return;
+
+    var selected = '';
+
+    var index = this.routes.indexOf(event.detail.newRoute);
+    var attrForSelected = this._managedSelector.attrForSelected;
+    if (!attrForSelected) {
+      selected = index;
+    } else {
+      var item = this._managedSelector.items[index];
+      if (item)
+        selected = item[attrForSelected] || item.getAttribute(attrForSelected);
+    }
+
+    // Make sure that we don't turn around and re-navigate
+    this._settingSelection = true;
+    this._managedSelector.select(selected);
+    this._settingSelection = false;
+  },
+
+  _findTargetSelector: function() {
+    var children = Polymer.dom(this).children;
+    if (children.length !== 1) {
+      console.error(this, 'expects only a single selector child');
+      return null;
+    }
+
+    var child = children[0];
+    if ('selected' in child && 'items' in child) {
+      return child;
+    } else {
+      console.error(this, 'can only manage children that are selectors');
+      return null;
+    }
+  },
+
+  _routeForItem: function(item) {
+    if (!item) return null;
+    if (item.moreRouteContext && item.moreRouteContext instanceof MoreRouting.Route) {
+      return item.moreRouteContext;
+    }
+
+    if (!item.hasAttribute(this.routeAttribute)) {
+      console.warn(item, 'is missing a context route or "' + this.routeAttribute + '" attribute');
+      return null;
+    }
+    var expression = item.getAttribute(this.routeAttribute);
+    var route      = MoreRouting.getRoute(expression, this.parentRoute);
+    // Associate the route w/ its element while we're here.
+    item.moreRouteContext = route;
+
+    return route;
+  },
+
+});
+
+;
+  (function () {
+    Polymer({
+
+      is: 'apps-home',
+      properties: {
+        serverurl: {type: String, value: ""},
+        deleteurl: {type: String, value: ""},
+        triggerurl: {type: String, value: ""},
+        onlineItems: Array,
+        debug: {
+          type: Boolean,
+          value: false
+        }
+      },
+
+      _computeDelta:function( starobba ){
+
+        console.log("AAAARGGGGGGG", starobba);
+      },
+
+      newURL(){
+        return MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
+      },
+
+      openURL(itemId) {
+        return MoreRouting.urlFor('appdetail', {appId: itemId});
+      },
+
+      activeOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(currentItems[i].followup) { count++; }
+        }
+        return count;
+      },
+
+      closedOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(!(currentItems[i].followup)) { count++; }
+        }
+        return count;
+      },
+
+      writtenOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(currentItems[i].written) { count++; }
+        }
+        return count;
+      },
+
+      calledOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(currentItems[i].called) { count++; }
+        }
+        return count;
+      },
+
+      interviewedOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(currentItems[i].interviewed) { count++; }
+        }
+        return count;
+      },
+
+
+      closeURL: function(e) {
+        console.log("Now deleting ", e.model.item.id);
+        this.deleteurl = this.serverurl + "/" + e.model.item.id;
+        this.$.delete_ajax.generateRequest();
+      },
+
+      triggerWritten:function(e){
+        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/written';
+        this.$.trigger_ajax.generateRequest();
+      },
+
+      triggerCalled:function(e){
+        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/called';
+        this.$.trigger_ajax.generateRequest();
+      },
+
+      triggerInterviewed:function(e){
+        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/interviewed';
+        this.$.trigger_ajax.generateRequest();
+      },
+
+      triggerFollowup:function(e){
+        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/followup';
+        this.$.trigger_ajax.generateRequest();
+      },
+
+      handleResponseOkRefresh:function(response){
+        console.log("Delete done. Refreshing");
+        this.$.get_ajax.generateRequest();
+      },
+
+      handleResponseGet:function(response){
+        console.log(response.detail.response);
+        console.log('Status is', response.detail.status);
+        if( response.detail.status == 403 ){
+          console.log('Woooo. not logged int. Routing to login.');
+          MoreRouting.navigateTo('login', {});
+        }else{
+          this.onlineItems = response.detail.response;
+        }
+      },
+      handleResponseError:function(response){
+        console.log(response.detail.error.message);
+        console.log('Error is', response.detail.error.message);
+        if( response.detail.error.message.indexOf("401") >-1 ){
+          console.log('Woooo. not logged int. Routing to login.');
+          MoreRouting.navigateTo('login', {});
+        }
+      },
+
+      _wooo:function(new_value, old_value){
+        console.log("chaaaange");
+      }
+
+
+    });
+  })();
 
 ;
   Polymer({
@@ -16766,9 +17878,10 @@ Polymer({
           var currentItem = this.currentpieces[index];
           if ( currentItem.id === id ){
               console.log('REMOVING element ! ');
+              this.splice('currentpieces', index, 1);
+              return;
           }
         }
-        this.currentpieces = updatedPieces;
       },
 
       add: function(e) {
@@ -16779,7 +17892,7 @@ Polymer({
 
 
         for (index = 0, len = this.currentpieces.length; index < len; ++index) {
-          if( this.currentpieces[i].content === model.item.content){
+          if( this.currentpieces[index].content === model.item.content){
             found = true;
           }
         }
@@ -16880,7 +17993,6 @@ Polymer({
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
           this.originalcontent = this.currentcontent;
-          console.log('The legend got from the GET is :', this.currentlegend );
         }
       },
 
@@ -16898,30 +18010,20 @@ Polymer({
           for (index = 0, len = this.currentpieces.length; index < len; ++index) {
             var currentPiece = this.currentpieces[index];
             var currentLegend = JSON.parse(currentPiece.legend);
-            console.log('New block :', currentPiece );
-            console.log('Now content is ', newCurrentContent );
             for (j = 0, lenLegend = currentLegend.length; j < lenLegend; ++j) {
               var currentLegendItem = currentLegend[j];
-              console.log('New legend item is :', currentLegendItem );
               var oldSymbol = currentLegendItem.key;
               var newSymbol = symbolsToAssign[0];
               currentPiece.content = currentPiece.content.replace(oldSymbol, newSymbol);
-              console.log('Updated content :', currentPiece );
               currentLegendItem.key = newSymbol;
               symbolsToAssign.shift();
-              console.log('With new key it is now :', currentLegendItem );
-              console.log('Here is the big appending this :', this.currentlegend );
-              console.log('Plus this : ', currentLegendItem );
               this.push('currentlegend', currentLegendItem);
-              console.log('OOOOO current legend : ', this.currentlegend );
 
             }
-            newCurrentContent = newCurrentContent.concat(currentPiece.content);
+            newCurrentContent = newCurrentContent.concat(currentPiece.content).concat("\n");
             this.originalcontent = newCurrentContent;
           }
           this.set('currentcontent', newCurrentContent);
-          console.log('The legend got from the GET is :', this.currentpieces );
-          console.log('Current legend is now :', this.currentlegend );
         }
       },
 
@@ -16946,13 +18048,7 @@ Polymer({
           var currentObjectKey = currentObject.key;
           var currentFilled = currentObject.filled;
           if( typeof currentObject.filled !== 'undefined' && currentObject.filled.length > 0){
-            if(this.debug) console.log("Current object is ", currentObject);
-            if(this.debug) console.log("Current object key is ", currentObjectKey);
-            if(this.debug) console.log("Searching  ", currentObjectKey, ' in the text ', currentOriginalContent);
-
             if ( currentOriginalContent.indexOf(currentObjectKey) >-1 ){
-              if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentObjectKey);
-
               currentOriginalContent = currentOriginalContent.replace(currentObjectKey, currentFilled);
             }
           }
@@ -17039,7 +18135,15 @@ Polymer({
 
       onBadgesStringChanged : function(newValue, oldValue){
         console.log('new badges string is ', newValue);
-        this.badgesList = newValue.split(",");
+        var splitted = newValue.split(",");
+
+        // Removing empty tag
+        var position = splitted.indexOf("");
+        if( position > -1 ){
+          splitted.splice(position, 1);
+        }
+
+        this.badgesList = splitted;
       }
 
     });
@@ -17064,7 +18168,13 @@ Polymer({
 
       _onBadgesStringChanged : function(newValue, oldValue){
         console.log('FFF : new badges string is ', newValue);
-        //this.badgesList = newValue.split(",");
+
+        // Removing empty tag
+        var position = newValue.indexOf("");
+        if( position > -1 ){
+          newValue.splice(position, 1);
+        }
+
         this.set( 'badgesList', newValue ) ;
         this.set( 'selectedones', [] ) ;
       },
@@ -17157,3 +18267,65 @@ Polymer({
     });
 
   
+;
+
+        /*
+        Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+        This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+        The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+        The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+        Code distributed by Google as part of the polymer project is also
+        subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+        */
+
+        (function(document) {
+          'use strict';
+
+          // Grab a reference to our auto-binding template
+          // and give it some initial binding values
+          // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
+          var app = document.querySelector('#app');
+
+          app.displayInstalledToast = function() {
+            document.querySelector('#caching-complete').show();
+          };
+
+          // Listen for template bound event to know when bindings
+          // have resolved and content has been stamped to the page
+          app.addEventListener('dom-change', function() {
+            console.log('Our app is ready to rock!');
+          });
+
+          // See https://github.com/Polymer/polymer/issues/1381
+          window.addEventListener('WebComponentsReady', function() {
+            // imports are loaded and elements have been registered
+          });
+
+          // Main area's paper-scroll-header-panel custom condensing transformation of
+          // the appName in the middle-container and the bottom title in the bottom-container.
+          // The appName is moved to top and shrunk on condensing. The bottom sub title
+          // is shrunk to nothing on condensing.
+          addEventListener('paper-header-transform', function(e) {
+            var appName = document.querySelector('.app-name');
+            var middleContainer = document.querySelector('.middle-container');
+            var bottomContainer = document.querySelector('.bottom-container');
+            var detail = e.detail;
+            var heightDiff = detail.height - detail.condensedHeight;
+            var yRatio = Math.min(1, detail.y / heightDiff);
+            var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
+            var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
+            var scaleBottom = 1 - yRatio;
+
+            // Move/translate middleContainer
+            Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
+
+            // Scale bottomContainer and bottom sub title to nothing and back
+            Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
+
+            // Scale middleContainer appName
+            Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
+          });
+
+        })(document);
+
+        

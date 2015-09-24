@@ -22057,9 +22057,10 @@ Polymer({
           var currentItem = this.currentpieces[index];
           if ( currentItem.id === id ){
               console.log('REMOVING element ! ');
+              this.splice('currentpieces', index, 1);
+              return;
           }
         }
-        this.currentpieces = updatedPieces;
       },
 
       add: function(e) {
@@ -22070,7 +22071,7 @@ Polymer({
 
 
         for (index = 0, len = this.currentpieces.length; index < len; ++index) {
-          if( this.currentpieces[i].content === model.item.content){
+          if( this.currentpieces[index].content === model.item.content){
             found = true;
           }
         }
@@ -22269,7 +22270,6 @@ Polymer({
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
           this.originalcontent = this.currentcontent;
-          console.log('The legend got from the GET is :', this.currentlegend );
         }
       },
 
@@ -22287,30 +22287,20 @@ Polymer({
           for (index = 0, len = this.currentpieces.length; index < len; ++index) {
             var currentPiece = this.currentpieces[index];
             var currentLegend = JSON.parse(currentPiece.legend);
-            console.log('New block :', currentPiece );
-            console.log('Now content is ', newCurrentContent );
             for (j = 0, lenLegend = currentLegend.length; j < lenLegend; ++j) {
               var currentLegendItem = currentLegend[j];
-              console.log('New legend item is :', currentLegendItem );
               var oldSymbol = currentLegendItem.key;
               var newSymbol = symbolsToAssign[0];
               currentPiece.content = currentPiece.content.replace(oldSymbol, newSymbol);
-              console.log('Updated content :', currentPiece );
               currentLegendItem.key = newSymbol;
               symbolsToAssign.shift();
-              console.log('With new key it is now :', currentLegendItem );
-              console.log('Here is the big appending this :', this.currentlegend );
-              console.log('Plus this : ', currentLegendItem );
               this.push('currentlegend', currentLegendItem);
-              console.log('OOOOO current legend : ', this.currentlegend );
 
             }
-            newCurrentContent = newCurrentContent.concat(currentPiece.content);
+            newCurrentContent = newCurrentContent.concat(currentPiece.content).concat("\n");
             this.originalcontent = newCurrentContent;
           }
           this.set('currentcontent', newCurrentContent);
-          console.log('The legend got from the GET is :', this.currentpieces );
-          console.log('Current legend is now :', this.currentlegend );
         }
       },
 
@@ -22335,13 +22325,7 @@ Polymer({
           var currentObjectKey = currentObject.key;
           var currentFilled = currentObject.filled;
           if( typeof currentObject.filled !== 'undefined' && currentObject.filled.length > 0){
-            if(this.debug) console.log("Current object is ", currentObject);
-            if(this.debug) console.log("Current object key is ", currentObjectKey);
-            if(this.debug) console.log("Searching  ", currentObjectKey, ' in the text ', currentOriginalContent);
-
             if ( currentOriginalContent.indexOf(currentObjectKey) >-1 ){
-              if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentObjectKey);
-
               currentOriginalContent = currentOriginalContent.replace(currentObjectKey, currentFilled);
             }
           }
@@ -22509,7 +22493,15 @@ Polymer({
 
       onBadgesStringChanged : function(newValue, oldValue){
         console.log('new badges string is ', newValue);
-        this.badgesList = newValue.split(",");
+        var splitted = newValue.split(",");
+
+        // Removing empty tag
+        var position = splitted.indexOf("");
+        if( position > -1 ){
+          splitted.splice(position, 1);
+        }
+
+        this.badgesList = splitted;
       }
 
     });
@@ -22573,7 +22565,13 @@ Polymer({
 
       _onBadgesStringChanged : function(newValue, oldValue){
         console.log('FFF : new badges string is ', newValue);
-        //this.badgesList = newValue.split(",");
+
+        // Removing empty tag
+        var position = newValue.indexOf("");
+        if( position > -1 ){
+          newValue.splice(position, 1);
+        }
+
         this.set( 'badgesList', newValue ) ;
         this.set( 'selectedones', [] ) ;
       },
@@ -22832,12 +22830,12 @@ Polymer({
 
           
           <div class="middle middle-container center horizontal layout">
-            <div class="app-name">Cork</div>
+            <div class="app-name">Yard</div>
           </div>
 
           
           <div class="bottom bottom-container center horizontal layout">
-            <div class="bottom-title paper-font-subhead">The future of the web today</div>
+            <div class="bottom-title paper-font-subhead">Subtitle</div>
           </div>
 
         </paper-toolbar>
