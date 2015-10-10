@@ -118,8 +118,8 @@ def categories_list(request) :
 		return HttpResponse( json.dumps( [ category.myToObj() for category in PieceCategory.objects.filter(user=request.user) ] ), content_type="application/json" )
 
 	elif request.method == 'POST':
-		updated_data =	json.loads( request.body )
 		print '\tPost = ' , request.body
+		updated_data =	json.loads( request.body )
 		c = PieceCategory()
 		c.user = request.user
 		c.fill(updated_data)
