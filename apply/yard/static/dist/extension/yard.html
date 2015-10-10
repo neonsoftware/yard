@@ -3352,6 +3352,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     text-align: center;
     padding: 16px;
   }
+  [centerButtonActive] {
+    text-align: center;
+    padding: 16px;
+
+  }
+
 </style>
 
   <template>
@@ -3401,10 +3407,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
 
 
-
     <template is="dom-if" if="{{areInactiveVisible}}">
       <div centerbutton="">
-        Inactive <paper-button tabindex="0" class="colorful" on-click="_hideInactive">hide</paper-button>
+        <paper-button tabindex="0" class="colorful" on-click="_hideInactive">Hide Inactive</paper-button>
       </div>
 
       <template is="dom-repeat" items="{{inactiveItems}}">
@@ -3447,7 +3452,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <template is="dom-if" if="{{!areInactiveVisible}}">
       <div centerbutton="">
-        <paper-button tabindex="0" class="colorful" on-click="_showInactive">show</paper-button>
+        <paper-button tabindex="0" class="colorful" on-click="_showInactive">Show Inactive</paper-button>
       </div>
     </template>
 
@@ -3835,14 +3840,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       	<paper-input id="appl-latitude" label="Latitude" floatinglabel="true" value="{{currentitem.latitude}}" error="Portal should have a name"></paper-input>
       	<paper-input id="appl-longitude" label="Longitude" floatinglabel="true" value="{{currentitem.longitude}}" error="Portal should have a name"></paper-input>
       <br><br>
-
-      <div centerbutton="">
-        <paper-fab icon="close"></paper-fab>
-        <paper-fab icon="save" on-click="save_me"></paper-fab>
-        <paper-toast id="saving-complete" duration="6000" text="Saving successful!"> </paper-toast>
-      </div>
-
     </paper-material>
+
+    <div centerbutton="">
+      <paper-fab icon="close"></paper-fab>
+      <paper-fab icon="save" on-click="save_me"></paper-fab>
+      <paper-toast id="saving-complete" duration="6000" text="Saving successful!"> </paper-toast>
+    </div>
 
   </template>
 
@@ -3876,10 +3880,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <div class="layout horizontal center">
               <div class="flex">
-    						<span style="font-size: 16px;">{{item.content}}</span><br>
-                <cork-badges badges="{{item.tags}}"> </cork-badges><br><br>
+    						<span style="font-size: 13px;">{{item.content}}</span><br>
                 <cork-language language="{{item.language}}"> </cork-language>
-
+                <cork-badges badges="{{item.tags}}"> </cork-badges>
               </div>
               <div>
                 <a href="{{openURL(item.id)}}">
@@ -3973,7 +3976,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
-      <paper-input type="text" label="Language" floatinglabel="" value="{{currentitem.language}}"></paper-input>
+      Language: <cork-language-select language="{{currentitem.language}}"> </cork-language-select>
       <paper-input type="text" label="Tags" floatinglabel="" value="{{currentitem.tags}}"></paper-input>
       <span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
       <br>
@@ -3985,10 +3988,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <paper-input type="text" label="{{computeKey(item.key)}}" floatinglabel="" value="{{item.value}}"></paper-input><br>
       </template>
 
-      <div centerbutton="">
-          <paper-fab icon="save" on-click="save_me"></paper-fab>
-      </div>
     </paper-material>
+
+    <div centerbutton="">
+        <paper-fab icon="save" on-click="save_me"></paper-fab>
+    </div>
 
   </template>
 
@@ -4022,8 +4026,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <div class="flex">
                   <b>{{item.description}}</b><br>
                   <span style="font-size: 16px;">{{item.content}}</span><br>
-                  <cork-badges badges="{{item.tags}}"> </cork-badges><br><br>
                   <cork-language language="{{item.language}}"> </cork-language>
+                  <cork-badges badges="{{item.tags}}"> </cork-badges>
                 </div>
                 <div>
                   <a href="{{openURL(item.id)}}">
@@ -4040,6 +4044,270 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        </div>
 
   </template>
+</dom-module>
+
+<dom-module id="cork-badges" assetpath="bower_components/cork/">
+
+  <style>
+  .badge-box{
+    border-color: black;
+    border-width: 0.5px;
+    border-style: solid;
+    background-color: rgb(255, 179, 61);
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 10px;
+    margin-right: 0px;
+    display: inline-block;
+  }
+  </style>
+
+  <template>
+
+    <template is="dom-repeat" items="{{badgesList}}">
+      <div class="badge-box">{{item}}<div>
+    </div></div></template>
+
+  </template>
+
+</dom-module>
+
+<dom-module id="cork-select-badges" assetpath="bower_components/cork/">
+
+  <style>
+  .boldy{
+    background-color: rgb(255, 179, 61);
+  }
+
+  .badge-box{
+    border-color: rgb(255, 179, 61);
+    border-width: 1px;
+    border-style: solid;
+    padding-left: 3px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 10px;
+    margin-right: 0px;
+    display: inline-block;
+  }
+  </style>
+
+  <template>
+    <template is="dom-repeat" items="{{badgesList}}">
+      <div class="badge-box" on-click="beentoggled">{{item}}<div>
+    </div></div></template>
+  </template>
+
+</dom-module>
+
+<dom-module id="iron-overlay-backdrop" assetpath="bower_components/iron-overlay-behavior/">
+
+  <style>
+
+    :host {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: var(--iron-overlay-backdrop-background-color, #000);
+      opacity: 0;
+      transition: opacity 0.2s;
+
+      @apply(--iron-overlay-backdrop);
+    }
+
+    :host([opened]) {
+      opacity: var(--iron-overlay-backdrop-opacity, 0.6);
+
+      @apply(--iron-overlay-backdrop-opened);
+    }
+
+  </style>
+
+  <template>
+    <content></content>
+  </template>
+
+</dom-module>
+
+<dom-module id="iron-dropdown" assetpath="bower_components/iron-dropdown/">
+  <style>
+    :host {
+      position: fixed;
+    }
+
+    #contentWrapper ::content > * {
+      overflow: auto;
+    }
+
+    #contentWrapper.animating ::content > * {
+      overflow: hidden;
+    }
+  </style>
+  <template>
+    <div id="contentWrapper">
+      <content id="content" select=".dropdown-content"></content>
+    </div>
+  </template>
+
+  </dom-module>
+
+<dom-module id="paper-menu-button" assetpath="bower_components/paper-menu-button/">
+  <style>
+    :host {
+      display: inline-block;
+      position: relative;
+      padding: 8px;
+      outline: none;
+
+      @apply(--paper-menu-button);
+    }
+
+    :host([disabled]) {
+      cursor: auto;
+      color: var(--disabled-text-color);
+
+      @apply(--paper-menu-button-disabled);
+    }
+
+    :host([vertical-align="top"]) paper-material {
+      margin-bottom: 20px;
+      margin-top: -10px;
+      top: 10px;
+    }
+
+    :host([vertical-align="bottom"]) paper-material {
+      bottom: 10px;
+      margin-bottom: -10px;
+      margin-top: 20px;
+    }
+
+    paper-material {
+      border-radius: 2px;
+      background-color: var(--paper-menu-button-dropdown-background, --primary-background-color);
+
+      @apply(--paper-menu-button-dropdown);
+    }
+  </style>
+  <template>
+    <div id="trigger" on-tap="open">
+      <content select=".dropdown-trigger"></content>
+    </div>
+    <iron-dropdown id="dropdown" opened="{{opened}}" horizontal-align="[[horizontalAlign]]" vertical-align="[[verticalAlign]]" horizontal-offset="[[horizontalOffset]]" vertical-offset="[[verticalOffset]]" open-animation-config="[[openAnimationConfig]]" close-animation-config="[[closeAnimationConfig]]" no-animations="[[noAnimations]]" focus-target="[[_dropdownContent]]">
+      <paper-material class="dropdown-content">
+        <content id="content" select=".dropdown-content"></content>
+      </paper-material>
+    </iron-dropdown>
+  </template>
+</dom-module>
+<dom-module id="paper-dropdown-menu" assetpath="bower_components/paper-dropdown-menu/">
+  <style>
+    :host {
+      display: inline-block;
+      position: relative;
+      text-align: left;
+      cursor: pointer;
+
+      --paper-input-container-input: {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        box-sizing: border-box;
+        cursor: pointer;
+      };
+
+      @apply(--paper-dropdown-menu);
+    }
+
+    :host([disabled]) {
+      @apply(--paper-dropdown-menu-disabled);
+    }
+
+    :host([noink]) paper-ripple {
+      display: none;
+    }
+
+    :host([no-label-float]) paper-ripple {
+      top: 8px;
+    }
+
+    paper-ripple {
+      top: 20px;
+      left: 8px;
+      bottom: 16px;
+      right: 8px;
+
+      @apply(--paper-dropdown-menu-ripple);
+    }
+
+    paper-menu-button {
+      @apply(--paper-dropdown-menu-button);
+    }
+
+    paper-input {
+      @apply(--paper-dropdown-menu-input);
+    }
+
+    iron-icon {
+      color: var(--disabled-text-color);
+
+      @apply(--paper-dropdown-menu-icon);
+    }
+
+  </style>
+  <template>
+    <paper-menu-button id="menuButton" vertical-align="top" horizontal-align="right" vertical-offset="[[_computeMenuVerticalOffset(noLabelFloat)]]" disabled="[[disabled]]" no-animations="[[noAnimations]]" on-iron-select="_onIronSelect" opened="{{opened}}">
+      <div class="dropdown-trigger">
+        <paper-ripple></paper-ripple>
+        <paper-input readonly="" disabled="[[disabled]]" value="[[selectedItemLabel]]" placeholder="[[placeholder]]" always-float-label="[[alwaysFloatLabel]]" no-label-float="[[noLabelFloat]]" label="[[label]]">
+          <iron-icon icon="arrow-drop-down" suffix=""></iron-icon>
+        </paper-input>
+      </div>
+      <content id="content" select=".dropdown-content"></content>
+    </paper-menu-button>
+  </template>
+</dom-module>
+<dom-module id="cork-language" assetpath="bower_components/cork/">
+
+  <style>
+  .language-box{
+    border-color: red;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 10%;
+    width: 23px;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 12px;
+    display: inline-block;
+  }
+  </style>
+
+  <template>
+    <div class="language-box">{{language}}<div>
+  </div></div></template>
+
+</dom-module>
+
+<dom-module id="cork-language-select" assetpath="bower_components/cork/">
+
+  <template>
+    <select id="languagelist" on-change="selectedChanged" value="{{language}}">
+        <option>it</option>
+        <option>en</option>
+        <option>fr</option>
+    </select>
+  </template>
+
 </dom-module>
 
 <dom-module id="templates-detail" assetpath="bower_components/cork/">
@@ -4061,6 +4329,72 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       text-align: center;
       padding: 16px;
     }
+  </style>
+
+
+  <template>
+    <more-route context="" name="templatedetail" params="{{params}}"></more-route>
+
+    <iron-ajax id="ajax_get_template" method="GET" url="[[getURL]]" handle-as="json" content-type="application/json" last-response="{{currentitem}}"></iron-ajax>
+    <iron-ajax id="ajax_get_blocks" auto="" method="GET" url="[[blocksserverurl]]" handle-as="json" content-type="application/json" last-response="{{availableblocks}}"></iron-ajax>
+    <iron-ajax id="ajax_save_post" method="POST" url="[[postURL]]" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+    <iron-ajax id="ajax_save_put" method="PUT" url="[[putURL]]" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
+
+
+    <paper-material card="" elevation="1">
+      <span style="">Language</span>
+      <cork-language-select language="{{currentitem.language}}"> </cork-language-select>
+      <paper-input type="text" label="Title" floatinglabel="" value="{{currentitem.name}}"></paper-input>
+      <paper-input type="text" label="Description" floatinglabel="" value="{{currentitem.description}}"></paper-input>
+      <paper-input type="text" label="Tags" floatinglabel="" value="{{currentitem.tags}}"></paper-input>
+    </paper-material>
+
+    <blocks-filter inblocks="[[availableblocks]]" filteredblocks="{{resultBlocks}}"> </blocks-filter>
+    <blocks-order availableblocks="{{resultBlocks}}" usedblocks="{{currentblocks}}"> </blocks-order>
+
+    <template is="dom-repeat" items="{{currentblocks}}">
+      block : <span>{{item.content}}</span><br>
+    </template>
+
+    <div centerbutton="">
+        <paper-fab icon="save" on-click="save_me">discard</paper-fab>
+    </div>
+
+  </template>
+
+</dom-module>
+
+<dom-module id="blocks-filter" assetpath="bower_components/cork/">
+
+  <style>
+    [card] {
+      margin: 16px;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+  </style>
+
+
+  <template>
+    <paper-material card="" elevation="1">
+      <span style="font-size: 14px;">Language</span>
+      <cork-language-select language="{{selectedlanguage}}"> </cork-language-select>
+      <br>
+      <span style="font-size: 14px;">Tags</span>
+      <cork-select-badges badges="{{alltagnames}}" selectedones="{{activetagnames}}"> </cork-select-badges><br>
+    </paper-material>
+  </template>
+
+</dom-module>
+
+<dom-module id="blocks-order" assetpath="bower_components/cork/">
+
+  <style>
+    [card] {
+      margin: 16px;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
 
     [block-paper]{
       margin:3px;
@@ -4075,28 +4409,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 
   <template>
-    <more-route context="" name="templatedetail" params="{{params}}"></more-route>
-
-
-    <iron-ajax id="my_iron_get" auto="" method="GET" url="{{getURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get"></iron-ajax>
-    <iron-ajax id="my_iron_get_template" auto="" method="GET" url="{{templategetURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
-    <iron-ajax id="my_iron_save" method="{{pushmethod}}" url="{{pushURL}}" handle-as="json" content-type="application/json" on-response="_handle_response_post"></iron-ajax>
 
     <paper-material card="" elevation="1">
-      <paper-input type="text" label="Title" floatinglabel="" value="{{currentitem.name}}"></paper-input>
-      <paper-input type="text" label="Description" floatinglabel="" value="{{currentitem.description}}"></paper-input>
-      <paper-input type="text" label="Language" floatinglabel="" value="{{currentitem.language}}"></paper-input>
-      <paper-input type="text" label="Tags" floatinglabel="" value="{{currentitem.tags}}"></paper-input>
-      <br><br>
-
-
-      Tags: <br>
-
-      <cork-select-badges badges="{{availableTags}}" selectedones="{{theselected}}"> </cork-select-badges><br>
-
-      Available: <br>
-
-      <template is="dom-repeat" items="{{displayedblocks}}">
+      Available:
+      <template is="dom-repeat" items="{{availableblocks}}">
 
         <div class="layout horizontal center" block-paper="">
           <div class="flex">
@@ -4104,15 +4420,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <cork-badges badges="{{item.tags}}"> </cork-badges>
           </div>
           <div>
-            <paper-fab mini="" icon="add" on-click="add"></paper-fab>
+            <paper-fab mini="" icon="add" on-click="_addblock"></paper-fab>
           </div>
         </div>
 
       </template>
+    </paper-material>
 
+    <paper-material card="" elevation="1">
 
       Pieces: <br>
-      <template is="dom-repeat" items="{{currentpieces}}">
+      <template is="dom-repeat" items="{{usedblocks}}">
 
         <div class="layout horizontal center" block-paper="">
           <div class="flex">
@@ -4120,20 +4438,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <cork-badges badges="{{item.tags}}"> </cork-badges>
           </div>
           <div>
-            <paper-fab mini="" icon="icons:arrow-drop-down" on-click="move_down"></paper-fab>
-            <paper-fab mini="" icon="icons:arrow-drop-up" on-click="move_up"></paper-fab>
-            <paper-fab mini="" icon="delete" on-click="remove"></paper-fab>
+            <paper-fab mini="" icon="icons:arrow-drop-down" on-click="_move_down"></paper-fab>
+            <paper-fab mini="" icon="icons:arrow-drop-up" on-click="_move_up"></paper-fab>
+            <paper-fab mini="" icon="delete" on-click="_remove"></paper-fab>
           </div>
         </div>
 
       </template>
-      <br>
 
-
-      <div centerbutton="">
-          <paper-fab icon="save" on-click="save_me">discard</paper-fab>
-      </div>
     </paper-material>
+
 
   </template>
 
@@ -4166,7 +4480,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <div class="layout horizontal center">
           <div class="flex">
             <b>{{item.name}}</b><br>
-            <span>{{item.content}}</span><br>
+            <span style="font-size: 12px;">{{item.content}}</span><br>
           </div>
           <div>
             <a href="{{openURL(item.id)}}">
@@ -4227,11 +4541,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       </iron-autogrow-textarea>
       <br><br>
 
-      <div centerbutton="">
-          <paper-fab icon="create" on-click="fill_me"></paper-fab>
-          <paper-fab icon="save" on-click="save_me"></paper-fab>
-      </div>
     </paper-material>
+
+    <div centerbutton="">
+        <paper-fab icon="create" on-click="fill_me"></paper-fab>
+        <paper-fab icon="save" on-click="save_me"></paper-fab>
+    </div>
 
   </template>
 
@@ -4285,90 +4600,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </div>
 
   </template>
-</dom-module>
-
-<dom-module id="cork-badges" assetpath="bower_components/cork/">
-
-  <style>
-  .badge-box{
-    border-color: black;
-    border-width: 0.5px;
-    border-style: solid;
-    border-radius: 14%;
-    background-color: rgb(255, 179, 61);
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-bottom: 2px;
-    padding-top: 2px;
-    text-align: center;
-    font-family: sans-serif;
-    font-size: 10px;
-    margin-right: 0px;
-    display: inline-block;
-  }
-  </style>
-
-  <template>
-
-    <template is="dom-repeat" items="{{badgesList}}">
-      <div class="badge-box">{{item}}<div>
-    </div></div></template>
-
-  </template>
-
-</dom-module>
-
-<dom-module id="cork-select-badges" assetpath="bower_components/cork/">
-
-  <style>
-  .boldy{
-    background-color: rgb(255, 179, 61);
-  }
-
-  .badge-box{
-    border-color: black;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 14%;
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-bottom: 2px;
-    padding-top: 2px;
-    text-align: center;
-    font-family: sans-serif;
-    font-size: 10px;
-    margin-right: 0px;
-    display: inline-block;
-  }
-  </style>
-
-  <template>
-    <template is="dom-repeat" items="{{badgesList}}">
-      <div class="badge-box" on-click="beentoggled">{{item}}<div>
-    </div></div></template>
-  </template>
-
-</dom-module>
-
-<dom-module id="cork-language" assetpath="bower_components/cork/">
-
-  <style>
-  .language-box{
-    border-color: red;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 10%;
-    width: 23px;
-    text-align: center;
-    font-family: sans-serif;
-    font-size: 12px;
-  }
-  </style>
-
-  <template>
-    <div class="language-box">{{language}}<div>
-  </div></div></template>
-
 </dom-module>
 
 <dom-module id="apps-login" assetpath="bower_components/cork/">
@@ -4444,7 +4675,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <blocks-list debug="" serverurl="http://rusty.blue/pieces"></blocks-list>
               <blocks-detail debug="" serverurl="http://rusty.blue/pieces"></blocks-detail>
               <templates-list debug="" serverurl="http://rusty.blue/categories"></templates-list>
-              <templates-detail debug="" serverurl="http://rusty.blue/categories" templateserverurl="http://rusty.blue/pieces"></templates-detail>
+              <templates-detail debug="" templatesserverurl="http://rusty.blue/categories" blocksserverurl="http://rusty.blue/pieces"></templates-detail>
               <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
               <covers-detail debug="" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
               <covers-new debug="" serverurl="http://rusty.blue/categories"></covers-new>
