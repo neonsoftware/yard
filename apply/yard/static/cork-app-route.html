@@ -1,0 +1,184 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="bower_components/more-routing/more-routing.html">
+<link rel="import" href="bower_components/more-routing/more-route-selector.html">
+
+<link rel="import" href="bower_components/cork/apps-home.html">
+<link rel="import" href="bower_components/cork/apps-list.html">
+<link rel="import" href="bower_components/cork/apps-detail.html">
+<link rel="import" href="bower_components/cork/blocks-list.html">
+<link rel="import" href="bower_components/cork/blocks-detail.html">
+<link rel="import" href="bower_components/cork/templates-list.html">
+<link rel="import" href="bower_components/cork/templates-detail.html">
+<link rel="import" href="bower_components/cork/covers-list.html">
+<link rel="import" href="bower_components/cork/covers-detail.html">
+<link rel="import" href="bower_components/cork/covers-new.html">
+<link rel="import" href="bower_components/cork/cork-badges.html">
+<link rel="import" href="bower_components/cork/cork-language.html">
+<link rel="import" href="bower_components/cork/apps-login.html">
+
+<dom-module id="cork-app">
+
+  <style>
+  iron-selector > * {
+    display: none;
+  }
+  iron-selector > .iron-selected {
+    display: block;
+  }
+
+  </style>
+
+  <template>
+
+          Current route : <span>{{_getRouteName(selRoute)}}</span><br>
+
+          Visible:<br>
+          Root : <span>{{root_active}}</span><br>
+          Apps : <span>{{apps_active}}</span><br>
+          Apps detail : <span>{{apps_detail_active}}</span><br>
+          Blocks : <span>{{bl_active}}</span><br>
+          Blocks detail active  : <span>{{bl_params.blockId}}</span><br>
+
+          App id is <span>{{ad_params.appId}}</span><br>
+          Blocks id is <span>{{bl_params.blockId}}</span><br>
+
+          <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}>
+            <iron-pages>
+              <section route="root">
+                <apps-home  debug serverurl="http://rusty.blue/applications"></apps-home>
+              </section>
+
+              <section route="apps">
+                <apps-list  debug active="_isAppsListActive" serverurl="http://rusty.blue/applications"></apps-list>
+              </section>
+
+              <section route="appdetail">
+                <more-route context name="appdetail" active="{{ad_active}}" params="{{ad_params}}"></more-route>
+                <apps-detail debug active={{ad_active}} appid={{ad_params.appId}} serverurl="http://rusty.blue/applications"></apps-detail>
+              </section>
+
+              <section route="apps">
+                <apps-list  debug active="_isAppsListActive" serverurl="http://rusty.blue/applications"></apps-list>
+              </section>
+
+              <section route="blocks">
+                <blocks-list  debug serverurl="http://rusty.blue/pieces"></blocks-list>
+              </section>
+
+              <section route="blockdetail">
+                <more-route context name="blockdetail" active="{{bl_active}}" params="{{bl_params}}"></more-route>
+                <blocks-detail debug active={{bl_active}} elementid="{{bl_params.blockId}}" serverurl="http://rusty.blue/pieces"></blocks-detail>
+              </section>
+
+              <section route="templates">
+                <templates-list debug  serverurl="http://rusty.blue/categories"></templates-list>
+              </section>
+
+              <section route="templatedetail">
+                <more-route context name="templatedetail" active="{{tl_active}}" params="{{tl_params}}"></more-route>
+                <templates-detail debug active={{tl_active}} elementid="{{tl_params.templateId}}" templatesserverurl="http://rusty.blue/categories" blocksserverurl="http://rusty.blue/pieces"></templates-detail>
+              </section>
+
+              <section route="covers">
+                <covers-list debug serverurl="http://rusty.blue/documents"></covers-list>
+              </section>
+
+              <section route="templatedetail">
+                <more-route context name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
+                <covers-detail debug active={{cl_active}} elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
+              </section>
+
+              <section route="coverselect">
+                <covers-new debug serverurl="http://rusty.blue/categories"></covers-new>
+              </section>
+
+            </iron-pages>
+          </more-route-selector>
+
+  </template>
+
+  <script>
+
+    Polymer({
+
+      is: 'cork-app',
+
+      properties: {
+        isparams: {type: Object, value:{}, observer: '_selParUpdated'},
+        isactive: {type: Boolean, value: false, observer: '_selActiveUpdated'},
+      },
+
+      observers:['_updateSomeRouteParameter(isparams.*, isactive, selParams.*)', '_justParams(selParams.*)', '_justRoute(selRoute.*)'],
+
+      _updateSomeRouteParameter:function(par, act, selp){
+        console.log("CCCCCCC CHANGEEE : ", par,  selp);
+      },
+
+      _justParams:function(selp){
+        console.log("DDDDDD CHANGEEE in sel params : ", selp);
+
+        console.log("DDDDDD selParams blockid : ", this.selParams.blockId);
+        //console.log("DDDDDD selParams appid : ", this.selParams.appId);
+      },
+
+      _justRoute:function(selp){
+        console.log("CCCCCC CHANGEEE in sel route : ", selp);
+        if(this.selRoute != null){
+          var newPath = this.selRoute.path;
+          this.root_active = ( newPath === MoreRouting.getRouteByName('root') );
+          this.apps_active = ( newPath === '/apps');
+          this.apps_detail_active = ( newPath === '/apps');
+        }
+      },
+
+      _selRouteUpdated:function(new_val, old_val){
+        var ciao= this.$.my_selector;
+        console.log("CCCCC selRoute : ", this.selRoute);
+      },
+
+      _selParamsUpdated:function(new_val, old_val){
+        console.log("DDDDDD selParams : ", this.selParams);
+        console.log("DDDDDD selParams appid : ", this.selParams.appId);
+      },
+
+      _selParUpdated:function(new_val, old_val){
+        console.log("CCCCCC isparam : ", this.isparams);
+      },
+
+      _selActiveUpdated:function(new_val, old_val){
+        console.log("isactive : ", this.isactive);
+      },
+
+      _getRouteName(selRoute){
+        if( this.selRoute != null ){
+          console.log("EEEE route name is ", this.selRoute.path);
+          return this.selRoute.path;
+        }
+      },
+
+
+
+      /**
+       * Navigates to the root URL, in response to a tap on the home "link".
+       */
+      _onTapHome: function(event) {
+        // If you wish to navigate imperatively, `MoreRouting.navigateTo` is the
+        // way to go:
+        MoreRouting.navigateTo('root');
+        event.preventDefault();
+      },
+
+      _onMenuSelect : function() {
+        var drawerPanel = document.querySelector('#paperDrawerPanel');
+        if (drawerPanel.narrow) {
+          drawerPanel.closeDrawer();
+        }
+      }
+
+    });
+
+  </script>
+
+</dom-module>
