@@ -11935,6 +11935,7 @@ PathDriver.prototype._read = function _read() {
         value:    null,
         readOnly: true,
         notify:   true,
+        observer: '_someChange'
       },
 
       /**
@@ -11964,8 +11965,14 @@ PathDriver.prototype._read = function _read() {
         type:     Object,
         readOnly: true,
         notify:   true,
+        observer: '_someChange'
       },
 
+    },
+
+
+    _someChange:function(selp){
+      //console.log("BBBBB changeeee in sel params : ", selp);
     },
 
     /**
@@ -11977,6 +11984,7 @@ PathDriver.prototype._read = function _read() {
      *   newParams: Object,  oldParams: Object,
      * }}
      */
+
 
     routingReady: function() {
       this._routesChanged();
@@ -17721,8 +17729,8 @@ Polymer({
     selectedRoute: {
       type:     Object,
       value:    null,
-      readOnly: true,
       notify:   true,
+      observer: '_someChange'
     },
 
     /**
@@ -17750,11 +17758,17 @@ Polymer({
      */
     selectedParams: {
       type:     Object,
-      readOnly: true,
       notify:   true,
+      observer: '_someChange'
+
     },
 
   },
+
+
+   _someChange:function(selp){
+     //console.log("AAAAAAAA changeeee in sel params : ", selp);
+   },
 
   /**
    * @event more-route-selected fires when a new route is selected.
@@ -18650,17 +18664,15 @@ Polymer({
           	c4phone:""
           }
         },
-        objid: Number,
+        appid: String,
+        active: Boolean,
         getURL: { type: String, value: ""},
         pushmethod: { type: String, value: ""},
         pushURL: { type: String, value: ""},
         serverurl: { type: String, value: ""},
       },
 
-      observers:['updateAjaxParameters(objid, serverurl)',
-                  '_someChanged(params.appId)'],
-
-
+      observers:['_inputsUpdated(appid, active, serverurl)'],
 
       ready:function(){
         console.log('Start :', this.currentitem);
@@ -18688,21 +18700,16 @@ Polymer({
         window.location.reload();
       },
 
-      updateAjaxParameters: function(current_id, current_serverurl){
-        var isNew = Boolean(current_id === "new");;
-        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
-        this.pushmethod = ( isNew ) ? "POST" : "PUT";
-        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
-        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
-      },
-
-      _someChanged: function() {
-        if (typeof this.params.appId != 'undefined'){
-          console.log("The app ID is", this.params.appId);
-          this.objid = this.params.appId;
+      _inputsUpdated: function(current_id, current_active, current_serverurl){
+        console.log("TTT : Updated some input - active : ", this.active, ' - appid : ', this.appid, ' - serverurl : ', this.serverurl );
+        if(this.active){
+          var isNew = Boolean(this.appid === "new");;
+          this.getURL = ( isNew ) ? '' : this.serverurl + '/' + String(this.appid) + '/';
+          this.pushmethod = ( isNew ) ? "POST" : "PUT";
+          this.pushURL = ( isNew ) ? this.serverurl : this.serverurl + '/' + String(this.appid) ;
+          if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
         }
       }
-
     });
 
   })();
@@ -18967,7 +18974,8 @@ Polymer({
           observer: '_on_content_change',
           value: ""
         },
-        objid: Number,
+        active: Boolean,
+        elementid: String,
         getURL: { type: String, value: ""},
         pushmethod: { type: String, value: ""},
         pushURL: { type: String, value: ""},
@@ -18978,8 +18986,7 @@ Polymer({
         }
       },
 
-      observers:['updateAjaxParameters(objid, serverurl)',
-                  '_someChanged(params.blockId)'],
+      observers:['_updatedInputs(elementid, active, serverurl)'],
 
       ready: function(){
           this.currentcontent = "";
@@ -18996,7 +19003,7 @@ Polymer({
       },
 
       _handle_response_get: function(response){
-        if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
+        if ( typeof this.elementid != 'undefined' && this.elementid != 'new' && typeof response.detail.response != 'undefined'){
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
@@ -19015,12 +19022,15 @@ Polymer({
         return 'Describe ' + currentv ;
       },
 
-      updateAjaxParameters: function(current_id, current_serverurl){
-        var isNew = Boolean(current_id === "new");;
-        this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
-        this.pushmethod = ( isNew ) ? "POST" : "PUT";
-        this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
-        if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
+      _updatedInputs: function(current_id, current_active, current_serverurl){
+        console.log('LLLL Updated inputs');
+        var isNew = Boolean(this.elementid === "new");
+        if( this.active ){
+          this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.elementid) + '/';
+          this.pushmethod = ( isNew ) ? "POST" : "PUT";
+          this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.elementid) ;
+          if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
+        }
       },
 
       _getFromCurrentLegendOrEmpty: function(symbol_to_search){
@@ -19049,7 +19059,7 @@ Polymer({
         var new_legend = [];
         if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
           if(this.debug) console.log('Content updated. Before: ', old_value, ', After: ', new_value);
-          if(this.debug) console.log('Checking also  ', this.objid, this.lettersymbols);
+          if(this.debug) console.log('Checking also  ', this.elementid, this.lettersymbols);
           var index, len;
           for (index = 0, len = this.lettersymbols.length; index < len; ++index) {
             var currentSymbol = this.lettersymbols[index];
@@ -19061,14 +19071,8 @@ Polymer({
           if(this.debug) console.log("New legend : ", new_legend);
           this.currentlegend = new_legend;
         }
-      }, // _on_content_change
-
-      _someChanged: function() {
-        if (typeof this.params.blockId != 'undefined'){
-          console.log("The block ID is", this.params.blockId);
-          this.objid = this.params.blockId;
-        }
       }
+
 
     });
   })();
@@ -20122,18 +20126,21 @@ Polymer({
           value: {"name":"","description":"",
                   "language":"en",
                   "tags":"",
-                  "pieces":""
+                  "pieces":"[]"
                 },
           observer:'_updatedCurrentItem'
         },
         templatesserverurl:{ type: String, value: '' },
         blocksserverurl: { type: String, value: '' },
+        active: Boolean,
+        elementid: String
       },
 
-      observers:[ '_updateInputs(params.templateId, templatesserverurl, blocksserverurl)' ],
+      observers:[ '_updateInputs(active, elementid, templatesserverurl, blocksserverurl)' ],
 
       _updatedCurrentItem: function( new_val, old_val){
         console.log('Current template updated : ', this.currentitem);
+        this.currentblocks = JSON.parse(this.currentitem.pieces);
       },
 
       save_me: function(){
@@ -20153,17 +20160,18 @@ Polymer({
         window.location.reload();
       },
 
-      _updateInputs: function(current_id, current_serverurl, current_template_server){
-        var object_id = this.params.templateId;
-        this.isnew = Boolean(object_id === "new");;
-        this.getURL = current_serverurl + '/' + String(object_id) + '/';
-        this.postURL = current_serverurl + '/';
-        this.putURL = current_serverurl + '/' + String(object_id) ;
-        this.$.ajax_get_blocks.generateRequest();
-        if ( !this.isnew ) {
-          this.$.ajax_get_template.generateRequest();
+      _updateInputs: function(current_active, current_id, current_serverurl, current_template_server){
+        if(this.active){
+          this.isnew = Boolean(this.elementid === "new");;
+          this.getURL = current_serverurl + '/' + String(this.elementid) + '/';
+          this.postURL = current_serverurl + '/';
+          this.putURL = current_serverurl + '/' + String(this.elementid) ;
+          this.$.ajax_get_blocks.generateRequest();
+          if ( !this.isnew ) {
+            this.$.ajax_get_template.generateRequest();
+          }
+          console.log('Inputs updated : getURL :', this.getURL, ' - saveURL :', this.saveURL );
         }
-        console.log('Inputs updated : getURL :', this.getURL, ' - saveURL :', this.saveURL );
       },
     });
   })();
@@ -20378,8 +20386,8 @@ Polymer({
       properties: {
         debug: { type: Boolean, value: false },
         edit_disabled: { type: Boolean, value: true },
-        objid: Number,
-        objtempl: Number,
+        elementid: String,
+        templateid: String,
         getURL: { type: String, value: ""},
         pushmethod: { type: String, value: ""},
         pushURL: { type: String, value: ""},
@@ -20390,13 +20398,11 @@ Polymer({
         currentcontent: { type: String, value: ""},
         currentitem: { type: Object, value: {"content":"", "name":""} },
         originalcontent: { type: String, value: ""},
-        isactive: { type: Boolean }
+        active: Boolean,
       },
 
-      observers:['_updateAjaxParameters(objid, objtempl, serverurl, templateserverurl)',
-                  '_routeChanged(params.coverId, params.coverTemplateId, isactive )',
-                  '_on_legend_change(currentlegend.*)'
-                ],
+      observers:['_updateAjaxParameters(active, elementid, templateid, serverurl, templateserverurl)',
+                  '_on_legend_change(currentlegend.*)'],
 
       ready: function(){
         this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
@@ -20410,7 +20416,7 @@ Polymer({
       },
 
       _handle_response_get: function(response){
-        if ( typeof this.objid != 'undefined' && this.objid != 'new' && typeof response.detail.response != 'undefined'){
+        if ( typeof this.elementid != 'undefined' && this.elementid != 'new' && typeof response.detail.response != 'undefined'){
           console.log('Received response from GET: ', response.detail.response);
           this.currentitem = response.detail.response;
           this.currentcontent = response.detail.response.content;
@@ -20480,23 +20486,13 @@ Polymer({
 
 
       _updateAjaxParameters: function(current_id, current_template_id,  current_serverurl, current_template_server){
-        if (typeof this.params.coverId != 'undefined' && typeof this.params.coverTemplateId != 'undefined' && this.isactive == true ){
-          var isNew = Boolean(current_id === "new");;
-          this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.objid) + '/';
+        if ( this.active ){
+          var isNew = Boolean(this.elementid === "new");;
+          this.getURL = ( isNew ) ? '' : this.serverurl + '/' + String(this.elementid) + '/';
           this.pushmethod = ( isNew ) ? "POST" : "PUT";
-          this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.objid) ;
-          this.templategetURL = ( current_template_id === "empty") ? '' : current_template_server + '/' + String(this.objtempl) + '/';
+          this.pushURL = ( isNew ) ? this.serverurl : this.serverurl + '/' + String(this.elementid) ;
+          this.templategetURL = ( this.templateserverurl === "empty") ? '' : this.templateserverurl + '/' + String(this.templateid) + '/';
           if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
-        }
-      },
-
-      _routeChanged: function() {
-        console.log("Route changed id: ", this.params.coverId, ', templateId id : ', this.params.coverTemplateId, ' -  active : ', this.isactive);
-
-        if (typeof this.params.coverId != 'undefined' && typeof this.params.coverTemplateId != 'undefined' && this.isactive == true ){
-          console.log("The cover ID is ", this.params.coverId, ' the coverTemplateId is ', this.params.coverTemplateId);
-          this.objid = this.params.coverId;
-          this.objtempl = this.params.coverTemplateId;
         }
       }
 
