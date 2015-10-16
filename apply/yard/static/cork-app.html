@@ -1,6 +1,8 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="bower_components/more-routing/more-routing.html">
+<link rel="import" href="bower_components/more-routing/more-route-selector.html">
 
 <link rel="import" href="bower_components/cork/apps-home.html">
 <link rel="import" href="bower_components/cork/apps-list.html">
@@ -29,50 +31,57 @@
   </style>
 
   <template>
-
-
-          <!--
-          `more-route-selector` manages any element that extends `core-selector`,
-          allowing you to associate each with a route. By default, it looks for
-          the `route` attribute on each item in the `core-selector`. You can see
-          an example of that default behavior in `polyfora-user.html`.
-
-          In this example, we have opted to construct our base pages such that
-          they declare _routing contexts_. Each element declares the route that it
-          represents, and `more-route-selector` uses this to select the correct
-          route to display.
-
-          See each page's `<more-route context ...>`.
-          -->
-
-          <more-route-selector>
-            <iron-selector on-iron-select="_onMenuSelect">
-
-              <section>
-                <more-route context name="root" params="{{params}}"></more-route>
+          <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}>
+            <iron-pages>
+              <section route="root">
                 <apps-home  debug serverurl="http://rusty.blue/applications"></apps-home>
               </section>
 
-              <section>
-                <more-route context name="apps" params="{{params}}"></more-route>
-                <apps-list  debug serverurl="http://rusty.blue/applications"></apps-list>
+              <section route="apps">
+                <apps-list  debug active="_isAppsListActive" serverurl="http://rusty.blue/applications"></apps-list>
               </section>
 
-              <apps-detail debug serverurl="http://rusty.blue/applications"></apps-detail>
-              <blocks-list  debug serverurl="http://rusty.blue/pieces"></blocks-list>
-              <blocks-detail debug serverurl="http://rusty.blue/pieces"></blocks-detail>
-              <templates-list debug  serverurl="http://rusty.blue/categories"></templates-list>
-              <templates-detail debug templatesserverurl="http://rusty.blue/categories" blocksserverurl="http://rusty.blue/pieces"></templates-detail>
-              <covers-list  debug serverurl="http://rusty.blue/documents"></covers-list>
-              <covers-detail debug serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
-              <covers-new debug serverurl="http://rusty.blue/categories"></covers-new>
-
-              <section>
-                <more-route context name="login"></more-route>
-                <apps-login  debug loginurl="http://rusty.blue/simplelogin"></apps-login>
+              <section route="appdetail">
+                <more-route context name="appdetail" active="{{ad_active}}" params="{{ad_params}}"></more-route>
+                <apps-detail debug active={{ad_active}} appid={{ad_params.appId}} serverurl="http://rusty.blue/applications"></apps-detail>
               </section>
 
-            </iron-selector>
+              <section route="apps">
+                <apps-list  debug active="_isAppsListActive" serverurl="http://rusty.blue/applications"></apps-list>
+              </section>
+
+              <section route="blocks">
+                <blocks-list  debug serverurl="http://rusty.blue/pieces"></blocks-list>
+              </section>
+
+              <section route="blockdetail">
+                <more-route context name="blockdetail" active="{{bl_active}}" params="{{bl_params}}"></more-route>
+                <blocks-detail debug active={{bl_active}} elementid="{{bl_params.blockId}}" serverurl="http://rusty.blue/pieces"></blocks-detail>
+              </section>
+
+              <section route="templates">
+                <templates-list debug  serverurl="http://rusty.blue/categories"></templates-list>
+              </section>
+
+              <section route="templatedetail">
+                <more-route context name="templatedetail" active="{{tl_active}}" params="{{tl_params}}"></more-route>
+                <templates-detail debug active={{tl_active}} elementid="{{tl_params.templateId}}" templatesserverurl="http://rusty.blue/categories" blocksserverurl="http://rusty.blue/pieces"></templates-detail>
+              </section>
+
+              <section route="covers">
+                <covers-list debug serverurl="http://rusty.blue/documents"></covers-list>
+              </section>
+
+              <section route="templatedetail">
+                <more-route context name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
+                <covers-detail debug active={{cl_active}} elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
+              </section>
+
+              <section route="coverselect">
+                <covers-new debug serverurl="http://rusty.blue/categories"></covers-new>
+              </section>
+
+            </iron-pages>
           </more-route-selector>
 
   </template>
@@ -82,6 +91,12 @@
     Polymer({
 
       is: 'cork-app',
+
+      properties: {
+      },
+
+      observers:[],
+
 
       /**
        * Navigates to the root URL, in response to a tap on the home "link".
