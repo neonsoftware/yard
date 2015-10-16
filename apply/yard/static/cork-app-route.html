@@ -31,19 +31,6 @@
   </style>
 
   <template>
-
-          Current route : <span>{{_getRouteName(selRoute)}}</span><br>
-
-          Visible:<br>
-          Root : <span>{{root_active}}</span><br>
-          Apps : <span>{{apps_active}}</span><br>
-          Apps detail : <span>{{apps_detail_active}}</span><br>
-          Blocks : <span>{{bl_active}}</span><br>
-          Blocks detail active  : <span>{{bl_params.blockId}}</span><br>
-
-          App id is <span>{{ad_params.appId}}</span><br>
-          Blocks id is <span>{{bl_params.blockId}}</span><br>
-
           <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}>
             <iron-pages>
               <section route="root">
@@ -106,58 +93,9 @@
       is: 'cork-app',
 
       properties: {
-        isparams: {type: Object, value:{}, observer: '_selParUpdated'},
-        isactive: {type: Boolean, value: false, observer: '_selActiveUpdated'},
       },
 
-      observers:['_updateSomeRouteParameter(isparams.*, isactive, selParams.*)', '_justParams(selParams.*)', '_justRoute(selRoute.*)'],
-
-      _updateSomeRouteParameter:function(par, act, selp){
-        console.log("CCCCCCC CHANGEEE : ", par,  selp);
-      },
-
-      _justParams:function(selp){
-        console.log("DDDDDD CHANGEEE in sel params : ", selp);
-
-        console.log("DDDDDD selParams blockid : ", this.selParams.blockId);
-        //console.log("DDDDDD selParams appid : ", this.selParams.appId);
-      },
-
-      _justRoute:function(selp){
-        console.log("CCCCCC CHANGEEE in sel route : ", selp);
-        if(this.selRoute != null){
-          var newPath = this.selRoute.path;
-          this.root_active = ( newPath === MoreRouting.getRouteByName('root') );
-          this.apps_active = ( newPath === '/apps');
-          this.apps_detail_active = ( newPath === '/apps');
-        }
-      },
-
-      _selRouteUpdated:function(new_val, old_val){
-        var ciao= this.$.my_selector;
-        console.log("CCCCC selRoute : ", this.selRoute);
-      },
-
-      _selParamsUpdated:function(new_val, old_val){
-        console.log("DDDDDD selParams : ", this.selParams);
-        console.log("DDDDDD selParams appid : ", this.selParams.appId);
-      },
-
-      _selParUpdated:function(new_val, old_val){
-        console.log("CCCCCC isparam : ", this.isparams);
-      },
-
-      _selActiveUpdated:function(new_val, old_val){
-        console.log("isactive : ", this.isactive);
-      },
-
-      _getRouteName(selRoute){
-        if( this.selRoute != null ){
-          console.log("EEEE route name is ", this.selRoute.path);
-          return this.selRoute.path;
-        }
-      },
-
+      observers:[],
 
 
       /**
