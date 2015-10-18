@@ -2,3 +2,5 @@
 *.docx
 *.pdf
 venv/**
+front-end/bower_components
+front-end/node_modules
