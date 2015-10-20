@@ -23592,6 +23592,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply(--paper-font-display2);
       }
 
+      html, body {
+        height: 500px;
+        width: 500px;
+        margin: 0;
+      }
+
+
       @media (max-width: 600px) {
         .page-title {
           font-size: 24px!important;
@@ -28351,21 +28358,6 @@ more clear.
         <!-- Drawer Content -->
         <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
 
-          <a data-route="home" href="/" on-click="onDataRouteClick">
-            <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
-          </a>
-
-          <a data-route="users" href="/users" on-click="onDataRouteClick">
-            <iron-icon icon="info"></iron-icon>
-            <span>Users</span>
-          </a>
-
-          <a data-route="contact" href="/contact" on-click="onDataRouteClick">
-            <iron-icon icon="mail"></iron-icon>
-            <span>Contact</span>
-          </a>
-
           <a href="#!/">
             <iron-icon icon="home"></iron-icon>
             <span>Home</span>
@@ -28420,14 +28412,9 @@ more clear.
 
         <!-- Main Content -->
         <div class="content">
-
-
-
           <cork-app></cork-app>
-
-
-
         </div>
+        
       </paper-scroll-header-panel>
     </paper-drawer-panel>
 
