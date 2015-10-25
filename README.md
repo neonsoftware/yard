@@ -21,7 +21,7 @@ An web application for creating templated documents and export as PDF
 
 ### Set ubuntu packages
 
-```> sudo apt-get install git mysql-server libmysqlclient-dev libpq-dev python-dev nginx npm sudo libxml2-dev libxslt1-dev libreoffice-writer```
+```> sudo apt-get install git mysql-server libmysqlclient-dev libpq-dev python-dev nginx libxml2-dev libxslt1-dev libreoffice-writer```
 
 ### Set python packages and virtualenv
 
