@@ -54,6 +54,13 @@ body {
   color: #333;
 }
 
+
+/*html, body {
+  height: 500px;
+  width: 500px;
+  margin: 0;
+}*/
+
 </style>
   <!-- endbuild-->
 
@@ -2438,7 +2445,6 @@ be used as the label of the toolbar via `aria-labelledby`.
 <link rel="import" href="../bower_components/platinum-sw/platinum-sw-register.html">
 -->
 
-<!-- Configure your routes here -->
 <!-- Add your elements here -->
 <style is="custom-style">
 
@@ -2704,32 +2710,7 @@ element.
 @hero hero.svg
 -->
 
-<!-- <link rel="import" href="../iron-flex-layout/classes/iron-flex-layout.html">
-<link rel="import" href="../iron-icons/iron-icons.html">
-<link rel="import" href="../iron-icons/image-icons.html">
-<link rel="import" href="../iron-icons/notification-icons.html">
-<link rel="import" href="../iron-icons/hardware-icons.html">
-<link rel="import" href="../iron-icons/maps-icons.html">
-<link rel="import" href="../iron-icons/communication-icons.html">
-<link rel="import" href="../iron-pages/iron-pages.html">
-<link rel="import" href="../iron-autogrow-textarea/iron-autogrow-textarea.html">
-<link rel="import" href="../iron-input/iron-input.html">
-<link rel="import" href="../iron-selector/iron-selector.html">
-
 <!-- Paper elements -->
-<!-- <link rel="import" href="../paper-drawer-panel/paper-drawer-panel.html">
-<link rel="import" href="../paper-header-panel/paper-header-panel.html">
-<link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../paper-item/paper-item.html">
-<link rel="import" href="../paper-material/paper-material.html">
-<link rel="import" href="../paper-menu/paper-menu.html">
-<link rel="import" href="../paper-input/paper-input.html">
-<link rel="import" href="../paper-styles/paper-styles-classes.html">
-<link rel="import" href="../paper-toast/paper-toast.html">
-<link rel="import" href="../paper-toolbar/paper-toolbar.html">
-<link rel="import" href="../paper-button/paper-button.html">
-<link rel="import" href="../paper-checkbox/paper-checkbox.html">
-<link rel="import" href="../paper-fab/paper-fab.html"> --> <!-- Paper elements -->
 <!--
 Material design: [Checkbox](https://www.google.com/design/spec/components/selection-controls.html#selection-controls-checkbox)
 
@@ -4242,13 +4223,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         @apply(--paper-font-display2);
       }
 
-      html, body {
-        height: 500px;
-        width: 500px;
-        margin: 0;
-      }
-
-
       @media (max-width: 600px) {
         .page-title {
           font-size: 24px!important;
@@ -4302,7 +4276,7 @@ It is strongly recommended that you declare all your named routes in an import
 such as this, as it acts as a reference for your application, and makes nesting
 more clear.
 -->
-<more-route name="root" path="/"></more-route>
+<more-route name="root" path="/home"></more-route>
 <more-route name="login" path="/login"></more-route>
 <more-route name="register" path="/register"></more-route>
 
@@ -4322,8 +4296,6 @@ more clear.
   <more-route name="coverselect" path="/select"></more-route>
   <more-route name="coverdetail" path="/:coverId/:coverTemplateId"></more-route>
 </more-route>
---&gt;
-
 <dom-module id="apps-home" assetpath="bower_components/cork/">
 
   <style>
@@ -4369,7 +4341,7 @@ more clear.
 
   <template>
 
-    <iron-ajax id="get_ajax" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
+    <iron-ajax id="get_ajax" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
 
     <paper-material card="" levation="1">
       <div class="recap">
@@ -4659,6 +4631,16 @@ more clear.
     <iron-icon id="icon" src="[[src]]" icon="[[icon]]"></iron-icon>
   </template>
 </dom-module>
+<dom-module id="cork-rest-array" assetpath="bower_components/cork/">
+
+  <template>
+
+    <iron-ajax id="get_ajax" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
+    <iron-ajax id="delete_ajax" method="DELETE" url="{{deleteurl}}" handle-as="json" on-response="handleResponseOkRefresh"></iron-ajax>
+
+  </template>
+</dom-module>
+
 <dom-module id="apps-list" assetpath="bower_components/cork/">
 
 <style>
@@ -4682,9 +4664,7 @@ more clear.
 
   <template>
 
-    <iron-ajax id="get_ajax" auto="" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
-    <iron-ajax id="delete_ajax" method="DELETE" url="{{deleteurl}}" handle-as="json" on-response="handleResponseOkRefresh"></iron-ajax>
-    <iron-ajax id="trigger_ajax" method="GET" url="{{triggerurl}}" handle-as="json" on-response="handleResponseOkRefresh"></iron-ajax>
+    <cork-rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" routeauth="login" onlineitems="{{onlineitems}}"></cork-rest-array>
 
 
     <template is="dom-repeat" items="{{activeItems}}">
@@ -4720,7 +4700,7 @@ more clear.
         </div>
         <div>
           <a href="{{openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a>
-          <paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="closeURL"></paper-fab>
+          <paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="_deleteElement"></paper-fab>
         </div>
       </div>
       </paper-material>
@@ -4762,7 +4742,7 @@ more clear.
           </div>
           <div>
             <a href="{{openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a>
-            <paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="closeURL"></paper-fab>
+            <paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="_deleteElement"></paper-fab>
           </div>
         </div>
         </paper-material>
@@ -4778,7 +4758,7 @@ more clear.
 
 
     <div centerbutton="">
-      <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
+      <a href="{{newurl}}"> <paper-fab icon="add"></paper-fab> </a>
     </div>
   </template>
 </dom-module>
@@ -5186,33 +5166,31 @@ more clear.
   </style>
 
   <template>
-    <iron-ajax id="get_ajax" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponseGet"></iron-ajax>
+    <iron-ajax id="get_ajax" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponseGet"></iron-ajax>
     <iron-ajax id="delete_ajax" url="{{deleteurl}}" method="DELETE" handle-as="json" on-response="handleResponseDelete"></iron-ajax>
 
+      <template is="dom-repeat" items="{{onlineItems}}">
+        <paper-material card="" elevation="1">
 
-          <template is="dom-repeat" items="{{onlineItems}}">
-            <paper-material card="" elevation="1">
+        <div class="layout horizontal center">
+          <div class="flex">
+						<span style="font-size: 13px;">{{item.content}}</span><br>
+            <cork-language language="{{item.language}}"> </cork-language>
+            <cork-badges badges="{{item.tags}}"> </cork-badges>
+          </div>
+          <div>
+            <a href="{{openURL(item.id)}}">
+              <paper-fab mini="" icon="create"></paper-fab>
+            </a>
+            <paper-fab mini="" icon="delete" on-click="closeURL"></paper-fab>
+          </div>
+        </div>
+        </paper-material>
+      </template>
 
-            <div class="layout horizontal center">
-              <div class="flex">
-    						<span style="font-size: 13px;">{{item.content}}</span><br>
-                <cork-language language="{{item.language}}"> </cork-language>
-                <cork-badges badges="{{item.tags}}"> </cork-badges>
-              </div>
-              <div>
-                <a href="{{openURL(item.id)}}">
-                  <paper-fab mini="" icon="create"></paper-fab>
-                </a>
-                <paper-fab mini="" icon="delete" on-click="closeURL"></paper-fab>
-              </div>
-            </div>
-            </paper-material>
-          </template>
-       
-
-       <div centerbutton="">
-         <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
-       </div>
+     <div centerbutton="">
+       <a href="{{newURL()}}"> <paper-fab icon="add"></paper-fab> </a>
+     </div>
 
   </template>
 </dom-module>
@@ -5312,19 +5290,6 @@ more clear.
 </dom-module>
 
 <dom-module id="templates-list" assetpath="bower_components/cork/">
-
-  <style>
-    [card] {
-      margin: 16px;
-      padding: 16px;
-      @apply(--layout-vertical --layout-center-center);
-    }
-
-    [centerButton] {
-      text-align: center;
-      padding: 16px;
-    }
-  </style>
 
   <template>
     <iron-ajax id="get_ajax" auto="" url="{{serverurl}}" method="GET" handle-as="json" on-response="handleResponse"></iron-ajax>
@@ -5961,27 +5926,29 @@ more clear.
   </style>
 
   <template>
+
+        Apps active : <span>{{al_active}}</span>
+
           <more-route-selector id="my_selector" selected-route="{{selRoute}}" selected-params="{{selParams}}">
             <iron-pages>
               <section route="root">
-                <apps-home debug="" serverurl="http://rusty.blue/applications"></apps-home>
+                <more-route context="" name="root" active="{{rt_active}}"></more-route>
+                <apps-home active="{{rt_active}}" serverurl="http://rusty.blue/applications"></apps-home>
               </section>
 
               <section route="apps">
-                <apps-list debug="" active="_isAppsListActive" serverurl="http://rusty.blue/applications"></apps-list>
+                <more-route context="" name="apps" active="{{al_active}}"></more-route>
+                <apps-list debug="" active="{{al_active}}" serverurl="http://rusty.blue/applications"></apps-list>
               </section>
 
               <section route="appdetail">
                 <more-route context="" name="appdetail" active="{{ad_active}}" params="{{ad_params}}"></more-route>
-                <apps-detail debug="" active="{{ad_active}}" appid="{{ad_params.appId}}" serverurl="http://rusty.blue/applications"></apps-detail>
-              </section>
-
-              <section route="apps">
-                <apps-list debug="" active="_isAppsListActive" serverurl="http://rusty.blue/applications"></apps-list>
+                <apps-detail active="{{ad_active}}" appid="{{ad_params.appId}}" serverurl="http://rusty.blue/applications"></apps-detail>
               </section>
 
               <section route="blocks">
-                <blocks-list debug="" serverurl="http://rusty.blue/pieces"></blocks-list>
+                <more-route context="" name="blocks" active="{{bll_active}}"></more-route>
+                <blocks-list active="{{bll_active}}" serverurl="http://rusty.blue/pieces"></blocks-list>
               </section>
 
               <section route="blockdetail">
@@ -5990,7 +5957,7 @@ more clear.
               </section>
 
               <section route="templates">
-                <templates-list debug="" serverurl="http://rusty.blue/categories"></templates-list>
+                <templates-list serverurl="http://rusty.blue/categories"></templates-list>
               </section>
 
               <section route="templatedetail">
@@ -5999,16 +5966,16 @@ more clear.
               </section>
 
               <section route="covers">
-                <covers-list debug="" serverurl="http://rusty.blue/documents"></covers-list>
+                <covers-list serverurl="http://rusty.blue/documents"></covers-list>
               </section>
 
               <section route="templatedetail">
                 <more-route context="" name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
-                <covers-detail debug="" active="{{cl_active}}" elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
+                <covers-detail active="{{cl_active}}" elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
               </section>
 
               <section route="coverselect">
-                <covers-new debug="" serverurl="http://rusty.blue/categories"></covers-new>
+                <covers-new serverurl="http://rusty.blue/categories"></covers-new>
               </section>
 
             </iron-pages>
