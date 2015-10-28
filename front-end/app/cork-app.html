@@ -62,7 +62,8 @@
               </section>
 
               <section route="templates">
-                <templates-list serverurl="http://rusty.blue/categories"></templates-list>
+                <more-route context name="templates" active="{{tll_active}}"></more-route>
+                <templates-list debug active="{{tll_active}}" serverurl="http://rusty.blue/categories"></templates-list>
               </section>
 
               <section route="templatedetail">
