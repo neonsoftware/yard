@@ -72,16 +72,18 @@
               </section>
 
               <section route="covers">
-                <covers-list serverurl="http://rusty.blue/documents"></covers-list>
+                <more-route context name="covers" active="{{cll_active}}"></more-route>
+                <covers-list debug active="{{cll_active}}" serverurl="http://rusty.blue/documents"></covers-list>
               </section>
 
-              <section route="templatedetail">
+              <section route="coverdetail">
                 <more-route context name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
                 <covers-detail active={{cl_active}} elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://rusty.blue/documents" templateserverurl="http://rusty.blue/categories"></covers-detail>
               </section>
 
               <section route="coverselect">
-                <covers-new serverurl="http://rusty.blue/categories"></covers-new>
+                <more-route context name="coverselect" active="{{cs_active}}"></more-route>
+                <covers-new debug active="{{cs_active}}" serverurl="http://rusty.blue/categories"></covers-new>
               </section>
 
             </iron-pages>
