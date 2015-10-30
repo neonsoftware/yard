@@ -25,19 +25,15 @@ more clear.
 <more-route name="login"  path="/login"></more-route>
 <more-route name="register"  path="/register"></more-route>
 
-<more-route name="apps" path="/apps">
-  <more-route name="appdetail" path="/:appId"></more-route>
-</more-route>
+<more-route name="apps" path="/apps"></more-route>
+<more-route name="appdetail" path="/app/:appId"></more-route>
 
-<more-route name="blocks" path="/blocks">
-  <more-route name="blockdetail" path="/:blockId"></more-route>
-</more-route>
+<more-route name="blocks" path="/blocks"></more-route>
+<more-route name="blockdetail" path="/block/:blockId"></more-route>
 
-<more-route name="templates" path="/templates">
-  <more-route name="templatedetail" path="/:templateId"></more-route>
-</more-route>
+<more-route name="templates" path="/templates"></more-route>
+<more-route name="templatedetail" path="/template/:templateId"></more-route>
 
-<more-route name="covers" path="/covers">
-  <more-route name="coverselect" path="/select"></more-route>
-  <more-route name="coverdetail" path="/:coverId/:coverTemplateId"></more-route>
-</more-route>
+<more-route name="covers" path="/covers"></more-route>
+<more-route name="coverselect" path="/cover/select"></more-route>
+<more-route name="coverdetail" path="/cover/:coverId/:coverTemplateId"></more-route>
