@@ -32,62 +32,60 @@
 
   <template>
 
-        Apps active : <span>{{al_active}}</span>
+    <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}>
+      <iron-pages>
+        <section route="root">
+          <more-route context name="root" active="{{rt_active}}"></more-route>
+          <apps-home active={{rt_active}} serverurl="http://yard.neonrain.space/applications"></apps-home>
+        </section>
 
-          <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}>
-            <iron-pages>
-              <section route="root">
-                <more-route context name="root" active="{{rt_active}}"></more-route>
-                <apps-home active={{rt_active}} serverurl="http://yard.neonrain.space/applications"></apps-home>
-              </section>
+        <section route="apps">
+          <more-route context name="apps" active="{{al_active}}"></more-route>
+          <apps-list debug active="{{al_active}}" serverurl="http://yard.neonrain.space/applications"></apps-list>
+        </section>
 
-              <section route="apps">
-                <more-route context name="apps" active="{{al_active}}"></more-route>
-                <apps-list debug active="{{al_active}}" serverurl="http://yard.neonrain.space/applications"></apps-list>
-              </section>
+        <section route="appdetail">
+          <more-route context name="appdetail" active="{{ad_active}}" params="{{ad_params}}"></more-route>
+          <apps-detail debug active={{ad_active}} appid={{ad_params.appId}} serverurl="http://yard.neonrain.space/applications"></apps-detail>
+        </section>
 
-              <section route="appdetail">
-                <more-route context name="appdetail" active="{{ad_active}}" params="{{ad_params}}"></more-route>
-                <apps-detail debug active={{ad_active}} appid={{ad_params.appId}} serverurl="http://yard.neonrain.space/applications"></apps-detail>
-              </section>
+        <section route="blocks">
+          <more-route context name="blocks" active="{{bll_active}}"></more-route>
+          <blocks-list active="{{bll_active}}" serverurl="http://yard.neonrain.space/pieces"></blocks-list>
+        </section>
 
-              <section route="blocks">
-                <more-route context name="blocks" active="{{bll_active}}"></more-route>
-                <blocks-list active="{{bll_active}}" serverurl="http://yard.neonrain.space/pieces"></blocks-list>
-              </section>
+        <section route="blockdetail">
+          <more-route context name="blockdetail" active="{{bl_active}}" params="{{bl_params}}"></more-route>
+          <blocks-detail debug active={{bl_active}} elementid="{{bl_params.blockId}}" serverurl="http://yard.neonrain.space/pieces"></blocks-detail>
+        </section>
 
-              <section route="blockdetail">
-                <more-route context name="blockdetail" active="{{bl_active}}" params="{{bl_params}}"></more-route>
-                <blocks-detail debug active={{bl_active}} elementid="{{bl_params.blockId}}" serverurl="http://yard.neonrain.space/pieces"></blocks-detail>
-              </section>
+        <section route="templates">
+          <more-route context name="templates" active="{{tll_active}}"></more-route>
+          <templates-list debug active="{{tll_active}}" serverurl="http://yard.neonrain.space/categories"></templates-list>
+        </section>
 
-              <section route="templates">
-                <more-route context name="templates" active="{{tll_active}}"></more-route>
-                <templates-list debug active="{{tll_active}}" serverurl="http://yard.neonrain.space/categories"></templates-list>
-              </section>
+        <section route="templatedetail">
+          <more-route context name="templatedetail" active="{{tl_active}}" params="{{tl_params}}"></more-route>
+          <templates-detail debug active={{tl_active}} elementid="{{tl_params.templateId}}" templatesserverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
+        </section>
 
-              <section route="templatedetail">
-                <more-route context name="templatedetail" active="{{tl_active}}" params="{{tl_params}}"></more-route>
-                <templates-detail debug active={{tl_active}} elementid="{{tl_params.templateId}}" templatesserverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
-              </section>
+        <section route="covers">
+          <more-route context name="covers" active="{{cll_active}}"></more-route>
+          <covers-list debug active="{{cll_active}}" serverurl="http://yard.neonrain.space/documents"></covers-list>
+        </section>
 
-              <section route="covers">
-                <more-route context name="covers" active="{{cll_active}}"></more-route>
-                <covers-list debug active="{{cll_active}}" serverurl="http://yard.neonrain.space/documents"></covers-list>
-              </section>
+        <section route="coverdetail">
+          <more-route context name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
+          <covers-detail active={{cl_active}} elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://yard.neonrain.space/documents" templateserverurl="http://yard.neonrain.space/categories"></covers-detail>
+        </section>
 
-              <section route="coverdetail">
-                <more-route context name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
-                <covers-detail active={{cl_active}} elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://yard.neonrain.space/documents" templateserverurl="http://yard.neonrain.space/categories"></covers-detail>
-              </section>
+        <section route="coverselect">
+          <more-route context name="coverselect" active="{{cs_active}}"></more-route>
+          <covers-new debug active="{{cs_active}}" serverurl="http://yard.neonrain.space/categories"></covers-new>
+        </section>
 
-              <section route="coverselect">
-                <more-route context name="coverselect" active="{{cs_active}}"></more-route>
-                <covers-new debug active="{{cs_active}}" serverurl="http://yard.neonrain.space/categories"></covers-new>
-              </section>
-
-            </iron-pages>
-          </more-route-selector>
+      </iron-pages>
+    </more-route-selector>
 
   </template>
 
