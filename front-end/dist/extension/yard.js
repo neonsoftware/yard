@@ -18447,9 +18447,9 @@ Polymer({
 
       is: 'apps-list',
       properties: {
-        serverurl: {type: String, value: ""},
         debug: { type: Boolean, value: false },
-        active: Boolean
+        active: Boolean,
+        serverurl: String
       },
 
       observers:['_divideItems(onlineitems)' ],
@@ -18459,7 +18459,7 @@ Polymer({
         this.newurl = MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
       },
 
-      openURL(itemId) {
+      _openURL(itemId) {
         return MoreRouting.urlFor('appdetail', {appId: itemId});
       },
 
@@ -18837,88 +18837,126 @@ Polymer({
 (function () {
     Polymer({
 
+      is: 'cork-rest-detail',
+
+      properties: {
+        debug: { type: Boolean, value: false },
+        active: Boolean,
+        elementid: String,
+        serverurl: {type: String, value: ''},
+        routeauth: {type: String, value: ''},
+        routeback: {type: String, value: ''},
+        defaultitem: {type: Object, value: ''},
+        currentitem: {
+          type: Object,
+          notify: true
+        },
+      },
+
+      observers:[ '_updateInputs(active, elementid, serverurl)' ],
+
+      // Hanlidng initial state
+
+      _updateInputs: function(current_active, current_id, current_serverurl){
+        this.isnew = Boolean(this.elementid === "new");;
+
+        if(this.debug) console.log('Inputs updated. active: ', this.active, ' - isnew :', this.isnew, ' - serverurl :', this.serverurl );
+
+        // If view not selected or creating new elements: re-setting current element to default/empty
+        if( !this.active || this.isnew ){
+          this.currentitem = this.defaultitem;
+          this.elementid = "new";
+        }
+
+        // If updating existing element. Pulling it from server
+        if( this.active && !this.isnew ){
+          this.$.ajax_get.url = this.serverurl + '/' + String(this.elementid) + '/';
+          this.$.ajax_get.generateRequest();
+        }
+      },
+
+      // Saving object to Server
+
+      save: function( serialized_object ){
+        if(this.debug) console.log("templates-detail :In the end pieces is : ", serialized_object );
+        this.$.ajax_save.url = this.isnew ? this.serverurl : this.serverurl + '/' + String(this.elementid) ;
+        this.$.ajax_save.method = this.isnew ? "POST" : "PUT";
+        this.$.ajax_save.body = serialized_object ;
+        this.$.ajax_save.generateRequest();
+      },
+
+      save_current: function( serialized_object ){
+        if(this.debug) console.log("Saving current element ! ", this.currentitem );
+        this.save( JSON.stringify(this.currentitem) );
+      },
+
+
+      // Handling REST results
+
+      handleResponseOkRefresh:function(response){
+        if(this.debug) console.log("Delete done. Refreshing");
+        this.$.get_ajax.generateRequest();
+      },
+
+      _handle_get_ok:function(response){
+        if(this.debug) console.log('GET response. Status is', response.detail.status);
+        if( response.detail.status == 403 ){
+          if(this.debug) console.log('Not logged in. Routing to route : ', this.routeauth);
+          MoreRouting.navigateTo(this.routeauth);
+        }else{
+          this.set('currentitem', response.detail.response);
+          if(this.debug) console.log('Setting currentitem to : ', this.currentitem);
+        }
+      },
+
+      _handle_get_error:function(response){
+        if(this.debug) console.log('Error is', response.detail.error.message);
+        if( response.detail.error.message.indexOf("401") >-1 ){
+          if(this.debug) console.log('Not logged in. Routing to login.');
+          MoreRouting.navigateTo('login', {});
+        }
+      },
+
+      _handle_save_ok:function(response){
+        MoreRouting.navigateTo(this.routeback);
+      },
+
+      _handle_save_error : function(response){
+        console.log("Error saving the object on server. ");
+      },
+
+
+
+
+    });
+  })();
+(function () {
+    Polymer({
+
       is: 'apps-detail',
       properties: {
         debug: { type: Boolean, value: false },
-        currentitem: Object,
         appid: String,
         active: Boolean,
-        getURL: { type: String, value: ""},
-        pushmethod: { type: String, value: ""},
-        pushURL: { type: String, value: ""},
-        serverurl: { type: String, value: ""},
-      },
-
-      observers:['_inputsUpdated(appid, active, serverurl)'],
-
-      _inputsUpdated: function(current_id, current_active, current_serverurl){
-        if(this.debug) console.log("TTT : Updated some input - active : ", this.active, ' - appid : ', this.appid, ' - serverurl : ', this.serverurl );
-        var isNew = Boolean(this.appid === "new");;
-        if(this.active){
-          this.getURL = ( isNew ) ? '' : this.serverurl + '/' + String(this.appid) + '/';
-          this.pushmethod = ( isNew ) ? "POST" : "PUT";
-          this.pushURL = ( isNew ) ? this.serverurl : this.serverurl + '/' + String(this.appid) ;
-          if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
-        }
-
-        if(!this.active || isNew){
-          this.currentitem = {
-            portal :"",
-          	portal_link:"",
-          	company:"",
-          	company_link:"",
-          	position:"",
-          	position_link:"",
-          	salary:"",
-          	contract:"",
-          	latitude:"",
-          	longitude:"",
-          	skills:"",
-          	written:"",
-          	called:"",
-          	interviewed:"",
-          	followup:"",
-          	notes:"",
-          	next:"",
-          	cover:"",
-          	address1:"",
-          	address2:"",
-          	c1name:"",
-          	c1mail:"",
-          	c1phone:"",
-          	c2name:"",
-          	c2mail:"",
-          	c2phone:"",
-          	c3name:"",
-          	c3mail:"",
-          	c3phone:"",
-          	c4name:"",
-          	c4mail:"",
-          	c4phone:""
-          };
-        }
-
+        serverurl: String,
+        currentitem: Object,
+        defaultitem: { type: Object, value: {
+          portal :"", portal_link:"", company:"", company_link:"",
+          position:"", position_link:"", salary:"", contract:"",
+          latitude:"", longitude:"", skills:"", written:"",
+          called:"", interviewed:"", followup:"", notes:"",
+          next:"", cover:"", address1:"", address2:"",
+          c1name:"", c1mail:"", c1phone:"", c2name:"",
+          c2mail:"", c2phone:"", c3name:"", c3mail:"",
+          c3phone:"", c4name:"", c4mail:"", c4phone:""
+        } },
       },
 
       save_me:function(){
-        if(this.debug) console.log('The currenty is :', this.currentitem);
-        this.$.my_iron_save.body = JSON.stringify(this.currentitem);
-        this.$.my_iron_save.contentType = "application/json";
-        this.$.my_iron_save.generateRequest();
-        document.querySelector('#saving-complete').show();
-      },
-
-      _handle_response_get:function(response){
-        if(response.detail.response != null){
-          if(this.debug) console.log('Received response from get :' , response.detail.response);
-          this.currentitem = response.detail.response;
-        }
-      },
-
-      _handle_response_post:function(response){
-        if(this.debug) console.log('Received response from POST: ', response.detail.response);
-        MoreRouting.navigateTo('apps', {});
+        if(this.debug) console.log('Saving current item.');
+        this.$.rest_detail.save_current();
       }
+
     });
 
   })();
@@ -18927,42 +18965,21 @@ Polymer({
 
       is: 'blocks-list',
       properties: {
-        serverurl: { type: String, value: "" },
+        serverurl: {type: String, value: ""},
         debug: { type: Boolean, value: false },
-        active : Boolean
+        active: Boolean
       },
 
-      observers:['_inputsUpdated(active, serverurl)'],
-
-      _inputsUpdated(current_active, current_serverurl){
-        if(this.debug) console.log("Unputs updated. ");
-        if(this.active){
-          this.$.get_ajax.generateRequest();
-        }
+      ready: function(){
+        this.newurl = MoreRouting.urlFor('blockdetail', {blockId: 'new'}) ;
       },
 
-      newURL(){
-        return MoreRouting.urlFor('blockdetail', {blockId: 'new'}) ;
-      },
-
-      openURL(itemId) {
+      _openURL(itemId) {
         return MoreRouting.urlFor('blockdetail', {blockId: itemId});
       },
 
-      closeURL: function(e) {
-        if(this.debug) console.log("Now deleting ", e.model.item.id);
-        this.deleteurl = this.serverurl + "/" + e.model.item.id;
-        this.$.delete_ajax.generateRequest();
-      },
-
-      handleResponseDelete:function(response){
-        if(this.debug) console.log("Delete done. Refreshing");
-        this.$.get_ajax.generateRequest();
-      },
-
-      handleResponseGet:function(response){
-        if(this.debug) console.log(response.detail.response);
-        this.onlineItems = response.detail.response;
+      _deleteElement: function(e) {
+        this.$.rest_array.deleteItem(e.model.item.id);
       }
 
     });
@@ -19335,33 +19352,21 @@ Polymer({
 
       is: 'templates-list',
       properties: {
-        debug: {type: Boolean, value: false},
         serverurl: {type: String, value: ""},
-        deleteurl: {type: String, value: ""}
+        debug: { type: Boolean, value: false },
+        active: Boolean
       },
 
-      newURL(){
-        return MoreRouting.urlFor('templatedetail', {templateId: 'new'});
+      ready: function(){
+        this.newurl = MoreRouting.urlFor('templatedetail', {templateId: 'new'}) ;
       },
 
-      openURL(itemId) {
+      _openURL(itemId) {
         return MoreRouting.urlFor('templatedetail', {templateId: itemId});
       },
 
-      closeURL: function(e) {
-        if(this.debug) console.log("Now deleting ", e.model.item.id);
-        this.deleteurl = this.serverurl + "/" + e.model.item.id;
-        this.$.delete_ajax.generateRequest();
-      },
-
-      handleResponseDelete:function(response){
-        if(this.debug) console.log("Delete done. Refreshing");
-        this.$.get_ajax.generateRequest();
-      },
-
-      handleResponse:function(response){
-        if(this.debug) console.log(response.detail.response);
-        this.onlineItems = response.detail.response;
+      _deleteElement: function(e) {
+        this.$.rest_array.deleteItem(e.model.item.id);
       }
 
     });
@@ -19371,7 +19376,6 @@ Polymer({
 
       is: 'cork-badges',
       properties: {
-        badgesList:[],
         badges:{
           type:String,
           observer:'onBadgesStringChanged'
@@ -19397,7 +19401,6 @@ Polymer({
 
       is: 'cork-select-badges',
       properties: {
-        badgesList:[],
         badges:{
           type:Array,
           observer:'_onBadgesStringChanged'
@@ -19409,18 +19412,11 @@ Polymer({
         }
       },
 
-      _onBadgesStringChanged : function(newValue, oldValue){
-        // Removing empty tag
-        var position = newValue.indexOf("");
-        if( position > -1 ){
-          newValue.splice(position, 1);
-        }
-
-        this.set( 'badgesList', newValue ) ;
-        this.set( 'selectedones', [] ) ;
+      ready : function(){
+        this.currentitems = [];
       },
 
-      beentoggled:function(e){
+      _beentoggled:function(e){
         var cssClasses = e.target.classList;
         var toggledElement = e.model.item;
         var position = this.selectedones.indexOf(toggledElement);
@@ -20600,35 +20596,22 @@ Polymer({
 
       is: 'covers-list',
       properties: {
-        debug: {type: Boolean, value: false},
         serverurl: {type: String, value: ""},
-        deleteurl: {type: String, value: ""}
+        debug: { type: Boolean, value: false },
+        active: Boolean
       },
 
-      newURL(){
-        return MoreRouting.urlFor('coverselect', {}) ;
+      ready: function(){
+        this.newurl = MoreRouting.urlFor('coverselect') ;
       },
 
-      openURL(itemId) {
+      _openURL(itemId) {
         return MoreRouting.urlFor('coverdetail', {coverId: itemId, coverTemplateId: 'empty'});
       },
 
-      closeURL: function(e) {
-        if(this.debug) console.log("Now deleting ", e.model.item.id);
-        this.deleteurl = this.serverurl + "/" + e.model.item.id;
-        this.$.delete_ajax.generateRequest();
-      },
-
-      handleResponseDelete:function(response){
-        if(this.debug) console.log("Delete done. Refreshing");
-        this.$.get_ajax.generateRequest();
-      },
-
-      handleResponse:function(response){
-        if(this.debug) console.log(response.detail.response);
-        this.onlineItems = response.detail.response;
+      _deleteElement: function(e) {
+        this.$.rest_array.deleteItem(e.model.item.id);
       }
-
     });
   })();
 (function () {
@@ -20754,36 +20737,18 @@ Polymer({
     Polymer({
 
       is: 'covers-new',
-
       properties: {
-        debug: {type: Boolean, value: false},
-        serverurl: String
+        serverurl: {type: String, value: ""},
+        debug: { type: Boolean, value: false },
+        active: Boolean
       },
 
-      newURL(){
-        return MoreRouting.urlFor('coverdetail', {coverId: 'new', coverTemplateId: 'empty'}) ;
+      ready: function(){
+        this.newurl = MoreRouting.urlFor('coverdetail', {coverId: 'new', coverTemplateId: 'empty'}) ;
       },
 
-      openURL(itemId) {
+      _openURL(itemId) {
         return MoreRouting.urlFor('coverdetail', {coverId: 'new', coverTemplateId: itemId});
-      },
-
-
-      // open_me: function(e) {
-      //   var model = e.model;
-      //   var id = model.item.id;
-      //   console.log('the id is', id);
-      //   MoreRouting.navigateTo('coverdetail', {coverId: 'new', coverTemplateId: id});
-      // },
-      //
-      // newURL: function(e) {
-      //   console.log('To new !!');
-      //   MoreRouting.navigateTo('coverdetail', {coverId: 'new', coverTemplateId: 'empty'});
-      // },
-
-      handleResponse:function(response){
-        if(this.debug) console.log(response.detail.response);
-        this.onlineItems = response.detail.response;
       }
 
     });
@@ -20827,7 +20792,6 @@ Polymer({
       },
 
       observers:[],
-
 
       /**
        * Navigates to the root URL, in response to a tap on the home "link".

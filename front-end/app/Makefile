@@ -1,6 +1,5 @@
 PROJECT_NAME=yard
 
-
 DIST_FOLDER=../dist
 EXTENSION_BUILD_FOLDER=$(DIST_FOLDER)/extension
 ONEFILE_BUILD_FOLDER=$(DIST_FOLDER)/onefile
@@ -17,8 +16,10 @@ onefile:
 
 extension_crisp:
 	@echo "--> extension"
+	sed 's/main.css/main-extension.css/g' index.html	> extension.html
 	vulcanize --inline-css --inline-scripts extension.html > $(EXTENSION_BUILD_FOLDER)/vulcanized.html
 	crisper --source $(EXTENSION_BUILD_FOLDER)/vulcanized.html --html $(EXTENSION_BUILD_FOLDER)/$(PROJECT_NAME).html --js $(EXTENSION_BUILD_FOLDER)/$(PROJECT_NAME).js
+	rm -fr extension.html
 	rm -fr $(EXTENSION_BUILD_FOLDER)/vulcanized.html
 
 desktop:
