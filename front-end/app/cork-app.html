@@ -39,6 +39,11 @@
           <apps-home active={{rt_active}} serverurl="http://yard.neonrain.space/applications"></apps-home>
         </section>
 
+        <section route="login">
+          <more-route context name="login" active="{{rt_active}}"></more-route>
+          <apps-login active={{rt_active}} loginurl="http://yard.neonrain.space/simplelogin"></apps-login>
+        </section>
+
         <section route="apps">
           <more-route context name="apps" active="{{al_active}}"></more-route>
           <apps-list debug active="{{al_active}}" serverurl="http://yard.neonrain.space/applications"></apps-list>
