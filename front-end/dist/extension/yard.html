@@ -37,7 +37,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <!-- Tile icon for Win8 (144x144) -->
   <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
 
-  <!-- build:css styles/main.css -->
+  <!-- build:css styles/main-extension.css -->
   <style>
 /*
 Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
@@ -2663,6 +2663,7 @@ be used as the label of the toolbar via `aria-labelledby`.
   <!-- For shared styles, shared-styles.html import in elements.html -->
   <style is="custom-style" include="shared-styles"></style>
 
+
   <!-- TODO(nevir): import on demand? -->
 <!--
 TODO(nevir): Document.
@@ -3130,7 +3131,7 @@ respectively.
 <!-- Paper elements -->
 </head>
 
-<body><div hidden="" by-vulcanize=""><dom-module id="iron-icon" assetpath="bower_components/iron-icon/">
+<body unresolved="" class="fullbleed layout vertical"><div hidden="" by-vulcanize=""><dom-module id="iron-icon" assetpath="bower_components/iron-icon/">
 
   <style>
     :host {
@@ -5986,22 +5987,7 @@ more clear.
         <!-- Drawer Content -->
         <paper-menu class="list" attr-for-selected="data-route" selected="[[route]]">
 
-          <a data-route="home" href="/" on-click="onDataRouteClick">
-            <iron-icon icon="home"></iron-icon>
-            <span>Home</span>
-          </a>
-
-          <a data-route="users" href="/users" on-click="onDataRouteClick">
-            <iron-icon icon="info"></iron-icon>
-            <span>Users</span>
-          </a>
-
-          <a data-route="contact" href="/contact" on-click="onDataRouteClick">
-            <iron-icon icon="mail"></iron-icon>
-            <span>Contact</span>
-          </a>
-
-          <a href="#!/">
+          <a href="#!/home">
             <iron-icon icon="home"></iron-icon>
             <span>Home</span>
           </a>
@@ -6055,14 +6041,9 @@ more clear.
 
         <!-- Main Content -->
         <div class="content">
-
-
-
           <cork-app></cork-app>
-
-
-
         </div>
+
       </paper-scroll-header-panel>
     </paper-drawer-panel>
 
