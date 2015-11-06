@@ -32,7 +32,9 @@
 
   <template>
 
-    <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}>
+    <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}
+                                          on-unauthenticated="_on_401" on-servererror="_on_403"
+                                          on-saveok="_on_saveok" on-saveerror="_on_saveerror">
       <iron-pages>
         <section route="root">
           <more-route context name="root" active="{{rt_active}}"></more-route>
@@ -46,12 +48,12 @@
 
         <section route="apps">
           <more-route context name="apps" active="{{al_active}}"></more-route>
-          <apps-list debug active="{{al_active}}" serverurl="http://yard.neonrain.space/applications"></apps-list>
+          <apps-list active="{{al_active}}" serverurl="http://yard.neonrain.space/applications"></apps-list>
         </section>
 
         <section route="appdetail">
           <more-route context name="appdetail" active="{{ad_active}}" params="{{ad_params}}"></more-route>
-          <apps-detail debug active={{ad_active}} appid={{ad_params.appId}} serverurl="http://yard.neonrain.space/applications"></apps-detail>
+          <apps-detail active={{ad_active}} appid={{ad_params.appId}} serverurl="http://yard.neonrain.space/applications"></apps-detail>
         </section>
 
         <section route="blocks">
@@ -66,17 +68,17 @@
 
         <section route="templates">
           <more-route context name="templates" active="{{tll_active}}"></more-route>
-          <templates-list debug active="{{tll_active}}" serverurl="http://yard.neonrain.space/categories"></templates-list>
+          <templates-list active="{{tll_active}}" serverurl="http://yard.neonrain.space/categories"></templates-list>
         </section>
 
         <section route="templatedetail">
           <more-route context name="templatedetail" active="{{tl_active}}" params="{{tl_params}}"></more-route>
-          <templates-detail debug active={{tl_active}} elementid="{{tl_params.templateId}}" templatesserverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
+          <templates-detail active={{tl_active}} elementid="{{tl_params.templateId}}" templatesserverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
         </section>
 
         <section route="covers">
           <more-route context name="covers" active="{{cll_active}}"></more-route>
-          <covers-list debug active="{{cll_active}}" serverurl="http://yard.neonrain.space/documents"></covers-list>
+          <covers-list active="{{cll_active}}" serverurl="http://yard.neonrain.space/documents"></covers-list>
         </section>
 
         <section route="coverdetail">
@@ -86,11 +88,14 @@
 
         <section route="coverselect">
           <more-route context name="coverselect" active="{{cs_active}}"></more-route>
-          <covers-new debug active="{{cs_active}}" serverurl="http://yard.neonrain.space/categories"></covers-new>
+          <covers-new active="{{cs_active}}" serverurl="http://yard.neonrain.space/categories"></covers-new>
         </section>
 
       </iron-pages>
     </more-route-selector>
+
+    <paper-toast id="save-success" duration="6000" text="Saving successful"> </paper-toast>
+    <paper-toast id="save-failure" duration="6000" text="COuld not save"> </paper-toast>
 
   </template>
 
@@ -105,21 +110,29 @@
 
       observers:[],
 
-      /**
-       * Navigates to the root URL, in response to a tap on the home "link".
-       */
-      _onTapHome: function(event) {
-        // If you wish to navigate imperatively, `MoreRouting.navigateTo` is the
-        // way to go:
-        MoreRouting.navigateTo('root');
-        event.preventDefault();
-      },
-
       _onMenuSelect : function() {
         var drawerPanel = document.querySelector('#paperDrawerPanel');
         if (drawerPanel.narrow) {
           drawerPanel.closeDrawer();
         }
+      },
+
+      _on_401 : function(){
+        console.log("Arrived unauthenticated event");
+        MoreRouting.navigateTo('login');
+      },
+
+      _on_403 : function(){
+        console.log("Arrived servererror event");
+      },
+
+      _on_saveok : function(){
+        console.log("Saving item went ok !");
+        document.querySelector('#save-success').show();
+      },
+
+      _on_saveerror : function(){
+        console.log("Saving item went .. bad.");
       }
 
     });
