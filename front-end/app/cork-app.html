@@ -95,7 +95,7 @@
     </more-route-selector>
 
     <paper-toast id="save-success" duration="6000" text="Saving successful"> </paper-toast>
-    <paper-toast id="save-failure" duration="6000" text="COuld not save"> </paper-toast>
+    <paper-toast id="save-failure" duration="6000" text="Could not save"> </paper-toast>
 
   </template>
 
@@ -129,10 +129,15 @@
       _on_saveok : function(){
         console.log("Saving item went ok !");
         document.querySelector('#save-success').show();
+        if(MoreRouting.isCurrentUrl('appdetail')){ MoreRouting.navigateTo('apps'); }
+        if(MoreRouting.isCurrentUrl('blocksdetail')){ MoreRouting.navigateTo('blocks'); }
+        if(MoreRouting.isCurrentUrl('templatesdetail')){ MoreRouting.navigateTo('templates'); }
+        if(MoreRouting.isCurrentUrl('coversdetail')){ MoreRouting.navigateTo('covers'); }
       },
 
       _on_saveerror : function(){
         console.log("Saving item went .. bad.");
+        document.querySelector('#save-error').show();
       }
 
     });
