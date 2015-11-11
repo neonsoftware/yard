@@ -63,7 +63,7 @@
 
         <section route="blockdetail">
           <more-route context name="blockdetail" active="{{bl_active}}" params="{{bl_params}}"></more-route>
-          <blocks-detail debug active={{bl_active}} elementid="{{bl_params.blockId}}" serverurl="http://yard.neonrain.space/pieces"></blocks-detail>
+          <blocks-detail active={{bl_active}} elementid="{{bl_params.blockId}}" serverurl="http://yard.neonrain.space/pieces"></blocks-detail>
         </section>
 
         <section route="templates">
@@ -73,7 +73,7 @@
 
         <section route="templatedetail">
           <more-route context name="templatedetail" active="{{tl_active}}" params="{{tl_params}}"></more-route>
-          <templates-detail active={{tl_active}} elementid="{{tl_params.templateId}}" templatesserverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
+          <templates-detail active={{tl_active}} elementid="{{tl_params.templateId}}" serverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
         </section>
 
         <section route="covers">
@@ -83,7 +83,7 @@
 
         <section route="coverdetail">
           <more-route context name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
-          <covers-detail active={{cl_active}} elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://yard.neonrain.space/documents" templateserverurl="http://yard.neonrain.space/categories"></covers-detail>
+          <covers-detail debug active={{cl_active}} elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://yard.neonrain.space/documents" templateserverurl="http://yard.neonrain.space/categories"></covers-detail>
         </section>
 
         <section route="coverselect">
@@ -130,9 +130,9 @@
         console.log("Saving item went ok !");
         document.querySelector('#save-success').show();
         if(MoreRouting.isCurrentUrl('appdetail')){ MoreRouting.navigateTo('apps'); }
-        if(MoreRouting.isCurrentUrl('blocksdetail')){ MoreRouting.navigateTo('blocks'); }
-        if(MoreRouting.isCurrentUrl('templatesdetail')){ MoreRouting.navigateTo('templates'); }
-        if(MoreRouting.isCurrentUrl('coversdetail')){ MoreRouting.navigateTo('covers'); }
+        if(MoreRouting.isCurrentUrl('blockdetail')){ MoreRouting.navigateTo('blocks'); }
+        if(MoreRouting.isCurrentUrl('templatedetail')){ MoreRouting.navigateTo('templates'); }
+        if(MoreRouting.isCurrentUrl('coverdetail')){ MoreRouting.navigateTo('covers'); }
       },
 
       _on_saveerror : function(){
