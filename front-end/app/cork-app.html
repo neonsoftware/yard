@@ -73,7 +73,7 @@
 
         <section route="templatedetail">
           <more-route context name="templatedetail" active="{{tl_active}}" params="{{tl_params}}"></more-route>
-          <templates-detail active={{tl_active}} elementid="{{tl_params.templateId}}" serverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
+          <templates-detail active={{tl_active}} elementid="[[tl_params.templateId]]" serverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
         </section>
 
         <section route="covers">
@@ -83,7 +83,7 @@
 
         <section route="coverdetail">
           <more-route context name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
-          <covers-detail debug active={{cl_active}} elementid="{{cl_params.coverId}}" templateid="{{cl_params.coverTemplateId}}" serverurl="http://yard.neonrain.space/documents" templateserverurl="http://yard.neonrain.space/categories"></covers-detail>
+          <covers-detail debug active=[[cl_active]] elementid="[[cl_params.coverId]]" templateid="[[cl_params.coverTemplateId]]" serverurl="http://yard.neonrain.space/documents" templateserverurl="http://yard.neonrain.space/categories"></covers-detail>
         </section>
 
         <section route="coverselect">
