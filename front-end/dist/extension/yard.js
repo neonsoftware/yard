@@ -8779,6 +8779,184 @@ this._insertChildren();
 this.fire('dom-change');
 }
 });
+/**
+   * `IronResizableBehavior` is a behavior that can be used in Polymer elements to
+   * coordinate the flow of resize events between "resizers" (elements that control the
+   * size or hidden state of their children) and "resizables" (elements that need to be
+   * notified when they are resized or un-hidden by their parents in order to take
+   * action on their new measurements).
+   * Elements that perform measurement should add the `IronResizableBehavior` behavior to
+   * their element definition and listen for the `iron-resize` event on themselves.
+   * This event will be fired when they become showing after having been hidden,
+   * when they are resized explicitly by another resizable, or when the window has been
+   * resized.
+   * Note, the `iron-resize` event is non-bubbling.
+   *
+   * @polymerBehavior Polymer.IronResizableBehavior
+   * @demo demo/index.html
+   **/
+  Polymer.IronResizableBehavior = {
+    properties: {
+      /**
+       * The closest ancestor element that implements `IronResizableBehavior`.
+       */
+      _parentResizable: {
+        type: Object,
+        observer: '_parentResizableChanged'
+      },
+
+      /**
+       * True if this element is currently notifying its descedant elements of
+       * resize.
+       */
+      _notifyingDescendant: {
+        type: Boolean,
+        value: false
+      }
+    },
+
+    listeners: {
+      'iron-request-resize-notifications': '_onIronRequestResizeNotifications'
+    },
+
+    created: function() {
+      // We don't really need property effects on these, and also we want them
+      // to be created before the `_parentResizable` observer fires:
+      this._interestedResizables = [];
+      this._boundNotifyResize = this.notifyResize.bind(this);
+    },
+
+    attached: function() {
+      this.fire('iron-request-resize-notifications', null, {
+        node: this,
+        bubbles: true,
+        cancelable: true
+      });
+
+      if (!this._parentResizable) {
+        window.addEventListener('resize', this._boundNotifyResize);
+        this.notifyResize();
+      }
+    },
+
+    detached: function() {
+      if (this._parentResizable) {
+        this._parentResizable.stopResizeNotificationsFor(this);
+      } else {
+        window.removeEventListener('resize', this._boundNotifyResize);
+      }
+
+      this._parentResizable = null;
+    },
+
+    /**
+     * Can be called to manually notify a resizable and its descendant
+     * resizables of a resize change.
+     */
+    notifyResize: function() {
+      if (!this.isAttached) {
+        return;
+      }
+
+      this._interestedResizables.forEach(function(resizable) {
+        if (this.resizerShouldNotify(resizable)) {
+          this._notifyDescendant(resizable);
+        }
+      }, this);
+
+      this._fireResize();
+    },
+
+    /**
+     * Used to assign the closest resizable ancestor to this resizable
+     * if the ancestor detects a request for notifications.
+     */
+    assignParentResizable: function(parentResizable) {
+      this._parentResizable = parentResizable;
+    },
+
+    /**
+     * Used to remove a resizable descendant from the list of descendants
+     * that should be notified of a resize change.
+     */
+    stopResizeNotificationsFor: function(target) {
+      var index = this._interestedResizables.indexOf(target);
+
+      if (index > -1) {
+        this._interestedResizables.splice(index, 1);
+        this.unlisten(target, 'iron-resize', '_onDescendantIronResize');
+      }
+    },
+
+    /**
+     * This method can be overridden to filter nested elements that should or
+     * should not be notified by the current element. Return true if an element
+     * should be notified, or false if it should not be notified.
+     *
+     * @param {HTMLElement} element A candidate descendant element that
+     * implements `IronResizableBehavior`.
+     * @return {boolean} True if the `element` should be notified of resize.
+     */
+    resizerShouldNotify: function(element) { return true; },
+
+    _onDescendantIronResize: function(event) {
+      if (this._notifyingDescendant) {
+        event.stopPropagation();
+        return;
+      }
+
+      // NOTE(cdata): In ShadowDOM, event retargetting makes echoing of the
+      // otherwise non-bubbling event "just work." We do it manually here for
+      // the case where Polymer is not using shadow roots for whatever reason:
+      if (!Polymer.Settings.useShadow) {
+        this._fireResize();
+      }
+    },
+
+    _fireResize: function() {
+      this.fire('iron-resize', null, {
+        node: this,
+        bubbles: false
+      });
+    },
+
+    _onIronRequestResizeNotifications: function(event) {
+      var target = event.path ? event.path[0] : event.target;
+
+      if (target === this) {
+        return;
+      }
+
+      if (this._interestedResizables.indexOf(target) === -1) {
+        this._interestedResizables.push(target);
+        this.listen(target, 'iron-resize', '_onDescendantIronResize');
+      }
+
+      target.assignParentResizable(this);
+      this._notifyDescendant(target);
+
+      event.stopPropagation();
+    },
+
+    _parentResizableChanged: function(parentResizable) {
+      if (parentResizable) {
+        window.removeEventListener('resize', this._boundNotifyResize);
+      }
+    },
+
+    _notifyDescendant: function(descendant) {
+      // NOTE(cdata): In IE10, attached is fired on children first, so it's
+      // important not to notify them if the parent is not attached yet (or
+      // else they will get redundantly notified when the parent attaches).
+      if (!this.isAttached) {
+        return;
+      }
+
+      this._notifyingDescendant = true;
+      descendant.notifyResize();
+      this._notifyingDescendant = false;
+    }
+  };
 (function() {
 
     // monostate data
@@ -9222,184 +9400,6 @@ this.fire('dom-change');
     }
 
   });
-/**
-   * `IronResizableBehavior` is a behavior that can be used in Polymer elements to
-   * coordinate the flow of resize events between "resizers" (elements that control the
-   * size or hidden state of their children) and "resizables" (elements that need to be
-   * notified when they are resized or un-hidden by their parents in order to take
-   * action on their new measurements).
-   * Elements that perform measurement should add the `IronResizableBehavior` behavior to
-   * their element definition and listen for the `iron-resize` event on themselves.
-   * This event will be fired when they become showing after having been hidden,
-   * when they are resized explicitly by another resizable, or when the window has been
-   * resized.
-   * Note, the `iron-resize` event is non-bubbling.
-   *
-   * @polymerBehavior Polymer.IronResizableBehavior
-   * @demo demo/index.html
-   **/
-  Polymer.IronResizableBehavior = {
-    properties: {
-      /**
-       * The closest ancestor element that implements `IronResizableBehavior`.
-       */
-      _parentResizable: {
-        type: Object,
-        observer: '_parentResizableChanged'
-      },
-
-      /**
-       * True if this element is currently notifying its descedant elements of
-       * resize.
-       */
-      _notifyingDescendant: {
-        type: Boolean,
-        value: false
-      }
-    },
-
-    listeners: {
-      'iron-request-resize-notifications': '_onIronRequestResizeNotifications'
-    },
-
-    created: function() {
-      // We don't really need property effects on these, and also we want them
-      // to be created before the `_parentResizable` observer fires:
-      this._interestedResizables = [];
-      this._boundNotifyResize = this.notifyResize.bind(this);
-    },
-
-    attached: function() {
-      this.fire('iron-request-resize-notifications', null, {
-        node: this,
-        bubbles: true,
-        cancelable: true
-      });
-
-      if (!this._parentResizable) {
-        window.addEventListener('resize', this._boundNotifyResize);
-        this.notifyResize();
-      }
-    },
-
-    detached: function() {
-      if (this._parentResizable) {
-        this._parentResizable.stopResizeNotificationsFor(this);
-      } else {
-        window.removeEventListener('resize', this._boundNotifyResize);
-      }
-
-      this._parentResizable = null;
-    },
-
-    /**
-     * Can be called to manually notify a resizable and its descendant
-     * resizables of a resize change.
-     */
-    notifyResize: function() {
-      if (!this.isAttached) {
-        return;
-      }
-
-      this._interestedResizables.forEach(function(resizable) {
-        if (this.resizerShouldNotify(resizable)) {
-          this._notifyDescendant(resizable);
-        }
-      }, this);
-
-      this._fireResize();
-    },
-
-    /**
-     * Used to assign the closest resizable ancestor to this resizable
-     * if the ancestor detects a request for notifications.
-     */
-    assignParentResizable: function(parentResizable) {
-      this._parentResizable = parentResizable;
-    },
-
-    /**
-     * Used to remove a resizable descendant from the list of descendants
-     * that should be notified of a resize change.
-     */
-    stopResizeNotificationsFor: function(target) {
-      var index = this._interestedResizables.indexOf(target);
-
-      if (index > -1) {
-        this._interestedResizables.splice(index, 1);
-        this.unlisten(target, 'iron-resize', '_onDescendantIronResize');
-      }
-    },
-
-    /**
-     * This method can be overridden to filter nested elements that should or
-     * should not be notified by the current element. Return true if an element
-     * should be notified, or false if it should not be notified.
-     *
-     * @param {HTMLElement} element A candidate descendant element that
-     * implements `IronResizableBehavior`.
-     * @return {boolean} True if the `element` should be notified of resize.
-     */
-    resizerShouldNotify: function(element) { return true; },
-
-    _onDescendantIronResize: function(event) {
-      if (this._notifyingDescendant) {
-        event.stopPropagation();
-        return;
-      }
-
-      // NOTE(cdata): In ShadowDOM, event retargetting makes echoing of the
-      // otherwise non-bubbling event "just work." We do it manually here for
-      // the case where Polymer is not using shadow roots for whatever reason:
-      if (!Polymer.Settings.useShadow) {
-        this._fireResize();
-      }
-    },
-
-    _fireResize: function() {
-      this.fire('iron-resize', null, {
-        node: this,
-        bubbles: false
-      });
-    },
-
-    _onIronRequestResizeNotifications: function(event) {
-      var target = event.path ? event.path[0] : event.target;
-
-      if (target === this) {
-        return;
-      }
-
-      if (this._interestedResizables.indexOf(target) === -1) {
-        this._interestedResizables.push(target);
-        this.listen(target, 'iron-resize', '_onDescendantIronResize');
-      }
-
-      target.assignParentResizable(this);
-      this._notifyDescendant(target);
-
-      event.stopPropagation();
-    },
-
-    _parentResizableChanged: function(parentResizable) {
-      if (parentResizable) {
-        window.removeEventListener('resize', this._boundNotifyResize);
-      }
-    },
-
-    _notifyDescendant: function(descendant) {
-      // NOTE(cdata): In IE10, attached is fired on children first, so it's
-      // important not to notify them if the parent is not attached yet (or
-      // else they will get redundantly notified when the parent attaches).
-      if (!this.isAttached) {
-        return;
-      }
-
-      this._notifyingDescendant = true;
-      descendant.notifyResize();
-      this._notifyingDescendant = false;
-    }
-  };
 /**
    * @param {!Function} selectCallback
    * @constructor
@@ -9925,132 +9925,6 @@ this.fire('dom-change');
     Polymer.IronSelectableBehavior,
     Polymer.IronMultiSelectableBehaviorImpl
   ];
-/**
-  `iron-selector` is an element which can be used to manage a list of elements
-  that can be selected.  Tapping on the item will make the item selected.  The `selected` indicates
-  which item is being selected.  The default is to use the index of the item.
-
-  Example:
-
-      <iron-selector selected="0">
-        <div>Item 1</div>
-        <div>Item 2</div>
-        <div>Item 3</div>
-      </iron-selector>
-
-  If you want to use the attribute value of an element for `selected` instead of the index,
-  set `attrForSelected` to the name of the attribute.  For example, if you want to select item by
-  `name`, set `attrForSelected` to `name`.
-
-  Example:
-
-      <iron-selector attr-for-selected="name" selected="foo">
-        <div name="foo">Foo</div>
-        <div name="bar">Bar</div>
-        <div name="zot">Zot</div>
-      </iron-selector>
-
-  `iron-selector` is not styled. Use the `iron-selected` CSS class to style the selected element.
-
-  Example:
-
-      <style>
-        .iron-selected {
-          background: #eee;
-        }
-      </style>
-
-      ...
-
-      <iron-selector selected="0">
-        <div>Item 1</div>
-        <div>Item 2</div>
-        <div>Item 3</div>
-      </iron-selector>
-
-  @demo demo/index.html
-  */
-
-  Polymer({
-
-    is: 'iron-selector',
-
-    behaviors: [
-      Polymer.IronMultiSelectableBehavior
-    ]
-
-  });
-Polymer({
-
-    is: 'iron-media-query',
-
-    properties: {
-
-      /**
-       * The Boolean return value of the media query.
-       */
-      queryMatches: {
-        type: Boolean,
-        value: false,
-        readOnly: true,
-        notify: true
-      },
-
-      /**
-       * The CSS media query to evaluate.
-       */
-      query: {
-        type: String,
-        observer: 'queryChanged'
-      },
-
-      _boundMQHandler: {
-        value: function() {
-          return this.queryHandler.bind(this);
-        }
-      }
-    },
-
-    attached: function() {
-      this.queryChanged();
-    },
-
-    detached: function() {
-      this._remove();
-    },
-
-    _add: function() {
-      if (this._mq) {
-        this._mq.addListener(this._boundMQHandler);
-      }
-    },
-
-    _remove: function() {
-      if (this._mq) {
-        this._mq.removeListener(this._boundMQHandler);
-      }
-      this._mq = null;
-    },
-
-    queryChanged: function() {
-      this._remove();
-      var query = this.query;
-      if (!query) {
-        return;
-      }
-      if (query[0] !== '(') {
-        query = '(' + query + ')';
-      }
-      this._mq = window.matchMedia(query);
-      this._add();
-      this.queryHandler(this._mq);
-    },
-
-    queryHandler: function(mq) {
-      this._setQueryMatches(mq.matches);
-    }
-
-  });
 (function() {
     'use strict';
 
@@ -10458,6 +10332,348 @@ Polymer({
       }
     };
   })();
+/**
+   * `Polymer.IronMenuBehavior` implements accessible menu behavior.
+   *
+   * @demo demo/index.html
+   * @polymerBehavior Polymer.IronMenuBehavior
+   */
+  Polymer.IronMenuBehaviorImpl = {
+
+    properties: {
+
+      /**
+       * Returns the currently focused item.
+       * @type {?Object}
+       */
+      focusedItem: {
+        observer: '_focusedItemChanged',
+        readOnly: true,
+        type: Object
+      },
+
+      /**
+       * The attribute to use on menu items to look up the item title. Typing the first
+       * letter of an item when the menu is open focuses that item. If unset, `textContent`
+       * will be used.
+       */
+      attrForItemTitle: {
+        type: String
+      }
+    },
+
+    hostAttributes: {
+      'role': 'menu',
+      'tabindex': '0'
+    },
+
+    observers: [
+      '_updateMultiselectable(multi)'
+    ],
+
+    listeners: {
+      'focus': '_onFocus',
+      'keydown': '_onKeydown',
+      'iron-items-changed': '_onIronItemsChanged'
+    },
+
+    keyBindings: {
+      'up': '_onUpKey',
+      'down': '_onDownKey',
+      'esc': '_onEscKey',
+      'shift+tab:keydown': '_onShiftTabDown'
+    },
+
+    attached: function() {
+      this._resetTabindices();
+    },
+
+    /**
+     * Selects the given value. If the `multi` property is true, then the selected state of the
+     * `value` will be toggled; otherwise the `value` will be selected.
+     *
+     * @param {string} value the value to select.
+     */
+    select: function(value) {
+      if (this._defaultFocusAsync) {
+        this.cancelAsync(this._defaultFocusAsync);
+        this._defaultFocusAsync = null;
+      }
+      var item = this._valueToItem(value);
+      if (item && item.hasAttribute('disabled')) return;
+      this._setFocusedItem(item);
+      Polymer.IronMultiSelectableBehaviorImpl.select.apply(this, arguments);
+    },
+
+    /**
+     * Resets all tabindex attributes to the appropriate value based on the
+     * current selection state. The appropriate value is `0` (focusable) for
+     * the default selected item, and `-1` (not keyboard focusable) for all
+     * other items.
+     */
+    _resetTabindices: function() {
+      var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
+
+      this.items.forEach(function(item) {
+        item.setAttribute('tabindex', item === selectedItem ? '0' : '-1');
+      }, this);
+    },
+
+    /**
+     * Sets appropriate ARIA based on whether or not the menu is meant to be
+     * multi-selectable.
+     *
+     * @param {boolean} multi True if the menu should be multi-selectable.
+     */
+    _updateMultiselectable: function(multi) {
+      if (multi) {
+        this.setAttribute('aria-multiselectable', 'true');
+      } else {
+        this.removeAttribute('aria-multiselectable');
+      }
+    },
+
+    /**
+     * Given a KeyboardEvent, this method will focus the appropriate item in the
+     * menu (if there is a relevant item, and it is possible to focus it).
+     *
+     * @param {KeyboardEvent} event A KeyboardEvent.
+     */
+    _focusWithKeyboardEvent: function(event) {
+      for (var i = 0, item; item = this.items[i]; i++) {
+        var attr = this.attrForItemTitle || 'textContent';
+        var title = item[attr] || item.getAttribute(attr);
+        if (title && title.trim().charAt(0).toLowerCase() === String.fromCharCode(event.keyCode).toLowerCase()) {
+          this._setFocusedItem(item);
+          break;
+        }
+      }
+    },
+
+    /**
+     * Focuses the previous item (relative to the currently focused item) in the
+     * menu.
+     */
+    _focusPrevious: function() {
+      var length = this.items.length;
+      var index = (Number(this.indexOf(this.focusedItem)) - 1 + length) % length;
+      this._setFocusedItem(this.items[index]);
+    },
+
+    /**
+     * Focuses the next item (relative to the currently focused item) in the
+     * menu.
+     */
+    _focusNext: function() {
+      var index = (Number(this.indexOf(this.focusedItem)) + 1) % this.items.length;
+      this._setFocusedItem(this.items[index]);
+    },
+
+    /**
+     * Mutates items in the menu based on provided selection details, so that
+     * all items correctly reflect selection state.
+     *
+     * @param {Element} item An item in the menu.
+     * @param {boolean} isSelected True if the item should be shown in a
+     * selected state, otherwise false.
+     */
+    _applySelection: function(item, isSelected) {
+      if (isSelected) {
+        item.setAttribute('aria-selected', 'true');
+      } else {
+        item.removeAttribute('aria-selected');
+      }
+
+      Polymer.IronSelectableBehavior._applySelection.apply(this, arguments);
+    },
+
+    /**
+     * Discretely updates tabindex values among menu items as the focused item
+     * changes.
+     *
+     * @param {Element} focusedItem The element that is currently focused.
+     * @param {?Element} old The last element that was considered focused, if
+     * applicable.
+     */
+    _focusedItemChanged: function(focusedItem, old) {
+      old && old.setAttribute('tabindex', '-1');
+      if (focusedItem) {
+        focusedItem.setAttribute('tabindex', '0');
+        focusedItem.focus();
+      }
+    },
+
+    /**
+     * A handler that responds to mutation changes related to the list of items
+     * in the menu.
+     *
+     * @param {CustomEvent} event An event containing mutation records as its
+     * detail.
+     */
+    _onIronItemsChanged: function(event) {
+      var mutations = event.detail;
+      var mutation;
+      var index;
+
+      for (index = 0; index < mutations.length; ++index) {
+        mutation = mutations[index];
+
+        if (mutation.addedNodes.length) {
+          this._resetTabindices();
+          break;
+        }
+      }
+    },
+
+    /**
+     * Handler that is called when a shift+tab keypress is detected by the menu.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onShiftTabDown: function(event) {
+      var oldTabIndex;
+
+      Polymer.IronMenuBehaviorImpl._shiftTabPressed = true;
+
+      oldTabIndex = this.getAttribute('tabindex');
+
+      this.setAttribute('tabindex', '-1');
+
+      this.async(function() {
+        this.setAttribute('tabindex', oldTabIndex);
+        Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
+      // NOTE(cdata): polymer/polymer#1305
+      }, 1);
+    },
+
+    /**
+     * Handler that is called when the menu receives focus.
+     *
+     * @param {FocusEvent} event A focus event.
+     */
+    _onFocus: function(event) {
+      if (Polymer.IronMenuBehaviorImpl._shiftTabPressed) {
+        return;
+      }
+      // do not focus the menu itself
+      this.blur();
+      // clear the cached focus item
+      this._setFocusedItem(null);
+      this._defaultFocusAsync = this.async(function() {
+        // focus the selected item when the menu receives focus, or the first item
+        // if no item is selected
+        var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
+        if (selectedItem) {
+          this._setFocusedItem(selectedItem);
+        } else {
+          this._setFocusedItem(this.items[0]);
+        }
+      // async 100ms to wait for `select` to get called from `_itemActivate`
+      }, 100);
+    },
+
+    /**
+     * Handler that is called when the up key is pressed.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onUpKey: function(event) {
+      // up and down arrows moves the focus
+      this._focusPrevious();
+    },
+
+    /**
+     * Handler that is called when the down key is pressed.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onDownKey: function(event) {
+      this._focusNext();
+    },
+
+    /**
+     * Handler that is called when the esc key is pressed.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onEscKey: function(event) {
+      // esc blurs the control
+      this.focusedItem.blur();
+    },
+
+    /**
+     * Handler that is called when a keydown event is detected.
+     *
+     * @param {KeyboardEvent} event A keyboard event.
+     */
+    _onKeydown: function(event) {
+      if (this.keyboardEventMatchesKeys(event, 'up down esc')) {
+        return;
+      }
+
+      // all other keys focus the menu item starting with that character
+      this._focusWithKeyboardEvent(event);
+    }
+  };
+
+  Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
+
+  /** @polymerBehavior Polymer.IronMenuBehavior */
+  Polymer.IronMenuBehavior = [
+    Polymer.IronMultiSelectableBehavior,
+    Polymer.IronA11yKeysBehavior,
+    Polymer.IronMenuBehaviorImpl
+  ];
+/**
+   * `Polymer.IronMenubarBehavior` implements accessible menubar behavior.
+   *
+   * @polymerBehavior Polymer.IronMenubarBehavior
+   */
+  Polymer.IronMenubarBehaviorImpl = {
+
+    hostAttributes: {
+      'role': 'menubar'
+    },
+
+    keyBindings: {
+      'left': '_onLeftKey',
+      'right': '_onRightKey'
+    },
+
+    _onUpKey: function(event) {
+      this.focusedItem.click();
+      event.detail.keyboardEvent.preventDefault();
+    },
+
+    _onDownKey: function(event) {
+      this.focusedItem.click();
+      event.detail.keyboardEvent.preventDefault();
+    },
+
+    _onLeftKey: function() {
+      this._focusPrevious();
+    },
+
+    _onRightKey: function() {
+      this._focusNext();
+    },
+
+    _onKeydown: function(event) {
+      if (this.keyboardEventMatchesKeys(event, 'up down left right esc')) {
+        return;
+      }
+
+      // all other keys focus the menu item starting with that character
+      this._focusWithKeyboardEvent(event);
+    }
+
+  };
+
+  /** @polymerBehavior Polymer.IronMenubarBehavior */
+  Polymer.IronMenubarBehavior = [
+    Polymer.IronMenuBehavior,
+    Polymer.IronMenubarBehaviorImpl
+  ];
 /**
    * @demo demo/index.html
    * @polymerBehavior
@@ -10969,298 +11185,6 @@ Polymer({
     Polymer.IronControlState,
     Polymer.PaperRippleBehavior,
     Polymer.PaperInkyFocusBehaviorImpl
-  ];
-/**
-   * `Polymer.IronMenuBehavior` implements accessible menu behavior.
-   *
-   * @demo demo/index.html
-   * @polymerBehavior Polymer.IronMenuBehavior
-   */
-  Polymer.IronMenuBehaviorImpl = {
-
-    properties: {
-
-      /**
-       * Returns the currently focused item.
-       * @type {?Object}
-       */
-      focusedItem: {
-        observer: '_focusedItemChanged',
-        readOnly: true,
-        type: Object
-      },
-
-      /**
-       * The attribute to use on menu items to look up the item title. Typing the first
-       * letter of an item when the menu is open focuses that item. If unset, `textContent`
-       * will be used.
-       */
-      attrForItemTitle: {
-        type: String
-      }
-    },
-
-    hostAttributes: {
-      'role': 'menu',
-      'tabindex': '0'
-    },
-
-    observers: [
-      '_updateMultiselectable(multi)'
-    ],
-
-    listeners: {
-      'focus': '_onFocus',
-      'keydown': '_onKeydown',
-      'iron-items-changed': '_onIronItemsChanged'
-    },
-
-    keyBindings: {
-      'up': '_onUpKey',
-      'down': '_onDownKey',
-      'esc': '_onEscKey',
-      'shift+tab:keydown': '_onShiftTabDown'
-    },
-
-    attached: function() {
-      this._resetTabindices();
-    },
-
-    /**
-     * Selects the given value. If the `multi` property is true, then the selected state of the
-     * `value` will be toggled; otherwise the `value` will be selected.
-     *
-     * @param {string} value the value to select.
-     */
-    select: function(value) {
-      if (this._defaultFocusAsync) {
-        this.cancelAsync(this._defaultFocusAsync);
-        this._defaultFocusAsync = null;
-      }
-      var item = this._valueToItem(value);
-      if (item && item.hasAttribute('disabled')) return;
-      this._setFocusedItem(item);
-      Polymer.IronMultiSelectableBehaviorImpl.select.apply(this, arguments);
-    },
-
-    /**
-     * Resets all tabindex attributes to the appropriate value based on the
-     * current selection state. The appropriate value is `0` (focusable) for
-     * the default selected item, and `-1` (not keyboard focusable) for all
-     * other items.
-     */
-    _resetTabindices: function() {
-      var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
-
-      this.items.forEach(function(item) {
-        item.setAttribute('tabindex', item === selectedItem ? '0' : '-1');
-      }, this);
-    },
-
-    /**
-     * Sets appropriate ARIA based on whether or not the menu is meant to be
-     * multi-selectable.
-     *
-     * @param {boolean} multi True if the menu should be multi-selectable.
-     */
-    _updateMultiselectable: function(multi) {
-      if (multi) {
-        this.setAttribute('aria-multiselectable', 'true');
-      } else {
-        this.removeAttribute('aria-multiselectable');
-      }
-    },
-
-    /**
-     * Given a KeyboardEvent, this method will focus the appropriate item in the
-     * menu (if there is a relevant item, and it is possible to focus it).
-     *
-     * @param {KeyboardEvent} event A KeyboardEvent.
-     */
-    _focusWithKeyboardEvent: function(event) {
-      for (var i = 0, item; item = this.items[i]; i++) {
-        var attr = this.attrForItemTitle || 'textContent';
-        var title = item[attr] || item.getAttribute(attr);
-        if (title && title.trim().charAt(0).toLowerCase() === String.fromCharCode(event.keyCode).toLowerCase()) {
-          this._setFocusedItem(item);
-          break;
-        }
-      }
-    },
-
-    /**
-     * Focuses the previous item (relative to the currently focused item) in the
-     * menu.
-     */
-    _focusPrevious: function() {
-      var length = this.items.length;
-      var index = (Number(this.indexOf(this.focusedItem)) - 1 + length) % length;
-      this._setFocusedItem(this.items[index]);
-    },
-
-    /**
-     * Focuses the next item (relative to the currently focused item) in the
-     * menu.
-     */
-    _focusNext: function() {
-      var index = (Number(this.indexOf(this.focusedItem)) + 1) % this.items.length;
-      this._setFocusedItem(this.items[index]);
-    },
-
-    /**
-     * Mutates items in the menu based on provided selection details, so that
-     * all items correctly reflect selection state.
-     *
-     * @param {Element} item An item in the menu.
-     * @param {boolean} isSelected True if the item should be shown in a
-     * selected state, otherwise false.
-     */
-    _applySelection: function(item, isSelected) {
-      if (isSelected) {
-        item.setAttribute('aria-selected', 'true');
-      } else {
-        item.removeAttribute('aria-selected');
-      }
-
-      Polymer.IronSelectableBehavior._applySelection.apply(this, arguments);
-    },
-
-    /**
-     * Discretely updates tabindex values among menu items as the focused item
-     * changes.
-     *
-     * @param {Element} focusedItem The element that is currently focused.
-     * @param {?Element} old The last element that was considered focused, if
-     * applicable.
-     */
-    _focusedItemChanged: function(focusedItem, old) {
-      old && old.setAttribute('tabindex', '-1');
-      if (focusedItem) {
-        focusedItem.setAttribute('tabindex', '0');
-        focusedItem.focus();
-      }
-    },
-
-    /**
-     * A handler that responds to mutation changes related to the list of items
-     * in the menu.
-     *
-     * @param {CustomEvent} event An event containing mutation records as its
-     * detail.
-     */
-    _onIronItemsChanged: function(event) {
-      var mutations = event.detail;
-      var mutation;
-      var index;
-
-      for (index = 0; index < mutations.length; ++index) {
-        mutation = mutations[index];
-
-        if (mutation.addedNodes.length) {
-          this._resetTabindices();
-          break;
-        }
-      }
-    },
-
-    /**
-     * Handler that is called when a shift+tab keypress is detected by the menu.
-     *
-     * @param {CustomEvent} event A key combination event.
-     */
-    _onShiftTabDown: function(event) {
-      var oldTabIndex;
-
-      Polymer.IronMenuBehaviorImpl._shiftTabPressed = true;
-
-      oldTabIndex = this.getAttribute('tabindex');
-
-      this.setAttribute('tabindex', '-1');
-
-      this.async(function() {
-        this.setAttribute('tabindex', oldTabIndex);
-        Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
-      // NOTE(cdata): polymer/polymer#1305
-      }, 1);
-    },
-
-    /**
-     * Handler that is called when the menu receives focus.
-     *
-     * @param {FocusEvent} event A focus event.
-     */
-    _onFocus: function(event) {
-      if (Polymer.IronMenuBehaviorImpl._shiftTabPressed) {
-        return;
-      }
-      // do not focus the menu itself
-      this.blur();
-      // clear the cached focus item
-      this._setFocusedItem(null);
-      this._defaultFocusAsync = this.async(function() {
-        // focus the selected item when the menu receives focus, or the first item
-        // if no item is selected
-        var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
-        if (selectedItem) {
-          this._setFocusedItem(selectedItem);
-        } else {
-          this._setFocusedItem(this.items[0]);
-        }
-      // async 100ms to wait for `select` to get called from `_itemActivate`
-      }, 100);
-    },
-
-    /**
-     * Handler that is called when the up key is pressed.
-     *
-     * @param {CustomEvent} event A key combination event.
-     */
-    _onUpKey: function(event) {
-      // up and down arrows moves the focus
-      this._focusPrevious();
-    },
-
-    /**
-     * Handler that is called when the down key is pressed.
-     *
-     * @param {CustomEvent} event A key combination event.
-     */
-    _onDownKey: function(event) {
-      this._focusNext();
-    },
-
-    /**
-     * Handler that is called when the esc key is pressed.
-     *
-     * @param {CustomEvent} event A key combination event.
-     */
-    _onEscKey: function(event) {
-      // esc blurs the control
-      this.focusedItem.blur();
-    },
-
-    /**
-     * Handler that is called when a keydown event is detected.
-     *
-     * @param {KeyboardEvent} event A keyboard event.
-     */
-    _onKeydown: function(event) {
-      if (this.keyboardEventMatchesKeys(event, 'up down esc')) {
-        return;
-      }
-
-      // all other keys focus the menu item starting with that character
-      this._focusWithKeyboardEvent(event);
-    }
-  };
-
-  Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
-
-  /** @polymerBehavior Polymer.IronMenuBehavior */
-  Polymer.IronMenuBehavior = [
-    Polymer.IronMultiSelectableBehavior,
-    Polymer.IronA11yKeysBehavior,
-    Polymer.IronMenuBehaviorImpl
   ];
 (function(scope) {
 var MoreRouting = scope.MoreRouting = scope.MoreRouting || {};
@@ -12336,6 +12260,61 @@ Polymer({
         }
       });
     },
+
+  });
+/**
+  `iron-selector` is an element which can be used to manage a list of elements
+  that can be selected.  Tapping on the item will make the item selected.  The `selected` indicates
+  which item is being selected.  The default is to use the index of the item.
+
+  Example:
+
+      <iron-selector selected="0">
+        <div>Item 1</div>
+        <div>Item 2</div>
+        <div>Item 3</div>
+      </iron-selector>
+
+  If you want to use the attribute value of an element for `selected` instead of the index,
+  set `attrForSelected` to the name of the attribute.  For example, if you want to select item by
+  `name`, set `attrForSelected` to `name`.
+
+  Example:
+
+      <iron-selector attr-for-selected="name" selected="foo">
+        <div name="foo">Foo</div>
+        <div name="bar">Bar</div>
+        <div name="zot">Zot</div>
+      </iron-selector>
+
+  `iron-selector` is not styled. Use the `iron-selected` CSS class to style the selected element.
+
+  Example:
+
+      <style>
+        .iron-selected {
+          background: #eee;
+        }
+      </style>
+
+      ...
+
+      <iron-selector selected="0">
+        <div>Item 1</div>
+        <div>Item 2</div>
+        <div>Item 3</div>
+      </iron-selector>
+
+  @demo demo/index.html
+  */
+
+  Polymer({
+
+    is: 'iron-selector',
+
+    behaviors: [
+      Polymer.IronMultiSelectableBehavior
+    ]
 
   });
 function MakePromise (asap) {
@@ -15989,6 +15968,616 @@ call the form's `submit` method.
     }
 
   });
+(function(document) {
+    'use strict';
+
+    // See https://github.com/Polymer/polymer/issues/1381
+    window.addEventListener('WebComponentsReady', function() {
+      // imports are loaded and elements have been registered
+
+    });
+
+    addEventListener('iron-select', function(event) {
+        var tabs = document.querySelector('#my-tabs');
+        console.log("Sel is", tabs.selected);
+
+        switch(parseInt(tabs.selected)) {
+            case 0:
+                MoreRouting.navigateTo('root');
+                break;
+            case 1:
+                MoreRouting.navigateTo('apps');
+                break;
+            case 2:
+                MoreRouting.navigateTo('blocks');
+                break;
+            case 3:
+                MoreRouting.navigateTo('templates');
+                break;
+            case 4:
+                MoreRouting.navigateTo('covers');
+                break;
+        }
+    });
+
+  })(document);
+(function() {
+
+  'use strict';
+
+  Polymer({
+
+    /**
+     * Fired when the content has been scrolled.
+     *
+     * @event content-scroll
+     */
+
+    /**
+     * Fired when the header is transformed.
+     *
+     * @event paper-header-transform
+     */
+
+    is: 'paper-scroll-header-panel',
+
+    behaviors: [
+      Polymer.IronResizableBehavior
+    ],
+
+    properties: {
+
+      /**
+       * If true, the header's height will condense to `condensedHeaderHeight`
+       * as the user scrolls down from the top of the content area.
+       */
+      condenses: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, no cross-fade transition from one background to another.
+       */
+      noDissolve: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the header doesn't slide back in when scrolling back up.
+       */
+      noReveal: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the header is fixed to the top and never moves away.
+       */
+      fixed: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the condensed header is always shown and does not move away.
+       */
+      keepCondensedHeader: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * The height of the header when it is at its full size.
+       *
+       * By default, the height will be measured when it is ready.  If the height
+       * changes later the user needs to either set this value to reflect the
+       * new height or invoke `measureHeaderHeight()`.
+       */
+      headerHeight: {
+        type: Number,
+        value: 0
+      },
+
+      /**
+       * The height of the header when it is condensed.
+       *
+       * By default, `condensedHeaderHeight` is 1/3 of `headerHeight` unless
+       * this is specified.
+       */
+      condensedHeaderHeight: {
+        type: Number,
+        value: 0
+      },
+
+      /**
+       * By default, the top part of the header stays when the header is being
+       * condensed.  Set this to true if you want the top part of the header
+       * to be scrolled away.
+       */
+      scrollAwayTopbar: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * The state of the header. The initial value is `HEADER_STATE_EXPANDED`.
+       * Depending on the configuration and the `scrollTop` value,
+       * the header state could change to
+       * `HEADER_STATE_HIDDEN`, `HEADER_STATE_CONDENSED` and `HEADER_STATE_INTERPOLATED`
+       */
+      headerState: {
+        type: Number,
+        readOnly: true,
+        value: 0
+      },
+
+      _prevScrollTop: {
+        type: Number,
+        value: 0
+      },
+
+      _y: {
+        type: Number,
+        value: 0
+      },
+
+      /** @type {number|null} */
+      _defaultCondsensedHeaderHeight: {
+        type: Number,
+        value: 0
+      }
+    },
+
+    observers: [
+      '_setup(headerHeight, condensedHeaderHeight, fixed)',
+      '_condensedHeaderHeightChanged(condensedHeaderHeight)',
+      '_headerHeightChanged(headerHeight, condensedHeaderHeight)',
+      '_condensesChanged(condenses)',
+    ],
+
+    listeners: {
+      'iron-resize': 'measureHeaderHeight'
+    },
+
+    ready: function() {
+      this.async(this.measureHeaderHeight, 5);
+      this._scrollHandler = this._scroll.bind(this);
+      this.scroller.addEventListener('scroll', this._scrollHandler);
+    },
+
+    /**
+     * The header's initial state
+     *
+     * @property HEADER_STATE_EXPANDED
+     * @type number
+     */
+    HEADER_STATE_EXPANDED: 0,
+
+    /**
+     * The header's state when it's hidden.
+     *
+     * @property HEADER_STATE_HIDDEN
+     * @type number
+     */
+    HEADER_STATE_HIDDEN: 1,
+
+    /**
+     * The header's state when it's condensed.
+     *
+     * @property HEADER_STATE_CONDENSED
+     * @type number
+     */
+    HEADER_STATE_CONDENSED: 2,
+
+    /**
+     * The header's state when its progress is somewhere between
+     * the `hidden` and `condensed` state.
+     *
+     * @property HEADER_STATE_INTERPOLATED
+     * @type number
+     */
+    HEADER_STATE_INTERPOLATED: 3,
+
+    /**
+     * Returns the header element.
+     *
+     * @property header
+     * @type Object
+     */
+    get header() {
+      return Polymer.dom(this.$.headerContent).getDistributedNodes()[0];
+    },
+
+    /**
+     * Returns the content element.
+     *
+     * @property content
+     * @type Object
+     */
+    get content() {
+      return Polymer.dom(this.$.mainContent).getDistributedNodes()[0];
+    },
+
+    /**
+     * Returns the scrollable element.
+     *
+     * @property scroller
+     * @type Object
+     */
+    get scroller() {
+      return this.$.mainContainer;
+    },
+
+    get _headerMaxDelta() {
+      return this.keepCondensedHeader ? this._headerMargin : this.headerHeight;
+    },
+
+    get _headerMargin() {
+      return this.headerHeight - this.condensedHeaderHeight;
+    },
+
+    _y: 0,
+
+    _prevScrollTop: 0,
+
+    /**
+     * Invoke this to tell `paper-scroll-header-panel` to re-measure the header's
+     * height.
+     *
+     * @method measureHeaderHeight
+     */
+    measureHeaderHeight: function() {
+      var header = this.header;
+      if (header && header.offsetHeight) {
+        this.headerHeight = header.offsetHeight;
+      }
+    },
+
+    /**
+     * Scroll to a specific y coordinate.
+     *
+     * @method scroll
+     * @param {number} top The coordinate to scroll to, along the y-axis.
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    scroll: function(top, smooth) {
+      // the scroll event will trigger _updateScrollState directly, 
+      // However, _updateScrollState relies on the previous `scrollTop` to update the states.
+      // Calling _updateScrollState will ensure that the states are synced correctly.
+
+      if (smooth) {
+        // TODO(blasten): use CSS scroll-behavior once it ships in Chrome.
+        var easingFn = function easeOutQuad(t, b, c, d) {
+          t /= d;
+          return -c * t*(t-2) + b;
+        };
+        var animationId = Math.random();
+        var duration = 200;
+        var startTime = Date.now();
+        var currentScrollTop = this.scroller.scrollTop;
+        var deltaScrollTop = top - currentScrollTop;
+
+        this._currentAnimationId = animationId;
+
+        (function updateFrame() {
+          var now = Date.now();
+          var elapsedTime = now - startTime;
+
+          if (elapsedTime > duration) {
+            this.scroller.scrollTop = top;
+            this._updateScrollState(top);
+
+          } else if (this._currentAnimationId === animationId) {
+            this.scroller.scrollTop = easingFn(elapsedTime, currentScrollTop, deltaScrollTop, duration);
+            requestAnimationFrame(updateFrame.bind(this));
+          }
+
+        }).call(this);
+
+      } else {
+        this.scroller.scrollTop = top;
+        this._updateScrollState(top);
+      }
+    },
+
+   /**
+     * Condense the header.
+     *
+     * @method condense
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    condense: function(smooth) {
+      if (this.condenses && !this.fixed && !this.noReveal) {
+        switch (this.headerState) {
+          case this.HEADER_STATE_HIDDEN:
+            this.scroll(this.scroller.scrollTop - (this._headerMaxDelta - this._headerMargin), smooth);
+          break;
+          case this.HEADER_STATE_EXPANDED:
+          case this.HEADER_STATE_INTERPOLATED:
+            this.scroll(this._headerMargin, smooth);
+          break;
+        }
+      }
+    },
+
+    /**
+     * Scroll to the top of the content.
+     *
+     * @method scrollToTop
+     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
+     */
+    scrollToTop: function(smooth) {
+      this.scroll(0, smooth);
+    },
+
+    _headerHeightChanged: function(headerHeight) {
+      if (this._defaultCondsensedHeaderHeight !== null) {
+        this._defaultCondsensedHeaderHeight = Math.round(headerHeight * 1/3);
+        this.condensedHeaderHeight = this._defaultCondsensedHeaderHeight;
+      }
+    },
+
+    _condensedHeaderHeightChanged: function(condensedHeaderHeight) {
+      if (condensedHeaderHeight) {
+        // a user custom value
+        if (this._defaultCondsensedHeaderHeight != condensedHeaderHeight) {
+          // disable the default value
+          this._defaultCondsensedHeaderHeight = null;
+        }
+      }
+    },
+
+    _condensesChanged: function() {
+      this._updateScrollState(this.scroller.scrollTop);
+      this._condenseHeader(null);
+    },
+
+    _setup: function() {
+      var s = this.scroller.style;
+
+      s.paddingTop = this.fixed ? '' : this.headerHeight + 'px';
+      s.top = this.fixed ? this.headerHeight + 'px' : '';
+
+      if (this.fixed) {
+        this._setHeaderState(this.HEADER_STATE_EXPANDED);
+        this._transformHeader(null);
+      } else {
+        switch (this.headerState) {
+          case this.HEADER_STATE_HIDDEN:
+            this._transformHeader(this._headerMaxDelta);
+            break;
+          case this.HEADER_STATE_CONDENSED:
+            this._transformHeader(this._headerMargin);
+            break;
+        }
+      }
+    },
+
+    _transformHeader: function(y) {
+      this._translateY(this.$.headerContainer, -y);
+
+      if (this.condenses) {
+        this._condenseHeader(y);
+      }
+
+      this.fire('paper-header-transform',
+        { y: y,
+          height: this.headerHeight,
+          condensedHeight: this.condensedHeaderHeight
+        }
+      );
+    },
+
+    _condenseHeader: function(y) {
+      var reset = (y === null);
+
+      // adjust top bar in paper-header so the top bar stays at the top
+      if (!this.scrollAwayTopbar && this.header && this.header.$ && this.header.$.topBar) {
+        this._translateY(this.header.$.topBar,
+            reset ? null : Math.min(y, this._headerMargin));
+      }
+      // transition header bg
+      if (!this.noDissolve) {
+        this.$.headerBg.style.opacity = reset ? '' :
+            ( (this._headerMargin - y) / this._headerMargin);
+      }
+      // adjust header bg so it stays at the center
+      this._translateY(this.$.headerBg, reset ? null : y / 2);
+      // transition condensed header bg
+      if (!this.noDissolve) {
+        this.$.condensedHeaderBg.style.opacity = reset ? '' :
+            (y / this._headerMargin);
+
+        // adjust condensed header bg so it stays at the center
+        this._translateY(this.$.condensedHeaderBg, reset ? null : y / 2);
+      }
+    },
+
+    _translateY: function(node, y) {
+      this.transform((y === null) ? '' : 'translate3d(0, ' + y + 'px, 0)', node);
+    },
+
+    /** @param {Event=} event */
+    _scroll: function(event) {
+      if (this.header) {
+        this._updateScrollState(this.scroller.scrollTop);
+
+        this.fire('content-scroll', {
+          target: this.scroller
+        },
+        {
+          cancelable: false
+        });
+      }
+    },
+
+    _updateScrollState: function(scrollTop) {
+      var deltaScrollTop = scrollTop - this._prevScrollTop;
+      var y = Math.max(0, (this.noReveal) ? scrollTop : this._y + deltaScrollTop);
+
+      if (y > this._headerMaxDelta) {
+        y = this._headerMaxDelta;
+        this._setHeaderState(this.HEADER_STATE_HIDDEN);
+
+      } else if (this.condenses && this._prevScrollTop >= scrollTop && scrollTop >= this._headerMargin) {
+        y = Math.max(y, this._headerMargin);
+        this._setHeaderState(this.HEADER_STATE_CONDENSED);
+
+      } else if (y === 0) {
+        this._setHeaderState(this.HEADER_STATE_EXPANDED);
+
+      } else {
+        this._setHeaderState(this.HEADER_STATE_INTERPOLATED);
+      }
+
+      if (!this.fixed && y !== this._y) {
+        this._transformHeader(y);
+      }
+
+      this._prevScrollTop = Math.max(scrollTop, 0);
+      this._y = y;
+    }
+  });
+
+})();
+(function() {
+
+    'use strict';
+
+    function classNames(obj) {
+      var classNames = [];
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key) && obj[key]) {
+          classNames.push(key);
+        }
+      }
+
+      return classNames.join(' ');
+    }
+
+    Polymer({
+
+      is: 'paper-toolbar',
+
+      hostAttributes: {
+        'role': 'toolbar'
+      },
+
+      properties: {
+
+        /**
+         * Controls how the items are aligned horizontally when they are placed
+         * at the bottom.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         *
+         * @attribute bottomJustify
+         * @type string
+         * @default ''
+         */
+        bottomJustify: {
+          type: String,
+          value: ''
+        },
+
+        /**
+         * Controls how the items are aligned horizontally.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         *
+         * @attribute justify
+         * @type string
+         * @default ''
+         */
+        justify: {
+          type: String,
+          value: ''
+        },
+
+        /**
+         * Controls how the items are aligned horizontally when they are placed
+         * in the middle.
+         * Options are `start`, `center`, `end`, `justified` and `around`.
+         *
+         * @attribute middleJustify
+         * @type string
+         * @default ''
+         */
+        middleJustify: {
+          type: String,
+          value: ''
+        }
+
+      },
+
+      attached: function() {
+        this._observer = this._observe(this);
+        this._updateAriaLabelledBy();
+      },
+
+      detached: function() {
+        if (this._observer) {
+          this._observer.disconnect();
+        }
+      },
+
+      _observe: function(node) {
+        var observer = new MutationObserver(function() {
+          this._updateAriaLabelledBy();
+        }.bind(this));
+        observer.observe(node, {
+          childList: true,
+          subtree: true
+        });
+        return observer;
+      },
+
+      _updateAriaLabelledBy: function() {
+        var labelledBy = [];
+        var contents = Polymer.dom(this.root).querySelectorAll('content');
+        for (var content, index = 0; content = contents[index]; index++) {
+          var nodes = Polymer.dom(content).getDistributedNodes();
+          for (var node, jndex = 0; node = nodes[jndex]; jndex++) {
+            if (node.classList && node.classList.contains('title')) {
+              if (node.id) {
+                labelledBy.push(node.id);
+              } else {
+                var id = 'paper-toolbar-label-' + Math.floor(Math.random() * 10000);
+                node.id = id;
+                labelledBy.push(id);
+              }
+            }
+          }
+        }
+        if (labelledBy.length > 0) {
+          this.setAttribute('aria-labelledby', labelledBy.join(' '));
+        }
+      },
+
+      _computeBarClassName: function(barJustify) {
+        var classObj = {
+          'center': true,
+          'horizontal': true,
+          'layout': true,
+          'toolbar-tools': true
+        };
+
+        // If a blank string or any falsy value is given, no other class name is
+        // added.
+        if (barJustify) {
+          var justifyClassName = (barJustify === 'justified') ?
+              barJustify :
+              barJustify + '-justified';
+
+          classObj[justifyClassName] = true;
+        }
+
+        return classNames(classObj);
+      }
+
+    });
+
+  }());
 Polymer({
 
       is: 'iron-icon',
@@ -16075,489 +16664,6 @@ Polymer({
       }
 
     });
-Polymer({
-
-    is: 'iron-pages',
-
-    behaviors: [
-      Polymer.IronResizableBehavior,
-      Polymer.IronSelectableBehavior
-    ],
-
-    properties: {
-
-      // as the selected page is the only one visible, activateEvent
-      // is both non-sensical and problematic; e.g. in cases where a user
-      // handler attempts to change the page and the activateEvent
-      // handler immediately changes it back
-      activateEvent: {
-        type: String,
-        value: null
-      }
-
-    },
-
-    observers: [
-      '_selectedPageChanged(selected)'
-    ],
-
-    _selectedPageChanged: function(selected, old) {
-      this.async(this.notifyResize);
-    }
-  });
-(function() {
-
-    'use strict';
-
-   // this would be the only `paper-drawer-panel` in
-   // the whole app that can be in `dragging` state
-    var sharedPanel = null;
-
-    function classNames(obj) {
-      var classes = [];
-      for (var key in obj) {
-        if (obj.hasOwnProperty(key) && obj[key]) {
-          classes.push(key);
-        }
-      }
-
-      return classes.join(' ');
-    }
-
-    Polymer({
-
-      is: 'paper-drawer-panel',
-
-      /**
-       * Fired when the narrow layout changes.
-       *
-       * @event paper-responsive-change {{narrow: boolean}} detail -
-       *     narrow: true if the panel is in narrow layout.
-       */
-
-      /**
-       * Fired when the a panel is selected.
-       *
-       * Listening for this event is an alternative to observing changes in the `selected` attribute.
-       * This event is fired both when a panel is selected.
-       *
-       * @event iron-select {{item: Object}} detail -
-       *     item: The panel that the event refers to.
-       */
-
-      /**
-       * Fired when a panel is deselected.
-       *
-       * Listening for this event is an alternative to observing changes in the `selected` attribute.
-       * This event is fired both when a panel is deselected.
-       *
-       * @event iron-deselect {{item: Object}} detail -
-       *     item: The panel that the event refers to.
-       */
-      properties: {
-
-        /**
-         * The panel to be selected when `paper-drawer-panel` changes to narrow
-         * layout.
-         */
-        defaultSelected: {
-          type: String,
-          value: 'main'
-        },
-
-        /**
-         * If true, swipe from the edge is disable.
-         */
-        disableEdgeSwipe: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * If true, swipe to open/close the drawer is disabled.
-         */
-        disableSwipe: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * Whether the user is dragging the drawer interactively.
-         */
-        dragging: {
-          type: Boolean,
-          value: false,
-          readOnly: true,
-          notify: true
-        },
-
-        /**
-         * Width of the drawer panel.
-         */
-        drawerWidth: {
-          type: String,
-          value: '256px'
-        },
-
-        /**
-         * How many pixels on the side of the screen are sensitive to edge
-         * swipes and peek.
-         */
-        edgeSwipeSensitivity: {
-          type: Number,
-          value: 30
-        },
-
-        /**
-         * If true, ignore `responsiveWidth` setting and force the narrow layout.
-         */
-        forceNarrow: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * Whether the browser has support for the transform CSS property.
-         */
-        hasTransform: {
-          type: Boolean,
-          value: function() {
-            return 'transform' in this.style;
-          }
-        },
-
-        /**
-         * Whether the browser has support for the will-change CSS property.
-         */
-        hasWillChange: {
-          type: Boolean,
-          value: function() {
-            return 'willChange' in this.style;
-          }
-        },
-
-        /**
-         * Returns true if the panel is in narrow layout.  This is useful if you
-         * need to show/hide elements based on the layout.
-         */
-        narrow: {
-          reflectToAttribute: true,
-          type: Boolean,
-          value: false,
-          readOnly: true,
-          notify: true
-        },
-
-        /**
-         * Whether the drawer is peeking out from the edge.
-         */
-        peeking: {
-          type: Boolean,
-          value: false,
-          readOnly: true,
-          notify: true
-        },
-
-        /**
-         * Max-width when the panel changes to narrow layout.
-         */
-        responsiveWidth: {
-          type: String,
-          value: '640px'
-        },
-
-        /**
-         * If true, position the drawer to the right.
-         */
-        rightDrawer: {
-          type: Boolean,
-          value: false
-        },
-
-        /**
-         * The panel that is being selected. `drawer` for the drawer panel and
-         * `main` for the main panel.
-         */
-        selected: {
-          reflectToAttribute: true,
-          notify: true,
-          type: String,
-          value: null
-        },
-
-        /**
-         * The attribute on elements that should toggle the drawer on tap, also elements will
-         * automatically be hidden in wide layout.
-         */
-        drawerToggleAttribute: {
-          type: String,
-          value: 'paper-drawer-toggle'
-        },
-
-        /**
-         * Whether the transition is enabled.
-         */
-        transition: {
-          type: Boolean,
-          value: false
-        },
-
-      },
-
-      listeners: {
-        tap: '_onTap',
-        track: '_onTrack',
-        down: '_downHandler',
-        up: '_upHandler'
-      },
-
-      observers: [
-        '_forceNarrowChanged(forceNarrow, defaultSelected)'
-      ],
-
-      /**
-       * Toggles the panel open and closed.
-       *
-       * @method togglePanel
-       */
-      togglePanel: function() {
-        if (this._isMainSelected()) {
-          this.openDrawer();
-        } else {
-          this.closeDrawer();
-        }
-      },
-
-      /**
-       * Opens the drawer.
-       *
-       * @method openDrawer
-       */
-      openDrawer: function() {
-        this.selected = 'drawer';
-      },
-
-      /**
-       * Closes the drawer.
-       *
-       * @method closeDrawer
-       */
-      closeDrawer: function() {
-        this.selected = 'main';
-      },
-
-      ready: function() {
-        // Avoid transition at the beginning e.g. page loads and enable
-        // transitions only after the element is rendered and ready.
-        this.transition = true;
-      },
-
-      _computeIronSelectorClass: function(narrow, transition, dragging, rightDrawer, peeking) {
-        return classNames({
-          dragging: dragging,
-          'narrow-layout': narrow,
-          'right-drawer': rightDrawer,
-          'left-drawer': !rightDrawer,
-          transition: transition,
-          peeking: peeking
-        });
-      },
-
-      _computeDrawerStyle: function(drawerWidth) {
-        return 'width:' + drawerWidth + ';';
-      },
-
-      _computeMainStyle: function(narrow, rightDrawer, drawerWidth) {
-        var style = '';
-
-        style += 'left:' + ((narrow || rightDrawer) ? '0' : drawerWidth) + ';';
-
-        if (rightDrawer) {
-          style += 'right:' + (narrow ? '' : drawerWidth) + ';';
-        }
-
-        return style;
-      },
-
-      _computeMediaQuery: function(forceNarrow, responsiveWidth) {
-        return forceNarrow ? '' : '(max-width: ' + responsiveWidth + ')';
-      },
-
-      _computeSwipeOverlayHidden: function(narrow, disableEdgeSwipe) {
-        return !narrow || disableEdgeSwipe;
-      },
-
-      _onTrack: function(event) {
-        if (sharedPanel && this !== sharedPanel) {
-          return;
-        }
-        switch (event.detail.state) {
-          case 'start':
-            this._trackStart(event);
-            break;
-          case 'track':
-            this._trackX(event);
-            break;
-          case 'end':
-            this._trackEnd(event);
-            break;
-        }
-
-      },
-
-      _responsiveChange: function(narrow) {
-        this._setNarrow(narrow);
-
-        if (this.narrow) {
-          this.selected = this.defaultSelected;
-        }
-
-        this.setScrollDirection(this._swipeAllowed() ? 'y' : 'all');
-        this.fire('paper-responsive-change', {narrow: this.narrow});
-      },
-
-      _onQueryMatchesChanged: function(event) {
-        this._responsiveChange(event.detail.value);
-      },
-
-      _forceNarrowChanged: function() {
-        // set the narrow mode only if we reached the `responsiveWidth`
-        this._responsiveChange(this.forceNarrow || this.$.mq.queryMatches);
-      },
-
-      _swipeAllowed: function() {
-        return this.narrow && !this.disableSwipe;
-      },
-
-      _isMainSelected: function() {
-        return this.selected === 'main';
-      },
-
-      _startEdgePeek: function() {
-        this.width = this.$.drawer.offsetWidth;
-        this._moveDrawer(this._translateXForDeltaX(this.rightDrawer ?
-            -this.edgeSwipeSensitivity : this.edgeSwipeSensitivity));
-        this._setPeeking(true);
-      },
-
-      _stopEdgePeek: function() {
-        if (this.peeking) {
-          this._setPeeking(false);
-          this._moveDrawer(null);
-        }
-      },
-
-      _downHandler: function(event) {
-        if (!this.dragging && this._isMainSelected() && this._isEdgeTouch(event) && !sharedPanel) {
-          this._startEdgePeek();
-          // cancel selection
-          event.preventDefault();
-          // grab this panel
-          sharedPanel = this;
-        }
-      },
-
-      _upHandler: function() {
-        this._stopEdgePeek();
-        // release the panel
-        sharedPanel = null;
-      },
-
-      _onTap: function(event) {
-        var targetElement = Polymer.dom(event).localTarget;
-        var isTargetToggleElement = targetElement &&
-          this.drawerToggleAttribute &&
-          targetElement.hasAttribute(this.drawerToggleAttribute);
-
-        if (isTargetToggleElement) {
-          this.togglePanel();
-        }
-      },
-
-      _isEdgeTouch: function(event) {
-        var x = event.detail.x;
-
-        return !this.disableEdgeSwipe && this._swipeAllowed() &&
-          (this.rightDrawer ?
-            x >= this.offsetWidth - this.edgeSwipeSensitivity :
-            x <= this.edgeSwipeSensitivity);
-      },
-
-      _trackStart: function(event) {
-        if (this._swipeAllowed()) {
-          sharedPanel = this;
-          this._setDragging(true);
-
-          if (this._isMainSelected()) {
-            this._setDragging(this.peeking || this._isEdgeTouch(event));
-          }
-
-          if (this.dragging) {
-            this.width = this.$.drawer.offsetWidth;
-            this.transition = false;
-          }
-        }
-      },
-
-      _translateXForDeltaX: function(deltaX) {
-        var isMain = this._isMainSelected();
-
-        if (this.rightDrawer) {
-          return Math.max(0, isMain ? this.width + deltaX : deltaX);
-        } else {
-          return Math.min(0, isMain ? deltaX - this.width : deltaX);
-        }
-      },
-
-      _trackX: function(event) {
-        if (this.dragging) {
-          var dx = event.detail.dx;
-
-          if (this.peeking) {
-            if (Math.abs(dx) <= this.edgeSwipeSensitivity) {
-              // Ignore trackx until we move past the edge peek.
-              return;
-            }
-            this._setPeeking(false);
-          }
-
-          this._moveDrawer(this._translateXForDeltaX(dx));
-        }
-      },
-
-      _trackEnd: function(event) {
-        if (this.dragging) {
-          var xDirection = event.detail.dx > 0;
-
-          this._setDragging(false);
-          this.transition = true;
-          sharedPanel = null;
-          this._moveDrawer(null);
-
-          if (this.rightDrawer) {
-            this[xDirection ? 'closeDrawer' : 'openDrawer']();
-          } else {
-            this[xDirection ? 'openDrawer' : 'closeDrawer']();
-          }
-        }
-      },
-
-      _transformForTranslateX: function(translateX) {
-        if (translateX === null) {
-          return '';
-        }
-
-        return this.hasWillChange ? 'translateX(' + translateX + 'px)' :
-            'translate3d(' + translateX + 'px, 0, 0)';
-      },
-
-      _moveDrawer: function(translateX) {
-        this.transform(this._transformForTranslateX(translateX), this.$.drawer);
-      }
-
-    });
-
-  }());
 (function() {
     var Utility = {
       distance: function(x1, y1, x2, y2) {
@@ -17210,830 +17316,359 @@ Polymer({
       }
     });
 Polymer({
-      is: 'paper-item',
 
-      hostAttributes: {
-        role: 'listitem',
-        tabindex: '0'
-      },
+    is: 'paper-tab',
 
-      behaviors: [
-        Polymer.IronControlState,
-        Polymer.IronButtonState
-      ]
-    });
-Polymer({
-    is: 'paper-material',
+    behaviors: [
+      Polymer.IronControlState,
+      Polymer.IronButtonState
+    ],
 
     properties: {
 
       /**
-       * The z-depth of this element, from 0-5. Setting to 0 will remove the
-       * shadow, and each increasing number greater than 0 will be "deeper"
-       * than the last.
+       * If true, ink ripple effect is disabled.
        *
-       * @attribute elevation
-       * @type number
-       * @default 1
+       * @attribute noink
        */
-      elevation: {
+      noink: {
+        type: Boolean,
+        value: false
+      }
+
+    },
+
+    hostAttributes: {
+      role: 'tab'
+    },
+
+    listeners: {
+      down: '_updateNoink'
+    },
+
+    attached: function() {
+      this._updateNoink();
+    },
+
+    get _parentNoink () {
+      var parent = Polymer.dom(this).parentNode;
+      return !!parent && !!parent.noink;
+    },
+
+    _updateNoink: function() {
+      this.noink = !!this.noink || !!this._parentNoink;
+    }
+  });
+Polymer({
+
+    is: 'paper-tabs',
+
+    behaviors: [
+      Polymer.IronResizableBehavior,
+      Polymer.IronMenubarBehavior
+    ],
+
+    properties: {
+
+      /**
+       * If true, ink ripple effect is disabled.
+       */
+      noink: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the bottom bar to indicate the selected tab will not be shown.
+       */
+      noBar: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the slide effect for the bottom bar is disabled.
+       */
+      noSlide: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, tabs are scrollable and the tab width is based on the label width.
+       */
+      scrollable: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, dragging on the tabs to scroll is disabled.
+       */
+      disableDrag: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, scroll buttons (left/right arrow) will be hidden for scrollable tabs.
+       */
+      hideScrollButtons: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * If true, the tabs are aligned to bottom (the selection bar appears at the top).
+       */
+      alignBottom: {
+        type: Boolean,
+        value: false
+      },
+
+      /**
+       * Gets or sets the selected element. The default is to use the index of the item.
+       */
+      selected: {
+        type: String,
+        notify: true
+      },
+
+      selectable: {
+        type: String,
+        value: 'paper-tab'
+      },
+
+      _step: {
         type: Number,
-        reflectToAttribute: true,
+        value: 10
+      },
+
+      _holdDelay: {
+        type: Number,
         value: 1
       },
 
-      /**
-       * Set this to true to animate the shadow when setting a new
-       * `elevation` value.
-       *
-       * @attribute animated
-       * @type boolean
-       * @default false
-       */
-      animated: {
-        type: Boolean,
-        reflectToAttribute: true,
-        value: false
-      }
-    }
-  });
-(function() {
-
-  Polymer({
-
-    is: 'paper-menu',
-
-    behaviors: [
-      Polymer.IronMenuBehavior
-    ]
-
-  });
-
-})();
-(function() {
-
-  'use strict';
-
-  Polymer({
-
-    /**
-     * Fired when the content has been scrolled.
-     *
-     * @event content-scroll
-     */
-
-    /**
-     * Fired when the header is transformed.
-     *
-     * @event paper-header-transform
-     */
-
-    is: 'paper-scroll-header-panel',
-
-    behaviors: [
-      Polymer.IronResizableBehavior
-    ],
-
-    properties: {
-
-      /**
-       * If true, the header's height will condense to `condensedHeaderHeight`
-       * as the user scrolls down from the top of the content area.
-       */
-      condenses: {
+      _leftHidden: {
         type: Boolean,
         value: false
       },
 
-      /**
-       * If true, no cross-fade transition from one background to another.
-       */
-      noDissolve: {
+      _rightHidden: {
         type: Boolean,
         value: false
       },
 
-      /**
-       * If true, the header doesn't slide back in when scrolling back up.
-       */
-      noReveal: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * If true, the header is fixed to the top and never moves away.
-       */
-      fixed: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * If true, the condensed header is always shown and does not move away.
-       */
-      keepCondensedHeader: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * The height of the header when it is at its full size.
-       *
-       * By default, the height will be measured when it is ready.  If the height
-       * changes later the user needs to either set this value to reflect the
-       * new height or invoke `measureHeaderHeight()`.
-       */
-      headerHeight: {
-        type: Number,
-        value: 0
-      },
-
-      /**
-       * The height of the header when it is condensed.
-       *
-       * By default, `condensedHeaderHeight` is 1/3 of `headerHeight` unless
-       * this is specified.
-       */
-      condensedHeaderHeight: {
-        type: Number,
-        value: 0
-      },
-
-      /**
-       * By default, the top part of the header stays when the header is being
-       * condensed.  Set this to true if you want the top part of the header
-       * to be scrolled away.
-       */
-      scrollAwayTopbar: {
-        type: Boolean,
-        value: false
-      },
-
-      /**
-       * The state of the header. The initial value is `HEADER_STATE_EXPANDED`.
-       * Depending on the configuration and the `scrollTop` value,
-       * the header state could change to
-       * `HEADER_STATE_HIDDEN`, `HEADER_STATE_CONDENSED` and `HEADER_STATE_INTERPOLATED`
-       */
-      headerState: {
-        type: Number,
-        readOnly: true,
-        value: 0
-      },
-
-      _prevScrollTop: {
-        type: Number,
-        value: 0
-      },
-
-      _y: {
-        type: Number,
-        value: 0
-      },
-
-      /** @type {number|null} */
-      _defaultCondsensedHeaderHeight: {
-        type: Number,
-        value: 0
+      _previousTab: {
+        type: Object
       }
     },
 
-    observers: [
-      '_setup(headerHeight, condensedHeaderHeight, fixed)',
-      '_condensedHeaderHeightChanged(condensedHeaderHeight)',
-      '_headerHeightChanged(headerHeight, condensedHeaderHeight)',
-      '_condensesChanged(condenses)',
-    ],
+    hostAttributes: {
+      role: 'tablist'
+    },
 
     listeners: {
-      'iron-resize': 'measureHeaderHeight'
+      'iron-resize': '_onResize',
+      'iron-select': '_onIronSelect',
+      'iron-deselect': '_onIronDeselect'
     },
 
     ready: function() {
-      this.async(this.measureHeaderHeight, 5);
-      this._scrollHandler = this._scroll.bind(this);
-      this.scroller.addEventListener('scroll', this._scrollHandler);
+      this.setScrollDirection('y', this.$.tabsContainer);
     },
 
-    /**
-     * The header's initial state
-     *
-     * @property HEADER_STATE_EXPANDED
-     * @type number
-     */
-    HEADER_STATE_EXPANDED: 0,
+    _computeScrollButtonClass: function(hideThisButton, scrollable, hideScrollButtons) {
+      if (!scrollable || hideScrollButtons) {
+        return 'hidden';
+      }
 
-    /**
-     * The header's state when it's hidden.
-     *
-     * @property HEADER_STATE_HIDDEN
-     * @type number
-     */
-    HEADER_STATE_HIDDEN: 1,
+      if (hideThisButton) {
+        return 'not-visible';
+      }
 
-    /**
-     * The header's state when it's condensed.
-     *
-     * @property HEADER_STATE_CONDENSED
-     * @type number
-     */
-    HEADER_STATE_CONDENSED: 2,
-
-    /**
-     * The header's state when its progress is somewhere between
-     * the `hidden` and `condensed` state.
-     *
-     * @property HEADER_STATE_INTERPOLATED
-     * @type number
-     */
-    HEADER_STATE_INTERPOLATED: 3,
-
-    /**
-     * Returns the header element.
-     *
-     * @property header
-     * @type Object
-     */
-    get header() {
-      return Polymer.dom(this.$.headerContent).getDistributedNodes()[0];
+      return '';
     },
 
-    /**
-     * Returns the content element.
-     *
-     * @property content
-     * @type Object
-     */
-    get content() {
-      return Polymer.dom(this.$.mainContent).getDistributedNodes()[0];
+    _computeTabsContentClass: function(scrollable) {
+      return scrollable ? 'scrollable' : 'horizontal layout';
     },
 
-    /**
-     * Returns the scrollable element.
-     *
-     * @property scroller
-     * @type Object
-     */
-    get scroller() {
-      return this.$.mainContainer;
-    },
-
-    get _headerMaxDelta() {
-      return this.keepCondensedHeader ? this._headerMargin : this.headerHeight;
-    },
-
-    get _headerMargin() {
-      return this.headerHeight - this.condensedHeaderHeight;
-    },
-
-    _y: 0,
-
-    _prevScrollTop: 0,
-
-    /**
-     * Invoke this to tell `paper-scroll-header-panel` to re-measure the header's
-     * height.
-     *
-     * @method measureHeaderHeight
-     */
-    measureHeaderHeight: function() {
-      var header = this.header;
-      if (header && header.offsetHeight) {
-        this.headerHeight = header.offsetHeight;
+    _computeSelectionBarClass: function(noBar, alignBottom) {
+      if (noBar) {
+        return 'hidden';
+      } else if (alignBottom) {
+        return 'align-bottom';
       }
     },
 
-    /**
-     * Scroll to a specific y coordinate.
-     *
-     * @method scroll
-     * @param {number} top The coordinate to scroll to, along the y-axis.
-     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
-     */
-    scroll: function(top, smooth) {
-      // the scroll event will trigger _updateScrollState directly, 
-      // However, _updateScrollState relies on the previous `scrollTop` to update the states.
-      // Calling _updateScrollState will ensure that the states are synced correctly.
+    // TODO(cdata): Add `track` response back in when gesture lands.
 
-      if (smooth) {
-        // TODO(blasten): use CSS scroll-behavior once it ships in Chrome.
-        var easingFn = function easeOutQuad(t, b, c, d) {
-          t /= d;
-          return -c * t*(t-2) + b;
-        };
-        var animationId = Math.random();
-        var duration = 200;
-        var startTime = Date.now();
-        var currentScrollTop = this.scroller.scrollTop;
-        var deltaScrollTop = top - currentScrollTop;
-
-        this._currentAnimationId = animationId;
-
-        (function updateFrame() {
-          var now = Date.now();
-          var elapsedTime = now - startTime;
-
-          if (elapsedTime > duration) {
-            this.scroller.scrollTop = top;
-            this._updateScrollState(top);
-
-          } else if (this._currentAnimationId === animationId) {
-            this.scroller.scrollTop = easingFn(elapsedTime, currentScrollTop, deltaScrollTop, duration);
-            requestAnimationFrame(updateFrame.bind(this));
-          }
-
-        }).call(this);
-
-      } else {
-        this.scroller.scrollTop = top;
-        this._updateScrollState(top);
-      }
+    _onResize: function() {
+      this.debounce('_onResize', function() {
+        this._scroll();
+        this._tabChanged(this.selectedItem);
+      }, 10);
     },
 
-   /**
-     * Condense the header.
-     *
-     * @method condense
-     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
-     */
-    condense: function(smooth) {
-      if (this.condenses && !this.fixed && !this.noReveal) {
-        switch (this.headerState) {
-          case this.HEADER_STATE_HIDDEN:
-            this.scroll(this.scroller.scrollTop - (this._headerMaxDelta - this._headerMargin), smooth);
-          break;
-          case this.HEADER_STATE_EXPANDED:
-          case this.HEADER_STATE_INTERPOLATED:
-            this.scroll(this._headerMargin, smooth);
-          break;
-        }
-      }
+    _onIronSelect: function(event) {
+      this._tabChanged(event.detail.item, this._previousTab);
+      this._previousTab = event.detail.item;
+      this.cancelDebouncer('tab-changed');
     },
 
-    /**
-     * Scroll to the top of the content.
-     *
-     * @method scrollToTop
-     * @param {boolean} smooth true if the scroll position should be smoothly adjusted.
-     */
-    scrollToTop: function(smooth) {
-      this.scroll(0, smooth);
+    _onIronDeselect: function(event) {
+      this.debounce('tab-changed', function() {
+        this._tabChanged(null, this._previousTab);
+      // See polymer/polymer#1305
+      }, 1);
     },
 
-    _headerHeightChanged: function(headerHeight) {
-      if (this._defaultCondsensedHeaderHeight !== null) {
-        this._defaultCondsensedHeaderHeight = Math.round(headerHeight * 1/3);
-        this.condensedHeaderHeight = this._defaultCondsensedHeaderHeight;
-      }
-    },
-
-    _condensedHeaderHeightChanged: function(condensedHeaderHeight) {
-      if (condensedHeaderHeight) {
-        // a user custom value
-        if (this._defaultCondsensedHeaderHeight != condensedHeaderHeight) {
-          // disable the default value
-          this._defaultCondsensedHeaderHeight = null;
-        }
-      }
-    },
-
-    _condensesChanged: function() {
-      this._updateScrollState(this.scroller.scrollTop);
-      this._condenseHeader(null);
-    },
-
-    _setup: function() {
-      var s = this.scroller.style;
-
-      s.paddingTop = this.fixed ? '' : this.headerHeight + 'px';
-      s.top = this.fixed ? this.headerHeight + 'px' : '';
-
-      if (this.fixed) {
-        this._setHeaderState(this.HEADER_STATE_EXPANDED);
-        this._transformHeader(null);
-      } else {
-        switch (this.headerState) {
-          case this.HEADER_STATE_HIDDEN:
-            this._transformHeader(this._headerMaxDelta);
-            break;
-          case this.HEADER_STATE_CONDENSED:
-            this._transformHeader(this._headerMargin);
-            break;
-        }
-      }
-    },
-
-    _transformHeader: function(y) {
-      this._translateY(this.$.headerContainer, -y);
-
-      if (this.condenses) {
-        this._condenseHeader(y);
-      }
-
-      this.fire('paper-header-transform',
-        { y: y,
-          height: this.headerHeight,
-          condensedHeight: this.condensedHeaderHeight
-        }
+    get _tabContainerScrollSize () {
+      return Math.max(
+        0,
+        this.$.tabsContainer.scrollWidth -
+          this.$.tabsContainer.offsetWidth
       );
     },
 
-    _condenseHeader: function(y) {
-      var reset = (y === null);
 
-      // adjust top bar in paper-header so the top bar stays at the top
-      if (!this.scrollAwayTopbar && this.header && this.header.$ && this.header.$.topBar) {
-        this._translateY(this.header.$.topBar,
-            reset ? null : Math.min(y, this._headerMargin));
+    _scroll: function(e, detail) {
+      if (!this.scrollable) {
+        return;
       }
-      // transition header bg
-      if (!this.noDissolve) {
-        this.$.headerBg.style.opacity = reset ? '' :
-            ( (this._headerMargin - y) / this._headerMargin);
-      }
-      // adjust header bg so it stays at the center
-      this._translateY(this.$.headerBg, reset ? null : y / 2);
-      // transition condensed header bg
-      if (!this.noDissolve) {
-        this.$.condensedHeaderBg.style.opacity = reset ? '' :
-            (y / this._headerMargin);
 
-        // adjust condensed header bg so it stays at the center
-        this._translateY(this.$.condensedHeaderBg, reset ? null : y / 2);
-      }
+      var ddx = (detail && -detail.ddx) || 0;
+      this._affectScroll(ddx);
     },
 
-    _translateY: function(node, y) {
-      this.transform((y === null) ? '' : 'translate3d(0, ' + y + 'px, 0)', node);
-    },
-
-    /** @param {Event=} event */
-    _scroll: function(event) {
-      if (this.header) {
-        this._updateScrollState(this.scroller.scrollTop);
-
-        this.fire('content-scroll', {
-          target: this.scroller
-        },
-        {
-          cancelable: false
-        });
-      }
-    },
-
-    _updateScrollState: function(scrollTop) {
-      var deltaScrollTop = scrollTop - this._prevScrollTop;
-      var y = Math.max(0, (this.noReveal) ? scrollTop : this._y + deltaScrollTop);
-
-      if (y > this._headerMaxDelta) {
-        y = this._headerMaxDelta;
-        this._setHeaderState(this.HEADER_STATE_HIDDEN);
-
-      } else if (this.condenses && this._prevScrollTop >= scrollTop && scrollTop >= this._headerMargin) {
-        y = Math.max(y, this._headerMargin);
-        this._setHeaderState(this.HEADER_STATE_CONDENSED);
-
-      } else if (y === 0) {
-        this._setHeaderState(this.HEADER_STATE_EXPANDED);
-
-      } else {
-        this._setHeaderState(this.HEADER_STATE_INTERPOLATED);
-      }
-
-      if (!this.fixed && y !== this._y) {
-        this._transformHeader(y);
-      }
-
-      this._prevScrollTop = Math.max(scrollTop, 0);
-      this._y = y;
-    }
-  });
-
-})();
-(function() {
-      'use strict';
-
-      Polymer.IronA11yAnnouncer = Polymer({
-        is: 'iron-a11y-announcer',
-
-        properties: {
-
-          /**
-           * The value of mode is used to set the `aria-live` attribute
-           * for the element that will be announced. Valid values are: `off`,
-           * `polite` and `assertive`.
-           */
-          mode: {
-            type: String,
-            value: 'polite'
-          },
-
-          _text: {
-            type: String,
-            value: ''
-          }
-        },
-
-        created: function() {
-          if (!Polymer.IronA11yAnnouncer.instance) {
-            Polymer.IronA11yAnnouncer.instance = this;
-          }
-
-          document.body.addEventListener('iron-announce', this._onIronAnnounce.bind(this));
-        },
-
-        /**
-         * Cause a text string to be announced by screen readers.
-         *
-         * @param {string} text The text that should be announced.
-         */
-        announce: function(text) {
-          this._text = '';
-          this.async(function() {
-            this._text = text;
-          }, 100);
-        },
-
-        _onIronAnnounce: function(event) {
-          if (event.detail && event.detail.text) {
-            this.announce(event.detail.text);
-          }
-        }
-      });
-
-      Polymer.IronA11yAnnouncer.instance = null;
-
-      Polymer.IronA11yAnnouncer.requestAvailability = function() {
-        if (!Polymer.IronA11yAnnouncer.instance) {
-          Polymer.IronA11yAnnouncer.instance = document.createElement('iron-a11y-announcer');
-        }
-
-        document.body.appendChild(Polymer.IronA11yAnnouncer.instance);
-      };
-    })();
-(function() {
-
-  var PaperToast = Polymer({
-    is: 'paper-toast',
-
-    properties: {
-      /**
-       * The duration in milliseconds to show the toast.
-       */
-      duration: {
-        type: Number,
-        value: 3000
-      },
-
-      /**
-       * The text to display in the toast.
-       */
-      text: {
-        type: String,
-        value: ""
-      },
-
-      /**
-       * True if the toast is currently visible.
-       */
-      visible: {
-        type: Boolean,
-        readOnly: true,
-        value: false,
-        observer: '_visibleChanged'
-      }
-    },
-
-    created: function() {
-      Polymer.IronA11yAnnouncer.requestAvailability();
-    },
-
-    ready: function() {
+    _down: function(e) {
+      // go one beat async to defeat IronMenuBehavior
+      // autorefocus-on-no-selection timeout
       this.async(function() {
-        this.hide();
-      });
+        if (this._defaultFocusAsync) {
+          this.cancelAsync(this._defaultFocusAsync);
+          this._defaultFocusAsync = null;
+        }
+      }, 1);
     },
 
-    /**
-     * Show the toast.
-     * @method show
-     */
-    show: function() {
-      if (PaperToast.currentToast) {
-        PaperToast.currentToast.hide();
+    _affectScroll: function(dx) {
+      this.$.tabsContainer.scrollLeft += dx;
+
+      var scrollLeft = this.$.tabsContainer.scrollLeft;
+
+      this._leftHidden = scrollLeft === 0;
+      this._rightHidden = scrollLeft === this._tabContainerScrollSize;
+    },
+
+    _onLeftScrollButtonDown: function() {
+      this._scrollToLeft();
+      this._holdJob = setInterval(this._scrollToLeft.bind(this), this._holdDelay);
+    },
+
+    _onRightScrollButtonDown: function() {
+      this._scrollToRight();
+      this._holdJob = setInterval(this._scrollToRight.bind(this), this._holdDelay);
+    },
+
+    _onScrollButtonUp: function() {
+      clearInterval(this._holdJob);
+      this._holdJob = null;
+    },
+
+    _scrollToLeft: function() {
+      this._affectScroll(-this._step);
+    },
+
+    _scrollToRight: function() {
+      this._affectScroll(this._step);
+    },
+
+    _tabChanged: function(tab, old) {
+      if (!tab) {
+        this._positionBar(0, 0);
+        return;
       }
-      PaperToast.currentToast = this;
-      this.removeAttribute('aria-hidden');
-      this._setVisible(true);
-      this.fire('iron-announce', {
-        text: this.text
-      });
-      this.debounce('hide', this.hide, this.duration);
-    },
 
-    /**
-     * Hide the toast
-     */
-    hide: function() {
-      this.setAttribute('aria-hidden', 'true');
-      this._setVisible(false);
-    },
+      var r = this.$.tabsContent.getBoundingClientRect();
+      var w = r.width;
+      var tabRect = tab.getBoundingClientRect();
+      var tabOffsetLeft = tabRect.left - r.left;
 
-    /**
-     * Toggle the opened state of the toast.
-     * @method toggle
-     */
-    toggle: function() {
-      if (!this.visible) {
-        this.show();
+      this._pos = {
+        width: this._calcPercent(tabRect.width, w),
+        left: this._calcPercent(tabOffsetLeft, w)
+      };
+
+      if (this.noSlide || old == null) {
+        // position bar directly without animation
+        this._positionBar(this._pos.width, this._pos.left);
+        return;
+      }
+
+      var oldRect = old.getBoundingClientRect();
+      var oldIndex = this.items.indexOf(old);
+      var index = this.items.indexOf(tab);
+      var m = 5;
+
+      // bar animation: expand
+      this.$.selectionBar.classList.add('expand');
+
+      if (oldIndex < index) {
+        this._positionBar(this._calcPercent(tabRect.left + tabRect.width - oldRect.left, w) - m,
+            this._left);
       } else {
-        this.hide();
+        this._positionBar(this._calcPercent(oldRect.left + oldRect.width - tabRect.left, w) - m,
+            this._calcPercent(tabOffsetLeft, w) + m);
+      }
+
+      if (this.scrollable) {
+        this._scrollToSelectedIfNeeded(tabRect.width, tabOffsetLeft);
       }
     },
 
-    _visibleChanged: function(visible) {
-      this.toggleClass('paper-toast-open', visible);
+    _scrollToSelectedIfNeeded: function(tabWidth, tabOffsetLeft) {
+      var l = tabOffsetLeft - this.$.tabsContainer.scrollLeft;
+      if (l < 0) {
+        this.$.tabsContainer.scrollLeft += l;
+      } else {
+        l += (tabWidth - this.$.tabsContainer.offsetWidth);
+        if (l > 0) {
+          this.$.tabsContainer.scrollLeft += l;
+        }
+      }
+    },
+
+    _calcPercent: function(w, w0) {
+      return 100 * w / w0;
+    },
+
+    _positionBar: function(width, left) {
+      width = width || 0;
+      left = left || 0;
+
+      this._width = width;
+      this._left = left;
+      this.transform(
+          'translate3d(' + left + '%, 0, 0) scaleX(' + (width / 100) + ')',
+          this.$.selectionBar);
+    },
+
+    _onBarTransitionEnd: function(e) {
+      var cl = this.$.selectionBar.classList;
+      // bar animation: expand -> contract
+      if (cl.contains('expand')) {
+        cl.remove('expand');
+        cl.add('contract');
+        this._positionBar(this._pos.width, this._pos.left);
+      // bar animation done
+      } else if (cl.contains('contract')) {
+        cl.remove('contract');
+      }
     }
+
   });
-
-  PaperToast.currentToast = null;
-
-})();
-(function() {
-
-    'use strict';
-
-    function classNames(obj) {
-      var classNames = [];
-      for (var key in obj) {
-        if (obj.hasOwnProperty(key) && obj[key]) {
-          classNames.push(key);
-        }
-      }
-
-      return classNames.join(' ');
-    }
-
-    Polymer({
-
-      is: 'paper-toolbar',
-
-      hostAttributes: {
-        'role': 'toolbar'
-      },
-
-      properties: {
-
-        /**
-         * Controls how the items are aligned horizontally when they are placed
-         * at the bottom.
-         * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute bottomJustify
-         * @type string
-         * @default ''
-         */
-        bottomJustify: {
-          type: String,
-          value: ''
-        },
-
-        /**
-         * Controls how the items are aligned horizontally.
-         * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute justify
-         * @type string
-         * @default ''
-         */
-        justify: {
-          type: String,
-          value: ''
-        },
-
-        /**
-         * Controls how the items are aligned horizontally when they are placed
-         * in the middle.
-         * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute middleJustify
-         * @type string
-         * @default ''
-         */
-        middleJustify: {
-          type: String,
-          value: ''
-        }
-
-      },
-
-      attached: function() {
-        this._observer = this._observe(this);
-        this._updateAriaLabelledBy();
-      },
-
-      detached: function() {
-        if (this._observer) {
-          this._observer.disconnect();
-        }
-      },
-
-      _observe: function(node) {
-        var observer = new MutationObserver(function() {
-          this._updateAriaLabelledBy();
-        }.bind(this));
-        observer.observe(node, {
-          childList: true,
-          subtree: true
-        });
-        return observer;
-      },
-
-      _updateAriaLabelledBy: function() {
-        var labelledBy = [];
-        var contents = Polymer.dom(this.root).querySelectorAll('content');
-        for (var content, index = 0; content = contents[index]; index++) {
-          var nodes = Polymer.dom(content).getDistributedNodes();
-          for (var node, jndex = 0; node = nodes[jndex]; jndex++) {
-            if (node.classList && node.classList.contains('title')) {
-              if (node.id) {
-                labelledBy.push(node.id);
-              } else {
-                var id = 'paper-toolbar-label-' + Math.floor(Math.random() * 10000);
-                node.id = id;
-                labelledBy.push(id);
-              }
-            }
-          }
-        }
-        if (labelledBy.length > 0) {
-          this.setAttribute('aria-labelledby', labelledBy.join(' '));
-        }
-      },
-
-      _computeBarClassName: function(barJustify) {
-        var classObj = {
-          'center': true,
-          'horizontal': true,
-          'layout': true,
-          'toolbar-tools': true
-        };
-
-        // If a blank string or any falsy value is given, no other class name is
-        // added.
-        if (barJustify) {
-          var justifyClassName = (barJustify === 'justified') ?
-              barJustify :
-              barJustify + '-justified';
-
-          classObj[justifyClassName] = true;
-        }
-
-        return classNames(classObj);
-      }
-
-    });
-
-  }());
-(function() {
-      'use strict';
-      
-      Polymer({
-        is: 'my-greeting',
-
-        properties: {
-          greeting: {
-            type: String,
-            value: 'Welcome!',
-            notify: true
-          }
-        }
-      });
-    })();
-(function () {
-      'use strict';
-
-      Polymer({
-        is: 'my-list',
-        properties: {
-          items: {
-            type: Array,
-            notify: true,
-          }
-        },
-        ready: function() {
-          this.items = [
-            'Responsive Web App boilerplate',
-            'Iron Elements and Paper Elements',
-            'End-to-end Build Tooling (including Vulcanize)',
-            'Unit testing with Web Component Tester',
-            'Routing with Page.js',
-            'Offline support with the Platinum Service Worker Elements'
-          ];
-        }
-      });
-    })();
 Polymer({
 
   is: 'more-route-selector',
@@ -18200,6 +17835,36 @@ Polymer({
   },
 
 });
+Polymer({
+
+    is: 'iron-pages',
+
+    behaviors: [
+      Polymer.IronResizableBehavior,
+      Polymer.IronSelectableBehavior
+    ],
+
+    properties: {
+
+      // as the selected page is the only one visible, activateEvent
+      // is both non-sensical and problematic; e.g. in cases where a user
+      // handler attempts to change the page and the activateEvent
+      // handler immediately changes it back
+      activateEvent: {
+        type: String,
+        value: null
+      }
+
+    },
+
+    observers: [
+      '_selectedPageChanged(selected)'
+    ],
+
+    _selectedPageChanged: function(selected, old) {
+      this.async(this.notifyResize);
+    }
+  });
 (function () {
     Polymer({
 
@@ -18281,6 +17946,41 @@ Polymer({
 
     });
   })();
+Polymer({
+    is: 'paper-material',
+
+    properties: {
+
+      /**
+       * The z-depth of this element, from 0-5. Setting to 0 will remove the
+       * shadow, and each increasing number greater than 0 will be "deeper"
+       * than the last.
+       *
+       * @attribute elevation
+       * @type number
+       * @default 1
+       */
+      elevation: {
+        type: Number,
+        reflectToAttribute: true,
+        value: 1
+      },
+
+      /**
+       * Set this to true to animate the shadow when setting a new
+       * `elevation` value.
+       *
+       * @attribute animated
+       * @type boolean
+       * @default false
+       */
+      animated: {
+        type: Boolean,
+        reflectToAttribute: true,
+        value: false
+      }
+    }
+  });
 Polymer({
       is: 'paper-checkbox',
 
@@ -18384,25 +18084,54 @@ Polymer({
     }
 
   });
-(function () {
-    Polymer({
+Polymer({
+      is: 'rest-array',
 
-      is: 'cork-rest-array',
       properties: {
+
+
+        /**
+         * If true, debug prints are enabled
+         *
+         * @type Boolean
+         * @default false
+         */
         debug: { type: Boolean, value: false },
+
+
+        /**
+         * When goes from false to true the remote object is fetched
+         *
+         * @type Boolean
+         */
         active: Boolean,
+
+        /**
+         * The remote REST URL
+         *
+         * @type String
+         */
         serverurl: {type: String, value: ""},
-        routeauth: {type: String, value: ""},
+
+        /**
+         * The current items array
+         *
+         * @type String
+         */
         onlineitems: {
           type: Array,
-          notify: true
-        }
+          notify: true,
+          value:[]
+        },
       },
 
-      observers:['_inputsUpdated(active, serverurl, routeauth)'],
 
-      _inputsUpdated(current_active, current_serverurl, current_routeauth){
-        if(this.debug) console.log("Inputs updated. Active : ", this.active, " Server url: ", this.serverurl, " Route auth: ", this.routeauth );
+      observers:['_inputsUpdated(active, serverurl)'],
+
+      // Element Behavior
+
+      _inputsUpdated(current_active, current_serverurl){
+        if(this.debug) console.log("Inputs updated. Active : ", this.active, " Server url: ", this.serverurl );
         if(this.active){
           if(this.debug) console.log("Refreshing inputs. ");
           this.$.get_ajax.generateRequest();
@@ -18415,33 +18144,17 @@ Polymer({
         this.$.delete_ajax.generateRequest();
       },
 
-      handleResponseOkRefresh:function(response){
+      _handleResponseOkRefresh:function(response){
         if(this.debug) console.log("Delete done. Refreshing");
         this.$.get_ajax.generateRequest();
       },
 
-      handleResponseGet:function(response){
-        if(this.debug) console.log('GET response. Status is', response.detail.status);
-        if( response.detail.status == 403 ){
-          if(this.debug) console.log('Not logged in. Routing to route : ', this.routeauth);
-          MoreRouting.navigateTo(this.routeauth, {});
-        }else{
-          var ciao = response.detail.response;
-          this.set('onlineitems', response.detail.response);
-          if(this.debug) console.log('Setting onlineitems to : ', this.onlineitems);
-        }
-      },
-
-      handleResponseError:function(response){
-        if(this.debug) console.log('Error is', response.detail.error.message);
-        if( response.detail.error.message.indexOf("401") >-1 ){
-          if(this.debug) console.log('Not logged in. Routing to login.');
-          MoreRouting.navigateTo('login', {});
-        }
+      _handleResponseError:function(response){
+        if( response.detail.error.message.indexOf("401") >-1 ){ this.fire('unauthenticated'); }
+        if( response.detail.error.message.indexOf("403") >-1 ){ this.fire('servererror'); }
       }
 
     });
-  })();
 (function () {
     Polymer({
 
@@ -18477,7 +18190,7 @@ Polymer({
       },
 
       _divideItems:function(newItems){
-        console.log("Dividing the items ", this.onlineitems);
+        if(this.debug)console.log("Dividing the items ", this.onlineitems);
           var activeItems = [];
           var inactiveItems = [];
           for(var i = 0; i < this.onlineitems.length; i++){
@@ -18834,24 +18547,66 @@ Polymer({
       Polymer.IronControlState
     ]
   });
-(function () {
-    Polymer({
-
-      is: 'cork-rest-detail',
+Polymer({
+      is: 'rest-item',
 
       properties: {
+
+
+        /**
+         * If true, debug prints are enabled
+         *
+         * @type Boolean
+         * @default false
+         */
         debug: { type: Boolean, value: false },
+
+
+        /**
+         * When goes from false to true the remote object is fetched
+         *
+         * @type Boolean
+         */
         active: Boolean,
-        elementid: String,
-        serverurl: {type: String, value: ''},
-        routeauth: {type: String, value: ''},
-        routeback: {type: String, value: ''},
-        defaultitem: {type: Object, value: ''},
+
+        /**
+         * The remote REST URL
+         *
+         * @type String
+         */
+        serverurl: {type: String, value: ""},
+
+        /**
+         * The current item
+         *
+         * @type String
+         */
+        elementid: {
+          type: String
+        },
+
+        /**
+         * The current item
+         *
+         * @type String
+         */
         currentitem: {
           type: Object,
           notify: true
         },
+
+        /**
+         * The default value for the current item. It is set at every toggling of the 'active' param
+         *
+         * @type String
+         */
+        defaultitem: {
+          type: Object,
+          value: ''
+        }
       },
+
+      // Element Behavior
 
       observers:[ '_updateInputs(active, elementid, serverurl)' ],
 
@@ -18860,12 +18615,12 @@ Polymer({
       _updateInputs: function(current_active, current_id, current_serverurl){
         this.isnew = Boolean(this.elementid === "new");;
 
-        if(this.debug) console.log('Inputs updated. active: ', this.active, ' - isnew :', this.isnew, ' - serverurl :', this.serverurl );
+        if(this.debug) console.log('Inputs updated. active: ', this.active, ' - elementid :', this.elementid,' - isnew :', this.isnew, ' - serverurl :', this.serverurl, ' - defaultitem : ', this.defaultitem );
 
         // If view not selected or creating new elements: re-setting current element to default/empty
         if( !this.active || this.isnew ){
-          this.currentitem = this.defaultitem;
-          this.elementid = "new";
+          console.log('Setting current item to default, ', this.defaultitem);
+          this.set( 'currentitem', this.defaultitem );
         }
 
         // If updating existing element. Pulling it from server
@@ -18893,43 +18648,20 @@ Polymer({
 
       // Handling REST results
 
-      handleResponseOkRefresh:function(response){
-        if(this.debug) console.log("Delete done. Refreshing");
-        this.$.get_ajax.generateRequest();
-      },
-
-      _handle_get_ok:function(response){
-        if(this.debug) console.log('GET response. Status is', response.detail.status);
-        if( response.detail.status == 403 ){
-          if(this.debug) console.log('Not logged in. Routing to route : ', this.routeauth);
-          MoreRouting.navigateTo(this.routeauth);
-        }else{
-          this.set('currentitem', response.detail.response);
-          if(this.debug) console.log('Setting currentitem to : ', this.currentitem);
-        }
-      },
-
       _handle_get_error:function(response){
-        if(this.debug) console.log('Error is', response.detail.error.message);
-        if( response.detail.error.message.indexOf("401") >-1 ){
-          if(this.debug) console.log('Not logged in. Routing to login.');
-          MoreRouting.navigateTo('login', {});
-        }
+        if( response.detail.error.message.indexOf("401") >-1 ){ this.fire('unauthenticated'); }
+        if( response.detail.error.message.indexOf("403") >-1 ){ this.fire('servererror'); }
       },
 
       _handle_save_ok:function(response){
-        MoreRouting.navigateTo(this.routeback);
+        this.fire('saveok');
       },
 
       _handle_save_error : function(response){
-        console.log("Error saving the object on server. ");
+        this.fire('saveerror');
       },
 
-
-
-
     });
-  })();
 (function () {
     Polymer({
 
@@ -19226,79 +18958,38 @@ Polymer({
 
       is: 'blocks-detail',
       properties: {
-        debug: {type: Boolean, value: false},
-        currentitem: {
-          type: Object,
-          value: {"language":"en",
-                  "tags":"",
-                  "content": "",
-                  "legend": ""
-                  }
-        },
-        currentcontent: {
-          type: String,
-          observer: '_on_content_change',
-          value: ""
-        },
-        active: Boolean,
+        debug: { type: Boolean, value: false },
         elementid: String,
-        getURL: { type: String, value: ""},
-        pushmethod: { type: String, value: ""},
-        pushURL: { type: String, value: ""},
-        serverurl: { type: String, value: ""},
-        lettersymbols: {
-          type: Array,
-          value: ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ']
-        }
-      },
-
-      observers:['_updatedInputs(elementid, active, serverurl)'],
-
-      _updatedInputs: function(current_id, current_active, current_serverurl){
-        if(this.debug) console.log('Updated inputs : id - ', current_id, ' - active : ', current_active, ' server ', current_serverurl );
-        var isNew = Boolean(this.elementid === "new");
-        if( this.active ){
-          this.getURL = ( isNew ) ? '' : current_serverurl + '/' + String(this.elementid) + '/';
-          this.pushmethod = ( isNew ) ? "POST" : "PUT";
-          this.pushURL = ( isNew ) ? current_serverurl : current_serverurl + '/' + String(this.elementid) ;
-          if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL );
-        }
-
-        if( !this.active || isNew ){
-          this.currentitem = {"language":"en", "tags":"", "content": "", "legend": "" };
-          this.currentcontent = [];
-          this.currentlegend = "";
-        }
+        active: Boolean,
+        serverurl: String,
+        currentitem: { type: Object, observer: '_on_current_item_update' },
+        defaultitem: { type: Object, value: {"language":"en",
+                "tags":"",
+                "content": "",
+                "legend": ""
+                } }
       },
 
       ready: function(){
           this.currentcontent = "";
           this.currentlegend = [];
+          this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
       },
+
+      observers : ['_on_content_change(currentcontent, lettersymbols)'],
 
       save_me: function(){
         this.currentitem.content = this.currentcontent;
         this.currentitem.legend = JSON.stringify(this.currentlegend);
-        if(this.debug) console.log("In the end legend is : ", this.currentitem.legend );
-        this.$.my_iron_save.body = JSON.stringify(this.currentitem);
-        if(this.debug) console.log("Payload is  : ", JSON.stringify(this.currentitem) );
-        this.$.my_iron_save.generateRequest();
+        if(this.debug) console.log("In the end legend is : ", this.currentitem.legend, " - Payload is  : ", JSON.stringify(this.currentitem) );
+        this.$.rest_detail.save(JSON.stringify(this.currentitem));
       },
 
-      _handle_response_get: function(response){
-        if ( typeof this.elementid != 'undefined' && this.elementid != 'new' && typeof response.detail.response != 'undefined'){
-          if(this.debug) console.log('Received response from GET: ', response.detail.response);
-          this.currentitem = response.detail.response;
-          this.currentcontent = response.detail.response.content;
-          this.currentlegend = JSON.parse(response.detail.response.legend);
+      _on_current_item_update: function(new_val, old_val){
+          if(this.debug) console.log('Updated currentitem : ', this.currentitem);
+          this.currentcontent = this.currentitem.content;
+          this.currentlegend = JSON.parse(this.currentitem.legend);
           if(this.debug) console.log('The legend got from the GET is :', this.currentlegend );
-        }
-      },
-
-      _handle_response_post: function(response){
-        if(this.debug) console.log('Received response from POST: ', response.detail.response);
-        window.location = '#!/blocks' ;
-        window.location.reload();
       },
 
       computeKey:function(currentv){
@@ -19371,67 +19062,95 @@ Polymer({
 
     });
   })();
-(function () {
-    Polymer({
+Polymer({
+      is: 'badges-select',
 
-      is: 'cork-badges',
       properties: {
-        badges:{
-          type:String,
-          observer:'onBadgesStringChanged'
-        }
+
+        /**
+         * Input set badge names, in the form of comma separated string
+         *
+         * @type String
+         */
+         badgesstring:{
+           type:String,
+           observer:'_onBadgesStringChanged'
+         },
+
+         /**
+          * Input set badge names, in the form of array of strings
+          *
+          * @type Array
+          */
+         badgesarray:{
+            type:Array,
+            observer:'_onBadgesArrayChanged'
+         },
+
+         /**
+          * Array that will contain the selected items
+          *
+          * @type Array
+          */
+         selectedones:{
+            type:Array,
+            notify: true,
+            value:[]
+         },
+         /**
+          * If true, elements can be toggled
+          *
+          * @type Boolean
+          * @default true
+          */
+         toggle:{
+            type:Boolean,
+            value:false
+         }
       },
 
-      onBadgesStringChanged : function(newValue, oldValue){
+      // Element Behavior
+
+      _onBadgesStringChanged : function(newValue, oldValue){
+        // moving to array
         var splitted = newValue.split(",");
+        this.set( 'badgesarray', splitted ) ;
+      },
 
+      _onBadgesArrayChanged : function(newValue, oldValue){
         // Removing empty tag
-        var position = splitted.indexOf("");
+        var position = newValue.indexOf("");
         if( position > -1 ){
-          splitted.splice(position, 1);
+          newValue.splice(position, 1);
         }
-
-        this.badgesList = splitted;
-      }
-
-    });
-  })();
-(function () {
-    Polymer({
-
-      is: 'cork-select-badges',
-      properties: {
-        badges:{
-          type:Array,
-          observer:'_onBadgesStringChanged'
-        },
-        selectedones:{
-          type:Array,
-          notify: true,
-          value:[]
-        }
+        this.set( 'currentitems', newValue ) ;
+        this.set( 'selectedones', [] ) ;
       },
 
-      ready : function(){
-        this.currentitems = [];
-      },
+      /**
+       * The `badges-select-lasers` event is fired whenever `fireLasers` is called.
+       *
+       * @event badges-select-lasers
+       * @detail {{sound: String}}
+       */
 
-      _beentoggled:function(e){
-        var cssClasses = e.target.classList;
-        var toggledElement = e.model.item;
-        var position = this.selectedones.indexOf(toggledElement);
+       _beentoggled:function(e){
 
-        if( position == -1 ){
-          this.push( 'selectedones', toggledElement );
-          cssClasses.add('boldy');
-        }else{
-          this.splice( 'selectedones', position, 1);
-          cssClasses.remove('boldy');
-        }
-      }
+         if(this.toggle){
+           var cssClasses = e.target.classList;
+           var toggledElement = e.model.item;
+           var position = this.selectedones.indexOf(toggledElement);
 
+           if( position == -1 ){
+             this.push( 'selectedones', toggledElement );
+             cssClasses.add('boldy');
+           }else{
+             this.splice( 'selectedones', position, 1);
+             cssClasses.remove('boldy');
+           }
+         }
+       }
     });
-  })();
 (function() {
 
   Polymer({
@@ -20375,18 +20094,16 @@ Polymer({
 
       is: 'templates-detail',
       properties: {
-        debug: {type: Boolean, value: false},
-        currentitem: {
-          type: Object,
-          observer:'_updatedCurrentItem'
-        },
-        templatesserverurl:{ type: String, value: '' },
-        blocksserverurl: { type: String, value: '' },
+        debug: { type: Boolean, value: false },
+        elementid: String,
         active: Boolean,
-        elementid: String
+        serverurl: String,
+        currentitem: { type: Object, observer:'_updatedCurrentItem' },
+        defaultitem: { type: Object, value: {"name":"","description":"", "language":"en", "tags":"", "pieces":"[]" } },
+        blocksserverurl: { type: String, value: '' },
       },
 
-      observers:[ '_updateInputs(active, elementid, templatesserverurl, blocksserverurl)' ],
+      observers:[ '_updateInputs(active, elementid, blocksserverurl)' ],
 
       _updatedCurrentItem: function( new_val, old_val){
         if(this.debug) console.log('Current template updated : ', this.currentitem);
@@ -20396,38 +20113,16 @@ Polymer({
       save_me: function(){
         this.currentitem.pieces = JSON.stringify(this.currentblocks);
         if(this.debug) console.log("templates-detail :In the end pieces is : ", this.currentitem.pieces );
-        if(this.debug) console.log("templates-detail :isnew  : ", this.isnew );
-        if(this.isnew){
-          this.$.ajax_save_post.body = JSON.stringify(this.currentitem);
-          this.$.ajax_save_post.generateRequest();
-        }else{
-          this.$.ajax_save_put.body = JSON.stringify(this.currentitem);
-          this.$.ajax_save_put.generateRequest();
-        }
-      },
-      _handle_response_post:function(response){
-        window.location = '#!/templates';
-        window.location.reload();
+        this.$.rest_detail.save(JSON.stringify(this.currentitem));
       },
 
-      _updateInputs: function(current_active, current_id, current_serverurl, current_template_server){
-        this.isnew = Boolean(this.elementid === "new");;
+      _updateInputs: function(current_active, current_id, current_serverurl){
+        if(this.debug) console.log("Updated inputs : ", this.active, this.currentitem, this.serverurl );
         if(this.active){
-          this.getURL = current_serverurl + '/' + String(this.elementid) + '/';
-          this.postURL = current_serverurl + '/';
-          this.putURL = current_serverurl + '/' + String(this.elementid) ;
+          if(this.debug) console.log("Getting pieces from : ", this.blocksserverurl );
           this.$.ajax_get_blocks.generateRequest();
-          if ( !this.isnew ) {
-            this.$.ajax_get_template.generateRequest();
-          }
-          if(this.debug) console.log('Inputs updated : getURL :', this.getURL, ' - saveURL :', this.saveURL );
         }
-
-        if(!this.active || this.isnew){
-          this.currentitem = {"name":"","description":"", "language":"en", "tags":"", "pieces":"[]" };
-          this.elementid = "new";
-        }
-      },
+      }
     });
   })();
 (function () {
@@ -20620,20 +20315,13 @@ Polymer({
       is: 'covers-detail',
       properties: {
         debug: { type: Boolean, value: false },
-        edit_disabled: { type: Boolean, value: true },
         elementid: String,
-        templateid: String,
-        getURL: { type: String, value: ""},
-        pushmethod: { type: String, value: ""},
-        pushURL: { type: String, value: ""},
-        serverurl: { type: String, value: ""},
-        templategetURL: { type: String, value: ""},
-        templateserverurl: { type: String, value: ""},
-        currentlegend: { type: Array, value: []},
-        currentcontent: { type: String, value: ""},
-        currentitem: { type: Object, value: {"content":"", "name":""} },
-        originalcontent: { type: String, value: ""},
         active: Boolean,
+        serverurl: String,
+        templateid: String,
+        templateserverurl: { type: String, value: ""},
+        currentitem: { type: Object, observer:'_updatedCurrentItem' },
+        defaultitem: { type: Object, value: {"content":"", "name":""} }
       },
 
       observers:['_updateAjaxParameters(active, elementid, templateid, serverurl, templateserverurl)',
@@ -20641,28 +20329,54 @@ Polymer({
 
       ready: function(){
         this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
+        this.originalcontent = "";
+        this.currentcontent = "";
+        this.edit_disabled = "";
+        this.currentlegend = [];
+      },
+
+      _updateAjaxParameters: function(current_active, current_id, current_template_id,  current_serverurl, current_template_server){
+        if(this.debug) console.log('>>>>Updated inputs. active : ', this.active, ' - elementid : ', this.elementid, ' - templateid : ', this.templateid, ' - serverurl : ', this.serverurl, ' - templateserverurl : ', this.templateserverurl );
+        var isFromEmpty = Boolean(this.templateid === "empty");
+
+        if ( this.active ){
+          if ( isFromEmpty ) {
+            this.reset();
+          }else{
+            if(this.debug) console.log('>>>> Triggering template GET');
+            this.edit_disabled = true;
+            this.$.ajax_get_template.url = this.templateserverurl + '/' + String(this.templateid) + '/' ;
+            this.$.ajax_get_template.generateRequest();
+          }
+        }else{
+          this.reset();
+        }
+      },
+
+      reset: function(){
+        // Resetting
+        if(this.debug) console.log('>>>> Resetting content ');
+        this.edit_disabled = false;
+        this.set('originalcontent', "");
+        this.set('currentcontent', "");
+        this.set('currentlegend', []);
       },
 
       save_me: function(){
         this.currentitem.content = this.currentcontent;
         if(this.debug) console.log("In the end pieces is : ", this.currentitem );
-        this.$.my_iron_save.body = JSON.stringify(this.currentitem);
-        this.$.my_iron_save.generateRequest();
+        this.$.rest_detail.save(JSON.stringify(this.currentitem));
       },
 
-      _handle_response_get: function(response){
-        if ( typeof this.elementid != 'undefined' && this.elementid != 'new' && typeof response.detail.response != 'undefined'){
-          if(this.debug) console.log('Received response from GET: ', response.detail.response);
-          this.currentitem = response.detail.response;
-          this.currentcontent = response.detail.response.content;
-          this.originalcontent = this.currentcontent;
-        }
+      _updatedCurrentItem: function(new_val, old_val){
+        if(this.debug) console.log('Updated currenttitem : ', this.currentcontent);
+        this.currentcontent = this.currentitem.content;
+        this.originalcontent = this.currentcontent;
       },
 
       _handle_response_get_template: function(response){
-        if ( typeof response.detail.response != 'undefined' && this.templategetURL !== '' ){
-          if(this.debug) console.log('Received response from GET template : ', response.detail.response);
-
+        if ( typeof response.detail.response != 'undefined' && this.templateid !== 'empty' ){
+          if(this.debug) console.log('>>> Received response from GET template : ', typeof response.detail.response);
           var newCurrentContent = "";
           this.currentlegend = [];
 
@@ -20681,7 +20395,6 @@ Polymer({
               currentLegendItem.key = newSymbol;
               symbolsToAssign.shift();
               this.push('currentlegend', currentLegendItem);
-
             }
             newCurrentContent = newCurrentContent.concat(currentPiece.content).concat("\n");
             this.originalcontent = newCurrentContent;
@@ -20690,22 +20403,14 @@ Polymer({
         }
       },
 
-      _handle_response_post:function(response){
-        if(this.debug) console.log('Received response from POST: ', response.detail.response);
-        window.location = '#!/covers';
-        window.location.reload();
-      },
-
-
       fill_me: function(){
         this.edit_disabled = false;
       },
 
-
       _on_legend_change: function(new_value){
         var j, len;
         var currentOriginalContent = this.originalcontent;
-        if(this.debug) console.log('Changed something in the legend.: new value is ', new_value, ' current legend is ', this.currentlegend );
+        if(this.debug) console.log('Changed something in the legend. Legend : ', this.currentlegend, ' - current content : ', this.currentcontent, ' - original content : ', this.originalcontent );
         for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
           var currentObject = this.currentlegend[j];
           var currentObjectKey = currentObject.key;
@@ -20717,17 +20422,63 @@ Polymer({
           }
         }
         this.currentcontent = currentOriginalContent;
+        if(this.debug) console.log('>>>> current content is set to ', this.currentcontent );
+      }
+    });
+  })();
+(function () {
+    Polymer({
+
+      is: 'cork-rest-array',
+      properties: {
+        debug: { type: Boolean, value: false },
+        active: Boolean,
+        serverurl: {type: String, value: ""},
+        routeauth: {type: String, value: ""},
+        onlineitems: {
+          type: Array,
+          notify: true
+        }
       },
 
+      observers:['_inputsUpdated(active, serverurl, routeauth)'],
 
-      _updateAjaxParameters: function(current_id, current_template_id,  current_serverurl, current_template_server){
-        if ( this.active ){
-          var isNew = Boolean(this.elementid === "new");;
-          this.getURL = ( isNew ) ? '' : this.serverurl + '/' + String(this.elementid) + '/';
-          this.pushmethod = ( isNew ) ? "POST" : "PUT";
-          this.pushURL = ( isNew ) ? this.serverurl : this.serverurl + '/' + String(this.elementid) ;
-          this.templategetURL = ( this.templateserverurl === "empty") ? '' : this.templateserverurl + '/' + String(this.templateid) + '/';
-          if(this.debug) console.log('Computed - getURL :', this.getURL, ' - pushmethod :', this.pushmethod, ' - pushURL :', this.pushURL , 'templategetURL : ', this.templategetURL );
+      _inputsUpdated(current_active, current_serverurl, current_routeauth){
+        if(this.debug) console.log("Inputs updated. Active : ", this.active, " Server url: ", this.serverurl, " Route auth: ", this.routeauth );
+        if(this.active){
+          if(this.debug) console.log("Refreshing inputs. ");
+          this.$.get_ajax.generateRequest();
+        }
+      },
+
+      deleteItem: function(itemId) {
+        if(this.debug) console.log("Deleting item ", itemId);
+        this.deleteurl = this.serverurl + "/" + itemId;
+        this.$.delete_ajax.generateRequest();
+      },
+
+      handleResponseOkRefresh:function(response){
+        if(this.debug) console.log("Delete done. Refreshing");
+        this.$.get_ajax.generateRequest();
+      },
+
+      handleResponseGet:function(response){
+        if(this.debug) console.log('GET response. Status is', response.detail.status);
+        if( response.detail.status == 403 ){
+          if(this.debug) console.log('Not logged in. Routing to route : ', this.routeauth);
+          MoreRouting.navigateTo(this.routeauth, {});
+        }else{
+          var ciao = response.detail.response;
+          this.set('onlineitems', response.detail.response);
+          if(this.debug) console.log('Setting onlineitems to : ', this.onlineitems);
+        }
+      },
+
+      handleResponseError:function(response){
+        if(this.debug) console.log('Error is', response.detail.error.message);
+        if( response.detail.error.message.indexOf("401") >-1 ){
+          if(this.debug) console.log('Not logged in. Routing to login.');
+          MoreRouting.navigateTo('login', {});
         }
       }
 
@@ -20749,6 +20500,66 @@ Polymer({
 
       _openURL(itemId) {
         return MoreRouting.urlFor('coverdetail', {coverId: 'new', coverTemplateId: itemId});
+      }
+
+    });
+  })();
+(function () {
+    Polymer({
+
+      is: 'cork-badges',
+      properties: {
+        badges:{
+          type:String,
+          observer:'onBadgesStringChanged'
+        }
+      },
+
+      onBadgesStringChanged : function(newValue, oldValue){
+        var splitted = newValue.split(",");
+
+        // Removing empty tag
+        var position = splitted.indexOf("");
+        if( position > -1 ){
+          splitted.splice(position, 1);
+        }
+
+        this.badgesList = splitted;
+      }
+
+    });
+  })();
+(function () {
+    Polymer({
+
+      is: 'cork-select-badges',
+      properties: {
+        badges:{
+          type:Array,
+        },
+        selectedones:{
+          type:Array,
+          notify: true,
+          value:[]
+        }
+      },
+
+      ready : function(){
+        this.currentitems = [];
+      },
+
+      _beentoggled:function(e){
+        var cssClasses = e.target.classList;
+        var toggledElement = e.model.item;
+        var position = this.selectedones.indexOf(toggledElement);
+
+        if( position == -1 ){
+          this.push( 'selectedones', toggledElement );
+          cssClasses.add('boldy');
+        }else{
+          this.splice( 'selectedones', position, 1);
+          cssClasses.remove('boldy');
+        }
       }
 
     });
@@ -20793,95 +20604,34 @@ Polymer({
 
       observers:[],
 
-      /**
-       * Navigates to the root URL, in response to a tap on the home "link".
-       */
-      _onTapHome: function(event) {
-        // If you wish to navigate imperatively, `MoreRouting.navigateTo` is the
-        // way to go:
-        MoreRouting.navigateTo('root');
-        event.preventDefault();
-      },
-
       _onMenuSelect : function() {
         var drawerPanel = document.querySelector('#paperDrawerPanel');
         if (drawerPanel.narrow) {
           drawerPanel.closeDrawer();
         }
+      },
+
+      _on_401 : function(){
+        console.log("Arrived unauthenticated event");
+        MoreRouting.navigateTo('login');
+      },
+
+      _on_403 : function(){
+        console.log("Arrived servererror event");
+      },
+
+      _on_saveok : function(){
+        console.log("Saving item went ok !");
+        document.querySelector('#save-success').show();
+        if(MoreRouting.isCurrentUrl('appdetail')){ MoreRouting.navigateTo('apps'); }
+        if(MoreRouting.isCurrentUrl('blockdetail')){ MoreRouting.navigateTo('blocks'); }
+        if(MoreRouting.isCurrentUrl('templatedetail')){ MoreRouting.navigateTo('templates'); }
+        if(MoreRouting.isCurrentUrl('coverdetail')){ MoreRouting.navigateTo('covers'); }
+      },
+
+      _on_saveerror : function(){
+        console.log("Saving item went .. bad.");
+        document.querySelector('#save-error').show();
       }
 
     });
-/*
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-*/
-
-(function(document) {
-  'use strict';
-
-  // Grab a reference to our auto-binding template
-  // and give it some initial binding values
-  // Learn more about auto-binding templates at http://goo.gl/Dx1u2g
-  var app = document.querySelector('#app');
-
-  app.displayInstalledToast = function() {
-    // Check to make sure caching is actually enabled—it won't be in the dev environment.
-    if (!document.querySelector('platinum-sw-cache').disabled) {
-      document.querySelector('#caching-complete').show();
-    }
-  };
-
-  // Listen for template bound event to know when bindings
-  // have resolved and content has been stamped to the page
-  app.addEventListener('dom-change', function() {
-    console.log('Our app is ready to rock!');
-  });
-
-  // See https://github.com/Polymer/polymer/issues/1381
-  window.addEventListener('WebComponentsReady', function() {
-    // imports are loaded and elements have been registered
-  });
-
-  // Main area's paper-scroll-header-panel custom condensing transformation of
-  // the appName in the middle-container and the bottom title in the bottom-container.
-  // The appName is moved to top and shrunk on condensing. The bottom sub title
-  // is shrunk to nothing on condensing.
-  addEventListener('paper-header-transform', function(e) {
-    var appName = document.querySelector('#mainToolbar .app-name');
-    var middleContainer = document.querySelector('#mainToolbar .middle-container');
-    var bottomContainer = document.querySelector('#mainToolbar .bottom-container');
-    var detail = e.detail;
-    var heightDiff = detail.height - detail.condensedHeight;
-    var yRatio = Math.min(1, detail.y / heightDiff);
-    var maxMiddleScale = 0.50;  // appName max size when condensed. The smaller the number the smaller the condensed size.
-    var scaleMiddle = Math.max(maxMiddleScale, (heightDiff - detail.y) / (heightDiff / (1-maxMiddleScale))  + maxMiddleScale);
-    var scaleBottom = 1 - yRatio;
-
-    // Move/translate middleContainer
-    Polymer.Base.transform('translate3d(0,' + yRatio * 100 + '%,0)', middleContainer);
-
-    // Scale bottomContainer and bottom sub title to nothing and back
-    Polymer.Base.transform('scale(' + scaleBottom + ') translateZ(0)', bottomContainer);
-
-    // Scale middleContainer appName
-    Polymer.Base.transform('scale(' + scaleMiddle + ') translateZ(0)', appName);
-  });
-
-  // Close drawer after menu item is selected if drawerPanel is narrow
-  app.onDataRouteClick = function() {
-    var drawerPanel = document.querySelector('#paperDrawerPanel');
-    if (drawerPanel.narrow) {
-      drawerPanel.closeDrawer();
-    }
-  };
-
-  // Scroll page to top and expand header
-  app.scrollPageToTop = function() {
-    document.getElementById('mainContainer').scrollTop = 0;
-  };
-
-})(document);
