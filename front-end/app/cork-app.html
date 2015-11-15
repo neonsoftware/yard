@@ -36,7 +36,8 @@
 
     <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}
                                           on-unauthenticated="_on_401" on-servererror="_on_403"
-                                          on-saveok="_on_saveok" on-saveerror="_on_saveerror">
+                                          on-saveok="_on_saveok" on-saveerror="_on_saveerror"
+                                          on-authsuccess="_on_authsuccess" on-authfailure="_on_authfailure">
       <iron-pages>
         <section route="root">
           <more-route context name="root" active="{{rt_active}}"></more-route>
@@ -98,6 +99,8 @@
 
     <paper-toast id="save-success" duration="6000" text="Saving successful"> </paper-toast>
     <paper-toast id="save-failure" duration="6000" text="Could not save"> </paper-toast>
+    <paper-toast id="auth-success" duration="6000" text="Logged in."> </paper-toast>
+    <paper-toast id="auth-failure" duration="6000" text="Login Failed."> </paper-toast>
 
   </template>
 
@@ -140,6 +143,16 @@
       _on_saveerror : function(){
         console.log("Saving item went .. bad.");
         document.querySelector('#save-error').show();
+      },
+
+      _on_authsuccess : function(){
+        console.log("Saving item went .. bad.");
+        document.querySelector('#auth-success').show();
+      },
+
+      _on_authfailure : function(){
+        console.log("Saving item went .. bad.");
+        document.querySelector('#auth-failure').show();
       }
 
     });
