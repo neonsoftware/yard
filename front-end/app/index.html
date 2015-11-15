@@ -16,7 +16,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-
   <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
 
   <link rel="import" href="bower_components/polymer/polymer.html">
@@ -31,6 +30,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <link rel="import" href="routes.html">
   <link rel="import" href="cork-app.html">
+
+  <script>
+
+  (function(document) {
+    'use strict';
+
+    // See https://github.com/Polymer/polymer/issues/1381
+    window.addEventListener('WebComponentsReady', function() {
+      // imports are loaded and elements have been registered
+
+    });
+
+    addEventListener('iron-select', function(event) {
+        var tabs = document.querySelector('#my-tabs');
+        console.log("Sel is", tabs.selected);
+
+        switch(parseInt(tabs.selected)) {
+            case 0:
+                MoreRouting.navigateTo('root');
+                break;
+            case 1:
+                MoreRouting.navigateTo('apps');
+                break;
+            case 2:
+                MoreRouting.navigateTo('blocks');
+                break;
+            case 3:
+                MoreRouting.navigateTo('templates');
+                break;
+            case 4:
+                MoreRouting.navigateTo('covers');
+                break;
+        }
+    });
+
+  })(document);
+
+  </script>
 
   <style is="custom-style">
 
@@ -62,9 +99,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
   <paper-scroll-header-panel fixed>
     <paper-toolbar>
-      <paper-tabs selected="0" >
+      <paper-tabs id="my-tabs" selected="0">
         <paper-tab> <iron-icon icon="home"></iron-icon> </paper-tab>
-        <paper-tab> <iron-icon icon="icons:track-changes"></iron-icon> </paper-tab>
+        <paper-tab> <iron-icon icon="icons:dns"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:view-module"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:view-day"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:subject"></iron-icon> </paper-tab>
