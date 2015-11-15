@@ -14450,6 +14450,48 @@ Example:
 @extends iron-selector
 -->
 
+<!--
+`iron-a11y-announcer` is a singleton element that is intended to add a11y
+to features that require on-demand announcement from screen readers. In
+order to make use of the announcer, it is best to request its availability
+in the announcing element.
+
+Example:
+
+    Polymer({
+
+      is: 'x-chatty',
+
+      attached: function() {
+        // This will create the singlton element if it has not
+        // been created yet:
+        Polymer.IronA11yAnnouncer.requestAvailability();
+      }
+    });
+
+After the `iron-a11y-announcer` has been made available, elements can
+make announces by firing bubbling `iron-announce` events.
+
+Example:
+
+    this.fire('iron-announce', {
+      text: 'This is an announcement!'
+    }, { bubbles: true });
+
+Note: announcements are only audible if you have a screen reader enabled.
+
+@group Iron Elements
+@demo demo/index.html
+-->
+
+<!--
+`paper-toast` provides a subtle notification toast.
+
+@group Paper Elements
+@element paper-toast
+@demo demo/index.html
+@hero hero.svg
+-->
 <script>function MakePromise (asap) {
   function Promise(fn) {
 		if (typeof this !== 'object' || typeof fn !== 'function') throw new TypeError();
@@ -21569,6 +21611,227 @@ more clear.
     }
   });
 
+</script>
+<dom-module id="iron-a11y-announcer" assetpath="bower_components/iron-a11y-announcer/">
+  <style>
+    :host {
+      display: inline-block;
+      position: fixed;
+      clip: rect(0px,0px,0px,0px);
+    }
+  </style>
+
+  <template>
+    <div aria-live$="[[mode]]">[[_text]]</div>
+  </template>
+
+  <script>
+
+    (function() {
+      'use strict';
+
+      Polymer.IronA11yAnnouncer = Polymer({
+        is: 'iron-a11y-announcer',
+
+        properties: {
+
+          /**
+           * The value of mode is used to set the `aria-live` attribute
+           * for the element that will be announced. Valid values are: `off`,
+           * `polite` and `assertive`.
+           */
+          mode: {
+            type: String,
+            value: 'polite'
+          },
+
+          _text: {
+            type: String,
+            value: ''
+          }
+        },
+
+        created: function() {
+          if (!Polymer.IronA11yAnnouncer.instance) {
+            Polymer.IronA11yAnnouncer.instance = this;
+          }
+
+          document.body.addEventListener('iron-announce', this._onIronAnnounce.bind(this));
+        },
+
+        /**
+         * Cause a text string to be announced by screen readers.
+         *
+         * @param {string} text The text that should be announced.
+         */
+        announce: function(text) {
+          this._text = '';
+          this.async(function() {
+            this._text = text;
+          }, 100);
+        },
+
+        _onIronAnnounce: function(event) {
+          if (event.detail && event.detail.text) {
+            this.announce(event.detail.text);
+          }
+        }
+      });
+
+      Polymer.IronA11yAnnouncer.instance = null;
+
+      Polymer.IronA11yAnnouncer.requestAvailability = function() {
+        if (!Polymer.IronA11yAnnouncer.instance) {
+          Polymer.IronA11yAnnouncer.instance = document.createElement('iron-a11y-announcer');
+        }
+
+        document.body.appendChild(Polymer.IronA11yAnnouncer.instance);
+      };
+    })();
+
+  </script>
+</dom-module>
+<dom-module id="paper-toast" assetpath="bower_components/paper-toast/">
+  <style>
+    :host {
+      display: inline-block;
+      position: fixed;
+
+      background: #323232;
+      color: #f1f1f1;
+      min-height: 48px;
+      min-width: 288px;
+      padding: 16px 24px 12px;
+      box-sizing: border-box;
+      box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+      border-radius: 2px;
+      bottom: 12px;
+      left: 12px;
+      font-size: 14px;
+      cursor: default;
+
+      -webkit-transition: visibility 0.3s, -webkit-transform 0.3s;
+      transition: visibility 0.3s, transform 0.3s;
+
+      -webkit-transform: translateY(100px);
+      transform: translateY(100px);
+
+      visibility: hidden;
+    }
+
+    :host(.capsule) {
+      border-radius: 24px;
+    }
+
+    :host(.fit-bottom) {
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      min-width: 0;
+      border-radius: 0;
+    }
+
+    :host(.paper-toast-open){
+      visibility: visible;
+
+      -webkit-transform: translateY(0px);
+      transform: translateY(0px);
+    }
+  </style>
+  <template>
+    <span id="label">{{text}}</span>
+    <content></content>
+  </template>
+</dom-module>
+<script>
+(function() {
+
+  var PaperToast = Polymer({
+    is: 'paper-toast',
+
+    properties: {
+      /**
+       * The duration in milliseconds to show the toast.
+       */
+      duration: {
+        type: Number,
+        value: 3000
+      },
+
+      /**
+       * The text to display in the toast.
+       */
+      text: {
+        type: String,
+        value: ""
+      },
+
+      /**
+       * True if the toast is currently visible.
+       */
+      visible: {
+        type: Boolean,
+        readOnly: true,
+        value: false,
+        observer: '_visibleChanged'
+      }
+    },
+
+    created: function() {
+      Polymer.IronA11yAnnouncer.requestAvailability();
+    },
+
+    ready: function() {
+      this.async(function() {
+        this.hide();
+      });
+    },
+
+    /**
+     * Show the toast.
+     * @method show
+     */
+    show: function() {
+      if (PaperToast.currentToast) {
+        PaperToast.currentToast.hide();
+      }
+      PaperToast.currentToast = this;
+      this.removeAttribute('aria-hidden');
+      this._setVisible(true);
+      this.fire('iron-announce', {
+        text: this.text
+      });
+      this.debounce('hide', this.hide, this.duration);
+    },
+
+    /**
+     * Hide the toast
+     */
+    hide: function() {
+      this.setAttribute('aria-hidden', 'true');
+      this._setVisible(false);
+    },
+
+    /**
+     * Toggle the opened state of the toast.
+     * @method toggle
+     */
+    toggle: function() {
+      if (!this.visible) {
+        this.show();
+      } else {
+        this.hide();
+      }
+    },
+
+    _visibleChanged: function(visible) {
+      this.toggleClass('paper-toast-open', visible);
+    }
+  });
+
+  PaperToast.currentToast = null;
+
+})();
 </script>
 <dom-module id="apps-home" assetpath="bower_components/cork/">
 

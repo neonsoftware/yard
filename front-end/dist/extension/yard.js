@@ -17865,6 +17865,155 @@ Polymer({
       this.async(this.notifyResize);
     }
   });
+(function() {
+      'use strict';
+
+      Polymer.IronA11yAnnouncer = Polymer({
+        is: 'iron-a11y-announcer',
+
+        properties: {
+
+          /**
+           * The value of mode is used to set the `aria-live` attribute
+           * for the element that will be announced. Valid values are: `off`,
+           * `polite` and `assertive`.
+           */
+          mode: {
+            type: String,
+            value: 'polite'
+          },
+
+          _text: {
+            type: String,
+            value: ''
+          }
+        },
+
+        created: function() {
+          if (!Polymer.IronA11yAnnouncer.instance) {
+            Polymer.IronA11yAnnouncer.instance = this;
+          }
+
+          document.body.addEventListener('iron-announce', this._onIronAnnounce.bind(this));
+        },
+
+        /**
+         * Cause a text string to be announced by screen readers.
+         *
+         * @param {string} text The text that should be announced.
+         */
+        announce: function(text) {
+          this._text = '';
+          this.async(function() {
+            this._text = text;
+          }, 100);
+        },
+
+        _onIronAnnounce: function(event) {
+          if (event.detail && event.detail.text) {
+            this.announce(event.detail.text);
+          }
+        }
+      });
+
+      Polymer.IronA11yAnnouncer.instance = null;
+
+      Polymer.IronA11yAnnouncer.requestAvailability = function() {
+        if (!Polymer.IronA11yAnnouncer.instance) {
+          Polymer.IronA11yAnnouncer.instance = document.createElement('iron-a11y-announcer');
+        }
+
+        document.body.appendChild(Polymer.IronA11yAnnouncer.instance);
+      };
+    })();
+(function() {
+
+  var PaperToast = Polymer({
+    is: 'paper-toast',
+
+    properties: {
+      /**
+       * The duration in milliseconds to show the toast.
+       */
+      duration: {
+        type: Number,
+        value: 3000
+      },
+
+      /**
+       * The text to display in the toast.
+       */
+      text: {
+        type: String,
+        value: ""
+      },
+
+      /**
+       * True if the toast is currently visible.
+       */
+      visible: {
+        type: Boolean,
+        readOnly: true,
+        value: false,
+        observer: '_visibleChanged'
+      }
+    },
+
+    created: function() {
+      Polymer.IronA11yAnnouncer.requestAvailability();
+    },
+
+    ready: function() {
+      this.async(function() {
+        this.hide();
+      });
+    },
+
+    /**
+     * Show the toast.
+     * @method show
+     */
+    show: function() {
+      if (PaperToast.currentToast) {
+        PaperToast.currentToast.hide();
+      }
+      PaperToast.currentToast = this;
+      this.removeAttribute('aria-hidden');
+      this._setVisible(true);
+      this.fire('iron-announce', {
+        text: this.text
+      });
+      this.debounce('hide', this.hide, this.duration);
+    },
+
+    /**
+     * Hide the toast
+     */
+    hide: function() {
+      this.setAttribute('aria-hidden', 'true');
+      this._setVisible(false);
+    },
+
+    /**
+     * Toggle the opened state of the toast.
+     * @method toggle
+     */
+    toggle: function() {
+      if (!this.visible) {
+        this.show();
+      } else {
+        this.hide();
+      }
+    },
+
+    _visibleChanged: function(visible) {
+      this.toggleClass('paper-toast-open', visible);
+    }
+  });
+
+  PaperToast.currentToast = null;
+
+})();
 (function () {
     Polymer({
 
