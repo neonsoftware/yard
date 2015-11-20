@@ -1976,36 +1976,7 @@ Custom property | Description | Default
 @demo demo/index.html
 -->
 
-<style>
-/**
-@license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
-
-*/
-body {
-  font-family: 'Roboto', 'Noto', sans-serif;
-  font-size: 14px;
-  margin: 0;
-  padding: 24px;
-}
-
-section {
-  padding: 20px 0;
-}
-
-section > div {
-  padding: 14px;
-  font-size: 16px;
-}
-
-</style>
-
-  <!-- TODO(nevir): import on demand? -->
+<!-- TODO(nevir): import on demand? -->
 <!--
 TODO(nevir): Document.
 -->
@@ -2013,11 +1984,6 @@ TODO(nevir): Document.
 TODO(nevir): Document.
 
 TODO(nevir): Support child addition/removal/reorder.
--->
-<!--
-The first thing any document using more-routing must do is configure the driver.
-
-more-routing supports path (`/foo/bar`) and hash (`#!/foo/bar`) style routes.
 -->
 <!--
 `iron-pages` is used to select one of its children to show. One use is to cycle through a list of
@@ -2133,6 +2099,66 @@ Example:
 
 @group Paper Elements
 @class paper-material
+@demo demo/index.html
+-->
+
+<!--
+Material design: [Buttons](https://www.google.com/design/spec/components/buttons.html)
+
+`paper-button` is a button. When the user touches the button, a ripple effect emanates
+from the point of contact. It may be flat or raised. A raised button is styled with a
+shadow.
+
+Example:
+
+    <paper-button>Flat button</paper-button>
+    <paper-button raised>Raised button</paper-button>
+    <paper-button noink>No ripple effect</paper-button>
+    <paper-button toggles>Toggle-able button</paper-button>
+
+A button that has `toggles` true will remain `active` after being clicked (and
+will have an `active` attribute set). For more information, see the `Polymer.IronButtonState`
+behavior.
+
+You may use custom DOM in the button body to create a variety of buttons. For example, to
+create a button with an icon and some text:
+
+    <paper-button>
+      <iron-icon icon="favorite"></iron-icon>
+      custom button content
+    </paper-button>
+
+### Styling
+
+Style the button with CSS as you would a normal DOM element.
+
+    paper-button.fancy {
+      background: green;
+      color: yellow;
+    }
+
+    paper-button.fancy:hover {
+      background: lime;
+    }
+
+    paper-button[disabled],
+    paper-button[toggles][active] {
+      background: red;
+    }
+
+By default, the ripple is the same color as the foreground at 25% opacity. You may
+customize the color using the `--paper-button-ink-color` custom property.
+
+The following custom properties and mixins are also available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--paper-button-ink-color` | Background color of the ripple | `Based on the button's color`
+`--paper-button` | Mixin applied to the button | `{}`
+`--paper-button-disabled` | Mixin applied to the disabled button. Note that you can also use the `paper-button[disabled]` selector | `{}`
+`--paper-button-flat-keyboard-focus` | Mixin applied to a flat button after it's been focused using the keyboard | `{}`
+`--paper-button-raised-keyboard-focus` | Mixin applied to a raised button after it's been focused using the keyboard | `{}`
+
 @demo demo/index.html
 -->
 
@@ -2599,39 +2625,7 @@ respectively.
 
 <!-- Paper elements -->
 <!-- Paper elements -->
-<style is="custom-style">
-
-    html, body {
-      height: 600px;
-      width: 600px;
-      margin: 0;
-    }
-
-
-    paper-scroll-header-panel {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-
-    paper-toolbar {
-      background-color: var(--google-blue-500, #4285f4);
-    }
-
-    paper-toolbar .title {
-      margin: 0 8px;
-    }
-
-    paper-scroll-header-panel .content {
-      padding: 8px;
-    }
-
-  </style>
-
-</head>
-<body unresolved=""><div hidden="" by-vulcanize=""><dom-module id="paper-scroll-header-panel" assetpath="bower_components/paper-scroll-header-panel/">
+</head><body><div hidden="" by-vulcanize=""><dom-module id="paper-scroll-header-panel" assetpath="bower_components/paper-scroll-header-panel/">
 
   <style>
     :host {
@@ -3497,30 +3491,6 @@ respectively.
     <content></content>
   </template>
 </dom-module>
-<more-routing-config driver="hash"></more-routing-config>
-<!--
-You can name routes.
-
-It is strongly recommended that you declare all your named routes in an import
-such as this, as it acts as a reference for your application, and makes nesting
-more clear.
--->
-<more-route name="root" path="/home"></more-route>
-<more-route name="login" path="/login"></more-route>
-<more-route name="register" path="/register"></more-route>
-
-<more-route name="apps" path="/apps"></more-route>
-<more-route name="appdetail" path="/app/:appId"></more-route>
-
-<more-route name="blocks" path="/blocks"></more-route>
-<more-route name="blockdetail" path="/block/:blockId"></more-route>
-
-<more-route name="templates" path="/templates"></more-route>
-<more-route name="templatedetail" path="/template/:templateId"></more-route>
-
-<more-route name="covers" path="/covers"></more-route>
-<more-route name="coverselect" path="/cover/select"></more-route>
-<more-route name="coverdetail" path="/cover/:coverId/:coverTemplateId"></more-route>
 <dom-module id="iron-pages" assetpath="bower_components/iron-pages/">
 
   <style>
@@ -3751,6 +3721,64 @@ more clear.
     <content></content>
   </template>
 </dom-module>
+<dom-module id="paper-button" assetpath="bower_components/paper-button/">
+  <template strip-whitespace="">
+
+    <style include="paper-material">
+      :host {
+        display: inline-block;
+        position: relative;
+        box-sizing: border-box;
+        min-width: 5.14em;
+        margin: 0 0.29em;
+        background: transparent;
+        text-align: center;
+        font: inherit;
+        text-transform: uppercase;
+        outline-width: 0;
+        border-radius: 3px;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-select: none;
+        user-select: none;
+        cursor: pointer;
+        z-index: 0;
+        padding: 0.7em 0.57em;
+
+        @apply(--paper-button);
+      }
+
+      :host([raised].keyboard-focus) {
+        font-weight: bold;
+        @apply(--paper-button-raised-keyboard-focus);
+      }
+
+      :host(:not([raised]).keyboard-focus) {
+        font-weight: bold;
+        @apply(--paper-button-flat-keyboard-focus);
+      }
+
+      :host([disabled]) {
+        background: #eaeaea;
+        color: #a8a8a8;
+        cursor: auto;
+        pointer-events: none;
+
+        @apply(--paper-button-disabled);
+      }
+
+      paper-ripple {
+        color: var(--paper-button-ink-color);
+      }
+
+      :host > ::content * {
+        text-transform: inherit;
+      }
+    </style>
+    <content></content>
+  </template>
+</dom-module>
+
 <dom-module id="paper-checkbox" assetpath="bower_components/paper-checkbox/">
   <template strip-whitespace="">
     <style>
@@ -3996,14 +4024,26 @@ more clear.
         padding: 16px;
         @apply(--layout-vertical --layout-center-center);
       }
+
+      paper-button {
+        display: block;
+        margin-bottom: 24px;
+      }
+
+      paper-button.colorful {
+        color: #4285f4;
+      }
+
+      paper-button[raised].colorful {
+        background: #4285f4;
+        color: #fff;
+      }
     </style>
 
     <rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" onlineitems="{{onlineitems}}"></rest-array>
 
     <template is="dom-repeat" items="{{activeItems}}">
-      <div centerbutton="">
-        Active
-      </div>
+
       <paper-material card="" levation="1">
       <div class="layout horizontal center">
         <div class="flex">
@@ -4024,24 +4064,24 @@ more clear.
     					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
     					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
               <br>
-              <paper-checkbox checked="{{item.written}}" on-click="triggerWritten" toggles="false"></paper-checkbox>
-              <paper-checkbox checked="{{item.called}}" on-click="triggerCalled" toggles="false"></paper-checkbox>
-              <paper-checkbox checked="{{item.interviewed}}" on-click="triggerInterviewed" toggles="false"></paper-checkbox>
-              <paper-checkbox checked="{{item.followup}}" on-click="triggerFollowup" toggles="false"></paper-checkbox>
+              <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles="false"></paper-checkbox>
+              <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles="false"></paper-checkbox>
+              <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles="false"></paper-checkbox>
+              <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles="false"></paper-checkbox>
             </div>
           </div>
         </div>
         <div class="layout horizontal">
           <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
-          <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="_deleteElement"></paper-fab></div>
+          <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
         </div>
       </div>
       </paper-material>
     </template>
 
     <template is="dom-if" if="{{areInactiveVisible}}">
-      <div centerbutton="">
-        <paper-button tabindex="0" class="colorful" on-click="_hideInactive">Hide Inactive</paper-button>
+      <div class="layout vertical center">
+        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_hideInactive">Hide Inactive</paper-button> </div>
       </div>
 
       <template is="dom-repeat" items="{{inactiveItems}}">
@@ -4065,16 +4105,16 @@ more clear.
       					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
       					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
                 <br>
-                <paper-checkbox checked="{{item.written}}" on-click="triggerWritten" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.called}}" on-click="triggerCalled" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.interviewed}}" on-click="triggerInterviewed" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.followup}}" on-click="triggerFollowup" toggles="false"></paper-checkbox>
+                <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles="false"></paper-checkbox>
+                <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles="false"></paper-checkbox>
+                <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles="false"></paper-checkbox>
+                <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles="false"></paper-checkbox>
               </div>
             </div>
           </div>
           <div class="layout horizontal">
             <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
-            <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="_deleteElement"></paper-fab></div>
+            <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
           </div>
         </div>
         </paper-material>
@@ -4083,8 +4123,8 @@ more clear.
     </template>
 
     <template is="dom-if" if="{{!areInactiveVisible}}">
-      <div centerbutton="">
-        <paper-button tabindex="0" class="colorful" on-click="_showInactive">Show Inactive</paper-button>
+      <div class="layout vertical center">
+        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_showInactive">show inactive</paper-button> </div>
       </div>
     </template>
 
@@ -4472,7 +4512,7 @@ more clear.
       <div class="layout horizontal center">
         <div style="margin:3px"><a href="{{newurl}}"> <paper-fab icon="add"></paper-fab></a></div>
         <div style="margin:3px"><paper-fab icon="close"></paper-fab></div>
-        <div style="margin:3px"><paper-fab icon="save" on-click="save_me"></paper-fab></div>
+        <div style="margin:3px"><paper-fab icon="save" on-tap="save_me"></paper-fab></div>
       </div>
     </div>
 
@@ -4667,7 +4707,7 @@ more clear.
       }
     </style>
     <template is="dom-repeat" items="{{currentitems}}">
-      <div class="badge-box" on-click="_beentoggled">{{item}}</div>
+      <div class="badge-box" on-tap="_beentoggled">{{item}}</div>
     </template>
   </template>
 
@@ -5033,7 +5073,7 @@ more clear.
           </div>
           <div class="layout horizontal">
             <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
-            <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-click="_deleteElement"></paper-fab></div>
+            <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
           </div>
         </div>
       </paper-material>
@@ -5078,7 +5118,7 @@ more clear.
         </div>
         <div style="margin:3px">
           <template is="dom-if" if="{{edit_disabled}}">
-              <paper-fab icon="create" style="width: 18px; height: 18px;" on-click="fill_me"></paper-fab>
+              <paper-fab icon="create" style="width: 18px; height: 18px;" on-tap="fill_me"></paper-fab>
           </template>
         </div>
       </div>
@@ -5247,7 +5287,7 @@ more clear.
         <paper-input name="password" label="password" required=""></paper-input>
 
         <div centerbutton="">
-          <paper-fab icon="input" on-click="_clickHandler"></paper-fab>
+          <paper-fab icon="input" on-tap="_clickHandler"></paper-fab>
         </div>
       </form>
 
@@ -5271,7 +5311,7 @@ more clear.
 
   <template>
 
-    <more-route-selector id="my_selector" selected-route="{{selRoute}}" selected-params="{{selParams}}" on-unauthenticated="_on_401" on-servererror="_on_403" on-saveok="_on_saveok" on-saveerror="_on_saveerror">
+    <more-route-selector id="my_selector" selected-route="{{selRoute}}" selected-params="{{selParams}}" on-unauthenticated="_on_401" on-servererror="_on_403" on-saveok="_on_saveok" on-saveerror="_on_saveerror" on-authsuccess="_on_authsuccess" on-authfailure="_on_authfailure">
       <iron-pages>
         <section route="root">
           <more-route context="" name="root" active="{{rt_active}}"></more-route>
@@ -5333,15 +5373,67 @@ more clear.
 
     <paper-toast id="save-success" duration="6000" text="Saving successful"> </paper-toast>
     <paper-toast id="save-failure" duration="6000" text="Could not save"> </paper-toast>
+    <paper-toast id="auth-success" duration="6000" text="Logged in."> </paper-toast>
+    <paper-toast id="auth-failure" duration="6000" text="Login Failed."> </paper-toast>
 
   </template>
 
   </dom-module>
-</div>
+</div><more-routing-config driver="hash"></more-routing-config>
+  <more-route name="root" path="/home"></more-route>
+  <more-route name="login" path="/login"></more-route>
+  <more-route name="register" path="/register"></more-route>
+  <more-route name="apps" path="/apps"></more-route>
+  <more-route name="appdetail" path="/app/:appId"></more-route>
+  <more-route name="blocks" path="/blocks"></more-route>
+  <more-route name="blockdetail" path="/block/:blockId"></more-route>
+  <more-route name="templates" path="/templates"></more-route>
+  <more-route name="templatedetail" path="/template/:templateId"></more-route>
+  <more-route name="covers" path="/covers"></more-route>
+  <more-route name="coverselect" path="/cover/select"></more-route>
+  <more-route name="coverdetail" path="/cover/:coverId/:coverTemplateId"></more-route>
+
+
+  <style is="custom-style">
+
+    html, body {
+      height: 600px;
+      width: 600px;
+      margin: 0;
+    }
+
+    paper-tabs[noink][no-bar] paper-tab.iron-selected {
+            color: #ffff8d;
+          }
+
+    paper-scroll-header-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+
+    paper-toolbar {
+      background-color: var(--google-blue-500, #4285f4);
+    }
+
+    paper-toolbar .title {
+      margin: 0 8px;
+    }
+
+    paper-scroll-header-panel .content {
+      padding: 8px;
+    }
+
+  </style>
+
+
+
 
   <paper-scroll-header-panel fixed="">
     <paper-toolbar>
-      <paper-tabs id="my-tabs" selected="0">
+      <paper-tabs id="my-tabs" selected="0" noink="" no-bar="">
         <paper-tab> <iron-icon icon="home"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:dns"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:view-module"></iron-icon> </paper-tab>

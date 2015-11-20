@@ -16,9 +16,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
 
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-
-  <link rel="import" href="bower_components/polymer/polymer.html">
   <link rel="import" href="bower_components/paper-scroll-header-panel/paper-scroll-header-panel.html">
   <link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
   <link rel="import" href="bower_components/iron-icons/iron-icons.html">
@@ -26,10 +23,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <link rel="import" href="bower_components/paper-tabs/paper-tab.html">
   <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 
-  <link rel="stylesheet" href="bower_components/paper-styles/demo.css">
+  <link rel="import" href="bower_components/more-routing/more-routing.html">
+  <more-routing-config driver="hash"></more-routing-config>
+  <more-route name="root"  path="/home"></more-route>
+  <more-route name="login"  path="/login"></more-route>
+  <more-route name="register"  path="/register"></more-route>
+  <more-route name="apps" path="/apps"></more-route>
+  <more-route name="appdetail" path="/app/:appId"></more-route>
+  <more-route name="blocks" path="/blocks"></more-route>
+  <more-route name="blockdetail" path="/block/:blockId"></more-route>
+  <more-route name="templates" path="/templates"></more-route>
+  <more-route name="templatedetail" path="/template/:templateId"></more-route>
+  <more-route name="covers" path="/covers"></more-route>
+  <more-route name="coverselect" path="/cover/select"></more-route>
+  <more-route name="coverdetail" path="/cover/:coverId/:coverTemplateId"></more-route>
 
-  <link rel="import" href="routes.html">
-  <link rel="import" href="cork-app.html">
+
+  <link rel="import" href="cork-app.html" async>
 
   <script>
 
@@ -77,6 +87,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       margin: 0;
     }
 
+    paper-tabs[noink][no-bar] paper-tab.iron-selected {
+            color: #ffff8d;
+          }
 
     paper-scroll-header-panel {
       position: absolute;
@@ -101,11 +114,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
 
 </head>
-<body unresolved>
+<body>
 
   <paper-scroll-header-panel fixed>
     <paper-toolbar>
-      <paper-tabs id="my-tabs" selected="0">
+      <paper-tabs id="my-tabs" selected="0" noink no-bar>
         <paper-tab> <iron-icon icon="home"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:dns"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:view-module"></iron-icon> </paper-tab>
