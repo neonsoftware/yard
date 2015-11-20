@@ -1,0 +1,189 @@
+<link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+
+<!-- Paper elements -->
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/paper-material/paper-material.html">
+<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="bower_components/more-routing/more-route.html">
+<link rel="import" href="bower_components/rest-array/rest-array.html">
+
+<dom-module id="apps-list">
+
+  <template>
+
+    <style>
+      [card] {
+        margin: 16px;
+        padding: 16px;
+        @apply(--layout-vertical --layout-center-center);
+      }
+
+      paper-button {
+        display: block;
+        margin-bottom: 24px;
+      }
+
+      paper-button.colorful {
+        color: #4285f4;
+      }
+
+      paper-button[raised].colorful {
+        background: #4285f4;
+        color: #fff;
+      }
+    </style>
+
+    <rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" onlineitems="{{onlineitems}}" ></rest-array>
+
+    <template is="dom-repeat" items="{{activeItems}}">
+
+      <paper-material card levation="1">
+      <div class="layout horizontal center">
+        <div class="flex">
+          <div class="layout vertical">
+            <div class="flex">
+              <span style="font-size: 12px;">{{item.position}}</span><br>
+              <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;at</span>
+              <span style="font-size: 11px;">{{item.company}}</span>
+              <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
+              <span style="font-size: 9px; color: grey; ">{{item.portal}}</span>
+            </div>
+            <div>
+              <br>
+            </div>
+            <div>
+              <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon>
+    					<iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon>
+    					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
+    					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
+              <br>
+              <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles=false></paper-checkbox>
+              <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles=false></paper-checkbox>
+              <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles=false></paper-checkbox>
+              <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles=false></paper-checkbox>
+            </div>
+          </div>
+        </div>
+        <div class="layout horizontal">
+          <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
+          <div style="margin:3px"><paper-fab  icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
+        </div>
+      </div>
+      </paper-material>
+    </template>
+
+    <template is="dom-if" if="{{areInactiveVisible}}">
+      <div class="layout vertical center">
+        <div> <paper-button tabindex="0" active raised class="colorful" on-tap="_hideInactive">Hide Inactive</paper-button> </div>
+      </div>
+
+      <template is="dom-repeat" items="{{inactiveItems}}">
+        <paper-material card levation="1">
+        <div class="layout horizontal center">
+          <div class="flex">
+            <div class="layout vertical">
+              <div class="flex">
+                <span style="font-size: 12px;">{{item.position}}</span><br>
+                <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;at</span>
+                <span style="font-size: 11px;">{{item.company}}</span>
+                <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
+                <span style="font-size: 9px; color: grey; ">{{item.portal}}</span>
+              </div>
+              <div>
+                <br>
+              </div>
+              <div>
+                <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon>
+      					<iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon>
+      					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
+      					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
+                <br>
+                <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles=false></paper-checkbox>
+                <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles=false></paper-checkbox>
+                <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles=false></paper-checkbox>
+                <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles=false></paper-checkbox>
+              </div>
+            </div>
+          </div>
+          <div class="layout horizontal">
+            <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
+            <div style="margin:3px"><paper-fab  icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
+          </div>
+        </div>
+        </paper-material>
+      </template>
+
+    </template>
+
+    <template is="dom-if" if="{{!areInactiveVisible}}">
+      <div class="layout vertical center">
+        <div> <paper-button tabindex="0" active raised class="colorful" on-tap="_showInactive">show inactive</paper-button> </div>
+      </div>
+    </template>
+
+
+    <div class="vertical layout center">
+      <div><a href="{{newurl}}"> <paper-fab icon="add"></paper-fab></a></div>
+    </div>
+  </template>
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'apps-list',
+      properties: {
+        debug: { type: Boolean, value: false },
+        active: Boolean,
+        serverurl: String
+      },
+
+      observers:['_divideItems(onlineitems)' ],
+
+      ready: function(){
+        this.areInactiveVisible = false;
+        this.newurl = MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
+      },
+
+      _openURL(itemId) {
+        return MoreRouting.urlFor('appdetail', {appId: itemId});
+      },
+
+      _deleteElement: function(e) {
+        this.$.rest_array.deleteItem(e.model.item.id);
+      },
+
+
+      // Handling Active and Inactives.
+      _showInactive:function(){
+        this.areInactiveVisible = true;
+      },
+      _hideInactive:function(){
+        this.areInactiveVisible = false;
+      },
+
+      _divideItems:function(newItems){
+        if(this.debug)console.log("Dividing the items ", this.onlineitems);
+          var activeItems = [];
+          var inactiveItems = [];
+          for(var i = 0; i < this.onlineitems.length; i++){
+            if(this.onlineitems[i].followup) {
+              activeItems.push(this.onlineitems[i]);
+            }else{
+              inactiveItems.push(this.onlineitems[i]);
+            }
+          }
+          this.activeItems = activeItems;
+          this.inactiveItems = inactiveItems;
+      },
+
+    });
+  })();
+</script>

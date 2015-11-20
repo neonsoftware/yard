@@ -1,0 +1,143 @@
+<link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
+
+<!-- Paper elements -->
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/paper-material/paper-material.html">
+<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="bower_components/rest-item/rest-item.html">
+
+<dom-module id="blocks-detail">
+
+  <style>
+    [card] {
+      margin: 16px;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+  </style>
+
+
+  <template>
+
+    <rest-item id="rest_detail" active="[[active]]" debug="[[debug]]" elementid="[[elementid]]" defaultitem="[[defaultitem]]"
+                      serverurl="[[serverurl]]" currentitem="{{currentitem}}" >
+    </rest-item>
+
+    <paper-material card elevation="1">
+      Language: <cork-language-select language="{{currentitem.language}}"> </cork-language-select>
+      <paper-input type="text" label="Tags" floatingLabel value="{{currentitem.tags}}" ></paper-input>
+      <span style="font-size: 12px;color: grey; ">Text (use AAA, BBB, etc..)</span>
+      <br>
+      <iron-autogrow-textarea bind-value="{{currentcontent}}">
+        <textarea></textarea>
+      </iron-autogrow-textarea>
+      <br><br>
+      <template is="dom-repeat" items="{{currentlegend}}">
+        <paper-input type="text" label="{{computeKey(item.key)}}" floatingLabel value="{{item.value}}" ></paper-input><br>
+      </template>
+
+    </paper-material>
+
+
+    <div class="layout vertical horizontal center">
+      <div style="margin:3px"><paper-fab icon="save" on-click="save_me"></paper-fab></div>
+    </div>
+
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'blocks-detail',
+      properties: {
+        debug: { type: Boolean, value: false },
+        elementid: String,
+        active: Boolean,
+        serverurl: String,
+        currentitem: { type: Object, observer: '_on_current_item_update' },
+        defaultitem: { type: Object, value: {"language":"en",
+                "tags":"",
+                "content": "",
+                "legend": ""
+                } }
+      },
+
+      ready: function(){
+          this.currentcontent = "";
+          this.currentlegend = [];
+          this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
+      },
+
+      observers : ['_on_content_change(currentcontent, lettersymbols)'],
+
+      save_me: function(){
+        this.currentitem.content = this.currentcontent;
+        this.currentitem.legend = JSON.stringify(this.currentlegend);
+        if(this.debug) console.log("In the end legend is : ", this.currentitem.legend, " - Payload is  : ", JSON.stringify(this.currentitem) );
+        this.$.rest_detail.save(JSON.stringify(this.currentitem));
+      },
+
+      _on_current_item_update: function(new_val, old_val){
+          if(this.debug) console.log('Updated currentitem : ', this.currentitem);
+          this.currentcontent = this.currentitem.content;
+          this.currentlegend = JSON.parse(this.currentitem.legend);
+          if(this.debug) console.log('The legend got from the GET is :', this.currentlegend );
+      },
+
+      computeKey:function(currentv){
+        return 'Describe ' + currentv ;
+      },
+
+      _getFromCurrentLegendOrEmpty: function(symbol_to_search){
+        var j, len;
+        if(this.debug) console.log("Current currentlegend is  ", this.currentlegend);
+
+        for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
+          var currentObject = this.currentlegend[j];
+          var currentObjectKey = currentObject.key;
+          if(this.debug) console.log("Current object is ", currentObject);
+          if(this.debug) console.log("Current object key is ", currentObjectKey);
+          if(this.debug) console.log("Checking if there is something ", symbol_to_search);
+          if(this.debug) console.log("Comparing  ", this.currentlegend[j].key, 'to ', symbol_to_search);
+
+          if (this.currentlegend[j].key === symbol_to_search){
+            if(this.debug) console.log("WWWWWAAASSSSS present ! ", symbol_to_search);
+            return this.currentlegend[j].value;
+          }
+        }
+        if(this.debug) console.log("AAAdding it ! ", symbol_to_search);
+        return "";
+      },
+
+      _on_content_change: function(new_value, old_value){
+        var new_legend = [];
+        if (typeof this.lettersymbols != 'undefined' && typeof this.currentlegend != 'undefined'){
+          if(this.debug) console.log('Content updated. Before: ', old_value, ', After: ', new_value);
+          if(this.debug) console.log('Checking also  ', this.elementid, this.lettersymbols);
+          var index, len;
+          for (index = 0, len = this.lettersymbols.length; index < len; ++index) {
+            var currentSymbol = this.lettersymbols[index];
+            if ( new_value.indexOf(currentSymbol) >-1 ){
+              if(this.debug) console.log("FOOOOOOOUNDDDDDD ", currentSymbol);
+              new_legend.push({"key" : currentSymbol , "value" : this._getFromCurrentLegendOrEmpty(currentSymbol) });
+            }
+          }
+          if(this.debug) console.log("New legend : ", new_legend);
+          this.currentlegend = new_legend;
+        }
+      }
+
+
+    });
+  })();
+</script>

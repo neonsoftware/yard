@@ -1,0 +1,77 @@
+<link rel="import" href="bower_components/iron-form/iron-form.html">
+
+
+<dom-module id="apps-login">
+
+  <style>
+    :host {
+      display: block;
+    }
+
+    [card] {
+      margin: 16px;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
+    }
+
+  </style>
+
+  <template>
+    <paper-material card elevation="1">
+
+      <form is="iron-form" id="form_post" method="post" action="{{loginurl}}">
+        <paper-input name="username" label="Name" required></paper-input>
+        <paper-input name="password" label="password" required></paper-input>
+
+        <div centerButton>
+          <paper-fab icon="input" on-tap="_clickHandler"></paper-fab>
+        </div>
+      </form>
+
+    </paper-material>
+
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'apps-login',
+      properties: {
+        debug: Boolean,
+        loginurl: String,
+      },
+
+      ready:function(){
+        this.$.form_post.addEventListener('iron-form-response', this._handle_response_post);
+      },
+
+      _handle_response_post:function(response){
+        console.log('Received response from get :' , response.detail.success);
+        if(response.detail.success == true){
+          console.log('Login OK !!!');
+          MoreRouting.navigateTo('root', {});
+          this.fire('authsuccess');
+        }else{
+          console.log('Login FAIL !!!');
+          this.fire('authfailure');
+          console.log('Fired event !!!');
+        }
+      },
+
+      _clickHandler:function(e) {
+        console.log('Clicked !!!');
+        this.$.form_post.submit();
+      }
+
+    });
+
+  })();
+</script>

@@ -1,0 +1,78 @@
+
+<link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+
+<!-- Paper elements -->
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/paper-material/paper-material.html">
+<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+
+<link rel="import" href="bower_components/more-routing/more-route.html">
+
+<link rel="import" href="bower_components/rest-array/rest-array.html">
+
+<dom-module id="blocks-list">
+  <template>
+
+    <style>
+      [card] {
+        margin: 16px;
+        padding: 16px;
+        @apply(--layout-vertical --layout-center-center);
+      }
+    </style>
+
+    <rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" routeauth="login" onlineitems="{{onlineitems}}" ></rest-array>
+
+    <template is="dom-repeat" items="{{onlineitems}}">
+      <paper-material card elevation="1">
+        <div class="layout horizontal center">
+          <div class="flex">
+						<span style="font-size: 13px;">{{item.content}}</span><br>
+            <cork-language language="{{item.language}}"> </cork-language>
+            <cork-badges badges="{{item.tags}}"> </cork-badges>
+          </div>
+          <div class="layout horizontal">
+            <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
+            <div style="margin:3px"><paper-fab  icon="delete" style="width: 18px; height: 18px;" on-click="_deleteElement"></paper-fab></div>
+          </div>
+        </div>
+      </paper-material>
+    </template>
+
+    <div class="vertical layout center">
+      <div><a href="{{newurl}}"> <paper-fab icon="add"></paper-fab></a></div>
+    </div>
+
+  </template>
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'blocks-list',
+      properties: {
+        serverurl: {type: String, value: ""},
+        debug: { type: Boolean, value: false },
+        active: Boolean
+      },
+
+      ready: function(){
+        this.newurl = MoreRouting.urlFor('blockdetail', {blockId: 'new'}) ;
+      },
+
+      _openURL(itemId) {
+        return MoreRouting.urlFor('blockdetail', {blockId: itemId});
+      },
+
+      _deleteElement: function(e) {
+        this.$.rest_array.deleteItem(e.model.item.id);
+      }
+
+    });
+  })();
+</script>

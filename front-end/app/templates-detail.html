@@ -1,0 +1,370 @@
+<link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+
+<!-- Paper elements -->
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/paper-material/paper-material.html">
+<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="bower_components/more-routing/more-route.html">
+
+<link rel="import" href="bower_components/rest-item/rest-item.html">
+<link rel="import" href="bower_components/badges-select/badges-select.html">
+<link rel="import" href="cork-language.html">
+
+<dom-module id="templates-detail">
+  <template>
+    <style>
+      [card] {
+        margin: 16px;
+        padding: 16px;
+        @apply(--layout-vertical --layout-center-center);
+      }
+    </style>
+
+    <rest-item id="rest_detail" active="[[active]]" debug="[[debug]]" elementid="[[elementid]]" defaultitem="[[defaultitem]]"
+                      serverurl="[[serverurl]]" currentitem="{{currentitem}}" >
+    </rest-item>
+
+    <iron-ajax id="ajax_get_blocks" method="GET" url="[[blocksserverurl]]" handle-as="json" content-type="application/json" last-response="{{availableblocks}}"></iron-ajax>
+
+    <paper-material card elevation="1">
+      <span style="">Language</span>
+      <cork-language-select language="{{currentitem.language}}"> </cork-language-select>
+      <paper-input type="text" label="Title" floatingLabel value="{{currentitem.name}}"></paper-input>
+      <paper-input type="text" label="Description" floatingLabel value="{{currentitem.description}}"></paper-input>
+      <paper-input type="text" label="Tags" floatingLabel value="{{currentitem.tags}}" ></paper-input>
+    </paper-material>
+
+    <blocks-filter inblocks="[[availableblocks]]" filteredblocks="{{resultBlocks}}"> </blocks-filter>
+    <blocks-order availableblocks="{{resultBlocks}}" usedblocks="{{currentblocks}}"> </blocks-order>
+
+    <div centerButton>
+        <paper-fab icon="save" on-click="save_me">discard</paper-fab>
+    </div>
+
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'templates-detail',
+      properties: {
+        debug: { type: Boolean, value: false },
+        elementid: String,
+        active: Boolean,
+        serverurl: String,
+        currentitem: { type: Object, observer:'_updatedCurrentItem' },
+        defaultitem: { type: Object, value: {"name":"","description":"", "language":"en", "tags":"", "pieces":"[]" } },
+        blocksserverurl: { type: String, value: '' },
+      },
+
+      observers:[ '_updateInputs(active, elementid, blocksserverurl)' ],
+
+      _updatedCurrentItem: function( new_val, old_val){
+        if(this.debug) console.log('Current template updated : ', this.currentitem);
+        this.currentblocks = JSON.parse(this.currentitem.pieces);
+      },
+
+      save_me: function(){
+        this.currentitem.pieces = JSON.stringify(this.currentblocks);
+        if(this.debug) console.log("templates-detail :In the end pieces is : ", this.currentitem.pieces );
+        this.$.rest_detail.save(JSON.stringify(this.currentitem));
+      },
+
+      _updateInputs: function(current_active, current_id, current_serverurl){
+        if(this.debug) console.log("Updated inputs : ", this.active, this.currentitem, this.serverurl );
+        if(this.active){
+          if(this.debug) console.log("Getting pieces from : ", this.blocksserverurl );
+          this.$.ajax_get_blocks.generateRequest();
+        }
+      }
+    });
+  })();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dom-module id="blocks-filter">
+
+  <template>
+    <style>
+      [card] {
+        margin: 16px;
+        padding: 16px;
+        @apply(--layout-vertical --layout-center-center);
+      }
+    </style>
+    <paper-material card elevation="1">
+      <span style="font-size: 14px;">Language</span>
+      <cork-language-select language="{{selectedlanguage}}"> </cork-language-select>
+      <br>
+      <span style="font-size: 14px;">Tags</span>
+      <badges-select toggle badgesarray="{{alltagnames}}" selectedones="{{activetagnames}}"> </badges-select><br>
+    </paper-material>
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'blocks-filter',
+      properties: {
+        inblocks:{
+            type: Array,
+            value : [],
+            observer:'_updatedInBlocks'
+        },
+        filteredblocks:{
+            type: Array,
+            notify:true
+        }
+      },
+
+      observers:[ '_updatedUserSelection(activetagnames.*, selectedlanguage)'],
+
+      ready:function(){
+        this.activetagnames = [];
+        this.notagssymbol = "no tags";
+        this.selectedlanguage = "en";
+      },
+
+      // Filter function
+      _isBlockActive : function( currentBlock, thiscontext ){
+
+        // Checking language first.
+        if( currentBlock.language !== thiscontext.selectedlanguage ){
+          return false;
+        }
+
+        // Checking if there are not tags, and the the "no tag" tag is selected by the user.
+        if ( currentBlock.tags.length == 0 && ( thiscontext.activetagnames.indexOf(thiscontext.notagssymbol) > -1 ) ){
+          return true;
+        }
+
+        // Checking single tags one by one
+        var blockTags = currentBlock.tags.split(',');
+        for (i = 0; i < blockTags.length; ++i) {
+          for (j = 0; j < thiscontext.activetagnames.length; ++j) {
+            if( blockTags[i].trim() === thiscontext.activetagnames[j].trim()){
+              return true;
+            }
+          }
+        }
+
+        return false;
+      },
+
+      // Updates a list of unique tags, adding from a new comma separated list
+      // newTagsString - a new comma separated list of tags
+      // tagsList - a list of tags to update
+      _addUniqueTags(newTagsString, tagsList){
+        var separatedTags = newTagsString.split(",");
+        for( i = 0 ; i < separatedTags.length ; ++i ){
+          var currentTrimmedTag = separatedTags[i].trim();
+          if( tagsList.indexOf(currentTrimmedTag) == -1 ){
+            tagsList.push(currentTrimmedTag);
+          }
+        }
+      },
+
+      _updatedInBlocks : function(new_val, old_val){
+        // Extracting the available tags by the blocks
+        var tags = [this.notagssymbol];
+        for (index = 0; index < this.inblocks.length; ++index) {
+            this._addUniqueTags(this.inblocks[index].tags, tags);
+        }
+        this.set('alltagnames', tags);
+      },
+
+      // Triggered whenever any input is updated.
+      _updatedUserSelection : function(new_val, language){
+        var currentContext = this;
+        this.set('filteredblocks', this.inblocks.filter( function(block){
+          return currentContext._isBlockActive(block, currentContext);
+        } ) );
+      }
+    });
+  })();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<dom-module id="blocks-order">
+
+  <style>
+    [card] {
+      margin: 16px;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [block-paper]{
+      margin:3px;
+      padding: 3px;
+      border-style: solid;
+      border-width: 1px;
+      border-color: gray;
+      border-radius: 2%;
+      vertical-align: middle;
+    }
+  </style>
+
+
+  <template>
+
+    <paper-material card elevation="1">
+      Available:
+      <template is="dom-repeat" items="{{availableblocks}}">
+
+        <div class="layout horizontal center" block-paper>
+          <div class="flex" class="layout vertical center ">
+                <span cent-vert>{{item.content}}</span><br>
+                <cork-badges badges="{{item.tags}}"> </cork-badges>
+          </div>
+          <div>
+            <paper-fab mini icon="add" on-click="_addblock"></paper-fab>
+          </div>
+        </div>
+
+      </template>
+    </paper-material>
+
+    <paper-material card elevation="1">
+
+      Pieces: <br>
+      <template is="dom-repeat" items="{{usedblocks}}">
+
+        <div class="layout horizontal center" block-paper>
+          <div class="flex" class="layout vertical center ">
+                <span cent-vert>{{item.content}}</span><br>
+                <cork-badges badges="{{item.tags}}"> </cork-badges>
+          </div>
+          <div>
+            <div class="layout horizontal">
+              <div style="margin:3px"><paper-fab mini icon="icons:arrow-drop-down" on-click="_move_down"></paper-fab></div>
+              <div style="margin:3px"><paper-fab mini icon="icons:arrow-drop-up" on-click="_move_up"></paper-fab></div>
+              <div style="margin:3px"><paper-fab mini icon="delete" on-click="_remove"></paper-fab></div>
+            </div>
+          </div>
+        </div>
+
+      </template>
+
+    </paper-material>
+
+
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'blocks-order',
+      properties: {
+        availableblocks:{
+           type: Array,
+           value:[]
+        },
+        usedblocks:{
+           type: Array,
+           notify:true,
+           value:[]
+        }
+
+      },
+
+      ready:function(){
+      },
+
+      _addblock: function(e) {
+        var model = e.model;
+        var found = Boolean(false);
+        for (index = 0, len = this.usedblocks.length; index < len; ++index) {
+          if( this.usedblocks[index].content === model.item.content){
+            found = true;
+          }
+        }
+        if(!found){
+          this.push('usedblocks', model.item);
+        }
+      },
+
+      _remove: function(e) {
+        var model = e.model;
+        var id = model.item.id;
+        var updatedPieces = [];
+        for (index = 0, len = this.usedblocks.length; index < len; ++index) {
+          var currentItem = this.usedblocks[index];
+          if ( currentItem.id === id ){
+              this.splice('usedblocks', index, 1);
+              return;
+          }
+        }
+      },
+
+      _move_up: function(e) {
+        var model = e.model;
+        var id = model.item.id;
+        var newCurrentPieces = [];
+        for (index = 0, len = this.usedblocks.length; index < len; ++index) {
+          var currentItem = this.usedblocks[index];
+          if( index + 1 < len){
+            if ( this.usedblocks[index+1].id === id ){
+              newCurrentPieces.push(this.usedblocks[index+1]);
+              index++;
+            }
+          }
+          newCurrentPieces.push(currentItem);
+        }
+        this.set('usedblocks', newCurrentPieces);
+      },
+
+      _move_down: function(e) {
+        var model = e.model;
+        var id = model.item.id;
+        var newCurrentPieces = [];
+        for (index = 0, len = this.usedblocks.length; index < len; ++index) {
+          var currentItem = this.usedblocks[index];
+          if ( currentItem.id === id && index + 1 < len ){
+              newCurrentPieces.push(this.usedblocks[index+1]);
+              ++index;
+          }
+          newCurrentPieces.push(currentItem);
+        }
+        this.set('usedblocks', newCurrentPieces);
+      },
+
+    });
+  })();
+</script>

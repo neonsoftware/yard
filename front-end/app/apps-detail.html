@@ -1,0 +1,137 @@
+
+<link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+
+<!-- Paper elements -->
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/paper-material/paper-material.html">
+<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="bower_components/more-routing/more-route.html">
+<link rel="import" href="bower_components/rest-item/rest-item.html">
+
+<dom-module id="apps-detail">
+
+  <style>
+    [card] {
+      margin: 16px;
+      padding: 16px;
+    }
+  </style>
+
+  <template>
+    <rest-item id="rest_detail" active="[[active]]" debug="[[debug]]" elementid="[[appid]]" defaultitem="[[defaultitem]]"
+                      serverurl="[[serverurl]]" currentitem="{{currentitem}}" >
+    </rest-item>
+
+    <paper-material card elevation="1">
+
+      <paper-input label="Company" floatingLabel=true value="{{currentitem.company}}" error="Company should have a name"></paper-input>
+    	<paper-input label="Company website" floatingLabel=true value="{{currentitem.company_link}}" error="Company should have a name"></paper-input>
+    	<paper-input label="Portal" floatingLabel=true value="{{currentitem.portal}}" error="Portal should have a name"></paper-input>
+    	<paper-input label="Portal Website" floatingLabel=true value="{{currentitem.portal_link}}" error="Portal should have a name"></paper-input>
+    	<paper-input label="Position" floatingLabel=true value="{{currentitem.position}}" error="Portal should have a name"></paper-input>
+    	<paper-input label="Position link" floatingLabel=true value="{{currentitem.position_link}}" error="Portal should have a name"></paper-input>
+    	<paper-input label="Skills" floatingLabel=true value="{{currentitem.skills}}" error="Portal should have a name"></paper-input>
+    	<paper-input label="Salary" floatingLabel=true value="{{currentitem.salary}}" error="Portal should have a name"></paper-input>
+    	<paper-input label="Contract" floatingLabel=true value="{{currentitem.skills}}" error="Portal should have a name"></paper-input>
+
+    	<br><br>
+
+      <paper-checkbox checked="{{currentitem.written}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
+      <core-icon  icon="question-answer"></core-icon>&nbsp;&nbsp;Written<br><br>
+     	<paper-checkbox checked="{{currentitem.called}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
+      <core-icon icon="communication:call" ></core-icon>&nbsp;&nbsp;Called<br><br>
+      <paper-checkbox checked="{{currentitem.interviewed}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
+      <core-icon icon="perm-identity" ></core-icon>&nbsp;&nbsp;Interviewed <br><br>
+      <paper-checkbox checked="{{currentitem.followup}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
+      <core-icon icon="more-horiz" ></core-icon>&nbsp;&nbsp;Followup<br><br>
+
+
+    	<paper-input multiline label="Next" floatingLabel=true value="{{currentitem.next}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Notes" floatingLabel=true value="{{currentitem.notes}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Cover Letter" floatingLabel=true value="{{currentitem.cover}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Address 1" floatingLabel=true value="{{currentitem.address1}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Address 2" floatingLabel=true value="{{currentitem.address2}}" error="Portal should have a name"></paper-input>
+
+      <br>
+
+      <h4> Contacts </h4>
+
+    	<paper-input multiline label="Name" floatingLabel=true value="{{currentitem.c1name}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Email" type="email" floatingLabel=true value="{{currentitem.c1mail}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Phone" type="tel" floatingLabel=true value="{{currentitem.c1phone}}" error="Portal should have a name"></paper-input>
+
+      <br><br>
+    	<paper-input multiline label="Name" floatingLabel=true value="{{currentitem.c2name}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Email" type="email" floatingLabel=true value="{{currentitem.c2mail}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Phone" type="tel" floatingLabel=true value="{{currentitem.c2phone}}" error="Portal should have a name"></paper-input>
+
+      <br><br>
+    	<paper-input multiline label="Name" floatingLabel=true value="{{currentitem.c3name}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Email" type="email" floatingLabel=true value="{{currentitem.c3mail}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Phone" type="tel" floatingLabel=true value="{{currentitem.c3phone}}" error="Portal should have a name"></paper-input>
+
+      <br><br>
+    	<paper-input multiline label="Name" floatingLabel=true value="{{currentitem.c4name}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Email" type="email" floatingLabel=true value="{{currentitem.c4mail}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Phone" type="tel" floatingLabel=true value="{{currentitem.c4phone}}" error="Portal should have a name"></paper-input>
+
+
+      <br>
+      <h4> Map </h4>
+      	<paper-input id="appl-latitude" label="Latitude" floatingLabel=true value="{{currentitem.latitude}}" error="Portal should have a name"></paper-input>
+      	<paper-input id="appl-longitude" label="Longitude" floatingLabel=true value="{{currentitem.longitude}}" error="Portal should have a name"></paper-input>
+      <br><br>
+    </paper-material>
+
+    <div class="layout vertical center">
+      <div class="layout horizontal center">
+        <div style="margin:3px"><a href="{{newurl}}"> <paper-fab icon="add"></paper-fab></a></div>
+        <div style="margin:3px"><paper-fab icon="close"></paper-fab></div>
+        <div style="margin:3px"><paper-fab icon="save" on-tap="save_me"></paper-fab></div>
+      </div>
+    </div>
+
+    <paper-toast id="saving-complete" duration="6000" text="Saving successful!"> </paper-toast>
+
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'apps-detail',
+      properties: {
+        debug: { type: Boolean, value: false },
+        appid: String,
+        active: Boolean,
+        serverurl: String,
+        currentitem: Object,
+        defaultitem: { type: Object, value: {
+          portal :"", portal_link:"", company:"", company_link:"",
+          position:"", position_link:"", salary:"", contract:"",
+          latitude:"", longitude:"", skills:"", written:"",
+          called:"", interviewed:"", followup:"", notes:"",
+          next:"", cover:"", address1:"", address2:"",
+          c1name:"", c1mail:"", c1phone:"", c2name:"",
+          c2mail:"", c2phone:"", c3name:"", c3mail:"",
+          c3phone:"", c4name:"", c4mail:"", c4phone:""
+        } },
+      },
+
+      save_me:function(){
+        if(this.debug) console.log('Saving current item.');
+        this.$.rest_detail.save_current();
+      }
+
+    });
+
+  })();
+</script>

@@ -18163,64 +18163,6 @@ Polymer({
 (function () {
     Polymer({
 
-      is: 'cork-rest-array',
-      properties: {
-        debug: { type: Boolean, value: false },
-        active: Boolean,
-        serverurl: {type: String, value: ""},
-        routeauth: {type: String, value: ""},
-        onlineitems: {
-          type: Array,
-          notify: true
-        }
-      },
-
-      observers:['_inputsUpdated(active, serverurl, routeauth)'],
-
-      _inputsUpdated(current_active, current_serverurl, current_routeauth){
-        if(this.debug) console.log("Inputs updated. Active : ", this.active, " Server url: ", this.serverurl, " Route auth: ", this.routeauth );
-        if(this.active){
-          if(this.debug) console.log("Refreshing inputs. ");
-          this.$.get_ajax.generateRequest();
-        }
-      },
-
-      deleteItem: function(itemId) {
-        if(this.debug) console.log("Deleting item ", itemId);
-        this.deleteurl = this.serverurl + "/" + itemId;
-        this.$.delete_ajax.generateRequest();
-      },
-
-      handleResponseOkRefresh:function(response){
-        if(this.debug) console.log("Delete done. Refreshing");
-        this.$.get_ajax.generateRequest();
-      },
-
-      handleResponseGet:function(response){
-        if(this.debug) console.log('GET response. Status is', response.detail.status);
-        if( response.detail.status == 403 ){
-          if(this.debug) console.log('Not logged in. Routing to route : ', this.routeauth);
-          MoreRouting.navigateTo(this.routeauth, {});
-        }else{
-          var ciao = response.detail.response;
-          this.set('onlineitems', response.detail.response);
-          if(this.debug) console.log('Setting onlineitems to : ', this.onlineitems);
-        }
-      },
-
-      handleResponseError:function(response){
-        if(this.debug) console.log('Error is', response.detail.error.message);
-        if( response.detail.error.message.indexOf("401") >-1 ){
-          if(this.debug) console.log('Not logged in. Routing to login.');
-          MoreRouting.navigateTo('login', {});
-        }
-      }
-
-    });
-  })();
-(function () {
-    Polymer({
-
       is: 'covers-new',
       properties: {
         serverurl: {type: String, value: ""},
@@ -18234,66 +18176,6 @@ Polymer({
 
       _openURL(itemId) {
         return MoreRouting.urlFor('coverdetail', {coverId: 'new', coverTemplateId: itemId});
-      }
-
-    });
-  })();
-(function () {
-    Polymer({
-
-      is: 'cork-badges',
-      properties: {
-        badges:{
-          type:String,
-          observer:'onBadgesStringChanged'
-        }
-      },
-
-      onBadgesStringChanged : function(newValue, oldValue){
-        var splitted = newValue.split(",");
-
-        // Removing empty tag
-        var position = splitted.indexOf("");
-        if( position > -1 ){
-          splitted.splice(position, 1);
-        }
-
-        this.badgesList = splitted;
-      }
-
-    });
-  })();
-(function () {
-    Polymer({
-
-      is: 'cork-select-badges',
-      properties: {
-        badges:{
-          type:Array,
-        },
-        selectedones:{
-          type:Array,
-          notify: true,
-          value:[]
-        }
-      },
-
-      ready : function(){
-        this.currentitems = [];
-      },
-
-      _beentoggled:function(e){
-        var cssClasses = e.target.classList;
-        var toggledElement = e.model.item;
-        var position = this.selectedones.indexOf(toggledElement);
-
-        if( position == -1 ){
-          this.push( 'selectedones', toggledElement );
-          cssClasses.add('boldy');
-        }else{
-          this.splice( 'selectedones', position, 1);
-          cssClasses.remove('boldy');
-        }
       }
 
     });

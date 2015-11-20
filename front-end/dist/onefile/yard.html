@@ -19355,7 +19355,7 @@ Polymer({
 
 })();
 </script>
-<dom-module id="apps-home" assetpath="bower_components/cork/">
+<dom-module id="apps-home" assetpath="/">
 
   <style>
     [card] {
@@ -20119,7 +20119,7 @@ Polymer({
     });
   </script>
 </dom-module>
-<dom-module id="apps-list" assetpath="bower_components/cork/">
+<dom-module id="apps-list" assetpath="/">
 
   <template>
 
@@ -21058,7 +21058,7 @@ Polymer({
     });
   </script>
 </dom-module>
-<dom-module id="apps-detail" assetpath="bower_components/cork/">
+<dom-module id="apps-detail" assetpath="/">
 
   <style>
     [card] {
@@ -21178,7 +21178,7 @@ Polymer({
 
   })();
 </script>
-<dom-module id="blocks-list" assetpath="bower_components/cork/">
+<dom-module id="blocks-list" assetpath="/">
   <template>
 
     <style>
@@ -21530,7 +21530,7 @@ Polymer({
     }
   });
 </script>
-<dom-module id="blocks-detail" assetpath="bower_components/cork/">
+<dom-module id="blocks-detail" assetpath="/">
 
   <style>
     [card] {
@@ -21657,7 +21657,7 @@ Polymer({
     });
   })();
 </script>
-<dom-module id="templates-list" assetpath="bower_components/cork/">
+<dom-module id="templates-list" assetpath="/">
   <template>
     <style>
       [card] {
@@ -22935,7 +22935,7 @@ Polymer({
     });
   })();
 </script>
-<dom-module id="cork-language" assetpath="bower_components/cork/">
+<dom-module id="cork-language" assetpath="/">
 
   <style>
   .language-box{
@@ -22972,7 +22972,7 @@ Polymer({
 
 
 
-<dom-module id="cork-language-select" assetpath="bower_components/cork/">
+<dom-module id="cork-language-select" assetpath="/">
 
   <template>
     <select id="languagelist" on-change="selectedChanged" value="{{language}}">
@@ -23003,7 +23003,7 @@ Polymer({
     });
   })();
 </script>
-<dom-module id="templates-detail" assetpath="bower_components/cork/">
+<dom-module id="templates-detail" assetpath="/">
   <template>
     <style>
       [card] {
@@ -23088,7 +23088,7 @@ Polymer({
 
 
 
-<dom-module id="blocks-filter" assetpath="bower_components/cork/">
+<dom-module id="blocks-filter" assetpath="/">
 
   <template>
     <style>
@@ -23204,7 +23204,7 @@ Polymer({
 
 
 
-<dom-module id="blocks-order" assetpath="bower_components/cork/">
+<dom-module id="blocks-order" assetpath="/">
 
   <style>
     [card] {
@@ -23354,7 +23354,7 @@ Polymer({
     });
   })();
 </script>
-<dom-module id="covers-list" assetpath="bower_components/cork/">
+<dom-module id="covers-list" assetpath="/">
 
   <style>
 
@@ -23420,7 +23420,7 @@ Polymer({
     });
   })();
 </script>
-<dom-module id="covers-detail" assetpath="bower_components/cork/">
+<dom-module id="covers-detail" assetpath="/">
   <template>
     <style>
       [card] {
@@ -23590,77 +23590,7 @@ Polymer({
     });
   })();
 </script>
-<dom-module id="cork-rest-array" assetpath="bower_components/cork/">
-
-  <template>
-
-    <iron-ajax id="get_ajax" method="GET" url="{{serverurl}}" handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
-    <iron-ajax id="delete_ajax" method="DELETE" url="{{deleteurl}}" handle-as="json" on-response="handleResponseOkRefresh"></iron-ajax>
-
-  </template>
-</dom-module>
-
-<script>
-  (function () {
-    Polymer({
-
-      is: 'cork-rest-array',
-      properties: {
-        debug: { type: Boolean, value: false },
-        active: Boolean,
-        serverurl: {type: String, value: ""},
-        routeauth: {type: String, value: ""},
-        onlineitems: {
-          type: Array,
-          notify: true
-        }
-      },
-
-      observers:['_inputsUpdated(active, serverurl, routeauth)'],
-
-      _inputsUpdated(current_active, current_serverurl, current_routeauth){
-        if(this.debug) console.log("Inputs updated. Active : ", this.active, " Server url: ", this.serverurl, " Route auth: ", this.routeauth );
-        if(this.active){
-          if(this.debug) console.log("Refreshing inputs. ");
-          this.$.get_ajax.generateRequest();
-        }
-      },
-
-      deleteItem: function(itemId) {
-        if(this.debug) console.log("Deleting item ", itemId);
-        this.deleteurl = this.serverurl + "/" + itemId;
-        this.$.delete_ajax.generateRequest();
-      },
-
-      handleResponseOkRefresh:function(response){
-        if(this.debug) console.log("Delete done. Refreshing");
-        this.$.get_ajax.generateRequest();
-      },
-
-      handleResponseGet:function(response){
-        if(this.debug) console.log('GET response. Status is', response.detail.status);
-        if( response.detail.status == 403 ){
-          if(this.debug) console.log('Not logged in. Routing to route : ', this.routeauth);
-          MoreRouting.navigateTo(this.routeauth, {});
-        }else{
-          var ciao = response.detail.response;
-          this.set('onlineitems', response.detail.response);
-          if(this.debug) console.log('Setting onlineitems to : ', this.onlineitems);
-        }
-      },
-
-      handleResponseError:function(response){
-        if(this.debug) console.log('Error is', response.detail.error.message);
-        if( response.detail.error.message.indexOf("401") >-1 ){
-          if(this.debug) console.log('Not logged in. Routing to login.');
-          MoreRouting.navigateTo('login', {});
-        }
-      }
-
-    });
-  })();
-</script>
-<dom-module id="covers-new" assetpath="bower_components/cork/">
+<dom-module id="covers-new" assetpath="/">
 
   <style>
 
@@ -23683,7 +23613,7 @@ Polymer({
   </style>
 
   <template>
-    <cork-rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" routeauth="login" onlineitems="{{onlineitems}}"></cork-rest-array>
+    <rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" routeauth="login" onlineitems="{{onlineitems}}"></rest-array>
 
     <template is="dom-repeat" items="{{onlineitems}}">
       <paper-material card="" elevation="1">
@@ -23729,139 +23659,7 @@ Polymer({
     });
   })();
 </script>
-<dom-module id="cork-badges" assetpath="bower_components/cork/">
-
-  <style>
-  .badge-box{
-    border-color: black;
-    border-width: 0.5px;
-    border-style: solid;
-    background-color: rgb(255, 179, 61);
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-bottom: 2px;
-    padding-top: 2px;
-    text-align: center;
-    font-family: sans-serif;
-    font-size: 10px;
-    margin-right: 0px;
-    display: inline-block;
-  }
-  </style>
-
-  <template>
-
-    <template is="dom-repeat" items="{{badgesList}}">
-      <div class="badge-box">{{item}}<div>
-    </div></div></template>
-
-  </template>
-
-</dom-module>
-
-<script>
-  (function () {
-    Polymer({
-
-      is: 'cork-badges',
-      properties: {
-        badges:{
-          type:String,
-          observer:'onBadgesStringChanged'
-        }
-      },
-
-      onBadgesStringChanged : function(newValue, oldValue){
-        var splitted = newValue.split(",");
-
-        // Removing empty tag
-        var position = splitted.indexOf("");
-        if( position > -1 ){
-          splitted.splice(position, 1);
-        }
-
-        this.badgesList = splitted;
-      }
-
-    });
-  })();
-</script>
-
-
-
-<!-- cork-select-badges -->
-
-
-
-<dom-module id="cork-select-badges" assetpath="bower_components/cork/">
-
-  <style>
-  .boldy{
-    background-color: rgb(255, 179, 61);
-  }
-
-  .badge-box{
-    border-color: rgb(255, 179, 61);
-    border-width: 1px;
-    border-style: solid;
-    padding-left: 3px;
-    padding-right: 3px;
-    padding-bottom: 2px;
-    padding-top: 2px;
-    text-align: center;
-    font-family: sans-serif;
-    font-size: 10px;
-    margin-right: 0px;
-    display: inline-block;
-  }
-  </style>
-
-  <template>
-    <template is="dom-repeat" items="{{currentitems}}">
-      <div class="badge-box" on-click="_beentoggled">{{item}}<div>
-    </div></div></template>
-  </template>
-
-</dom-module>
-
-<script>
-  (function () {
-    Polymer({
-
-      is: 'cork-select-badges',
-      properties: {
-        badges:{
-          type:Array,
-        },
-        selectedones:{
-          type:Array,
-          notify: true,
-          value:[]
-        }
-      },
-
-      ready : function(){
-        this.currentitems = [];
-      },
-
-      _beentoggled:function(e){
-        var cssClasses = e.target.classList;
-        var toggledElement = e.model.item;
-        var position = this.selectedones.indexOf(toggledElement);
-
-        if( position == -1 ){
-          this.push( 'selectedones', toggledElement );
-          cssClasses.add('boldy');
-        }else{
-          this.splice( 'selectedones', position, 1);
-          cssClasses.remove('boldy');
-        }
-      }
-
-    });
-  })();
-</script>
-<dom-module id="apps-login" assetpath="bower_components/cork/">
+<dom-module id="apps-login" assetpath="/">
 
   <style>
     :host {
@@ -24164,7 +23962,7 @@ Polymer({
 
   <paper-scroll-header-panel fixed="">
     <paper-toolbar>
-      <paper-tabs id="my-tabs" selected="0" noink="" no-bar="">
+      <paper-tabs id="my-tabs" noink="" no-bar="">
         <paper-tab> <iron-icon icon="home"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:dns"></iron-icon> </paper-tab>
         <paper-tab> <iron-icon icon="icons:view-module"></iron-icon> </paper-tab>

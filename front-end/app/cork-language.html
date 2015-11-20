@@ -1,0 +1,71 @@
+<link rel="import" href="bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+
+
+<dom-module id="cork-language">
+
+  <style>
+  .language-box{
+    border-color: red;
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 10%;
+    width: 23px;
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 12px;
+    display: inline-block;
+  }
+  </style>
+
+  <template>
+    <div class="language-box">{{language}}<div>
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'cork-language',
+      properties: {
+        language: String
+      }
+
+    });
+  })();
+</script>
+
+
+
+<dom-module id="cork-language-select">
+
+  <template>
+    <select id="languagelist" on-change="selectedChanged" value="{{language}}">
+        <option>it</option>
+        <option>en</option>
+        <option>fr</option>
+    </select>
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'cork-language-select',
+      properties: {
+        language: {
+          type: String,
+          notify:true,
+        }
+      },
+
+      selectedChanged : function(){
+        console.log("Selected language is ", this.$.languagelist.value);
+        this.language = this.$.languagelist.value;
+      },
+    });
+  })();
+</script>

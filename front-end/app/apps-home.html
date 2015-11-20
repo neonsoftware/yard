@@ -1,0 +1,145 @@
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="bower_components/more-routing/more-route.html">
+
+<dom-module id="apps-home">
+
+  <style>
+    [card] {
+      margin: 16px;
+      padding: 16px;
+      @apply(--layout-vertical --layout-center-center);
+    }
+
+    [centerButton] {
+      text-align: center;
+      padding: 16px;
+    }
+
+    .countNumber{
+      color: gray;
+      font-size: 50px;
+    }
+    .recap{
+      font-family: sans-serif;
+    }
+
+    .iron-selected {
+      background: rgb(255, 179, 61);
+    }
+
+    .badge-box{
+      border-color: black;
+      border-width: 1px;
+      border-style: solid;
+      border-radius: 14%;
+      padding-left: 3px;
+      padding-right: 3px;
+      padding-bottom: 2px;
+      padding-top: 2px;
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 10px;
+      margin-right: 0px;
+      display: inline-block;
+    }
+  </style>
+
+  <template>
+
+    <iron-ajax id="get_ajax" method="GET" url="{{serverurl}}"  handle-as="json" on-response="handleResponseGet" on-error="handleResponseError"></iron-ajax>
+
+    <paper-material card levation="1">
+      <div class="recap">
+        You have <span class="countNumber">{{activeOnes(onlineItems)}}</span> open positions <br>
+        You have <span class="countNumber">{{writtenOnes(onlineItems)}}</span> witten positions <br>
+        You have <span class="countNumber">{{interviewedOnes(onlineItems)}}</span> interviewed positions <br>
+        You have <span class="countNumber">{{calledOnes(onlineItems)}}</span> called positions <br>
+        You have <span class="countNumber">{{closedOnes(onlineItems)}}</span> closed positions <br>
+      </div>
+    </paper-material>
+  </template>
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'apps-home',
+      properties: {
+        serverurl: {type: String, value: ""},
+        onlineItems: Array,
+        debug: { type: Boolean, value: false },
+        active: Boolean
+      },
+
+      observers:['_inputsUpdated(active, serverurl)'],
+
+      _inputsUpdated(current_active, current_serverurl){
+        if(this.debug) console.log("Unputs updated. ");
+        if(this.active){
+          this.$.get_ajax.generateRequest();
+        }
+      },
+
+      activeOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(currentItems[i].followup) { count++; }
+        }
+        return count;
+      },
+
+      closedOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(!(currentItems[i].followup)) { count++; }
+        }
+        return count;
+      },
+
+      writtenOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(currentItems[i].written) { count++; }
+        }
+        return count;
+      },
+
+      calledOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(currentItems[i].called) { count++; }
+        }
+        return count;
+      },
+
+      interviewedOnes(currentItems) {
+        var count = 0;
+        for(var i = 0; i < currentItems.length; i++){
+          if(currentItems[i].interviewed) { count++; }
+        }
+        return count;
+      },
+
+      handleResponseGet:function(response){
+        if(this.debug) console.log(response.detail.response);
+        if(this.debug) console.log('Status is', response.detail.status);
+        if( response.detail.status == 403 ){
+          if(this.debug) console.log('Woooo. not logged int. Routing to login.');
+          MoreRouting.navigateTo('login', {});
+        }else{
+          this.onlineItems = response.detail.response;
+        }
+      },
+      handleResponseError:function(response){
+        if(this.debug) console.log(response.detail.error.message);
+        if(this.debug) console.log('Error is', response.detail.error.message);
+        if( response.detail.error.message.indexOf("401") >-1 ){
+          if(this.debug) console.log('Woooo. not logged int. Routing to login.');
+          MoreRouting.navigateTo('login', {});
+        }
+      }
+
+    });
+  })();
+</script>

@@ -1,0 +1,186 @@
+<link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+
+<!-- Paper elements -->
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/paper-material/paper-material.html">
+<link rel="import" href="bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="bower_components/more-routing/more-route.html">
+<link rel="import" href="bower_components/rest-item/rest-item.html">
+
+<dom-module id="covers-detail">
+  <template>
+    <style>
+      [card] {
+        margin: 16px;
+        padding: 16px;
+        @apply(--layout-vertical --layout-center-center);
+      }
+    </style>
+
+    <rest-item id="rest_detail" active="[[active]]" debug="[[debug]]" elementid="[[elementid]]" defaultitem="[[defaultitem]]"
+                                serverurl="[[serverurl]]" currentitem="{{currentitem}}">
+    </rest-item>
+
+    <iron-ajax id="ajax_get_template" method="GET" handle-as="json" content-type="application/json" on-response="_handle_response_get_template"></iron-ajax>
+
+    <paper-material card elevation="1">
+      <paper-input type="text" label="Name" floatingLabel value="{{currentitem.name}}"></paper-input>
+      <br>
+      <template is="dom-if" if="{{edit_disabled}}">
+        <template is="dom-repeat" items="{{currentlegend}}">
+          <paper-input type="text" label="{{item.value}}" floatingLabel value="{{item.filled}}" ></paper-input>
+        </template>
+      </template>
+      <br>
+
+
+      <div class="layout horizontal">
+        <div style="margin:3px">
+          <iron-autogrow-textarea bind-value="{{currentcontent}}" disabled="{{edit_disabled}}"><textarea></textarea></iron-autogrow-textarea>
+        </div>
+        <div style="margin:3px">
+          <template is="dom-if" if="{{edit_disabled}}">
+              <paper-fab icon="create" style="width: 18px; height: 18px;" on-tap="fill_me"></paper-fab>
+          </template>
+        </div>
+      </div>
+
+
+
+    </paper-material>
+
+    <div class="layout vertical center">
+      <div class="layout horizontal center">
+        <div style="margin:3px"><paper-fab icon="save" on-click="save_me"></paper-fab></div>
+      </div>
+    </div>
+
+  </template>
+
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+
+      is: 'covers-detail',
+      properties: {
+        debug: { type: Boolean, value: false },
+        elementid: String,
+        active: Boolean,
+        serverurl: String,
+        templateid: String,
+        templateserverurl: { type: String, value: ""},
+        currentitem: { type: Object, observer:'_updatedCurrentItem' },
+        defaultitem: { type: Object, value: {"content":"", "name":""} }
+      },
+
+      observers:['_updateAjaxParameters(active, elementid, templateid, serverurl, templateserverurl)',
+                  '_on_legend_change(currentlegend.*)'],
+
+      ready: function(){
+        this.lettersymbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
+        this.originalcontent = "";
+        this.currentcontent = "";
+        this.edit_disabled = "";
+        this.currentlegend = [];
+      },
+
+      _updateAjaxParameters: function(current_active, current_id, current_template_id,  current_serverurl, current_template_server){
+        if(this.debug) console.log('>>>>Updated inputs. active : ', this.active, ' - elementid : ', this.elementid, ' - templateid : ', this.templateid, ' - serverurl : ', this.serverurl, ' - templateserverurl : ', this.templateserverurl );
+        var isFromEmpty = Boolean(this.templateid === "empty");
+
+        if ( this.active ){
+          if ( isFromEmpty ) {
+            this.reset();
+          }else{
+            if(this.debug) console.log('>>>> Triggering template GET');
+            this.edit_disabled = true;
+            this.$.ajax_get_template.url = this.templateserverurl + '/' + String(this.templateid) + '/' ;
+            this.$.ajax_get_template.generateRequest();
+          }
+        }else{
+          this.reset();
+        }
+      },
+
+      reset: function(){
+        // Resetting
+        if(this.debug) console.log('>>>> Resetting content ');
+        this.edit_disabled = false;
+        this.set('originalcontent', "");
+        this.set('currentcontent', "");
+        this.set('currentlegend', []);
+      },
+
+      save_me: function(){
+        this.currentitem.content = this.currentcontent;
+        if(this.debug) console.log("In the end pieces is : ", this.currentitem );
+        this.$.rest_detail.save(JSON.stringify(this.currentitem));
+      },
+
+      _updatedCurrentItem: function(new_val, old_val){
+        if(this.debug) console.log('Updated currenttitem : ', this.currentcontent);
+        this.currentcontent = this.currentitem.content;
+        this.originalcontent = this.currentcontent;
+      },
+
+      _handle_response_get_template: function(response){
+        if ( typeof response.detail.response != 'undefined' && this.templateid !== 'empty' ){
+          if(this.debug) console.log('>>> Received response from GET template : ', typeof response.detail.response);
+          var newCurrentContent = "";
+          this.currentlegend = [];
+
+          // Now reordering the blocks (AAA, BBB, CCC, DDD) in order to place them in the legend
+          this.currentpieces = JSON.parse(response.detail.response.pieces);
+          var symbolsToAssign = this.lettersymbols;
+
+          for (index = 0, len = this.currentpieces.length; index < len; ++index) {
+            var currentPiece = this.currentpieces[index];
+            var currentLegend = JSON.parse(currentPiece.legend);
+            for (j = 0, lenLegend = currentLegend.length; j < lenLegend; ++j) {
+              var currentLegendItem = currentLegend[j];
+              var oldSymbol = currentLegendItem.key;
+              var newSymbol = symbolsToAssign[0];
+              currentPiece.content = currentPiece.content.replace(oldSymbol, newSymbol);
+              currentLegendItem.key = newSymbol;
+              symbolsToAssign.shift();
+              this.push('currentlegend', currentLegendItem);
+            }
+            newCurrentContent = newCurrentContent.concat(currentPiece.content).concat("\n");
+            this.originalcontent = newCurrentContent;
+          }
+          this.set('currentcontent', newCurrentContent);
+        }
+      },
+
+      fill_me: function(){
+        this.edit_disabled = false;
+      },
+
+      _on_legend_change: function(new_value){
+        var j, len;
+        var currentOriginalContent = this.originalcontent;
+        if(this.debug) console.log('Changed something in the legend. Legend : ', this.currentlegend, ' - current content : ', this.currentcontent, ' - original content : ', this.originalcontent );
+        for (j = 0 , len = this.currentlegend.length; j < len ;  ++j) {
+          var currentObject = this.currentlegend[j];
+          var currentObjectKey = currentObject.key;
+          var currentFilled = currentObject.filled;
+          if( typeof currentObject.filled !== 'undefined' && currentObject.filled.length > 0){
+            if ( currentOriginalContent.indexOf(currentObjectKey) >-1 ){
+              currentOriginalContent = currentOriginalContent.replace(currentObjectKey, currentFilled);
+            }
+          }
+        }
+        this.currentcontent = currentOriginalContent;
+        if(this.debug) console.log('>>>> current content is set to ', this.currentcontent );
+      }
+    });
+  })();
+</script>
