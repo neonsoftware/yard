@@ -7,8 +7,7 @@
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
     "platinum-elements": "PolymerElements/platinum-elements",
-    "neon-elements": "PolymerElements/neon-elements",
-    "page": "visionmedia/page.js#~1.6.3"
+    "neon-elements": "PolymerElements/neon-elements"
   },
   "devDependencies": {
     "web-component-tester": "*",
