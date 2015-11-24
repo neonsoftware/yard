@@ -4,12 +4,12 @@ test: context install
 
 archive: clean context install
 	@ echo "------------------- Creating build folder to be archived "
-	cd app && mkdir build && make
+	cd app && make
 	tar cvf dist.tar dist
 
 clean:
 	@ echo "------------------- Removing previous builds and temporary files "
-	rm -fr build build.tar bower_components
+	rm -fr dist.tar bower_components
 
 install:
 	@ echo "------------------- Installing Bower elements "
