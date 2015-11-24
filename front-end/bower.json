@@ -7,7 +7,10 @@
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
     "platinum-elements": "PolymerElements/platinum-elements",
-    "neon-elements": "PolymerElements/neon-elements"
+    "neon-elements": "PolymerElements/neon-elements",
+    "rest-item": "neonsoftware/rest-item",
+    "rest-array": "neonsoftware/rest-array",
+    "badges-select": "neonsoftware/badges-select"
   },
   "devDependencies": {
     "web-component-tester": "*",
