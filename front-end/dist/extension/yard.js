@@ -8045,8 +8045,6 @@ this.fire('dom-change');
 
       /**
        * Returns the currently selected item.
-       *
-       * @type {?Object}
        */
       selectedItem: {
         type: Object,
@@ -8088,20 +8086,10 @@ this.fire('dom-change');
       },
 
       /**
-       * The list of items from which a selection can be made.
-       */
-      items: {
-        type: Array,
-        readOnly: true,
-        value: function() {
-          return [];
-        }
-      },
-
-      /**
        * The set of excluded elements where the key is the `localName`
        * of the element that will be ignored from the item list.
        *
+       * @type {object}
        * @default {template: 1}
        */
       _excludedLocalNames: {
@@ -8121,12 +8109,15 @@ this.fire('dom-change');
     created: function() {
       this._bindFilterItem = this._filterItem.bind(this);
       this._selection = new Polymer.IronSelection(this._applySelection.bind(this));
+      // TODO(cdata): When polymer/polymer#2535 lands, we do not need to do this
+      // book keeping anymore:
+      this.__listeningForActivate = false;
     },
 
     attached: function() {
       this._observer = this._observeItems(this);
-      this._updateItems();
-      if (!this._shouldUpdateSelection) {
+      this._contentObserver = this._observeContent(this);
+      if (!this.selectedItem && this.selected) {
         this._updateSelected(this.attrForSelected,this.selected)
       }
       this._addListener(this.activateEvent);
@@ -8134,9 +8125,23 @@ this.fire('dom-change');
 
     detached: function() {
       if (this._observer) {
-        Polymer.dom(this).unobserveNodes(this._observer);
+        this._observer.disconnect();
+      }
+      if (this._contentObserver) {
+        this._contentObserver.disconnect();
       }
       this._removeListener(this.activateEvent);
+    },
+
+    /**
+     * Returns an array of selectable items.
+     *
+     * @property items
+     * @type Array
+     */
+    get items() {
+      var nodes = Polymer.dom(this).queryDistributedElements(this.selectable || '*');
+      return Array.prototype.filter.call(nodes, this._bindFilterItem);
     },
 
     /**
@@ -8181,27 +8186,23 @@ this.fire('dom-change');
       this.selected = this._indexToValue(index);
     },
 
-    get _shouldUpdateSelection() {
-      return this.selected != null;
-    },
-
     _addListener: function(eventName) {
+      if (!this.isAttached || this.__listeningForActivate) {
+        return;
+      }
+
+      this.__listeningForActivate = true;
       this.listen(this, eventName, '_activateHandler');
     },
 
     _removeListener: function(eventName) {
       this.unlisten(this, eventName, '_activateHandler');
+      this.__listeningForActivate = false;
     },
 
     _activateEventChanged: function(eventName, old) {
       this._removeListener(old);
       this._addListener(eventName);
-    },
-
-    _updateItems: function() {
-      var nodes = Polymer.dom(this).queryDistributedElements(this.selectable || '*');
-      nodes = Array.prototype.filter.call(nodes, this._bindFilterItem);
-      this._setItems(nodes);
     },
 
     _updateSelected: function() {
@@ -8262,9 +8263,18 @@ this.fire('dom-change');
       this._setSelectedItem(this._selection.get());
     },
 
+    // observe content changes under the given node.
+    _observeContent: function(node) {
+      var content = node.querySelector('content');
+      if (content && content.parentElement === node) {
+        return this._observeItems(node.domHost);
+      }
+    },
+
     // observe items change under the given node.
     _observeItems: function(node) {
-      return Polymer.dom(node).observeNodes(function(mutations) {
+      // TODO(cdata): Update this when we get distributed children changed.
+      var observer = new MutationObserver(function(mutations) {
         // Let other interested parties know about the change so that
         // we don't have to recreate mutation observers everywher.
         this.fire('iron-items-changed', mutations, {
@@ -8272,12 +8282,15 @@ this.fire('dom-change');
           cancelable: false
         });
 
-        this._updateItems();
-
-        if (this._shouldUpdateSelection) {
+        if (this.selected != null) {
           this._updateSelected();
         }
+      }.bind(this));
+      observer.observe(node, {
+        childList: true,
+        subtree: true
       });
+      return observer;
     },
 
     _activateHandler: function(e) {
@@ -8362,11 +8375,6 @@ this.fire('dom-change');
       this._selection.multi = multi;
     },
 
-    get _shouldUpdateSelection() {
-      return this.selected != null ||
-        (this.selectedValues != null && this.selectedValues.length);
-    },
-
     _updateSelected: function() {
       if (this.multi) {
         this._selectMulti(this.selectedValues);
@@ -8421,46 +8429,10 @@ this.fire('dom-change');
      * Values taken from: http://www.w3.org/TR/2007/WD-DOM-Level-3-Events-20071221/keyset.html#KeySet-Set
      */
     var KEY_IDENTIFIER = {
+      'U+0008': 'backspace',
       'U+0009': 'tab',
       'U+001B': 'esc',
       'U+0020': 'space',
-      'U+002A': '*',
-      'U+0030': '0',
-      'U+0031': '1',
-      'U+0032': '2',
-      'U+0033': '3',
-      'U+0034': '4',
-      'U+0035': '5',
-      'U+0036': '6',
-      'U+0037': '7',
-      'U+0038': '8',
-      'U+0039': '9',
-      'U+0041': 'a',
-      'U+0042': 'b',
-      'U+0043': 'c',
-      'U+0044': 'd',
-      'U+0045': 'e',
-      'U+0046': 'f',
-      'U+0047': 'g',
-      'U+0048': 'h',
-      'U+0049': 'i',
-      'U+004A': 'j',
-      'U+004B': 'k',
-      'U+004C': 'l',
-      'U+004D': 'm',
-      'U+004E': 'n',
-      'U+004F': 'o',
-      'U+0050': 'p',
-      'U+0051': 'q',
-      'U+0052': 'r',
-      'U+0053': 's',
-      'U+0054': 't',
-      'U+0055': 'u',
-      'U+0056': 'v',
-      'U+0057': 'w',
-      'U+0058': 'x',
-      'U+0059': 'y',
-      'U+005A': 'z',
       'U+007F': 'del'
     };
 
@@ -8472,6 +8444,7 @@ this.fire('dom-change');
      * Values from: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent.keyCode#Value_of_keyCode
      */
     var KEY_CODE = {
+      8: 'backspace',
       9: 'tab',
       13: 'enter',
       27: 'esc',
@@ -8501,16 +8474,6 @@ this.fire('dom-change');
     };
 
     /**
-     * KeyboardEvent.key is mostly represented by printable character made by
-     * the keyboard, with unprintable keys labeled nicely.
-     *
-     * However, on OS X, Alt+char can make a Unicode character that follows an
-     * Apple-specific mapping. In this case, we
-     * fall back to .keyCode.
-     */
-    var KEY_CHAR = /[a-z0-9*]/;
-
-    /**
      * Matches a keyIdentifier string.
      */
     var IDENT_CHAR = /U\+/;
@@ -8530,14 +8493,12 @@ this.fire('dom-change');
       var validKey = '';
       if (key) {
         var lKey = key.toLowerCase();
-        if (lKey.length == 1) {
-          if (KEY_CHAR.test(lKey)) {
-            validKey = lKey;
-          }
+        if (lKey === ' ' || SPACE_KEY.test(lKey)) {
+          validKey = 'space';
+        } else if (lKey.length == 1) {
+          validKey = lKey;
         } else if (ARROW_KEY.test(lKey)) {
           validKey = lKey.replace('arrow', '');
-        } else if (SPACE_KEY.test(lKey)) {
-          validKey = 'space';
         } else if (lKey == 'multiply') {
           // numpad '*' can map to Multiply on IE/Windows
           validKey = '*';
@@ -8551,8 +8512,11 @@ this.fire('dom-change');
     function transformKeyIdentifier(keyIdent) {
       var validKey = '';
       if (keyIdent) {
-        if (IDENT_CHAR.test(keyIdent)) {
+        if (keyIdent in KEY_IDENTIFIER) {
           validKey = KEY_IDENTIFIER[keyIdent];
+        } else if (IDENT_CHAR.test(keyIdent)) {
+          keyIdent = parseInt(keyIdent.replace('U+', '0x'), 16);
+          validKey = String.fromCharCode(keyIdent).toLowerCase();
         } else {
           validKey = keyIdent.toLowerCase();
         }
@@ -8592,15 +8556,24 @@ this.fire('dom-change');
         transformKey(keyEvent.detail.key) || '';
     }
 
-    function keyComboMatchesEvent(keyCombo, keyEvent) {
-      return normalizedKeyForEvent(keyEvent) === keyCombo.key &&
-        !!keyEvent.shiftKey === !!keyCombo.shiftKey &&
-        !!keyEvent.ctrlKey === !!keyCombo.ctrlKey &&
-        !!keyEvent.altKey === !!keyCombo.altKey &&
-        !!keyEvent.metaKey === !!keyCombo.metaKey;
+    function keyComboMatchesEvent(keyCombo, event, eventKey) {
+      return eventKey === keyCombo.key &&
+        (!keyCombo.hasModifiers || (
+          !!event.shiftKey === !!keyCombo.shiftKey &&
+          !!event.ctrlKey === !!keyCombo.ctrlKey &&
+          !!event.altKey === !!keyCombo.altKey &&
+          !!event.metaKey === !!keyCombo.metaKey)
+        );
     }
 
     function parseKeyComboString(keyComboString) {
+      if (keyComboString.length === 1) {
+        return {
+          combo: keyComboString,
+          key: keyComboString,
+          event: 'keydown'
+        };
+      }
       return keyComboString.split('+').reduce(function(parsedKeyCombo, keyComboPart) {
         var eventParts = keyComboPart.split(':');
         var keyName = eventParts[0];
@@ -8608,6 +8581,7 @@ this.fire('dom-change');
 
         if (keyName in MODIFIER_KEYS) {
           parsedKeyCombo[MODIFIER_KEYS[keyName]] = true;
+          parsedKeyCombo.hasModifiers = true;
         } else {
           parsedKeyCombo.key = keyName;
           parsedKeyCombo.event = event || 'keydown';
@@ -8620,11 +8594,10 @@ this.fire('dom-change');
     }
 
     function parseEventString(eventString) {
-      return eventString.split(' ').map(function(keyComboString) {
+      return eventString.trim().split(' ').map(function(keyComboString) {
         return parseKeyComboString(keyComboString);
       });
     }
-
 
     /**
      * `Polymer.IronA11yKeysBehavior` provides a normalized interface for processing
@@ -8721,14 +8694,12 @@ this.fire('dom-change');
 
       keyboardEventMatchesKeys: function(event, eventString) {
         var keyCombos = parseEventString(eventString);
-        var index;
-
-        for (index = 0; index < keyCombos.length; ++index) {
-          if (keyComboMatchesEvent(keyCombos[index], event)) {
+        var eventKey = normalizedKeyForEvent(event);
+        for (var i = 0; i < keyCombos.length; ++i) {
+          if (keyComboMatchesEvent(keyCombos[i], event, eventKey)) {
             return true;
           }
         }
-
         return false;
       },
 
@@ -8755,6 +8726,15 @@ this.fire('dom-change');
 
         for (var eventString in this._imperativeKeyBindings) {
           this._addKeyBinding(eventString, this._imperativeKeyBindings[eventString]);
+        }
+
+        // Give precedence to combos with modifiers to be checked first.
+        for (var eventName in this._keyBindings) {
+          this._keyBindings[eventName].sort(function (kb1, kb2) {
+            var b1 = kb1[0].hasModifiers;
+            var b2 = kb2[0].hasModifiers;
+            return (b1 === b2) ? 0 : b1 ? -1 : 1;
+          })
         }
       },
 
@@ -8811,14 +8791,23 @@ this.fire('dom-change');
           event.stopPropagation();
         }
 
-        keyBindings.forEach(function(keyBinding) {
-          var keyCombo = keyBinding[0];
-          var handlerName = keyBinding[1];
+        // if event has been already prevented, don't do anything
+        if (event.defaultPrevented) {
+          return;
+        }
 
-          if (!event.defaultPrevented && keyComboMatchesEvent(keyCombo, event)) {
+        var eventKey = normalizedKeyForEvent(event);
+        for (var i = 0; i < keyBindings.length; i++) {
+          var keyCombo = keyBindings[i][0];
+          var handlerName = keyBindings[i][1];
+          if (keyComboMatchesEvent(keyCombo, event, eventKey)) {
             this._triggerKeyHandler(keyCombo, handlerName, event);
+            // exit the loop if eventDefault was prevented
+            if (event.defaultPrevented) {
+              return;
+            }
           }
-        }, this);
+        }
       },
 
       _triggerKeyHandler: function(keyCombo, handlerName, keyboardEvent) {

@@ -4,10 +4,9 @@
   "dependencies": {
     "polymer": "Polymer/polymer",
     "more-routing": "neonsoftware/more-routing",
+    "iron-selector": "PolymerElements/iron-selector#1.0.7",
     "iron-elements": "PolymerElements/iron-elements",
     "paper-elements": "PolymerElements/paper-elements",
-    "platinum-elements": "PolymerElements/platinum-elements",
-    "neon-elements": "PolymerElements/neon-elements",
     "rest-item": "neonsoftware/rest-item",
     "rest-array": "neonsoftware/rest-array",
     "badges-select": "neonsoftware/badges-select"
