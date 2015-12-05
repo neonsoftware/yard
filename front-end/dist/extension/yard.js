@@ -8935,6 +8935,7 @@ this.fire('dom-change');
       for (var i = 0, item; item = this.items[i]; i++) {
         var attr = this.attrForItemTitle || 'textContent';
         var title = item[attr] || item.getAttribute(attr);
+
         if (title && title.trim().charAt(0).toLowerCase() === String.fromCharCode(event.keyCode).toLowerCase()) {
           this._setFocusedItem(item);
           break;
@@ -8975,7 +8976,6 @@ this.fire('dom-change');
       } else {
         item.removeAttribute('aria-selected');
       }
-
       Polymer.IronSelectableBehavior._applySelection.apply(this, arguments);
     },
 
@@ -9023,18 +9023,18 @@ this.fire('dom-change');
      * @param {CustomEvent} event A key combination event.
      */
     _onShiftTabDown: function(event) {
-      var oldTabIndex;
+      var oldTabIndex = this.getAttribute('tabindex');
 
       Polymer.IronMenuBehaviorImpl._shiftTabPressed = true;
 
-      oldTabIndex = this.getAttribute('tabindex');
+      this._setFocusedItem(null);
 
       this.setAttribute('tabindex', '-1');
 
       this.async(function() {
         this.setAttribute('tabindex', oldTabIndex);
         Polymer.IronMenuBehaviorImpl._shiftTabPressed = false;
-      // NOTE(cdata): polymer/polymer#1305
+        // NOTE(cdata): polymer/polymer#1305
       }, 1);
     },
 
@@ -9045,23 +9045,27 @@ this.fire('dom-change');
      */
     _onFocus: function(event) {
       if (Polymer.IronMenuBehaviorImpl._shiftTabPressed) {
+        // do not focus the menu itself
         return;
       }
-      // do not focus the menu itself
+
       this.blur();
+
       // clear the cached focus item
-      this._setFocusedItem(null);
       this._defaultFocusAsync = this.async(function() {
         // focus the selected item when the menu receives focus, or the first item
         // if no item is selected
         var selectedItem = this.multi ? (this.selectedItems && this.selectedItems[0]) : this.selectedItem;
+
+        this._setFocusedItem(null);
+
         if (selectedItem) {
           this._setFocusedItem(selectedItem);
         } else {
           this._setFocusedItem(this.items[0]);
         }
-      // async 100ms to wait for `select` to get called from `_itemActivate`
-      }, 100);
+      // async 1ms to wait for `select` to get called from `_itemActivate`
+      }, 1);
     },
 
     /**
@@ -9099,12 +9103,17 @@ this.fire('dom-change');
      * @param {KeyboardEvent} event A keyboard event.
      */
     _onKeydown: function(event) {
-      if (this.keyboardEventMatchesKeys(event, 'up down esc')) {
-        return;
+      if (!this.keyboardEventMatchesKeys(event, 'up down esc')) {
+        // all other keys focus the menu item starting with that character
+        this._focusWithKeyboardEvent(event);
       }
+      event.stopPropagation();
+    },
 
-      // all other keys focus the menu item starting with that character
-      this._focusWithKeyboardEvent(event);
+    // override _activateHandler
+    _activateHandler: function(event) {
+      Polymer.IronSelectableBehavior._activateHandler.call(this, event);
+      event.stopPropagation();
     }
   };
 
@@ -11075,60 +11084,74 @@ CSS properties               | Action
     }
 
   };
-Polymer.IronOverlayManager = (function() {
+Polymer.IronOverlayManager = {
 
-    var overlays = [];
-    var DEFAULT_Z = 10;
-    var backdrops = [];
+    _overlays: [],
+
+    // iframes have a default z-index of 100, so this default should be at least
+    // that.
+    _minimumZ: 101,
+
+    _backdrops: [],
+
+    _applyOverlayZ: function(overlay, aboveZ) {
+      this._setZ(overlay, aboveZ + 2);
+    },
+
+    _setZ: function(element, z) {
+      element.style.zIndex = z;
+    },
 
     // track overlays for z-index and focus managemant
-    function addOverlay(overlay) {
-      var z0 = currentOverlayZ();
-      overlays.push(overlay);
-      var z1 = currentOverlayZ();
-      if (z1 <= z0) {
-        applyOverlayZ(overlay, z0);
+    addOverlay: function(overlay) {
+      var minimumZ = Math.max(this.currentOverlayZ(), this._minimumZ);
+      this._overlays.push(overlay);
+      var newZ = this.currentOverlayZ();
+      if (newZ <= minimumZ) {
+        this._applyOverlayZ(overlay, minimumZ);
       }
-    }
+    },
 
-    function removeOverlay(overlay) {
-      var i = overlays.indexOf(overlay);
+    removeOverlay: function(overlay) {
+      var i = this._overlays.indexOf(overlay);
       if (i >= 0) {
-        overlays.splice(i, 1);
-        setZ(overlay, '');
+        this._overlays.splice(i, 1);
+        this._setZ(overlay, '');
       }
-    }
+    },
 
-    function applyOverlayZ(overlay, aboveZ) {
-      setZ(overlay, aboveZ + 2);
-    }
-
-    function setZ(element, z) {
-      element.style.zIndex = z;
-    }
-
-    function currentOverlay() {
-      var i = overlays.length - 1;
-      while (overlays[i] && !overlays[i].opened) {
+    currentOverlay: function() {
+      var i = this._overlays.length - 1;
+      while (this._overlays[i] && !this._overlays[i].opened) {
         --i;
       }
-      return overlays[i];
-    }
+      return this._overlays[i];
+    },
 
-    function currentOverlayZ() {
-      var z;
-      var current = currentOverlay();
+    currentOverlayZ: function() {
+      var z = this._minimumZ;
+      var current = this.currentOverlay();
       if (current) {
         var z1 = window.getComputedStyle(current).zIndex;
         if (!isNaN(z1)) {
           z = Number(z1);
         }
       }
-      return z || DEFAULT_Z;
-    }
+      return z;
+    },
 
-    function focusOverlay() {
-      var current = currentOverlay();
+    /**
+     * Ensures that the minimum z-index of new overlays is at least `minimumZ`.
+     * This does not effect the z-index of any existing overlays.
+     *
+     * @param {number} minimumZ
+     */
+    ensureMinimumZ: function(minimumZ) {
+      this._minimumZ = Math.max(this._minimumZ, minimumZ);
+    },
+
+    focusOverlay: function() {
+      var current = this.currentOverlay();
       // We have to be careful to focus the next overlay _after_ any current
       // transitions are complete (due to the state being toggled prior to the
       // transition). Otherwise, we risk infinite recursion when a transitioning
@@ -11140,36 +11163,26 @@ Polymer.IronOverlayManager = (function() {
       if (current && !current.transitioning) {
         current._applyFocus();
       }
-    }
+    },
 
-    function trackBackdrop(element) {
+    trackBackdrop: function(element) {
       // backdrops contains the overlays with a backdrop that are currently
       // visible
       if (element.opened) {
-        backdrops.push(element);
+        this._backdrops.push(element);
       } else {
-        var index = backdrops.indexOf(element);
+        var index = this._backdrops.indexOf(element);
         if (index >= 0) {
-          backdrops.splice(index, 1);
+          this._backdrops.splice(index, 1);
         }
       }
+    },
+
+    getBackdrops: function() {
+      return this._backdrops;
     }
 
-    function getBackdrops() {
-      return backdrops;
-    }
-
-    return {
-      addOverlay: addOverlay,
-      removeOverlay: removeOverlay,
-      currentOverlay: currentOverlay,
-      currentOverlayZ: currentOverlayZ,
-      focusOverlay: focusOverlay,
-      trackBackdrop: trackBackdrop,
-      getBackdrops: getBackdrops
-    };
-
-  })();
+  };
 /**
 Use `Polymer.IronOverlayBehavior` to implement an element that can be hidden or shown, and displays
 on top of other content. It includes an optional backdrop, and can be used to implement a variety
@@ -11585,6 +11598,12 @@ context. You should place this element as a child of `<body>` whenever possible.
 /**
  * Fired after the `iron-overlay` opens.
  * @event iron-overlay-opened
+ */
+
+/**
+ * Fired when the `iron-overlay` is canceled, but before it is closed.
+ * Cancel the event to prevent the `iron-overlay` from closing.
+ * @event iron-overlay-canceled
  */
 
 /**
@@ -13181,7 +13200,8 @@ is separate from validation, and `allowed-pattern` does not affect how the input
        */
 
       /**
-       * The label for this input. Bind this to `<paper-input-container>`'s `label` property.
+       * The label for this input. Bind this to `<label>`'s content and `hidden` property, e.g.
+       * `<label hidden$="[[!label]]">[[label]]</label>` in your `template`
        */
       label: {
         type: String
@@ -13436,21 +13456,21 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       },
 
       /**
-       * Bind this to the `<input is="iron-input">`'s `results` property, , used with type=search.
+       * Bind this to the `<input is="iron-input">`'s `results` property, used with type=search.
        */
       results: {
         type: Number
       },
 
       /**
-       * Bind this to the `<input is="iron-input">`'s `accept` property, , used with type=file.
+       * Bind this to the `<input is="iron-input">`'s `accept` property, used with type=file.
        */
       accept: {
         type: String
       },
 
       /**
-       * Bind this to the `<input is="iron-input">`'s `multiple` property, , used with type=file.
+       * Bind this to the `<input is="iron-input">`'s `multiple` property, used with type=file.
        */
       multiple: {
         type: Boolean
@@ -13469,18 +13489,34 @@ is separate from validation, and `allowed-pattern` does not affect how the input
     },
 
     listeners: {
-      'addon-attached': '_onAddonAttached'
+      'addon-attached': '_onAddonAttached',
+      'focus': '_onFocus'
     },
 
     observers: [
       '_focusedControlStateChanged(focused)'
     ],
 
+    keyBindings: {
+      'shift+tab:keydown': '_onShiftTabDown'
+    },
+
+    hostAttributes: {
+      tabindex: 0
+    },
+
     /**
      * Returns a reference to the input element.
      */
     get inputElement() {
       return this.$.input;
+    },
+
+    /**
+     * Returns a reference to the focusable element.
+     */
+    get _focusableElement() {
+      return this.inputElement;
     },
 
     attached: function() {
@@ -13516,6 +13552,29 @@ is separate from validation, and `allowed-pattern` does not affect how the input
       return this.inputElement.validate();
     },
 
+    /**
+     * Forward focus to inputElement
+     */
+    _onFocus: function() {
+      if (!this._shiftTabPressed) {
+        this._focusableElement.focus();
+      }
+    },
+
+    /**
+     * Handler that is called when a shift+tab keypress is detected by the menu.
+     *
+     * @param {CustomEvent} event A key combination event.
+     */
+    _onShiftTabDown: function(event) {
+      var oldTabIndex = this.getAttribute('tabindex');
+      this._shiftTabPressed = true;
+      this.setAttribute('tabindex', '-1');
+      this.async(function() {
+        this.setAttribute('tabindex', oldTabIndex);
+        this._shiftTabPressed = false;
+      }, 1);
+    },
     /**
      * If `autoValidate` is true, then validates the element.
      */
@@ -13600,7 +13659,11 @@ is separate from validation, and `allowed-pattern` does not affect how the input
   };
 
   /** @polymerBehavior */
-  Polymer.PaperInputBehavior = [Polymer.IronControlState, Polymer.PaperInputBehaviorImpl];
+  Polymer.PaperInputBehavior = [
+    Polymer.IronControlState,
+    Polymer.IronA11yKeysBehavior,
+    Polymer.PaperInputBehaviorImpl
+  ];
 /**
    * Use `Polymer.PaperInputAddonBehavior` to implement an add-on for `<paper-input-container>`. A
    * add-on appears below the input, and may display information based on the input value and
@@ -15148,10 +15211,6 @@ Polymer({
          * Controls how the items are aligned horizontally when they are placed
          * at the bottom.
          * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute bottomJustify
-         * @type string
-         * @default ''
          */
         bottomJustify: {
           type: String,
@@ -15161,10 +15220,6 @@ Polymer({
         /**
          * Controls how the items are aligned horizontally.
          * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute justify
-         * @type string
-         * @default ''
          */
         justify: {
           type: String,
@@ -15175,10 +15230,6 @@ Polymer({
          * Controls how the items are aligned horizontally when they are placed
          * in the middle.
          * Options are `start`, `center`, `end`, `justified` and `around`.
-         *
-         * @attribute middleJustify
-         * @type string
-         * @default ''
          */
         middleJustify: {
           type: String,
@@ -15969,372 +16020,368 @@ Polymer({
       }
     });
 Polymer({
+      is: 'paper-tab',
 
-    is: 'paper-tab',
+      behaviors: [
+        Polymer.IronControlState,
+        Polymer.IronButtonState,
+        Polymer.PaperRippleBehavior
+      ],
 
-    behaviors: [
-      Polymer.IronControlState,
-      Polymer.IronButtonState,
-      Polymer.PaperRippleBehavior
-    ],
+      hostAttributes: {
+        role: 'tab'
+      },
 
-    hostAttributes: {
-      role: 'tab'
-    },
+      listeners: {
+        down: '_updateNoink'
+      },
 
-    listeners: {
-      down: '_updateNoink'
-    },
+      ready: function() {
+        var ripple = this.getRipple();
+        ripple.initialOpacity = 0.95;
+        ripple.opacityDecayVelocity = 0.98;
+      },
 
-    ready: function() {
-      var ripple = this.getRipple();
-      ripple.initialOpacity = 0.95;
-      ripple.opacityDecayVelocity = 0.98;
-    },
+      attached: function() {
+        this._updateNoink();
+      },
 
-    attached: function() {
-      this._updateNoink();
-    },
+      get _parentNoink () {
+        var parent = Polymer.dom(this).parentNode;
+        return !!parent && !!parent.noink;
+      },
 
-    get _parentNoink () {
-      var parent = Polymer.dom(this).parentNode;
-      return !!parent && !!parent.noink;
-    },
-
-    _updateNoink: function() {
-      this.noink = !!this.noink || !!this._parentNoink;
-    }
-  });
+      _updateNoink: function() {
+        this.noink = !!this.noink || !!this._parentNoink;
+      }
+    });
 Polymer({
+      is: 'paper-tabs',
 
-    is: 'paper-tabs',
+      behaviors: [
+        Polymer.IronResizableBehavior,
+        Polymer.IronMenubarBehavior
+      ],
 
-    behaviors: [
-      Polymer.IronResizableBehavior,
-      Polymer.IronMenubarBehavior
-    ],
+      properties: {
+        /**
+         * If true, ink ripple effect is disabled. When this property is changed,
+         * all descendant `<paper-tab>` elements have their `noink` property
+         * changed to the new value as well.
+         */
+        noink: {
+          type: Boolean,
+          value: false,
+          observer: '_noinkChanged'
+        },
 
-    properties: {
+        /**
+         * If true, the bottom bar to indicate the selected tab will not be shown.
+         */
+        noBar: {
+          type: Boolean,
+          value: false
+        },
 
-      /**
-       * If true, ink ripple effect is disabled. When this property is changed,
-       * all descendant `<paper-tab>` elements have their `noink` property
-       * changed to the new value as well.
-       */
-      noink: {
-        type: Boolean,
-        value: false,
-        observer: '_noinkChanged'
-      },
+        /**
+         * If true, the slide effect for the bottom bar is disabled.
+         */
+        noSlide: {
+          type: Boolean,
+          value: false
+        },
 
-      /**
-       * If true, the bottom bar to indicate the selected tab will not be shown.
-       */
-      noBar: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * If true, tabs are scrollable and the tab width is based on the label width.
+         */
+        scrollable: {
+          type: Boolean,
+          value: false
+        },
 
-      /**
-       * If true, the slide effect for the bottom bar is disabled.
-       */
-      noSlide: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * If true, dragging on the tabs to scroll is disabled.
+         */
+        disableDrag: {
+          type: Boolean,
+          value: false
+        },
 
-      /**
-       * If true, tabs are scrollable and the tab width is based on the label width.
-       */
-      scrollable: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * If true, scroll buttons (left/right arrow) will be hidden for scrollable tabs.
+         */
+        hideScrollButtons: {
+          type: Boolean,
+          value: false
+        },
 
-      /**
-       * If true, dragging on the tabs to scroll is disabled.
-       */
-      disableDrag: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * If true, the tabs are aligned to bottom (the selection bar appears at the top).
+         */
+        alignBottom: {
+          type: Boolean,
+          value: false
+        },
 
-      /**
-       * If true, scroll buttons (left/right arrow) will be hidden for scrollable tabs.
-       */
-      hideScrollButtons: {
-        type: Boolean,
-        value: false
-      },
+        /**
+         * Gets or sets the selected element. The default is to use the index of the item.
+         */
+        selected: {
+          type: String,
+          notify: true
+        },
 
-      /**
-       * If true, the tabs are aligned to bottom (the selection bar appears at the top).
-       */
-      alignBottom: {
-        type: Boolean,
-        value: false
-      },
+        selectable: {
+          type: String,
+          value: 'paper-tab'
+        },
 
-      /**
-       * Gets or sets the selected element. The default is to use the index of the item.
-       */
-      selected: {
-        type: String,
-        notify: true
-      },
+        _step: {
+          type: Number,
+          value: 10
+        },
 
-      selectable: {
-        type: String,
-        value: 'paper-tab'
-      },
+        _holdDelay: {
+          type: Number,
+          value: 1
+        },
 
-      _step: {
-        type: Number,
-        value: 10
-      },
+        _leftHidden: {
+          type: Boolean,
+          value: false
+        },
 
-      _holdDelay: {
-        type: Number,
-        value: 1
-      },
+        _rightHidden: {
+          type: Boolean,
+          value: false
+        },
 
-      _leftHidden: {
-        type: Boolean,
-        value: false
-      },
-
-      _rightHidden: {
-        type: Boolean,
-        value: false
-      },
-
-      _previousTab: {
-        type: Object
-      }
-    },
-
-    hostAttributes: {
-      role: 'tablist'
-    },
-
-    listeners: {
-      'iron-resize': '_onResize',
-      'iron-select': '_onIronSelect',
-      'iron-deselect': '_onIronDeselect'
-    },
-
-    created: function() {
-      this._holdJob = null;
-    },
-
-    ready: function() {
-      this.setScrollDirection('y', this.$.tabsContainer);
-    },
-
-    _noinkChanged: function(noink) {
-      var childTabs = Polymer.dom(this).querySelectorAll('paper-tab');
-      childTabs.forEach(noink ? this._setNoinkAttribute : this._removeNoinkAttribute);
-    },
-
-    _setNoinkAttribute: function(element) {
-      element.setAttribute('noink', '');
-    },
-
-    _removeNoinkAttribute: function(element) {
-      element.removeAttribute('noink');
-    },
-
-    _computeScrollButtonClass: function(hideThisButton, scrollable, hideScrollButtons) {
-      if (!scrollable || hideScrollButtons) {
-        return 'hidden';
-      }
-
-      if (hideThisButton) {
-        return 'not-visible';
-      }
-
-      return '';
-    },
-
-    _computeTabsContentClass: function(scrollable) {
-      return scrollable ? 'scrollable' : 'horizontal';
-    },
-
-    _computeSelectionBarClass: function(noBar, alignBottom) {
-      if (noBar) {
-        return 'hidden';
-      } else if (alignBottom) {
-        return 'align-bottom';
-      }
-    },
-
-    // TODO(cdata): Add `track` response back in when gesture lands.
-
-    _onResize: function() {
-      this.debounce('_onResize', function() {
-        this._scroll();
-        this._tabChanged(this.selectedItem);
-      }, 10);
-    },
-
-    _onIronSelect: function(event) {
-      this._tabChanged(event.detail.item, this._previousTab);
-      this._previousTab = event.detail.item;
-      this.cancelDebouncer('tab-changed');
-    },
-
-    _onIronDeselect: function(event) {
-      this.debounce('tab-changed', function() {
-        this._tabChanged(null, this._previousTab);
-      // See polymer/polymer#1305
-      }, 1);
-    },
-
-    get _tabContainerScrollSize () {
-      return Math.max(
-        0,
-        this.$.tabsContainer.scrollWidth -
-          this.$.tabsContainer.offsetWidth
-      );
-    },
-
-
-    _scroll: function(e, detail) {
-      if (!this.scrollable) {
-        return;
-      }
-
-      var ddx = (detail && -detail.ddx) || 0;
-      this._affectScroll(ddx);
-    },
-
-    _down: function(e) {
-      // go one beat async to defeat IronMenuBehavior
-      // autorefocus-on-no-selection timeout
-      this.async(function() {
-        if (this._defaultFocusAsync) {
-          this.cancelAsync(this._defaultFocusAsync);
-          this._defaultFocusAsync = null;
+        _previousTab: {
+          type: Object
         }
-      }, 1);
-    },
+      },
 
-    _affectScroll: function(dx) {
-      this.$.tabsContainer.scrollLeft += dx;
+      hostAttributes: {
+        role: 'tablist'
+      },
 
-      var scrollLeft = this.$.tabsContainer.scrollLeft;
+      listeners: {
+        'iron-resize': '_onResize',
+        'iron-select': '_onIronSelect',
+        'iron-deselect': '_onIronDeselect'
+      },
 
-      this._leftHidden = scrollLeft === 0;
-      this._rightHidden = scrollLeft === this._tabContainerScrollSize;
-    },
+      created: function() {
+        this._holdJob = null;
+      },
 
-    _onLeftScrollButtonDown: function() {
-      this._scrollToLeft();
-      this._holdJob = setInterval(this._scrollToLeft.bind(this), this._holdDelay);
-    },
+      ready: function() {
+        this.setScrollDirection('y', this.$.tabsContainer);
+      },
 
-    _onRightScrollButtonDown: function() {
-      this._scrollToRight();
-      this._holdJob = setInterval(this._scrollToRight.bind(this), this._holdDelay);
-    },
+      _noinkChanged: function(noink) {
+        var childTabs = Polymer.dom(this).querySelectorAll('paper-tab');
+        childTabs.forEach(noink ? this._setNoinkAttribute : this._removeNoinkAttribute);
+      },
 
-    _onScrollButtonUp: function() {
-      clearInterval(this._holdJob);
-      this._holdJob = null;
-    },
+      _setNoinkAttribute: function(element) {
+        element.setAttribute('noink', '');
+      },
 
-    _scrollToLeft: function() {
-      this._affectScroll(-this._step);
-    },
+      _removeNoinkAttribute: function(element) {
+        element.removeAttribute('noink');
+      },
 
-    _scrollToRight: function() {
-      this._affectScroll(this._step);
-    },
+      _computeScrollButtonClass: function(hideThisButton, scrollable, hideScrollButtons) {
+        if (!scrollable || hideScrollButtons) {
+          return 'hidden';
+        }
 
-    _tabChanged: function(tab, old) {
-      if (!tab) {
-        this._positionBar(0, 0);
-        return;
-      }
+        if (hideThisButton) {
+          return 'not-visible';
+        }
 
-      var r = this.$.tabsContent.getBoundingClientRect();
-      var w = r.width;
-      var tabRect = tab.getBoundingClientRect();
-      var tabOffsetLeft = tabRect.left - r.left;
+        return '';
+      },
 
-      this._pos = {
-        width: this._calcPercent(tabRect.width, w),
-        left: this._calcPercent(tabOffsetLeft, w)
-      };
+      _computeTabsContentClass: function(scrollable) {
+        return scrollable ? 'scrollable' : 'horizontal';
+      },
 
-      if (this.noSlide || old == null) {
-        // position bar directly without animation
-        this._positionBar(this._pos.width, this._pos.left);
-        return;
-      }
+      _computeSelectionBarClass: function(noBar, alignBottom) {
+        if (noBar) {
+          return 'hidden';
+        } else if (alignBottom) {
+          return 'align-bottom';
+        }
+      },
 
-      var oldRect = old.getBoundingClientRect();
-      var oldIndex = this.items.indexOf(old);
-      var index = this.items.indexOf(tab);
-      var m = 5;
+      // TODO(cdata): Add `track` response back in when gesture lands.
 
-      // bar animation: expand
-      this.$.selectionBar.classList.add('expand');
+      _onResize: function() {
+        this.debounce('_onResize', function() {
+          this._scroll();
+          this._tabChanged(this.selectedItem);
+        }, 10);
+      },
 
-      if (oldIndex < index) {
-        this._positionBar(this._calcPercent(tabRect.left + tabRect.width - oldRect.left, w) - m,
-            this._left);
-      } else {
-        this._positionBar(this._calcPercent(oldRect.left + oldRect.width - tabRect.left, w) - m,
-            this._calcPercent(tabOffsetLeft, w) + m);
-      }
+      _onIronSelect: function(event) {
+        this._tabChanged(event.detail.item, this._previousTab);
+        this._previousTab = event.detail.item;
+        this.cancelDebouncer('tab-changed');
+      },
 
-      if (this.scrollable) {
-        this._scrollToSelectedIfNeeded(tabRect.width, tabOffsetLeft);
-      }
-    },
+      _onIronDeselect: function(event) {
+        this.debounce('tab-changed', function() {
+          this._tabChanged(null, this._previousTab);
+        // See polymer/polymer#1305
+        }, 1);
+      },
 
-    _scrollToSelectedIfNeeded: function(tabWidth, tabOffsetLeft) {
-      var l = tabOffsetLeft - this.$.tabsContainer.scrollLeft;
-      if (l < 0) {
-        this.$.tabsContainer.scrollLeft += l;
-      } else {
-        l += (tabWidth - this.$.tabsContainer.offsetWidth);
-        if (l > 0) {
+      get _tabContainerScrollSize () {
+        return Math.max(
+          0,
+          this.$.tabsContainer.scrollWidth -
+            this.$.tabsContainer.offsetWidth
+        );
+      },
+
+
+      _scroll: function(e, detail) {
+        if (!this.scrollable) {
+          return;
+        }
+
+        var ddx = (detail && -detail.ddx) || 0;
+        this._affectScroll(ddx);
+      },
+
+      _down: function(e) {
+        // go one beat async to defeat IronMenuBehavior
+        // autorefocus-on-no-selection timeout
+        this.async(function() {
+          if (this._defaultFocusAsync) {
+            this.cancelAsync(this._defaultFocusAsync);
+            this._defaultFocusAsync = null;
+          }
+        }, 1);
+      },
+
+      _affectScroll: function(dx) {
+        this.$.tabsContainer.scrollLeft += dx;
+
+        var scrollLeft = this.$.tabsContainer.scrollLeft;
+
+        this._leftHidden = scrollLeft === 0;
+        this._rightHidden = scrollLeft === this._tabContainerScrollSize;
+      },
+
+      _onLeftScrollButtonDown: function() {
+        this._scrollToLeft();
+        this._holdJob = setInterval(this._scrollToLeft.bind(this), this._holdDelay);
+      },
+
+      _onRightScrollButtonDown: function() {
+        this._scrollToRight();
+        this._holdJob = setInterval(this._scrollToRight.bind(this), this._holdDelay);
+      },
+
+      _onScrollButtonUp: function() {
+        clearInterval(this._holdJob);
+        this._holdJob = null;
+      },
+
+      _scrollToLeft: function() {
+        this._affectScroll(-this._step);
+      },
+
+      _scrollToRight: function() {
+        this._affectScroll(this._step);
+      },
+
+      _tabChanged: function(tab, old) {
+        if (!tab) {
+          this._positionBar(0, 0);
+          return;
+        }
+
+        var r = this.$.tabsContent.getBoundingClientRect();
+        var w = r.width;
+        var tabRect = tab.getBoundingClientRect();
+        var tabOffsetLeft = tabRect.left - r.left;
+
+        this._pos = {
+          width: this._calcPercent(tabRect.width, w),
+          left: this._calcPercent(tabOffsetLeft, w)
+        };
+
+        if (this.noSlide || old == null) {
+          // position bar directly without animation
+          this._positionBar(this._pos.width, this._pos.left);
+          return;
+        }
+
+        var oldRect = old.getBoundingClientRect();
+        var oldIndex = this.items.indexOf(old);
+        var index = this.items.indexOf(tab);
+        var m = 5;
+
+        // bar animation: expand
+        this.$.selectionBar.classList.add('expand');
+
+        if (oldIndex < index) {
+          this._positionBar(this._calcPercent(tabRect.left + tabRect.width - oldRect.left, w) - m,
+              this._left);
+        } else {
+          this._positionBar(this._calcPercent(oldRect.left + oldRect.width - tabRect.left, w) - m,
+              this._calcPercent(tabOffsetLeft, w) + m);
+        }
+
+        if (this.scrollable) {
+          this._scrollToSelectedIfNeeded(tabRect.width, tabOffsetLeft);
+        }
+      },
+
+      _scrollToSelectedIfNeeded: function(tabWidth, tabOffsetLeft) {
+        var l = tabOffsetLeft - this.$.tabsContainer.scrollLeft;
+        if (l < 0) {
           this.$.tabsContainer.scrollLeft += l;
+        } else {
+          l += (tabWidth - this.$.tabsContainer.offsetWidth);
+          if (l > 0) {
+            this.$.tabsContainer.scrollLeft += l;
+          }
+        }
+      },
+
+      _calcPercent: function(w, w0) {
+        return 100 * w / w0;
+      },
+
+      _positionBar: function(width, left) {
+        width = width || 0;
+        left = left || 0;
+
+        this._width = width;
+        this._left = left;
+        this.transform(
+            'translate3d(' + left + '%, 0, 0) scaleX(' + (width / 100) + ')',
+            this.$.selectionBar);
+      },
+
+      _onBarTransitionEnd: function(e) {
+        var cl = this.$.selectionBar.classList;
+        // bar animation: expand -> contract
+        if (cl.contains('expand')) {
+          cl.remove('expand');
+          cl.add('contract');
+          this._positionBar(this._pos.width, this._pos.left);
+        // bar animation done
+        } else if (cl.contains('contract')) {
+          cl.remove('contract');
         }
       }
-    },
-
-    _calcPercent: function(w, w0) {
-      return 100 * w / w0;
-    },
-
-    _positionBar: function(width, left) {
-      width = width || 0;
-      left = left || 0;
-
-      this._width = width;
-      this._left = left;
-      this.transform(
-          'translate3d(' + left + '%, 0, 0) scaleX(' + (width / 100) + ')',
-          this.$.selectionBar);
-    },
-
-    _onBarTransitionEnd: function(e) {
-      var cl = this.$.selectionBar.classList;
-      // bar animation: expand -> contract
-      if (cl.contains('expand')) {
-        cl.remove('expand');
-        cl.add('contract');
-        this._positionBar(this._pos.width, this._pos.left);
-      // bar animation done
-      } else if (cl.contains('contract')) {
-        cl.remove('contract');
-      }
-    }
-
-  });
+    });
 Polymer({
 
   is: 'more-route-selector',
@@ -16661,7 +16708,10 @@ Polymer({
 
 })();
 (function() {
-      var PaperToast = Polymer({
+      // Keeps track of the toast currently opened.
+      var currentToast = null;
+
+      Polymer({
         is: 'paper-toast',
 
         behaviors: [
@@ -16671,6 +16721,8 @@ Polymer({
         properties: {
           /**
            * The duration in milliseconds to show the toast.
+           * Set to `0`, a negative number, or `Infinity`, to disable the
+           * toast auto-closing.
            */
           duration: {
             type: Number,
@@ -16686,6 +16738,7 @@ Polymer({
           },
 
           /**
+           * Overridden from `IronOverlayBehavior`.
            * Set to false to enable closing of the toast by clicking outside it.
            */
           noCancelOnOutsideClick: {
@@ -16694,9 +16747,22 @@ Polymer({
           },
         },
 
+        /**
+         * Read-only. Deprecated. Use `opened` from `IronOverlayBehavior`.
+         * @property visible
+         * @deprecated
+         */
         get visible() {
           console.warn('`visible` is deprecated, use `opened` instead');
           return this.opened;
+        },
+
+        /**
+         * Read-only. Can auto-close if duration is a positive finite number.
+         * @property _canAutoClose
+         */
+        get _canAutoClose() {
+          return this.duration > 0 && this.duration !== Infinity;
         },
 
         created: function() {
@@ -16704,15 +16770,14 @@ Polymer({
         },
 
         /**
-         * Show the toast.
-         * @method show
+         * Show the toast. Same as `open()` from `IronOverlayBehavior`.
          */
         show: function() {
           this.open();
         },
 
         /**
-         * Hide the toast
+         * Hide the toast. Same as `close()` from `IronOverlayBehavior`.
          */
         hide: function() {
           this.close();
@@ -16724,19 +16789,18 @@ Polymer({
          */
         _openedChanged: function() {
           if (this.opened) {
-            if (PaperToast.currentToast && PaperToast.currentToast !== this) {
-              PaperToast.currentToast.close();
+            if (currentToast && currentToast !== this) {
+              currentToast.close();
             }
-            PaperToast.currentToast = this;
+            currentToast = this;
             this.fire('iron-announce', {
               text: this.text
             });
-            // auto-close if duration is a positive finite number
-            if (this.duration > 0 && this.duration !== Infinity) {
+            if (this._canAutoClose) {
               this.debounce('close', this.close, this.duration);
             }
-          } else if (PaperToast.currentToast === this) {
-            PaperToast.currentToast = null;
+          } else if (currentToast === this) {
+            currentToast = null;
           }
           Polymer.IronOverlayBehaviorImpl._openedChanged.apply(this, arguments);
         },
@@ -16747,6 +16811,7 @@ Polymer({
         _renderOpened: function() {
           this.classList.add('paper-toast-open');
         },
+
         /**
          * Overridden from `IronOverlayBehavior`.
          */
@@ -16759,13 +16824,21 @@ Polymer({
          * iron-fit-behavior will set the inline style position: static, which
          * causes the toast to be rendered incorrectly when opened by default.
          */
-        _onIronResize: function(){
+        _onIronResize: function() {
           Polymer.IronOverlayBehaviorImpl._onIronResize.apply(this, arguments);
           if (this.opened) {
             // Make sure there is no inline style for position.
             this.style.position = '';
           }
         }
+
+        /**
+         * Fired when `paper-toast` is opened.
+         *
+         * @event 'iron-announce'
+         * @param {Object} detail
+         * @param {String} detail.text The text that will be announced.
+         */
       });
     })();
 (function () {
@@ -16909,6 +16982,15 @@ Polymer({
         Polymer.PaperButtonBehaviorImpl._calculateElevation.apply(this);
       }
     }
+    /**
+
+    Fired when the animation finishes.
+    This is useful if you want to wait until
+    the ripple animation finishes to perform some action.
+
+    @event transitionend
+    @param {{node: Object}} detail Contains the animated node.
+    */
   });
 Polymer({
       is: 'paper-checkbox',
@@ -17469,8 +17551,7 @@ Polymer({
 
     behaviors: [
       Polymer.IronFormElementBehavior,
-      Polymer.PaperInputBehavior,
-      Polymer.IronControlState
+      Polymer.PaperInputBehavior
     ]
   });
 Polymer({
@@ -18719,251 +18800,269 @@ Polymer({
     Polymer.PaperMenuButton = PaperMenuButton;
   })();
 (function() {
-    'use strict';
+      'use strict';
 
-    Polymer({
-      is: 'paper-dropdown-menu',
-
-      /**
-       * Fired when the dropdown opens.
-       *
-       * @event paper-dropdown-open
-       */
-
-      /**
-       * Fired when the dropdown closes.
-       *
-       * @event paper-dropdown-close
-       */
-
-      behaviors: [
-        Polymer.IronControlState,
-        Polymer.IronButtonState,
-        Polymer.IronFormElementBehavior,
-        Polymer.IronValidatableBehavior
-      ],
-
-      properties: {
-        /**
-         * The derived "label" of the currently selected item. This value
-         * is the `label` property on the selected item if set, or else the
-         * trimmed text content of the selected item.
-         */
-        selectedItemLabel: {
-          type: String,
-          notify: true,
-          readOnly: true
-        },
+      Polymer({
+        is: 'paper-dropdown-menu',
 
         /**
-         * The last selected item. An item is selected if the dropdown menu has
-         * a child with class `dropdown-content`, and that child triggers an
-         * `iron-select` event with the selected `item` in the `detail`.
+         * Fired when the dropdown opens.
          *
-         * @type {?Object}
+         * @event paper-dropdown-open
          */
-        selectedItem: {
-          type: Object,
-          notify: true,
-          readOnly: true
-        },
 
         /**
-         * The value for this element that will be used when submitting in
-         * a form. It is read only, and will always have the same value
-         * as `selectedItemLabel`.
+         * Fired when the dropdown closes.
+         *
+         * @event paper-dropdown-close
          */
-        value: {
-          type: String,
-          notify: true,
-          readOnly: true
-        },
 
-        /**
-         * The label for the dropdown.
-         */
-        label: {
-          type: String
-        },
+        behaviors: [
+          Polymer.IronButtonState,
+          Polymer.IronControlState,
+          Polymer.IronFormElementBehavior,
+          Polymer.IronValidatableBehavior
+        ],
 
-        /**
-         * The placeholder for the dropdown.
-         */
-        placeholder: {
-          type: String
-        },
+        properties: {
+          /**
+           * The derived "label" of the currently selected item. This value
+           * is the `label` property on the selected item if set, or else the
+           * trimmed text content of the selected item.
+           */
+          selectedItemLabel: {
+            type: String,
+            notify: true,
+            readOnly: true
+          },
 
-        /**
-         * True if the dropdown is open. Otherwise, false.
-         */
-        opened: {
-          type: Boolean,
-          notify: true,
-          value: false,
-          observer: '_openedChanged'
-        },
+          /**
+           * The last selected item. An item is selected if the dropdown menu has
+           * a child with class `dropdown-content`, and that child triggers an
+           * `iron-select` event with the selected `item` in the `detail`.
+           *
+           * @type {?Object}
+           */
+          selectedItem: {
+            type: Object,
+            notify: true,
+            readOnly: true
+          },
 
-        /**
-         * Set to true to disable the floating label. Bind this to the
-         * `<paper-input-container>`'s `noLabelFloat` property.
-         */
-        noLabelFloat: {
+          /**
+           * The value for this element that will be used when submitting in
+           * a form. It is read only, and will always have the same value
+           * as `selectedItemLabel`.
+           */
+          value: {
+            type: String,
+            notify: true,
+            readOnly: true
+          },
+
+          /**
+           * The label for the dropdown.
+           */
+          label: {
+            type: String
+          },
+
+          /**
+           * The placeholder for the dropdown.
+           */
+          placeholder: {
+            type: String
+          },
+
+          /**
+           * True if the dropdown is open. Otherwise, false.
+           */
+          opened: {
             type: Boolean,
+            notify: true,
             value: false,
-            reflectToAttribute: true
+            observer: '_openedChanged'
+          },
+
+          /**
+           * Set to true to disable the floating label. Bind this to the
+           * `<paper-input-container>`'s `noLabelFloat` property.
+           */
+          noLabelFloat: {
+              type: Boolean,
+              value: false,
+              reflectToAttribute: true
+          },
+
+          /**
+           * Set to true to always float the label. Bind this to the
+           * `<paper-input-container>`'s `alwaysFloatLabel` property.
+           */
+          alwaysFloatLabel: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * Set to true to disable animations when opening and closing the
+           * dropdown.
+           */
+          noAnimations: {
+            type: Boolean,
+            value: false
+          },
+
+          /**
+           * The orientation against which to align the menu dropdown
+           * horizontally relative to the dropdown trigger.
+           */
+          horizontalAlign: {
+            type: String,
+            value: 'right'
+          },
+
+          /**
+           * The orientation against which to align the menu dropdown
+           * vertically relative to the dropdown trigger.
+           */
+          verticalAlign: {
+            type: String,
+            value: 'top'
+          }
+        },
+
+        listeners: {
+          'tap': '_onTap'
+        },
+
+        keyBindings: {
+          'up down': 'open',
+          'esc': 'close'
+        },
+
+        hostAttributes: {
+          role: 'combobox',
+          'aria-autocomplete': 'none',
+          'aria-haspopup': 'true'
+        },
+
+        observers: [
+          '_selectedItemChanged(selectedItem)'
+        ],
+
+        attached: function() {
+          // NOTE(cdata): Due to timing, a preselected value in a `IronSelectable`
+          // child will cause an `iron-select` event to fire while the element is
+          // still in a `DocumentFragment`. This has the effect of causing
+          // handlers not to fire. So, we double check this value on attached:
+          var contentElement = this.contentElement;
+          if (contentElement && contentElement.selectedItem) {
+            this._setSelectedItem(contentElement.selectedItem);
+          }
         },
 
         /**
-         * Set to true to always float the label. Bind this to the
-         * `<paper-input-container>`'s `alwaysFloatLabel` property.
+         * The content element that is contained by the dropdown menu, if any.
          */
-        alwaysFloatLabel: {
-          type: Boolean,
-          value: false
+        get contentElement() {
+          return Polymer.dom(this.$.content).getDistributedNodes()[0];
         },
 
         /**
-         * Set to true to disable animations when opening and closing the
-         * dropdown.
+         * Show the dropdown content.
          */
-        noAnimations: {
-          type: Boolean,
-          value: false
+        open: function() {
+          this.$.menuButton.open();
+        },
+
+        /**
+         * Hide the dropdown content.
+         */
+        close: function() {
+          this.$.menuButton.close();
+        },
+
+        /**
+         * A handler that is called when `iron-select` is fired.
+         *
+         * @param {CustomEvent} event An `iron-select` event.
+         */
+        _onIronSelect: function(event) {
+          this._setSelectedItem(event.detail.item);
+        },
+
+        /**
+         * A handler that is called when `iron-deselect` is fired.
+         *
+         * @param {CustomEvent} event An `iron-deselect` event.
+         */
+        _onIronDeselect: function(event) {
+          this._setSelectedItem(null);
+        },
+
+        /**
+         * A handler that is called when the dropdown is tapped.
+         *
+         * @param {CustomEvent} event A tap event.
+         */
+        _onTap: function(event) {
+          if (Polymer.Gestures.findOriginalTarget(event) === this) {
+            this.open();
+          }
+        },
+
+        /**
+         * Compute the label for the dropdown given a selected item.
+         *
+         * @param {Element} selectedItem A selected Element item, with an
+         * optional `label` property.
+         */
+        _selectedItemChanged: function(selectedItem) {
+          var value = '';
+          if (!selectedItem) {
+            value = '';
+          } else {
+            value = selectedItem.label || selectedItem.textContent.trim();
+          }
+
+          this._setValue(value);
+          this._setSelectedItemLabel(value);
+        },
+
+        /**
+         * Compute the vertical offset of the menu based on the value of
+         * `noLabelFloat`.
+         *
+         * @param {boolean} noLabelFloat True if the label should not float
+         * above the input, otherwise false.
+         */
+        _computeMenuVerticalOffset: function(noLabelFloat) {
+          // NOTE(cdata): These numbers are somewhat magical because they are
+          // derived from the metrics of elements internal to `paper-input`'s
+          // template. The metrics will change depending on whether or not the
+          // input has a floating label.
+          return noLabelFloat ? -4 : 8;
+        },
+
+        /**
+         * Returns false if the element is required and does not have a selection,
+         * and true otherwise.
+         * @return {boolean} true if `required` is false, or if `required` is true
+         * and the element has a valid selection.
+         */
+        _getValidity: function() {
+          return this.disabled || !this.required || (this.required && this.value);
+        },
+
+        _openedChanged: function() {
+          var openState = this.opened ? 'true' : 'false';
+          var e = this.contentElement;
+          if (e) {
+            e.setAttribute('aria-expanded', openState);
+          }
         }
-      },
-
-      listeners: {
-        'tap': '_onTap'
-      },
-
-      keyBindings: {
-        'up down': 'open',
-        'esc': 'close'
-      },
-
-      hostAttributes: {
-        role: 'combobox',
-        'aria-autocomplete': 'none',
-        'aria-haspopup': 'true'
-      },
-
-      observers: [
-        '_selectedItemChanged(selectedItem)'
-      ],
-
-      attached: function() {
-        // NOTE(cdata): Due to timing, a preselected value in a `IronSelectable`
-        // child will cause an `iron-select` event to fire while the element is
-        // still in a `DocumentFragment`. This has the effect of causing
-        // handlers not to fire. So, we double check this value on attached:
-        var contentElement = this.contentElement;
-        if (contentElement && contentElement.selectedItem) {
-          this._setSelectedItem(contentElement.selectedItem);
-        }
-      },
-
-      /**
-       * The content element that is contained by the dropdown menu, if any.
-       */
-      get contentElement() {
-        return Polymer.dom(this.$.content).getDistributedNodes()[0];
-      },
-
-      /**
-       * Show the dropdown content.
-       */
-      open: function() {
-        this.$.menuButton.open();
-      },
-
-      /**
-       * Hide the dropdown content.
-       */
-      close: function() {
-        this.$.menuButton.close();
-      },
-
-      /**
-       * A handler that is called when `iron-select` is fired.
-       *
-       * @param {CustomEvent} event An `iron-select` event.
-       */
-      _onIronSelect: function(event) {
-        this._setSelectedItem(event.detail.item);
-      },
-
-      /**
-       * A handler that is called when `iron-deselect` is fired.
-       *
-       * @param {CustomEvent} event An `iron-deselect` event.
-       */
-      _onIronDeselect: function(event) {
-        this._setSelectedItem(null);
-      },
-
-      /**
-       * A handler that is called when the dropdown is tapped.
-       *
-       * @param {CustomEvent} event A tap event.
-       */
-      _onTap: function(event) {
-        if (Polymer.Gestures.findOriginalTarget(event) === this) {
-          this.open();
-        }
-      },
-
-      /**
-       * Compute the label for the dropdown given a selected item.
-       *
-       * @param {Element} selectedItem A selected Element item, with an
-       * optional `label` property.
-       */
-      _selectedItemChanged: function(selectedItem) {
-        var value = '';
-        if (!selectedItem) {
-          value = '';
-        } else {
-          value = selectedItem.label || selectedItem.textContent.trim();
-        }
-
-        this._setValue(value);
-        this._setSelectedItemLabel(value);
-      },
-
-      /**
-       * Compute the vertical offset of the menu based on the value of
-       * `noLabelFloat`.
-       *
-       * @param {boolean} noLabelFloat True if the label should not float
-       * above the input, otherwise false.
-       */
-      _computeMenuVerticalOffset: function(noLabelFloat) {
-        // NOTE(cdata): These numbers are somewhat magical because they are
-        // derived from the metrics of elements internal to `paper-input`'s
-        // template. The metrics will change depending on whether or not the
-        // input has a floating label.
-        return noLabelFloat ? -4 : 8;
-      },
-
-      /**
-       * Returns false if the element is required and does not have a selection,
-       * and true otherwise.
-       * @return {boolean} true if `required` is false, or if `required` is true
-       * and the element has a valid selection.
-       */
-      _getValidity: function() {
-        return this.disabled || !this.required || (this.required && this.value);
-      },
-
-      _openedChanged: function() {
-        var openState = this.opened ? 'true' : 'false';
-        var e = this.contentElement;
-        if (e) {
-          e.setAttribute('aria-expanded', openState);
-        }
-      }
-    });
-  })();
+      });
+    })();
 (function () {
     Polymer({
 

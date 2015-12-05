@@ -48,29 +48,39 @@
         <div class="flex">
           <div class="layout vertical">
             <div class="flex">
-              <span style="font-size: 12px;">{{item.position}}</span><br>
-              <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;at</span>
-              <span style="font-size: 11px;">{{item.company}}</span>
-              <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
-              <span style="font-size: 9px; color: grey; ">{{item.portal}}</span>
+              <span style="font-size: 16px;">{{item.position}}</span><br>
+              <span style="font-size: 12px; color: grey; ">at</span>
+              <span style="font-size: 14px;">{{item.company}}</span>
+              <span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span>
+              <span style="font-size: 14px; color: grey; ">{{item.portal}}</span>
             </div>
             <div>
               <br>
             </div>
             <div>
-              <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon>
-    					<iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon>
-    					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
-    					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
-              <br>
-              <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles=false></paper-checkbox>
-              <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles=false></paper-checkbox>
-              <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles=false></paper-checkbox>
-              <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles=false></paper-checkbox>
-            </div>
+              <div class="layout horizontal">
+                <div>
+                  <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon><br>
+                  <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles=false></paper-checkbox>
+                </div>
+                <div>
+                  <iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon><br>
+                  <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles=false></paper-checkbox>
+                </div>
+                <div>
+                  <iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon><br>
+                  <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles=false></paper-checkbox>
+                </div>
+                <div>
+                  <iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon><br>
+                  <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles=false></paper-checkbox>
+                </div>
+              </div>
+
+              </div>
           </div>
         </div>
-        <div class="layout horizontal">
+        <div class="layout vertical">
           <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
           <div style="margin:3px"><paper-fab  icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
         </div>
@@ -89,11 +99,11 @@
           <div class="flex">
             <div class="layout vertical">
               <div class="flex">
-                <span style="font-size: 12px;">{{item.position}}</span><br>
-                <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;at</span>
-                <span style="font-size: 11px;">{{item.company}}</span>
-                <span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span>
-                <span style="font-size: 9px; color: grey; ">{{item.portal}}</span>
+                <span style="font-size: 16px;">{{item.position}}</span><br>
+                <span style="font-size: 12px; color: grey; ">at</span>
+                <span style="font-size: 14px;">{{item.company}}</span>
+                <span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span>
+                <span style="font-size: 14px; color: grey; ">{{item.portal}}</span>
               </div>
               <div>
                 <br>
