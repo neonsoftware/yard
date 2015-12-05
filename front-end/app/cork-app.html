@@ -30,24 +30,23 @@
 
   <template>
 
-    <more-route-selector id="my_selector" selected-route={{selRoute}} selected-params={{selParams}}
-                                          on-unauthenticated="_on_401" on-servererror="_on_403"
+    <more-route-selector id="my_selector"                                     on-unauthenticated="_on_401" on-servererror="_on_403"
                                           on-saveok="_on_saveok" on-saveerror="_on_saveerror"
                                           on-authsuccess="_on_authsuccess" on-authfailure="_on_authfailure">
       <iron-pages>
         <section route="root">
           <more-route context name="root" active="{{rt_active}}"></more-route>
-          <apps-home active={{rt_active}} serverurl="http://yard.neonrain.space/applications"></apps-home>
+          <apps-home active={{rt_active}} serverurl="/applications"></apps-home>
         </section>
 
         <section route="login">
           <more-route context name="login" active="{{rt_active}}"></more-route>
-          <apps-login active={{rt_active}} loginurl="http://yard.neonrain.space/simplelogin"></apps-login>
+          <apps-login active={{rt_active}} loginurl="/simplelogin"></apps-login>
         </section>
 
         <section route="apps">
           <more-route context name="apps" active="{{al_active}}"></more-route>
-          <apps-list active="{{al_active}}" serverurl="http://yard.neonrain.space/applications"></apps-list>
+          <apps-list active="{{al_active}}" serverurl="/applications"></apps-list>
         </section>
 
         <section route="appdetail">
@@ -62,17 +61,17 @@
 
         <section route="blockdetail">
           <more-route context name="blockdetail" active="{{bl_active}}" params="{{bl_params}}"></more-route>
-          <blocks-detail active={{bl_active}} elementid="{{bl_params.blockId}}" serverurl="http://yard.neonrain.space/pieces"></blocks-detail>
+          <blocks-detail active={{bl_active}} elementid="{{bl_params.blockId}}" serverurl="/pieces"></blocks-detail>
         </section>
 
         <section route="templates">
           <more-route context name="templates" active="{{tll_active}}"></more-route>
-          <templates-list active="{{tll_active}}" serverurl="http://yard.neonrain.space/categories"></templates-list>
+          <templates-list active="{{tll_active}}" serverurl="/categories"></templates-list>
         </section>
 
         <section route="templatedetail">
           <more-route context name="templatedetail" active="{{tl_active}}" params="{{tl_params}}"></more-route>
-          <templates-detail active={{tl_active}} elementid="[[tl_params.templateId]]" serverurl="http://yard.neonrain.space/categories" blocksserverurl="http://yard.neonrain.space/pieces"></templates-detail>
+          <templates-detail active={{tl_active}} elementid="[[tl_params.templateId]]" serverurl="/categories" blocksserverurl="/pieces"></templates-detail>
         </section>
 
         <section route="covers">
