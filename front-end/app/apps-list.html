@@ -3,6 +3,7 @@
 <link rel="import" href="bower_components/iron-icons/communication-icons.html">
 <link rel="import" href="bower_components/iron-icons/editor-icons.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="bower_components/iron-collapse/iron-collapse.html">
 
 <!-- Paper elements -->
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
@@ -13,6 +14,78 @@
 
 <link rel="import" href="bower_components/more-routing/more-route.html">
 <link rel="import" href="bower_components/rest-array/rest-array.html">
+
+
+<dom-module id="apps-wrapup">
+
+  <template>
+
+    <style>
+    </style>
+
+    <div class="layout vertical">
+      <div class="flex">
+        <span style="font-size: 16px;">{{item.position}}</span>
+        <span style="font-size: 12px; color: grey; ">at</span>
+        <span style="font-size: 14px;">{{item.company}}</span>
+        <span style="font-size: 11px; color: grey; ">via</span>
+        <span style="font-size: 13px; color: grey; ">{{item.portal}}</span>
+      </div>
+      <div>
+        <br>
+        <div class="layout horizontal">
+          <div>
+            <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles=false></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles=false></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles=false></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles=false></paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <br>
+        <iron-icon icon="editor:insert-comment" style="width: 18px; height: 18px;"></iron-icon>
+        <span style="font-size: 11px; color: grey; ">{{item.notes}}</span>
+        <br>
+      </div>
+      <div>
+        <br>
+        <iron-icon icon="icons:assignment" style="width: 18px; height: 18px;"></iron-icon>
+        <span style="font-size: 11px; color: grey; ">{{item.next}}</span>
+      </div>
+    </div>
+  </div>
+
+  </template>
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+      is: 'apps-wrapup',
+      properties: {
+        item: Object,
+      },
+    });
+  })();
+</script>
+
+
+
+
+
+
 
 <dom-module id="apps-list">
 
@@ -43,52 +116,10 @@
     <rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" onlineitems="{{onlineitems}}" ></rest-array>
 
     <template is="dom-repeat" items="{{activeItems}}">
-
       <paper-material card levation="1">
       <div class="layout horizontal center">
         <div class="flex">
-          <div class="layout vertical">
-            <div class="flex">
-              <span style="font-size: 16px;">{{item.position}}</span>
-              <span style="font-size: 12px; color: grey; ">at</span>
-              <span style="font-size: 14px;">{{item.company}}</span>
-              <span style="font-size: 11px; color: grey; ">via</span>
-              <span style="font-size: 13px; color: grey; ">{{item.portal}}</span>
-            </div>
-            <div>
-              <br>
-              <div class="layout horizontal">
-                <div>
-                  <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles=false></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles=false></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles=false></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles=false></paper-checkbox>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <br>
-              <iron-icon icon="editor:insert-comment" style="width: 18px; height: 18px;"></iron-icon>
-              <span style="font-size: 11px; color: grey; ">{{item.notes}}</span>
-              <br>
-            </div>
-            <div>
-              <br>
-              <iron-icon icon="icons:assignment" style="width: 18px; height: 18px;"></iron-icon>
-              <span style="font-size: 11px; color: grey; ">{{item.next}}</span>
-            </div>
-          </div>
+          <apps-wrapup item=[[item]]></apps-wrapup>
         </div>
         <div class="layout vertical">
           <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
@@ -98,55 +129,37 @@
       </paper-material>
     </template>
 
-    <template is="dom-if" if="{{areInactiveVisible}}">
+
+
+    <iron-collapse id="inactive_shown_collapse">
       <div class="layout vertical center">
-        <div> <paper-button tabindex="0" active raised class="colorful" on-tap="_hideInactive">Hide Inactive</paper-button> </div>
+        <div> <paper-button tabindex="0" active raised class="colorful" on-tap="_toggleInactive">Hide Inactive</paper-button> </div>
       </div>
 
-      <template is="dom-repeat" items="{{inactiveItems}}">
-        <paper-material card levation="1">
-        <div class="layout horizontal center">
-          <div class="flex">
-            <div class="layout vertical">
+      <div class="collapse-content">
+        <div>
+          <template is="dom-repeat" items="{{inactiveItems}}">
+            <paper-material card levation="1">
+            <div class="layout horizontal center">
               <div class="flex">
-                <span style="font-size: 16px;">{{item.position}}</span><br>
-                <span style="font-size: 12px; color: grey; ">at</span>
-                <span style="font-size: 14px;">{{item.company}}</span>
-                <span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span>
-                <span style="font-size: 14px; color: grey; ">{{item.portal}}</span>
+                <apps-wrapup item=[[item]]></apps-wrapup>
               </div>
-              <div>
-                <br>
-              </div>
-              <div>
-                <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
-                <br>
-                <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles=false></paper-checkbox>
-                <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles=false></paper-checkbox>
-                <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles=false></paper-checkbox>
-                <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles=false></paper-checkbox>
+              <div class="layout horizontal">
+                <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
+                <div style="margin:3px"><paper-fab  icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
               </div>
             </div>
-          </div>
-          <div class="layout horizontal">
-            <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
-            <div style="margin:3px"><paper-fab  icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
-          </div>
+            </paper-material>
+          </template>
         </div>
-        </paper-material>
-      </template>
-
-    </template>
-
-    <template is="dom-if" if="{{!areInactiveVisible}}">
-      <div class="layout vertical center">
-        <div> <paper-button tabindex="0" active raised class="colorful" on-tap="_showInactive">show inactive</paper-button> </div>
       </div>
-    </template>
+    </iron-collapse>
 
+    <iron-collapse id="inactive_hidden_collapse">
+      <div class="layout vertical center">
+        <div> <paper-button tabindex="0" active raised class="colorful" on-tap="_toggleInactive">Show Inactive</paper-button> </div>
+      </div>
+    </iron-collapse>
 
     <div class="vertical layout center">
       <div><a href="{{newurl}}"> <paper-fab icon="add"></paper-fab></a></div>
@@ -168,8 +181,8 @@
       observers:['_divideItems(onlineitems)' ],
 
       ready: function(){
-        this.areInactiveVisible = false;
         this.newurl = MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
+        this.$.inactive_hidden_collapse.toggle();
       },
 
       _openURL(itemId) {
@@ -180,13 +193,10 @@
         this.$.rest_array.deleteItem(e.model.item.id);
       },
 
-
       // Handling Active and Inactives.
-      _showInactive:function(){
-        this.areInactiveVisible = true;
-      },
-      _hideInactive:function(){
-        this.areInactiveVisible = false;
+      _toggleInactive:function(){
+        this.$.inactive_shown_collapse.toggle();
+        this.$.inactive_hidden_collapse.toggle();
       },
 
       _divideItems:function(newItems){

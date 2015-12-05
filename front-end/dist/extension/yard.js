@@ -16923,6 +16923,129 @@ Polymer({
     });
   })();
 Polymer({
+
+    is: 'iron-collapse',
+
+    properties: {
+
+      /**
+       * If true, the orientation is horizontal; otherwise is vertical.
+       *
+       * @attribute horizontal
+       */
+      horizontal: {
+        type: Boolean,
+        value: false,
+        observer: '_horizontalChanged'
+      },
+
+      /**
+       * Set opened to true to show the collapse element and to false to hide it.
+       *
+       * @attribute opened
+       */
+      opened: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        observer: '_openedChanged'
+      }
+
+    },
+
+    hostAttributes: {
+      role: 'group',
+      'aria-expanded': 'false'
+    },
+
+    listeners: {
+      transitionend: '_transitionEnd'
+    },
+
+    ready: function() {
+      // Avoid transition at the beginning e.g. page loads and enable
+      // transitions only after the element is rendered and ready.
+      this._enableTransition = true;
+    },
+
+    /**
+     * Toggle the opened state.
+     *
+     * @method toggle
+     */
+    toggle: function() {
+      this.opened = !this.opened;
+    },
+
+    show: function() {
+      this.opened = true;    
+    },
+
+    hide: function() {
+      this.opened = false;    
+    },
+
+    updateSize: function(size, animated) {
+      this.enableTransition(animated);
+      var s = this.style;
+      var nochange = s[this.dimension] === size;
+      s[this.dimension] = size;
+      if (animated && nochange) {
+        this._transitionEnd();
+      }
+    },
+
+    enableTransition: function(enabled) {
+      this.style.transitionDuration = (enabled && this._enableTransition) ? '' : '0s';
+    },
+
+    _horizontalChanged: function() {
+      this.dimension = this.horizontal ? 'width' : 'height';
+      this.style.transitionProperty = this.dimension;
+    },
+
+    _openedChanged: function() {
+      if (this.opened) {
+        this.setAttribute('aria-expanded', 'true');
+        this.setAttribute('aria-hidden', 'false');
+
+        this.toggleClass('iron-collapse-closed', false);
+        this.updateSize('auto', false);
+        var s = this._calcSize();
+        this.updateSize('0px', false);
+        // force layout to ensure transition will go
+        /** @suppress {suspiciousCode} */ this.offsetHeight;
+        this.updateSize(s, true);
+        // focus the current collapse
+        this.focus();
+      } else {
+        this.setAttribute('aria-expanded', 'false');
+        this.setAttribute('aria-hidden', 'true');
+
+        this.toggleClass('iron-collapse-opened', false);
+        this.updateSize(this._calcSize(), false);
+        // force layout to ensure transition will go
+        /** @suppress {suspiciousCode} */ this.offsetHeight;
+        this.updateSize('0px', true);
+      }
+    },
+
+    _transitionEnd: function() {
+      if (this.opened) {
+        this.updateSize('auto', false);
+      }
+      this.toggleClass('iron-collapse-closed', !this.opened);
+      this.toggleClass('iron-collapse-opened', this.opened);
+      this.enableTransition(false);
+    },
+
+    _calcSize: function() {
+      return this.getBoundingClientRect()[this.dimension] + 'px';
+    },
+
+
+  });
+Polymer({
     is: 'paper-material',
 
     properties: {
@@ -17156,6 +17279,7 @@ Polymer({
 
       _handleResponseOkRefresh:function(response){
         if(this.debug) console.log("Delete done. Refreshing");
+        this.fire('deleteok');
         this.$.get_ajax.generateRequest();
       },
 
@@ -17165,6 +17289,14 @@ Polymer({
       }
 
     });
+(function () {
+    Polymer({
+      is: 'apps-wrapup',
+      properties: {
+        item: Object,
+      },
+    });
+  })();
 (function () {
     Polymer({
 
@@ -17178,8 +17310,8 @@ Polymer({
       observers:['_divideItems(onlineitems)' ],
 
       ready: function(){
-        this.areInactiveVisible = false;
         this.newurl = MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
+        this.$.inactive_hidden_collapse.toggle();
       },
 
       _openURL(itemId) {
@@ -17190,13 +17322,10 @@ Polymer({
         this.$.rest_array.deleteItem(e.model.item.id);
       },
 
-
       // Handling Active and Inactives.
-      _showInactive:function(){
-        this.areInactiveVisible = true;
-      },
-      _hideInactive:function(){
-        this.areInactiveVisible = false;
+      _toggleInactive:function(){
+        this.$.inactive_shown_collapse.toggle();
+        this.$.inactive_hidden_collapse.toggle();
       },
 
       _divideItems:function(newItems){
@@ -17661,7 +17790,11 @@ Polymer({
       },
 
       _handle_save_ok:function(response){
-        this.fire('saveok');
+        if(this.isnew){
+          this.fire('addok');
+        }else{
+          this.fire('updateok');
+        }
       },
 
       _handle_save_error : function(response){
@@ -19506,9 +19639,7 @@ Polymer({
         console.log("Arrived servererror event");
       },
 
-      _on_saveok : function(){
-        console.log("Saving item went ok !");
-        document.querySelector('#save-success').show();
+      _back_to_list : function(){
         if(MoreRouting.isCurrentUrl('appdetail')){ MoreRouting.navigateTo('apps'); }
         if(MoreRouting.isCurrentUrl('blockdetail')){ MoreRouting.navigateTo('blocks'); }
         if(MoreRouting.isCurrentUrl('templatedetail')){ MoreRouting.navigateTo('templates'); }
@@ -19528,7 +19659,25 @@ Polymer({
       _on_authfailure : function(){
         console.log("Saving item went .. bad.");
         document.querySelector('#auth-failure').show();
+      },
+
+      _on_addok : function(){
+        console.log("Saving item went .. good!");
+        document.querySelector('#add-success').show();
+        this._back_to_list();
+      },
+
+      _on_updateok : function(){
+        console.log("Updating item went .. good!");
+        document.querySelector('#update-success').show();
+        this._back_to_list();
+      },
+
+      _on_deleteok : function(){
+        console.log("Deleting item went .. good !");
+        document.querySelector('#delete-success').show();
       }
+
 
     });
 (function(document) {

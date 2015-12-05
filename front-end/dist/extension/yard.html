@@ -2141,6 +2141,45 @@ element.
   }
 
 </style>
+<!--
+`iron-collapse` creates a collapsible block of content.  By default, the content
+will be collapsed.  Use `opened` or `toggle()` to show/hide the content.
+
+    <button on-click="toggle">toggle collapse</button>
+
+    <iron-collapse id="collapse">
+      <div>Content goes here...</div>
+    </iron-collapse>
+
+    ...
+
+    toggle: function() {
+      this.$.collapse.toggle();
+    }
+
+`iron-collapse` adjusts the height/width of the collapsible element to show/hide
+the content.  So avoid putting padding/margin/border on the collapsible directly,
+and instead put a div inside and style that.
+
+    <style>
+      .collapse-content {
+        padding: 15px;
+        border: 1px solid #dedede;
+      }
+    </style>
+
+    <iron-collapse>
+      <div class="collapse-content">
+        <div>Content goes here...</div>
+      </div>
+    </iron-collapse>
+
+@group Iron Elements
+@hero hero.svg
+@demo demo/index.html
+@element iron-collapse
+-->
+
 <!-- Paper elements -->
 <style is="custom-style">
 
@@ -3888,6 +3927,33 @@ respectively.
 <g id="wrap-text"><path d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3 3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></g>
 </defs></svg>
 </iron-iconset-svg>
+<dom-module id="iron-collapse" assetpath="bower_components/iron-collapse/">
+
+  <style>
+
+    :host {
+      display: block;
+      transition-duration: 300ms;
+    }
+
+    :host(.iron-collapse-closed) {
+      display: none;
+    }
+
+    :host(:not(.iron-collapse-opened)) {
+      overflow: hidden;
+    }
+
+  </style>
+
+  <template>
+
+    <content></content>
+
+  </template>
+
+</dom-module>
+
 <dom-module id="paper-material" assetpath="bower_components/paper-material/">
   <template>
     <style>
@@ -4203,6 +4269,60 @@ respectively.
   </template>
 
   </dom-module>
+<dom-module id="apps-wrapup" assetpath="/">
+
+  <template>
+
+    <style>
+    </style>
+
+    <div class="layout vertical">
+      <div class="flex">
+        <span style="font-size: 16px;">{{item.position}}</span>
+        <span style="font-size: 12px; color: grey; ">at</span>
+        <span style="font-size: 14px;">{{item.company}}</span>
+        <span style="font-size: 11px; color: grey; ">via</span>
+        <span style="font-size: 13px; color: grey; ">{{item.portal}}</span>
+      </div>
+      <div>
+        <br>
+        <div class="layout horizontal">
+          <div>
+            <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles="false"></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles="false"></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles="false"></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles="false"></paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <br>
+        <iron-icon icon="editor:insert-comment" style="width: 18px; height: 18px;"></iron-icon>
+        <span style="font-size: 11px; color: grey; ">{{item.notes}}</span>
+        <br>
+      </div>
+      <div>
+        <br>
+        <iron-icon icon="icons:assignment" style="width: 18px; height: 18px;"></iron-icon>
+        <span style="font-size: 11px; color: grey; ">{{item.next}}</span>
+      </div>
+    </div>
+  
+
+  </template>
+</dom-module>
+
 <dom-module id="apps-list" assetpath="/">
 
   <template>
@@ -4232,52 +4352,10 @@ respectively.
     <rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" onlineitems="{{onlineitems}}"></rest-array>
 
     <template is="dom-repeat" items="{{activeItems}}">
-
       <paper-material card="" levation="1">
       <div class="layout horizontal center">
         <div class="flex">
-          <div class="layout vertical">
-            <div class="flex">
-              <span style="font-size: 16px;">{{item.position}}</span>
-              <span style="font-size: 12px; color: grey; ">at</span>
-              <span style="font-size: 14px;">{{item.company}}</span>
-              <span style="font-size: 11px; color: grey; ">via</span>
-              <span style="font-size: 13px; color: grey; ">{{item.portal}}</span>
-            </div>
-            <div>
-              <br>
-              <div class="layout horizontal">
-                <div>
-                  <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles="false"></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles="false"></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles="false"></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles="false"></paper-checkbox>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <br>
-              <iron-icon icon="editor:insert-comment" style="width: 18px; height: 18px;"></iron-icon>
-              <span style="font-size: 11px; color: grey; ">{{item.notes}}</span>
-              <br>
-            </div>
-            <div>
-              <br>
-              <iron-icon icon="icons:assignment" style="width: 18px; height: 18px;"></iron-icon>
-              <span style="font-size: 11px; color: grey; ">{{item.next}}</span>
-            </div>
-          </div>
+          <apps-wrapup item="[[item]]"></apps-wrapup>
         </div>
         <div class="layout vertical">
           <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
@@ -4287,55 +4365,37 @@ respectively.
       </paper-material>
     </template>
 
-    <template is="dom-if" if="{{areInactiveVisible}}">
+
+
+    <iron-collapse id="inactive_shown_collapse">
       <div class="layout vertical center">
-        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_hideInactive">Hide Inactive</paper-button> </div>
+        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_toggleInactive">Hide Inactive</paper-button> </div>
       </div>
 
-      <template is="dom-repeat" items="{{inactiveItems}}">
-        <paper-material card="" levation="1">
-        <div class="layout horizontal center">
-          <div class="flex">
-            <div class="layout vertical">
+      <div class="collapse-content">
+        <div>
+          <template is="dom-repeat" items="{{inactiveItems}}">
+            <paper-material card="" levation="1">
+            <div class="layout horizontal center">
               <div class="flex">
-                <span style="font-size: 16px;">{{item.position}}</span><br>
-                <span style="font-size: 12px; color: grey; ">at</span>
-                <span style="font-size: 14px;">{{item.company}}</span>
-                <span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span>
-                <span style="font-size: 14px; color: grey; ">{{item.portal}}</span>
+                <apps-wrapup item="[[item]]"></apps-wrapup>
               </div>
-              <div>
-                <br>
-              </div>
-              <div>
-                <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
-                <br>
-                <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles="false"></paper-checkbox>
+              <div class="layout horizontal">
+                <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
+                <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
               </div>
             </div>
-          </div>
-          <div class="layout horizontal">
-            <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
-            <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
-          </div>
+            </paper-material>
+          </template>
         </div>
-        </paper-material>
-      </template>
-
-    </template>
-
-    <template is="dom-if" if="{{!areInactiveVisible}}">
-      <div class="layout vertical center">
-        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_showInactive">show inactive</paper-button> </div>
       </div>
-    </template>
+    </iron-collapse>
 
+    <iron-collapse id="inactive_hidden_collapse">
+      <div class="layout vertical center">
+        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_toggleInactive">Show Inactive</paper-button> </div>
+      </div>
+    </iron-collapse>
 
     <div class="vertical layout center">
       <div><a href="{{newurl}}"> <paper-fab icon="add"></paper-fab></a></div>
@@ -5455,7 +5515,7 @@ respectively.
 
   <template>
 
-    <more-route-selector id="my_selector" on-unauthenticated="_on_401" on-servererror="_on_403" on-saveok="_on_saveok" on-saveerror="_on_saveerror" on-authsuccess="_on_authsuccess" on-authfailure="_on_authfailure">
+    <more-route-selector id="my_selector" selected-route="{{selRoute}}" selected-params="{{selParams}}" on-unauthenticated="_on_401" on-servererror="_on_403" on-saveerror="_on_saveerror" on-authsuccess="_on_authsuccess" on-authfailure="_on_authfailure" on-deleteok="_on_deleteok" on-addok="_on_addok" on-updateok="_on_updateok">
       <iron-pages>
         <section route="root">
           <more-route context="" name="root" active="{{rt_active}}"></more-route>
@@ -5515,10 +5575,12 @@ respectively.
       </iron-pages>
     </more-route-selector>
 
-    <paper-toast id="save-success" duration="6000" text="Saving successful"> </paper-toast>
-    <paper-toast id="save-failure" duration="6000" text="Could not save"> </paper-toast>
-    <paper-toast id="auth-success" duration="6000" text="Logged in."> </paper-toast>
-    <paper-toast id="auth-failure" duration="6000" text="Login Failed."> </paper-toast>
+    <paper-toast id="add-success" duration="2000" text="Added !"> </paper-toast>
+    <paper-toast id="update-success" duration="2000" text="Updated !"> </paper-toast>
+    <paper-toast id="delete-success" duration="2000" text="Deleted !"> </paper-toast>
+    <paper-toast id="save-failure" duration="2000" text="Could not save"> </paper-toast>
+    <paper-toast id="auth-success" duration="2000" text="Logged in."> </paper-toast>
+    <paper-toast id="auth-failure" duration="2000" text="Login Failed."> </paper-toast>
 
   </template>
 

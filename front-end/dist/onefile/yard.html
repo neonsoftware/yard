@@ -14863,6 +14863,45 @@ element.
   }
 
 </style>
+<!--
+`iron-collapse` creates a collapsible block of content.  By default, the content
+will be collapsed.  Use `opened` or `toggle()` to show/hide the content.
+
+    <button on-click="toggle">toggle collapse</button>
+
+    <iron-collapse id="collapse">
+      <div>Content goes here...</div>
+    </iron-collapse>
+
+    ...
+
+    toggle: function() {
+      this.$.collapse.toggle();
+    }
+
+`iron-collapse` adjusts the height/width of the collapsible element to show/hide
+the content.  So avoid putting padding/margin/border on the collapsible directly,
+and instead put a div inside and style that.
+
+    <style>
+      .collapse-content {
+        padding: 15px;
+        border: 1px solid #dedede;
+      }
+    </style>
+
+    <iron-collapse>
+      <div class="collapse-content">
+        <div>Content goes here...</div>
+      </div>
+    </iron-collapse>
+
+@group Iron Elements
+@hero hero.svg
+@demo demo/index.html
+@element iron-collapse
+-->
+
 <!-- Paper elements -->
 <style is="custom-style">
 
@@ -21014,6 +21053,160 @@ Polymer({
 <g id="wrap-text"><path d="M4 19h6v-2H4v2zM20 5H4v2h16V5zm-3 6H4v2h13.25c1.1 0 2 .9 2 2s-.9 2-2 2H15v-2l-3 3 3 3v-2h2c2.21 0 4-1.79 4-4s-1.79-4-4-4z"></path></g>
 </defs></svg>
 </iron-iconset-svg>
+<dom-module id="iron-collapse" assetpath="bower_components/iron-collapse/">
+
+  <style>
+
+    :host {
+      display: block;
+      transition-duration: 300ms;
+    }
+
+    :host(.iron-collapse-closed) {
+      display: none;
+    }
+
+    :host(:not(.iron-collapse-opened)) {
+      overflow: hidden;
+    }
+
+  </style>
+
+  <template>
+
+    <content></content>
+
+  </template>
+
+</dom-module>
+
+<script>
+
+  Polymer({
+
+    is: 'iron-collapse',
+
+    properties: {
+
+      /**
+       * If true, the orientation is horizontal; otherwise is vertical.
+       *
+       * @attribute horizontal
+       */
+      horizontal: {
+        type: Boolean,
+        value: false,
+        observer: '_horizontalChanged'
+      },
+
+      /**
+       * Set opened to true to show the collapse element and to false to hide it.
+       *
+       * @attribute opened
+       */
+      opened: {
+        type: Boolean,
+        value: false,
+        notify: true,
+        observer: '_openedChanged'
+      }
+
+    },
+
+    hostAttributes: {
+      role: 'group',
+      'aria-expanded': 'false'
+    },
+
+    listeners: {
+      transitionend: '_transitionEnd'
+    },
+
+    ready: function() {
+      // Avoid transition at the beginning e.g. page loads and enable
+      // transitions only after the element is rendered and ready.
+      this._enableTransition = true;
+    },
+
+    /**
+     * Toggle the opened state.
+     *
+     * @method toggle
+     */
+    toggle: function() {
+      this.opened = !this.opened;
+    },
+
+    show: function() {
+      this.opened = true;    
+    },
+
+    hide: function() {
+      this.opened = false;    
+    },
+
+    updateSize: function(size, animated) {
+      this.enableTransition(animated);
+      var s = this.style;
+      var nochange = s[this.dimension] === size;
+      s[this.dimension] = size;
+      if (animated && nochange) {
+        this._transitionEnd();
+      }
+    },
+
+    enableTransition: function(enabled) {
+      this.style.transitionDuration = (enabled && this._enableTransition) ? '' : '0s';
+    },
+
+    _horizontalChanged: function() {
+      this.dimension = this.horizontal ? 'width' : 'height';
+      this.style.transitionProperty = this.dimension;
+    },
+
+    _openedChanged: function() {
+      if (this.opened) {
+        this.setAttribute('aria-expanded', 'true');
+        this.setAttribute('aria-hidden', 'false');
+
+        this.toggleClass('iron-collapse-closed', false);
+        this.updateSize('auto', false);
+        var s = this._calcSize();
+        this.updateSize('0px', false);
+        // force layout to ensure transition will go
+        /** @suppress {suspiciousCode} */ this.offsetHeight;
+        this.updateSize(s, true);
+        // focus the current collapse
+        this.focus();
+      } else {
+        this.setAttribute('aria-expanded', 'false');
+        this.setAttribute('aria-hidden', 'true');
+
+        this.toggleClass('iron-collapse-opened', false);
+        this.updateSize(this._calcSize(), false);
+        // force layout to ensure transition will go
+        /** @suppress {suspiciousCode} */ this.offsetHeight;
+        this.updateSize('0px', true);
+      }
+    },
+
+    _transitionEnd: function() {
+      if (this.opened) {
+        this.updateSize('auto', false);
+      }
+      this.toggleClass('iron-collapse-closed', !this.opened);
+      this.toggleClass('iron-collapse-opened', this.opened);
+      this.enableTransition(false);
+    },
+
+    _calcSize: function() {
+      return this.getBoundingClientRect()[this.dimension] + 'px';
+    },
+
+
+  });
+
+</script>
 <dom-module id="paper-material" assetpath="bower_components/paper-material/">
   <template>
     <style>
@@ -21571,6 +21764,7 @@ Polymer({
 
       _handleResponseOkRefresh:function(response){
         if(this.debug) console.log("Delete done. Refreshing");
+        this.fire('deleteok');
         this.$.get_ajax.generateRequest();
       },
 
@@ -21582,6 +21776,77 @@ Polymer({
     });
   </script>
 </dom-module>
+<dom-module id="apps-wrapup" assetpath="/">
+
+  <template>
+
+    <style>
+    </style>
+
+    <div class="layout vertical">
+      <div class="flex">
+        <span style="font-size: 16px;">{{item.position}}</span>
+        <span style="font-size: 12px; color: grey; ">at</span>
+        <span style="font-size: 14px;">{{item.company}}</span>
+        <span style="font-size: 11px; color: grey; ">via</span>
+        <span style="font-size: 13px; color: grey; ">{{item.portal}}</span>
+      </div>
+      <div>
+        <br>
+        <div class="layout horizontal">
+          <div>
+            <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles="false"></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles="false"></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles="false"></paper-checkbox>
+          </div>
+          <div>
+            <iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon><br>
+            <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles="false"></paper-checkbox>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <br>
+        <iron-icon icon="editor:insert-comment" style="width: 18px; height: 18px;"></iron-icon>
+        <span style="font-size: 11px; color: grey; ">{{item.notes}}</span>
+        <br>
+      </div>
+      <div>
+        <br>
+        <iron-icon icon="icons:assignment" style="width: 18px; height: 18px;"></iron-icon>
+        <span style="font-size: 11px; color: grey; ">{{item.next}}</span>
+      </div>
+    </div>
+  
+
+  </template>
+</dom-module>
+
+<script>
+  (function () {
+    Polymer({
+      is: 'apps-wrapup',
+      properties: {
+        item: Object,
+      },
+    });
+  })();
+</script>
+
+
+
+
+
+
+
 <dom-module id="apps-list" assetpath="/">
 
   <template>
@@ -21611,52 +21876,10 @@ Polymer({
     <rest-array id="rest_array" active="[[active]]" debug="[[debug]]" serverurl="[[serverurl]]" onlineitems="{{onlineitems}}"></rest-array>
 
     <template is="dom-repeat" items="{{activeItems}}">
-
       <paper-material card="" levation="1">
       <div class="layout horizontal center">
         <div class="flex">
-          <div class="layout vertical">
-            <div class="flex">
-              <span style="font-size: 16px;">{{item.position}}</span>
-              <span style="font-size: 12px; color: grey; ">at</span>
-              <span style="font-size: 14px;">{{item.company}}</span>
-              <span style="font-size: 11px; color: grey; ">via</span>
-              <span style="font-size: 13px; color: grey; ">{{item.portal}}</span>
-            </div>
-            <div>
-              <br>
-              <div class="layout horizontal">
-                <div>
-                  <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles="false"></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles="false"></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles="false"></paper-checkbox>
-                </div>
-                <div>
-                  <iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon><br>
-                  <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles="false"></paper-checkbox>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <br>
-              <iron-icon icon="editor:insert-comment" style="width: 18px; height: 18px;"></iron-icon>
-              <span style="font-size: 11px; color: grey; ">{{item.notes}}</span>
-              <br>
-            </div>
-            <div>
-              <br>
-              <iron-icon icon="icons:assignment" style="width: 18px; height: 18px;"></iron-icon>
-              <span style="font-size: 11px; color: grey; ">{{item.next}}</span>
-            </div>
-          </div>
+          <apps-wrapup item="[[item]]"></apps-wrapup>
         </div>
         <div class="layout vertical">
           <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
@@ -21666,55 +21889,37 @@ Polymer({
       </paper-material>
     </template>
 
-    <template is="dom-if" if="{{areInactiveVisible}}">
+
+
+    <iron-collapse id="inactive_shown_collapse">
       <div class="layout vertical center">
-        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_hideInactive">Hide Inactive</paper-button> </div>
+        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_toggleInactive">Hide Inactive</paper-button> </div>
       </div>
 
-      <template is="dom-repeat" items="{{inactiveItems}}">
-        <paper-material card="" levation="1">
-        <div class="layout horizontal center">
-          <div class="flex">
-            <div class="layout vertical">
+      <div class="collapse-content">
+        <div>
+          <template is="dom-repeat" items="{{inactiveItems}}">
+            <paper-material card="" levation="1">
+            <div class="layout horizontal center">
               <div class="flex">
-                <span style="font-size: 16px;">{{item.position}}</span><br>
-                <span style="font-size: 12px; color: grey; ">at</span>
-                <span style="font-size: 14px;">{{item.company}}</span>
-                <span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span>
-                <span style="font-size: 14px; color: grey; ">{{item.portal}}</span>
+                <apps-wrapup item="[[item]]"></apps-wrapup>
               </div>
-              <div>
-                <br>
-              </div>
-              <div>
-                <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="communication:call" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="perm-identity" style="width: 18px; height: 18px;"></iron-icon>
-      					<iron-icon icon="more-horiz" style="width: 18px; height: 18px;"></iron-icon>
-                <br>
-                <paper-checkbox checked="{{item.written}}" on-tap="triggerWritten" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.called}}" on-tap="triggerCalled" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.interviewed}}" on-tap="triggerInterviewed" toggles="false"></paper-checkbox>
-                <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles="false"></paper-checkbox>
+              <div class="layout horizontal">
+                <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
+                <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
               </div>
             </div>
-          </div>
-          <div class="layout horizontal">
-            <div style="margin:3px"><a href="{{_openURL(item.id)}}"> <paper-fab icon="create" style="width: 18px; height: 18px;"></paper-fab></a></div>
-            <div style="margin:3px"><paper-fab icon="delete" style="width: 18px; height: 18px;" on-tap="_deleteElement"></paper-fab></div>
-          </div>
+            </paper-material>
+          </template>
         </div>
-        </paper-material>
-      </template>
-
-    </template>
-
-    <template is="dom-if" if="{{!areInactiveVisible}}">
-      <div class="layout vertical center">
-        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_showInactive">show inactive</paper-button> </div>
       </div>
-    </template>
+    </iron-collapse>
 
+    <iron-collapse id="inactive_hidden_collapse">
+      <div class="layout vertical center">
+        <div> <paper-button tabindex="0" active="" raised="" class="colorful" on-tap="_toggleInactive">Show Inactive</paper-button> </div>
+      </div>
+    </iron-collapse>
 
     <div class="vertical layout center">
       <div><a href="{{newurl}}"> <paper-fab icon="add"></paper-fab></a></div>
@@ -21736,8 +21941,8 @@ Polymer({
       observers:['_divideItems(onlineitems)' ],
 
       ready: function(){
-        this.areInactiveVisible = false;
         this.newurl = MoreRouting.urlFor('appdetail', {appId: 'new'}) ;
+        this.$.inactive_hidden_collapse.toggle();
       },
 
       _openURL(itemId) {
@@ -21748,13 +21953,10 @@ Polymer({
         this.$.rest_array.deleteItem(e.model.item.id);
       },
 
-
       // Handling Active and Inactives.
-      _showInactive:function(){
-        this.areInactiveVisible = true;
-      },
-      _hideInactive:function(){
-        this.areInactiveVisible = false;
+      _toggleInactive:function(){
+        this.$.inactive_shown_collapse.toggle();
+        this.$.inactive_hidden_collapse.toggle();
       },
 
       _divideItems:function(newItems){
@@ -22557,7 +22759,11 @@ Polymer({
       },
 
       _handle_save_ok:function(response){
-        this.fire('saveok');
+        if(this.isnew){
+          this.fire('addok');
+        }else{
+          this.fire('updateok');
+        }
       },
 
       _handle_save_error : function(response){
@@ -25227,7 +25433,7 @@ Polymer({
 
   <template>
 
-    <more-route-selector id="my_selector" on-unauthenticated="_on_401" on-servererror="_on_403" on-saveok="_on_saveok" on-saveerror="_on_saveerror" on-authsuccess="_on_authsuccess" on-authfailure="_on_authfailure">
+    <more-route-selector id="my_selector" selected-route="{{selRoute}}" selected-params="{{selParams}}" on-unauthenticated="_on_401" on-servererror="_on_403" on-saveerror="_on_saveerror" on-authsuccess="_on_authsuccess" on-authfailure="_on_authfailure" on-deleteok="_on_deleteok" on-addok="_on_addok" on-updateok="_on_updateok">
       <iron-pages>
         <section route="root">
           <more-route context="" name="root" active="{{rt_active}}"></more-route>
@@ -25287,10 +25493,12 @@ Polymer({
       </iron-pages>
     </more-route-selector>
 
-    <paper-toast id="save-success" duration="6000" text="Saving successful"> </paper-toast>
-    <paper-toast id="save-failure" duration="6000" text="Could not save"> </paper-toast>
-    <paper-toast id="auth-success" duration="6000" text="Logged in."> </paper-toast>
-    <paper-toast id="auth-failure" duration="6000" text="Login Failed."> </paper-toast>
+    <paper-toast id="add-success" duration="2000" text="Added !"> </paper-toast>
+    <paper-toast id="update-success" duration="2000" text="Updated !"> </paper-toast>
+    <paper-toast id="delete-success" duration="2000" text="Deleted !"> </paper-toast>
+    <paper-toast id="save-failure" duration="2000" text="Could not save"> </paper-toast>
+    <paper-toast id="auth-success" duration="2000" text="Logged in."> </paper-toast>
+    <paper-toast id="auth-failure" duration="2000" text="Login Failed."> </paper-toast>
 
   </template>
 
@@ -25321,9 +25529,7 @@ Polymer({
         console.log("Arrived servererror event");
       },
 
-      _on_saveok : function(){
-        console.log("Saving item went ok !");
-        document.querySelector('#save-success').show();
+      _back_to_list : function(){
         if(MoreRouting.isCurrentUrl('appdetail')){ MoreRouting.navigateTo('apps'); }
         if(MoreRouting.isCurrentUrl('blockdetail')){ MoreRouting.navigateTo('blocks'); }
         if(MoreRouting.isCurrentUrl('templatedetail')){ MoreRouting.navigateTo('templates'); }
@@ -25343,7 +25549,25 @@ Polymer({
       _on_authfailure : function(){
         console.log("Saving item went .. bad.");
         document.querySelector('#auth-failure').show();
+      },
+
+      _on_addok : function(){
+        console.log("Saving item went .. good!");
+        document.querySelector('#add-success').show();
+        this._back_to_list();
+      },
+
+      _on_updateok : function(){
+        console.log("Updating item went .. good!");
+        document.querySelector('#update-success').show();
+        this._back_to_list();
+      },
+
+      _on_deleteok : function(){
+        console.log("Deleting item went .. good !");
+        document.querySelector('#delete-success').show();
       }
+
 
     });
 
