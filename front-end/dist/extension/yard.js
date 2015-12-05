@@ -19462,7 +19462,7 @@ Polymer({
 
       _handle_response_post:function(response){
         console.log('Received response from get :' , response.detail.success);
-        if(response.detail.success == true){
+        if(response.detail.xhr.response.success === true){
           console.log('Login OK !!!');
           MoreRouting.navigateTo('root', {});
           this.fire('authsuccess');

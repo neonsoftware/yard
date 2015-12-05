@@ -1,6 +1,7 @@
 <link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
 <link rel="import" href="bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="bower_components/iron-icons/editor-icons.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 
 <!-- Paper elements -->
@@ -56,8 +57,6 @@
             </div>
             <div>
               <br>
-            </div>
-            <div>
               <div class="layout horizontal">
                 <div>
                   <iron-icon icon="question-answer" style="width: 18px; height: 18px;"></iron-icon><br>
@@ -76,8 +75,19 @@
                   <paper-checkbox checked="{{item.followup}}" on-tap="triggerFollowup" toggles=false></paper-checkbox>
                 </div>
               </div>
+            </div>
 
-              </div>
+            <div>
+              <br>
+              <iron-icon icon="editor:insert-comment" style="width: 18px; height: 18px;"></iron-icon>
+              <span style="font-size: 11px; color: grey; ">{{item.notes}}</span>
+              <br>
+            </div>
+            <div>
+              <br>
+              <iron-icon icon="icons:assignment" style="width: 18px; height: 18px;"></iron-icon>
+              <span style="font-size: 11px; color: grey; ">{{item.next}}</span>
+            </div>
           </div>
         </div>
         <div class="layout vertical">
