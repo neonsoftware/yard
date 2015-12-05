@@ -1,0 +1,31 @@
+<iron-ajax id="trigger_ajax" method="GET" url="{{triggerurl}}" handle-as="json" on-response="handleResponseOkRefresh"></iron-ajax>
+
+
+<br>
+<paper-checkbox checked="{{item.written}}" on-click="triggerWritten" toggles=false></paper-checkbox>
+<paper-checkbox checked="{{item.called}}" on-click="triggerCalled" toggles=false></paper-checkbox>
+<paper-checkbox checked="{{item.interviewed}}" on-click="triggerInterviewed" toggles=false></paper-checkbox>
+<paper-checkbox checked="{{item.followup}}" on-click="triggerFollowup" toggles=false></paper-checkbox>
+</div>
+
+
+
+      triggerWritten:function(e){
+        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/written';
+        this.$.trigger_ajax.generateRequest();
+      },
+
+      triggerCalled:function(e){
+        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/called';
+        this.$.trigger_ajax.generateRequest();
+      },
+
+      triggerInterviewed:function(e){
+        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/interviewed';
+        this.$.trigger_ajax.generateRequest();
+      },
+
+      triggerFollowup:function(e){
+        this.triggerurl = this.serverurl + "/" + e.model.item.id + '/followup';
+        this.$.trigger_ajax.generateRequest();
+      },

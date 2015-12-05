@@ -51,12 +51,12 @@
 
         <section route="appdetail">
           <more-route context name="appdetail" active="{{ad_active}}" params="{{ad_params}}"></more-route>
-          <apps-detail active={{ad_active}} appid={{ad_params.appId}} serverurl="http://yard.neonrain.space/applications"></apps-detail>
+          <apps-detail active={{ad_active}} appid={{ad_params.appId}} serverurl="/applications"></apps-detail>
         </section>
 
         <section route="blocks">
           <more-route context name="blocks" active="{{bll_active}}"></more-route>
-          <blocks-list active="{{bll_active}}" serverurl="http://yard.neonrain.space/pieces"></blocks-list>
+          <blocks-list active="{{bll_active}}" serverurl="/pieces"></blocks-list>
         </section>
 
         <section route="blockdetail">
@@ -76,17 +76,17 @@
 
         <section route="covers">
           <more-route context name="covers" active="{{cll_active}}"></more-route>
-          <covers-list active="{{cll_active}}" serverurl="http://yard.neonrain.space/documents"></covers-list>
+          <covers-list active="{{cll_active}}" serverurl="/documents"></covers-list>
         </section>
 
         <section route="coverdetail">
           <more-route context name="coverdetail" active="{{cl_active}}" params="{{cl_params}}"></more-route>
-          <covers-detail debug active=[[cl_active]] elementid="[[cl_params.coverId]]" templateid="[[cl_params.coverTemplateId]]" serverurl="http://yard.neonrain.space/documents" templateserverurl="http://yard.neonrain.space/categories"></covers-detail>
+          <covers-detail debug active=[[cl_active]] elementid="[[cl_params.coverId]]" templateid="[[cl_params.coverTemplateId]]" serverurl="/documents" templateserverurl="/categories"></covers-detail>
         </section>
 
         <section route="coverselect">
           <more-route context name="coverselect" active="{{cs_active}}"></more-route>
-          <covers-new active="{{cs_active}}" serverurl="http://yard.neonrain.space/categories"></covers-new>
+          <covers-new active="{{cs_active}}" serverurl="/categories"></covers-new>
         </section>
 
       </iron-pages>
