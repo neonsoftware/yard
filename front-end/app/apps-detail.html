@@ -2,6 +2,9 @@
 <link rel="import" href="bower_components/iron-flex-layout/classes/iron-flex-layout.html">
 <link rel="import" href="bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="bower_components/iron-icons/editor-icons.html">
+<link rel="import" href="bower_components/iron-icons/social-icons.html">
+<link rel="import" href="bower_components/iron-icons/maps-icons.html">
 <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
 
 <!-- Paper elements -->
@@ -20,6 +23,7 @@
     [card] {
       margin: 16px;
       padding: 16px;
+      max-width: 400px;
     }
   </style>
 
@@ -30,41 +34,43 @@
 
     <paper-material card elevation="1">
 
-      <paper-input label="Company" floatingLabel=true value="{{currentitem.company}}" error="Company should have a name"></paper-input>
-    	<paper-input label="Company website" floatingLabel=true value="{{currentitem.company_link}}" error="Company should have a name"></paper-input>
-    	<paper-input label="Portal" floatingLabel=true value="{{currentitem.portal}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Portal Website" floatingLabel=true value="{{currentitem.portal_link}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Position" floatingLabel=true value="{{currentitem.position}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Position link" floatingLabel=true value="{{currentitem.position_link}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Skills" floatingLabel=true value="{{currentitem.skills}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Salary" floatingLabel=true value="{{currentitem.salary}}" error="Portal should have a name"></paper-input>
-    	<paper-input label="Contract" floatingLabel=true value="{{currentitem.skills}}" error="Portal should have a name"></paper-input>
+      <paper-input label="Company" floatingLabel=true value="{{currentitem.company}}" error="Company should have a name"><iron-icon icon="social:domain" prefix></iron-icon></paper-input>
+    	<!-- <paper-input label="Company website" floatingLabel=true value="{{currentitem.company_link}}" error="Company should have a name"></paper-input> -->
+    	<paper-input label="Portal" floatingLabel=true value="{{currentitem.portal}}" error="Portal should have a name"><iron-icon icon="maps:local-library" prefix></iron-icon></paper-input>
+    	<!-- <paper-input label="Portal Website" floatingLabel=true value="{{currentitem.portal_link}}" error="Portal should have a name"></paper-input> -->
+    	<paper-input label="Position" floatingLabel=true value="{{currentitem.position}}" error="Portal should have a name"><iron-icon icon="maps:my-location" prefix></iron-icon></paper-input>
+    	<paper-input label="Position URL" floatingLabel=true value="{{currentitem.position_link}}" error="Portal should have a name"><iron-icon icon="icons:link" prefix></iron-icon></paper-input>
+    	<paper-input label="Skills" floatingLabel=true value="{{currentitem.skills}}" error="Portal should have a name"><iron-icon icon="icons:build" prefix></iron-icon></paper-input>
+    	<paper-input label="Salary" type="number" floatingLabel=true value="{{currentitem.salary}}" error="Portal should have a name"><iron-icon icon="maps:local-atm" prefix></iron-icon></paper-input>
+    	<paper-input label="Contract" floatingLabel=true value="{{currentitem.skills}}" error="Portal should have a name"><iron-icon icon="icons:work" prefix></iron-icon></paper-input>
 
     	<br><br>
 
-      <paper-checkbox checked="{{currentitem.written}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
-      <core-icon  icon="question-answer"></core-icon>&nbsp;&nbsp;Written<br><br>
-     	<paper-checkbox checked="{{currentitem.called}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
-      <core-icon icon="communication:call" ></core-icon>&nbsp;&nbsp;Called<br><br>
-      <paper-checkbox checked="{{currentitem.interviewed}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
-      <core-icon icon="perm-identity" ></core-icon>&nbsp;&nbsp;Interviewed <br><br>
-      <paper-checkbox checked="{{currentitem.followup}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;
-      <core-icon icon="more-horiz" ></core-icon>&nbsp;&nbsp;Followup<br><br>
+      <paper-checkbox checked="{{currentitem.written}}"></paper-checkbox>
+      <iron-icon icon="question-answer"></iron-icon>&nbsp;&nbsp;Written<br><br>
+     	<paper-checkbox checked="{{currentitem.called}}"></paper-checkbox>
+      <iron-icon icon="communication:call" ></iron-icon>&nbsp;&nbsp;Called<br><br>
+      <paper-checkbox checked="{{currentitem.interviewed}}"></paper-checkbox>
+      <iron-icon icon="perm-identity" ></iron-icon>&nbsp;&nbsp;Interviewed <br><br>
+      <paper-checkbox checked="{{currentitem.followup}}"></paper-checkbox>
+      <iron-icon icon="more-horiz" ></iron-icon>&nbsp;&nbsp;Followup<br><br>
 
 
     	<paper-input multiline label="Next" floatingLabel=true value="{{currentitem.next}}" error="Portal should have a name"></paper-input>
     	<paper-input multiline label="Notes" floatingLabel=true value="{{currentitem.notes}}" error="Portal should have a name"></paper-input>
     	<paper-input multiline label="Cover Letter" floatingLabel=true value="{{currentitem.cover}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline label="Address 1" floatingLabel=true value="{{currentitem.address1}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline label="Address 2" floatingLabel=true value="{{currentitem.address2}}" error="Portal should have a name"></paper-input>
+    	<paper-input multiline label="Address" floatingLabel=true value="{{currentitem.address1}}" error="Portal should have a name"><iron-icon icon="maps:place" prefix></paper-input>
+    	<!-- <paper-input multiline label="Address 2" floatingLabel=true value="{{currentitem.address2}}" error="Portal should have a name"></paper-input> -->
 
       <br>
 
       <h4> Contacts </h4>
 
-    	<paper-input multiline label="Name" floatingLabel=true value="{{currentitem.c1name}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline label="Email" type="email" floatingLabel=true value="{{currentitem.c1mail}}" error="Portal should have a name"></paper-input>
-    	<paper-input multiline label="Phone" type="tel" floatingLabel=true value="{{currentitem.c1phone}}" error="Portal should have a name"></paper-input>
+
+
+    	<paper-input multiline label="Name" floatingLabel=true value="{{currentitem.c1name}}" error="Portal should have a name"><iron-icon icon="social:person" prefix></iron-icon></paper-input>
+    	<paper-input multiline label="Email" type="email" floatingLabel=true value="{{currentitem.c1mail}}" error="Portal should have a name"><iron-icon icon="social:person" prefix></iron-icon></paper-input>
+    	<paper-input multiline label="Phone" type="tel" floatingLabel=true value="{{currentitem.c1phone}}" error="Portal should have a name"><iron-icon icon="social:person" prefix></iron-icon></paper-input>
 
       <br><br>
     	<paper-input multiline label="Name" floatingLabel=true value="{{currentitem.c2name}}" error="Portal should have a name"></paper-input>
@@ -91,7 +97,6 @@
 
     <div class="layout vertical center">
       <div class="layout horizontal center">
-        <div style="margin:3px"><a href="{{newurl}}"> <paper-fab icon="add"></paper-fab></a></div>
         <div style="margin:3px"><paper-fab icon="close"></paper-fab></div>
         <div style="margin:3px"><paper-fab icon="save" on-tap="save_me"></paper-fab></div>
       </div>
