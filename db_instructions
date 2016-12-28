@@ -1,0 +1,9 @@
+mysql -u root
+> CREATE USER 'dumbo'@'localhost' IDENTIFIED BY '****';
+> GRANT ALL PRIVILEGES ON * . * TO 'frankie'@'localhost';
+> FLUSH PRIVILEGES;
+exit
+
+mysql -u dumbo -p
+> ****
+CREATE DATABASE yard;
