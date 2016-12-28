@@ -1,9 +1,9 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import *
 from django.contrib.auth.decorators import login_required
 
 from yard import views
 
-urlpatterns = patterns('',
+urlpatterns = [
     # Examples:
     # url(r'^$', 'ciao.views.home', name='home'),
 	url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
@@ -33,4 +33,4 @@ urlpatterns = patterns('',
 	url(r'categories/$',  views.categories_list , name ='categories_list' ),
 	url(r'categories$',  views.categories_list , name ='categories_list' ),
 	url(r'categories/(?P<id>[-\w\d]+)/$',  views.categories_detail , name ='categories_detail' )
-)
+]

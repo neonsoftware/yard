@@ -4,7 +4,6 @@ from django.conf.global_settings import LANGUAGES
 
 from django.contrib.auth.models import User
 
-from uuidfield import UUIDField
 
 class CreatedUpdatedModel(models.Model):
 	created = models.DateTimeField(auto_now_add=True)
@@ -202,7 +201,7 @@ class Application( CreatedUpdatedModel ):
 # User
 class Profile( CreatedUpdatedModel ):
 	user 	= models.OneToOneField(User)
-	uuid 	= UUIDField(auto=True)
+	uuid 	= models.UUIDField()
 	bio 	= models.TextField()
 	website = models.URLField(null=True)
 	has_avatar 	= models.BooleanField(default=False)
