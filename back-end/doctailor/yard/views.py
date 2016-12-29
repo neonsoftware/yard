@@ -196,7 +196,7 @@ def documents_docx(request, id) :
 		doc = Document()
 		doc.add_paragraph(updated_data["text"])
 		doc.save(path + "/" + filename + ".docx")
-		result = subprocess.call( "cd " + path + "; lowriter --convert-to pdf " + filename + ".docx" , shell=True )
+		result = subprocess.call( "cd " + path + "; soffice --convert-to pdf " + filename + ".docx" , shell=True )
 
 		return HttpResponse( json.dumps( {"path":"static/docs/" + str(request.user) + "/" + filename + ".pdf" } ), content_type="application/json" )
 

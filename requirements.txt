@@ -1,5 +1,0 @@
-Django
-MySQL-python
-django-bootstrap-form
-gunicorn
-python-docx
