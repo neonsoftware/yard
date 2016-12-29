@@ -37,7 +37,7 @@ angular.module('niomApp')
 .controller('PiecesListCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
 	console.log("Closing Drawer");
-	document.getElementById('mainscaffold').closeDrawer();
+	//document.getElementById('mainscaffold').closeDrawer();
 
 	$scope.tags = [];
 	$scope.activeTags = {};
@@ -111,7 +111,7 @@ angular.module('niomApp')
 
 .controller('PiecesNewCtrl', function($scope, $http, $resource, $location, Pieces, Categories )
 {
-	document.getElementById('mainscaffold').closeDrawer();
+	//document.getElementById('mainscaffold').closeDrawer();
 
 	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
 
@@ -131,7 +131,7 @@ angular.module('niomApp')
 })
 .controller('PiecesDetailCtrl', function($scope, $http, $routeParams, $resource, $location, Pieces, Categories )
 {
-	document.getElementById('mainscaffold').closeDrawer();
+	// document.getElementById('mainscaffold').closeDrawer();
 
 	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
 

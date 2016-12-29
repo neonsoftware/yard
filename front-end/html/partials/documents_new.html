@@ -1,27 +1,24 @@
-<div class="card">
-<div horizontal layout>
-        <div flex>
-        <h5>Empty Template</h5>
-        </div>
-        <div horizontal end-justified layout> 
-          <div>
-            <paper-button ng-click="new()" class="colored">use</paper-button>
-          </div>
-        </div>
-    </div>
-  </div>
+<div class="card" style="width: 600px; margin: 10px 10px 10px 10px;">
+	<div class="card-section">
+		<div class="row">
+			<div class="small-10 columns">Empty Template</div>
+			<div class="small-2 columns">
+				<a ng-click="new()" class="button">use</a>
+			</div>
+		</div>
+	</div>
+</div>
 
-
-<div class="card" ng-repeat="category in categories">
-<div horizontal layout>
-        <div flex>
-          <h5>{{category.name}}</h5>
-      <h6>{{category.description}}</h6>
-        </div>
-        <div horizontal end-justified layout> 
-          <div>
-            <paper-button ng-click="use(category)" class="colored">use</paper-button>
-          </div>
-        </div>
-    </div>
-  </div>
+<div class="card" style="width: 600px; margin: 10px 10px 10px 10px;" ng-repeat="category in categories">
+	<div class="card-section">
+		<div class="row">
+			<div class="small-10 columns">			
+				<h5>{{category.name}}</h5>
+				<h6>{{category.description}}</h6>
+			</div>
+			<div class="small-2 columns">
+				<a ng-click="use(category)" class="button">use</a>
+			</div>
+		</div>
+	</div>
+</div>

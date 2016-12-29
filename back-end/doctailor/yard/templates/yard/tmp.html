@@ -10,34 +10,25 @@
         <link rel="stylesheet" href="static/yard/foundation-icons/foundation-icons.css">
     <body>
 
+<div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+  <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+  <a href="#/"><div class="title-bar-title">Menu</a>
 
-    
-
-
-<div class="top-bar">
-  <div class="top-bar-title">
-    <span data-responsive-toggle="responsive-menu" data-hide-for="medium">
-      <button class="menu-icon dark" type="button" data-toggle></button>
-    </span>
-    <strong>Site Title</strong>
   </div>
-  <div id="responsive-menu">
-    <div class="top-bar-left">
-      <ul class="dropdown menu" data-dropdown-menu>
-        <li>
-          <a href="#">One</a>
-          <ul class="menu vertical">
-            <li><a href="#">One</a></li>
-            <li><a href="#">Two</a></li>
-            <li><a href="#">Three</a></li>
-          </ul>
-        </li>
-        <li><a href="#">Two</a></li>
-        <li><a href="#pieces">pieces</a></li>
-      </ul>
-    </div>
-  </div>
+    <ul class="menu">
+        <li><a href="#applications">A List</a></li>
+        <li><a href="#applications/cards">A Cards</a></li>
+        <li><a href="#applications/new">A New</a></li>
+        <li><a href="#pieces">B List</a></li>
+        <li><a href="#pieces/new">B New</a></li>
+        <li><a href="#categories">T List</a></li>
+        <li><a href="#categories/new">T New</a></li>
+        <li><a href="#documents">C List</a></li>
+        <li><a href="#documents/new">C New</a></li>
+    </ul>
 </div>
+
+
 
 <div ng-view></div>
 
@@ -64,23 +55,7 @@
                     </core-submenu>
                     {% endif %}
 
-                    <core-submenu icon="extension" label="Blocks">
-                        <paper-item icon="list" label="List">
-                            <a href="#pieces"> </a>
-                        </paper-item>
-                        <paper-item icon="add" label="New">
-                            <a href="#pieces/new"> </a>
-                        </paper-item>
-                    </core-submenu>
 
-                    <core-submenu icon="image:blur-linear" label="Templates">
-                        <paper-item icon="list" label="List">
-                            <a href="#categories"> </a>
-                        </paper-item>
-                        <paper-item icon="add" label="New">
-                            <a href="#categories/new"> </a>
-                        </paper-item>
-                    </core-submenu>
 
 
                     {% if tmp %}

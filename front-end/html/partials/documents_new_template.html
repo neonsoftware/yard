@@ -1,37 +1,40 @@
+<div class="card" ng-show="artifact.length >0" style="width: 600px; margin: 10px 10px 10px 10px;">
+    <div class="card-section">
+        <h5>Fill</h5>
 
+                <div ng-repeat="piece in artifact">
+                    <div ng-repeat="(key, val) in piece.legend" style="height:30px; margin:1rem 1rem 1rem 1rem;">
+                        {{val.text}} <span style="font-size: 12px;color: grey; ">({{key}})</span>
+                    </div>
+                </div>
 
-<div class="card" ng-show="artifact.length >0">
-    <h5>Fill</h5>
-    
-    <div horizontal layout style="margin:0rem 0rem 1rem  1rem;">
-    	<div>
-    		<div ng-repeat="piece in artifact">
-    			<div ng-repeat="(key, val) in piece.legend" style="height:30px; margin:1rem 1rem 1rem 1rem;">
- 		 			{{val.text}} <span style="font-size: 12px;color: grey; ">({{key}})</span>
- 		 		</div>
- 			</div>
-     	</div>
-     	<div>
-     		&nbsp;&nbsp;
-     	</div>
-     	<div>
-     		<div ng-repeat="piece in artifact">
- 				<div ng-repeat="(key, val) in piece.legend" style="height:30px; margin:1rem 1rem 1rem 1rem;">
- 					<textarea ng-model="val.value" style="height:25px;"></textarea>
- 				</div>
- 			</div>
- 		</div>
-	</div>
-
+        <div class="row">
+            <div class="small-5 columns">
+                <div ng-repeat="piece in artifact">
+                    <div ng-repeat="(key, val) in piece.legend" style="height:30px; margin:1rem 1rem 1rem 1rem;">
+                        {{val.text}} <span style="font-size: 12px;color: grey; ">({{key}})</span>
+                    </div>
+                </div>
+            </div>
+            <div class="small-2 columns"></div>
+            <div class="small-5 columns">
+                <div ng-repeat="piece in artifact">
+                    <div ng-repeat="(key, val) in piece.legend" style="height:30px; margin:1rem 1rem 1rem 1rem;">
+                        <textarea ng-model="val.value" style="height:25px;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-
-<div class="card" ng-show="artifact.length >0">
-	<h5>Result</h5>
-	<textarea  id="text-area-content" style="width:100%; height:500px;">{{ artifact.dummy | fillTemplate:this }}</textarea>
+<div class="card" ng-show="artifact.length >0" style="width: 600px; margin: 10px 10px 10px 10px;">
+    <div class="card-section">
+        <h5>Result</h5>
+        <textarea  id="text-area-content" style="width:100%; height:500px;">{{ artifact.dummy | fillTemplate:this }}</textarea>
+    </div>
 </div>
 
-<div horizontal center-justified layout>
-    <paper-button raised class="colored" ng-click="docx()">.pdf</paper-button>
-</div>  
-
+<div style="margin: 10px 10px 10px 10px;">
+    <a ng-click="docx()" class="button">.pdf</a>
+</div>

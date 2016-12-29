@@ -1,7 +1,7 @@
 angular.module('niomApp')
 .controller('CategoriesListCtrl', function($scope, $http, $resource, $location, $sanitize, $sce, $compile, Categories )
 {
-	document.getElementById('mainscaffold').closeDrawer();
+	//document.getElementById('mainscaffold').closeDrawer();
 	$scope.categories 	= Categories.query( );
 	$scope.edit 		= function( item ){ $location.path( '/categories/' + item.id ); };
 	$scope.delete 		= function( item )	{ item.$delete( function() { $scope.categories = Categories.query( );}); };
@@ -11,7 +11,7 @@ angular.module('niomApp')
 
 .controller('CategoriesDetailCtrl', function($scope, $http, $resource, $routeParams, $location, Pieces, Categories )
 {
-	document.getElementById('mainscaffold').closeDrawer();
+	//document.getElementById('mainscaffold').closeDrawer();
 	$scope.symbols = ['AAA', 'BBB', 'CCC', 'DDD', 'EEE', 'FFF', 'GGG', 'HHH', 'III', 'JJJ', 'KKK', 'LLL', 'MMM', 'NNN', 'OOO', 'PPP', 'QQQ', 'RRR', 'SSS', 'TTT', 'UUU', 'WWW', 'XXX', 'YYY', 'ZZZ'];
 	
 	$scope.nextSymbolIndex = 0; 
@@ -154,9 +154,9 @@ angular.module('niomApp')
 
 		$scope.outgoing = new Categories();
 		$scope.outgoing.id = $scope.current_template.id;
-		$scope.outgoing.tags 		= document.getElementById('temp-tags').inputValue;
-		$scope.outgoing.name 		= document.getElementById('temp-name').inputValue;
-		$scope.outgoing.description = document.getElementById('temp-desc').inputValue;
+		$scope.outgoing.tags 		= document.getElementById('temp-tags').value;
+		$scope.outgoing.name 		= document.getElementById('temp-name').value;
+		$scope.outgoing.description = document.getElementById('temp-desc').value;
 		$scope.outgoing.language 	= $scope.current_template.language;
 		$scope.outgoing.pieces = JSON.stringify($scope.current_template.pieces);
 
