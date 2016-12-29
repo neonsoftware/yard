@@ -1,0 +1,57 @@
+<div class="card">
+  <paper-input id="temp-name" label="Name" floatingLabel=true value="{{current_template.name}}"></paper-input>
+  <paper-input id="temp-desc" label="Description" floatingLabel=true value="{{current_template.description}}"></paper-input>
+  <paper-input id="temp-tags" label="Tags" floatingLabel=true value="{{current_template.tags}}"></paper-input>
+
+</div>
+
+
+<div class="card">
+    <h5>Pieces</h5>
+  <br>
+  Language&nbsp;&nbsp;
+  <select id="temp-lang" ng-model="current_template.language" ng-options="lang for lang in languages">
+      <option value="">-- choose language --</option>
+  </select>
+
+      <h6>Tags</h6>
+    <span ng-repeat="tag in tags">
+      <input type="checkbox" value="Bike" ng-model="activeTags[tag]">&nbsp;&nbsp;{{tag}}<br>
+    </span>
+  <br><br>
+	<div ng-repeat="piece in pieces">
+    <div class="piece_list" ng-show="isActive(piece)">
+    	<div horizontal layout>
+    		<div flex>
+    			{{ piece.content }} 
+  			</div>
+  			<div ng-click="add(piece)" >    
+    			<paper-icon-button icon="add" style="color:#3366CC; padding:0px; margin:0px;" ></paper-icon-button>
+			  </div>
+		  </div>
+	  </div>
+  </div>
+</div>
+
+<div class="card" ng-show="current_template.pieces.length >0">
+
+    <h5>Order</h5>
+
+ 	<div class="piece_in" ng-repeat="piece in current_template.pieces">
+		<div horizontal layout>
+  			<div flex>
+  			{{ piece.content }}
+  			</div>
+
+					<div><core-icon-button icon="hardware:keyboard-arrow-up" ng-click="up($index)"  style="color:#3366CC;  padding:0px; margin:0px;" ></core-icon-button></div>					
+					<div><core-icon-button icon="hardware:keyboard-arrow-down" ng-click="down($index)" style="color:#3366CC; padding:0px; margin:0px;"  ></core-icon-button></div>
+					<div><core-icon-button icon="clear" ng-click="remove($index)" style="color:#3366CC; padding:0px; margin:0px;" ></core-icon-button></div>
+		</div>
+    </div>
+
+</div>
+
+<div horizontal center-justified layout ng-show="current_template.pieces.length >0">
+  	<paper-button raised class="colored" ng-click="save()">save and fill</paper-button>
+</div>	
+

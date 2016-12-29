@@ -1,0 +1,107 @@
+
+<div class="card">
+
+	<div horizontal end-justified layout>
+	  		<paper-button ng-click="discard()" >discard</paper-button>
+	    	<paper-button class="colored" ng-click="update()" class="colored" >save</paper-button>
+	</div>
+
+	<core-icon icon="communication:business"></core-icon>
+	<span style="font-size:16px"><b>&nbsp;Company</b></span></h5><br>
+
+	<div style="padding-left :20px;">
+		<paper-input id="appl-company" label="Company" floatingLabel=true value="{{current_application.company}}" error="Company should have a name"></paper-input>
+		<paper-input id="appl-company_link" label="Company website" floatingLabel=true value="{{current_application.company_link}}" error="Company should have a name"></paper-input>
+		<paper-input id="appl-portal" label="Portal" floatingLabel=true value="{{current_application.portal}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-portal_link" label="Portal Website" floatingLabel=true value="{{current_application.portal_link}}" error="Portal should have a name"></paper-input>
+	</div>
+	<br><br>
+
+	<core-icon icon="account-circle"></core-icon>
+	<span style="font-size:16px"><b>&nbsp;Position</b></span></h5><br>
+
+	<div style="padding-left :20px;">
+		<paper-input id="appl-position" label="Position" floatingLabel=true value="{{current_application.position}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-position_link" label="Position link" floatingLabel=true value="{{current_application.position_link}}" error="Portal should have a name"></paper-input>
+
+		<paper-input id="appl-skills" label="Skills" floatingLabel=true value="{{current_application.skills}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-salary" label="Salary" floatingLabel=true value="{{current_application.salary}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-contract" label="Contract" floatingLabel=true value="{{current_application.skills}}" error="Portal should have a name"></paper-input>
+
+	</div>
+	<br><br>
+
+	<core-icon icon="maps:directions-walk"></core-icon>
+	<span style="font-size:16px"><b>&nbsp;Status</b></span></h5><br>
+
+	<br>
+	<div style="padding-left :20px;">
+
+	    <paper-checkbox id="appl-written"></paper-checkbox>
+		&nbsp;&nbsp;&nbsp;<core-icon icon="question-answer"></core-icon>&nbsp;&nbsp;Written<br><br>
+	   	<paper-checkbox id="appl-called"></paper-checkbox>
+		&nbsp;&nbsp;&nbsp;<core-icon icon="communication:call" ></core-icon>&nbsp;&nbsp;Called<br><br>
+	    <paper-checkbox id="appl-interviewed"></paper-checkbox>
+		&nbsp;&nbsp;&nbsp;<core-icon icon="perm-identity" ></core-icon>&nbsp;&nbsp;Interviewed <br><br>
+	    <paper-checkbox id="appl-followup"></paper-checkbox>
+		&nbsp;&nbsp;&nbsp;<core-icon icon="more-horiz" ></core-icon>&nbsp;&nbsp;Followup<br><br>
+		
+	</div>
+	<br><br>
+
+	<core-icon icon="notification:event-note"></core-icon>
+	<span style="font-size:16px"><b>Notes</b></span></h5><br>
+
+
+	<div style="padding-left :20px;">
+
+		<paper-input id="appl-next" multiline label="Next" floatingLabel=true value="{{current_application.next}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-notes" multiline label="Notes" floatingLabel=true value="{{current_application.notes}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-cover" multiline label="Cover Letter" floatingLabel=true value="{{current_application.cover}}" error="Portal should have a name"></paper-input>
+
+	</div>
+	<br>
+
+	<core-icon icon="communication:location-on"></core-icon>
+	<span style="font-size:16px"><b>Address</b></span></h5><br>
+
+	<div style="padding-left :20px;">
+
+		<paper-input id="appl-address1" multiline label="Address 1" floatingLabel=true value="{{current_application.address1}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-address2" multiline label="Address 2" floatingLabel=true value="{{current_application.address2}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-latitude" label="Latitude" floatingLabel=true value="{{current_application.latitude}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-longitude" label="Longitude" floatingLabel=true value="{{current_application.longitude}}" error="Portal should have a name"></paper-input>
+	</div>
+
+	<br>
+
+
+	<core-icon icon="perm-contact-cal"></core-icon>
+	<span style="font-size:16px ; padding : 6px;"><b>Contact</b></span></h5><br>
+
+
+	<div style="padding-left :20px;">
+
+
+		<paper-input id="appl-c1name" multiline label="Name" floatingLabel=true value="{{current_application.c1name}}" error="Portal should have a name"></paper-input> 
+		<paper-input id="appl-c1mail" multiline label="Email" type="email" floatingLabel=true value="{{current_application.c1mail}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-c1phone" multiline label="Phone" type="tel" floatingLabel=true value="{{current_application.c1phone}}" error="Portal should have a name"></paper-input>
+		<br><br>
+		<paper-input id="appl-c2name" multiline label="Name" floatingLabel=true value="{{current_application.c2name}}" error="Portal should have a name"></paper-input> 
+		<paper-input id="appl-c2mail" multiline label="Email" type="email" floatingLabel=true value="{{current_application.c2mail}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-c2phone" multiline label="Phone" type="tel" floatingLabel=true value="{{current_application.c2phone}}" error="Portal should have a name"></paper-input>
+		<br><br>
+		<paper-input id="appl-c3name" multiline label="Name" floatingLabel=true value="{{current_application.c3name}}" error="Portal should have a name"></paper-input> 
+		<paper-input id="appl-c3mail" multiline label="Email" type="email" floatingLabel=true value="{{current_application.c3mail}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-c3phone" multiline label="Phone" type="tel" floatingLabel=true value="{{current_application.c3phone}}" error="Portal should have a name"></paper-input>
+		<br><br>
+		<paper-input id="appl-c4name" multiline label="Name" floatingLabel=true value="{{current_application.c4name}}" error="Portal should have a name"></paper-input> 
+		<paper-input id="appl-c4mail" multiline label="Email" type="email" floatingLabel=true value="{{current_application.c4mail}}" error="Portal should have a name"></paper-input>
+		<paper-input id="appl-c4phone" multiline label="Phone" type="tel" floatingLabel=true value="{{current_application.c4phone}}" error="Portal should have a name"></paper-input>
+
+	</div>
+
+	
+</div>
+
+

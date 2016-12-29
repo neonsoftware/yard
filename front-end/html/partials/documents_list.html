@@ -1,0 +1,17 @@
+<div class="card" ng-repeat="doc in documents">
+	<div horizontal layout>
+    		<div flex>
+    			<h5>{{doc.name}}</h5>
+  			</div>
+        <div horizontal end-justified layout> 
+          <div>
+            <paper-button ng-click="delete(doc)" >delete</paper-button>
+            <paper-button ng-click="edit(doc)" class="colored">edit</paper-button>
+          </div>
+        </div>
+		</div>
+	</div>
+<div horizontal center-justified layout>
+<div>
+    <paper-button raised class="colored" ng-click="new()">new</paper-button>
+</div>  

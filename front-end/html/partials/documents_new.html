@@ -1,0 +1,27 @@
+<div class="card">
+<div horizontal layout>
+        <div flex>
+        <h5>Empty Template</h5>
+        </div>
+        <div horizontal end-justified layout> 
+          <div>
+            <paper-button ng-click="new()" class="colored">use</paper-button>
+          </div>
+        </div>
+    </div>
+  </div>
+
+
+<div class="card" ng-repeat="category in categories">
+<div horizontal layout>
+        <div flex>
+          <h5>{{category.name}}</h5>
+      <h6>{{category.description}}</h6>
+        </div>
+        <div horizontal end-justified layout> 
+          <div>
+            <paper-button ng-click="use(category)" class="colored">use</paper-button>
+          </div>
+        </div>
+    </div>
+  </div>

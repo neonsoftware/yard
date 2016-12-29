@@ -1,0 +1,107 @@
+
+<div ng-repeat="application in applications" >
+<div class="card">
+
+	<div horizontal layout>
+  		<div>         
+        <span style="font-size: 22px;" >
+          <i ng-hide="{{application.position_link.length}}>0">{{application.position}}</i>
+          <i ng-show="{{application.position_link.length}}>0"><a href="{{application.position_link}}">{{application.position}}</a></i>
+          </span><br>     
+  			<span style="font-size: 12px;color: grey; ">&nbsp;@&nbsp;</span>
+      <span style="font-size: 22px;" ng-hide="{{application.company_link.length}}>0">{{application.company}}</span>
+      <span style="font-size: 22px;" ng-show="{{application.company_link.length}}>0">
+        <a href="{{application.company_link}}">{{application.company}}</a>
+      </span>
+      <span style="font-size: 12px; color: grey; ">&nbsp;&nbsp;via</span> 
+      <span style="font-size: 14px; color: grey; " ng-hide="{{application.portal_link.length}}>0">{{ application.portal }} </span>
+      <span style="font-size: 14px; color: grey; " ng-show="{{application.portal_link.length}}>0">
+        <a href="{{application.portal_link}}">{{ application.portal }} </a>
+      </span>
+		</div>
+  		<div flex></div>
+  		<div>            	
+  			<b>{{ application.salary }}€</b><br>
+			<b>{{ application.contract }}</b>
+		</div>
+	</div>
+
+	<br><br>
+
+	<core-icon icon="question-answer"></core-icon>&nbsp;&nbsp;
+    <paper-checkbox ng-checked="{{application.written}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<core-icon icon="communication:call" ></core-icon>&nbsp;&nbsp;
+   	<paper-checkbox ng-checked="{{application.called}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<core-icon icon="perm-identity" ></core-icon>&nbsp;&nbsp;
+    <paper-checkbox ng-checked="{{application.interviewed}}"></paper-checkbox>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	<core-icon icon="more-horiz" ></core-icon>&nbsp;&nbsp;
+    <paper-checkbox ng-checked="{{application.followup}}"></paper-checkbox><br><br><br>
+
+    
+    <div ng-show="{{application.next.length > 0}}">
+ 		<b>Next</b><br>
+    	<span style="font-size: 12px;">{{application.next}}</span>
+    	<br><br>
+    </div>
+
+    <div ng-show="{{application.notes.length > 0}}">
+    	<b>Notes</b><br>
+    	<span style="font-size: 12px;">{{application.notes}}</span>
+    	<br><br><br>
+    </div>
+
+  <div ng-show="{{application.c1name.length + application.c1mail.length + application.c1phone.length > 0}}" >
+      <core-icon icon="perm-contact-cal"></core-icon>&nbsp;&nbsp;&nbsp;
+      <span style="font-size: 12px;">{{application.c1name}}</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="mailto:{{application.c1mail}}" style="font-size: 12px;">{{application.c1mail}}</a><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="tel:{{application.c1phone}}" style="font-size: 12px;">{{application.c1phone}}</a>
+    </div>
+    <br>
+  <div ng-show="{{application.c2name.length + application.c2mail.length + application.c2phone.length > 0}}" >
+      <core-icon icon="perm-contact-cal"></core-icon>&nbsp;&nbsp;&nbsp;
+      <span style="font-size: 12px;">{{application.c2name}}</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="mailto:{{application.c2mail}}" style="font-size: 12px;">{{application.c2mail}}</a><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="tel:{{application.c2phone}}" style="font-size: 12px;">{{application.c2phone}}</a>
+    </div>
+    <br>
+  <div ng-show="{{application.c3name.length + application.c3mail.length + application.c3phone.length > 0}}" >
+      <core-icon icon="perm-contact-cal"></core-icon>&nbsp;&nbsp;&nbsp;
+      <span style="font-size: 12px;">{{application.c3name}}</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="mailto:{{application.c3mail}}" style="font-size: 12px;">{{application.c3mail}}</a><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <a href="tel:{{application.c3phone}}" style="font-size: 12px;">{{application.c3phone}}</a>
+    </div>
+    <br>
+
+    <div ng-show="{{application.address1.length + application.address2.length > 0}}" >
+		<core-icon icon="communication:location-on" ></core-icon>&nbsp;&nbsp;&nbsp;
+    	<span style="font-size: 12px;" ng-show="{{application.address1.length>0}}">{{application.address1}}</span>
+    	<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    	<span style="font-size: 12px;" ng-show="{{application.address2.length>0}}">{{application.address2}}</span>
+    	<br><br>
+    </div>
+
+
+    <div ng-show="{{application.latitude.length>0}}">
+    <google-map style="display: block;height: 240px;width: 240px;" fitToMarkers >
+  		<google-map-marker latitude="{{application.latitude}}" longitude="{{application.longitude}}"></google-map-marker>
+    </google-map>
+    <br><br>
+    </div>
+
+	<br><br>
+  	<div horizontal end-justified layout>    
+  		<paper-button ng-click="delete_application(application)" >delete</paper-button>
+    	<paper-button ng-click="open_edit(application)" class="colored" style="color: #4285f4; fill: #4285f4;">edit</paper-button>
+	</div>
+
+    <paper-shadow z="1"></paper-shadow>
+</div>
+<br>
+</div>
+	
