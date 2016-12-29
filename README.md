@@ -46,3 +46,19 @@ An web application for creating templated documents and export as PDF
 ### Link config files
 
 ```> echo -e "\nsource ~/yard/apply/config/bashrc" >> ~/.bashrc```
+
+
+### Deploy
+
+```
+> git clone -b foundation https://github.com/neonsoftware/yard.git
+> cd yard/back-end/deploy
+> docker-compose up -d             (start server)
+> # it's on ...
+> curl -X GET 127.0.0.1:8000       (check connection)
+
+
+```
+
+
+
