@@ -1,3 +1,5 @@
+[NOTICE] The poluymer version is no loger supported. Please refer to master (AngularJS+ZURM foundation)
+
 # Yard
 
 An web application for creating templated documents and export as PDF
