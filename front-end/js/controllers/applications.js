@@ -1,5 +1,4 @@
-function retrieveApplication() {
-	var new_application = new Applications();
+function fillApplicationWithCurrentValues(new_application) {
 	new_application.company = document.getElementById('appl-company').value;
 	new_application.portal = document.getElementById('appl-portal').value;
 	new_application.position = document.getElementById('appl-position').value;
@@ -32,7 +31,6 @@ function retrieveApplication() {
 	new_application.c4name = document.getElementById('appl-c4name').value;
 	new_application.c4mail = document.getElementById('appl-c4mail').value;
 	new_application.c4phone = document.getElementById('appl-c4phone').value;
-	return new_application;
 }
 
 angular.module('niomApp')
@@ -105,7 +103,7 @@ angular.module('niomApp')
 	}
 
 	$scope.update = function(){
-		$scope.current_application = retrieveApplication();
+		fillApplicationWithCurrentValues($scope.current_application);
 		$scope.current_application.$update( {uuid:$scope.current_application.id}, function(){ console.log("Updated !"); $location.path( '/applications' );} );
 	};	
 })
@@ -118,7 +116,8 @@ angular.module('niomApp')
 
 	$scope.update = function(){
 
-		$scope.current_application = retrieveApplication();
+		$scope.current_application = new Applications();
+		fillApplicationWithCurrentValues($scope.current_application);
 		$scope.current_application.$save( function() { console.log("SAVED"); $location.path( '/applications' ); } );
 	}
 });
