@@ -1,0 +1,17 @@
+{
+  "name": "doctailor",
+  "version": "1.0.0",
+  "description": "A document template utility",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/neonsoftware/yard",
+  "keywords": [
+  ],
+  "author": "neonsoftware",
+  "license": "GPL-v3",
+  "devDependencies": {
+    "electron": "^1.4.1"
+  }
+}

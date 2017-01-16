@@ -98,25 +98,17 @@ window.routes = {
 },
 };
 
-//var remoteUrl = 'http://ec2-54-234-247-242.compute-1.amazonaws.com/' ;
 //var remoteUrl = 'http://127.0.0.1' ;
-//var remoteUrl = 'http://niom.eu/' ;
-var remoteUrl = '' ;
-//var remoteUrl = 'http://54.165.154.172' ;
-//var remoteUrl = 'http://192.168.0.33' ;
-
-//angular.module('niomApp', [ 'gridster', 'ngRoute' , 'ngResource', 'ui.bootstrap' , 'autoFields', 'ngUpload', 'ngSanitize'])
+var remoteUrl = 'http://127.0.0.1:8082' ;
 
 angular.module('niomApp', [ 'ngRoute' , 'ngResource', 'ngSanitize'])
 .config(['$routeProvider',
 function($routeProvider) {
-
 	//this loads up our routes dynamically from the previous object 
 	for(var path in window.routes) 
 	{
 		$routeProvider.when(path, window.routes[path]); 
 	}
-	
 	$routeProvider.otherwise({redirectTo: '/'});
 }])
 .factory( 'Niom', function(){ 
@@ -127,54 +119,3 @@ function($routeProvider) {
 .factory('Pieces', 			['$resource', function($resource) { return $resource( remoteUrl + '/pieces/:uuid/:command', 		{uuid:"@id"}, {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
 .factory('Categories', 		['$resource', function($resource) { return $resource( remoteUrl + '/categories/:uuid/:command', 	{uuid:"@id"},   {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] )
 .factory('Documents', 		['$resource', function($resource) { return $resource( remoteUrl + '/documents/:uuid/:command', 	    {uuid:"@id"},   {update: { method: 'PUT' }, generate: { method: 'PUT'  } } ); } ] );
-
-// .run( ['$rootScope', function($rootScope){
-	
-// 	alert("ciao!");
-
-// 	$rootScope.$on("$locationChangeStart", function(event, next, current) { 
-// 		for(var i in window.routes) 
-// 		{
-// 			// if(next.indexOf(i) != -1) 
-// 			// {
-// 			// 	if(window.routes[i].requireLogin && !SessionService.getUserAuthenticated()) {
-// 			// 		alert("You need to be authenticated to see this page!");
-// 			// 		event.preventDefault();
-// 			// 	}
-// 			// } 
-// 		}
-// 	}); 
-// }])
-
-// .service('SessionService', function(){ 
-// 	var userIsAuthenticated = false;
-	
-// 	this.setUserAuthenticated = function(value){ 
-// 		userIsAuthenticated = value;
-// 	};
-
-// 	his.getUserAuthenticated = function(){ 
-// 		return userIsAuthenticated;
-// 	};
-// })
-// .directive('loadedTemplate', function ($compile) {
-//     return {
-//         restrict: "E",
-//         template: '',
-//         scope: {
-//             myvar: "=",
-//             myhtml: "="
-//         },
-//         link: function(scope, elt, attrs) {
-// 			scope.$watch('myhtml', function(newValue, oldValue) {
-// 			                if (newValue)
-// 			                    console.log("I see a data change!");
-// 					            var element = angular.element(scope.myhtml);
-// 					            var test = $compile(element)(scope);
-// 					            elt.append(test);
-// 			            }, true);
-            
-//         }
-//     };
-// });
-
