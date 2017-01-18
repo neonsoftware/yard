@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/util"
@@ -88,10 +87,6 @@ func NewKey(prefix string) string {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return prefix + "-" + string(b)
-}
-
-func Hello(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	fmt.Fprintf(w, "hello, %s!\n", ps.ByName("name"))
 }
 
 func Applications(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -452,17 +447,21 @@ func PiecesNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func main() {
 
+	db_file := "/Users/sammythegoat/Documents/text_data/my.db"
+	if len(os.Args[1:]) > 0 {
+		db_file = os.Args[1]
+	}
+
 	f, err := os.OpenFile("/tmp/servy", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	defer f.Close()
 	if err != nil {
-		log.Fatalf("error opening file: %v", err)
+		log.Fatalf("error opening file %s : %v", db_file, err)
 	}
 
 	log.SetOutput(f)
-	log.Println("Start")
 
 	//var db
-	db, err = leveldb.OpenFile("/tmp/my.db", nil)
+	db, err = leveldb.OpenFile(db_file, nil)
 	defer db.Close()
 	if err != nil {
 		log.Fatal("Could not open database")
@@ -487,20 +486,17 @@ func main() {
 	router.PUT("/categories/:id", CategoriesUpdate)
 	router.DELETE("/categories/:id", ElementDelete)
 
-	router.GET("/covers", Covers)
-	router.POST("/covers", CoversNew)
-	router.GET("/covers/:id", CoversDetail)
-	router.PUT("/covers/:id", CoversUpdate)
-	router.DELETE("/covers/:id", ElementDelete)
+	router.GET("/documents", Covers)
+	router.POST("/documents", CoversNew)
+	router.GET("/documents/:id", CoversDetail)
+	router.PUT("/documents/:id", CoversUpdate)
+	router.DELETE("/documents/:id", ElementDelete)
 
 	router.GET("/applications", Applications)
 	router.POST("/applications", ApplicationsNew)
 	router.GET("/applications/:id", ApplicationsDetail)
 	router.PUT("/applications/:id", ApplicationsUpdate)
 	router.DELETE("/applications/:id", ElementDelete)
-
-	router.GET("/documents", Pieces)
-	router.GET("/hello/:name", Hello)
 
 	log.Println("Running build server at :8082")
 	log.Fatal(http.ListenAndServe(":8082", router))

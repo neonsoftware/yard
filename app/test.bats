@@ -8,7 +8,7 @@ APPLICATION='{"id":"","portal":"aa","portal_link":"","company":"","company_link"
 APPLICATION_NEW='{"id":"","portal":"zz","portal_link":"","company":"","company_link":"","position":"","position_link":"","salary":"","contract":"","latitude":"","longitude":"","skills":"","written":false,"called":false,"interviewed":false,"followup":false,"notes":"","next":"","content":"","address1":"","address2":"","c1name":"","c1mail":"","c1phone":"","c2name":"","c2mail":"","c2phone":"","c3name":"","c3mail":"","c3phone":"","c4name":"","c4mail":"","c4phone":""}'
 
 @test "starting server in background" {
-	./yard_server &
+	./yard_server my_temp.db &
 }
 
 @test "checking server is started" {
@@ -71,26 +71,26 @@ APPLICATION_NEW='{"id":"","portal":"zz","portal_link":"","company":"","company_l
 # Covers
 
 @test "covers GET - empty" {
-	curl -X GET :8082/covers | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 0 )'
+	curl -X GET :8082/documents | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 0 )'
 }
 
 @test "covers POST" {
-	curl -X POST -vv --data-ascii $COVER :8082/covers | python -c 'import sys, json; assert( json.load(sys.stdin)["id"] != "" )'
+	curl -X POST -vv --data-ascii $COVER :8082/documents | python -c 'import sys, json; assert( json.load(sys.stdin)["id"] != "" )'
 }
 
 @test "covers GET - increased" {
-	curl -X GET :8082/covers | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 1 )'
+	curl -X GET :8082/documents | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 1 )'
 }
 
 @test "covers detail - GET and PUT " {
-	curl -X GET :8082/covers/$(curl -X GET :8082/covers | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["content"] == "bb"'
-	curl -X PUT :8082/covers/$(curl -X GET :8082/covers | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') --data-ascii $COVER_NEW
-	curl -X GET :8082/covers/$(curl -X GET :8082/covers | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["content"] == "zz"'
+	curl -X GET :8082/documents/$(curl -X GET :8082/documents | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["content"] == "bb"'
+	curl -X PUT :8082/documents/$(curl -X GET :8082/documents | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') --data-ascii $COVER_NEW
+	curl -X GET :8082/documents/$(curl -X GET :8082/documents | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["content"] == "zz"'
 }
 
 @test "covers detail - DELETE " {
-	curl -X DELETE :8082/covers/$(curl -X GET :8082/covers | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])')
-	curl -X GET :8082/covers | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 0 )'
+	curl -X DELETE :8082/documents/$(curl -X GET :8082/documents | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])')
+	curl -X GET :8082/documents | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 0 )'
 }
 
 # Applications
