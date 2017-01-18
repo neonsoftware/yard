@@ -36,6 +36,12 @@ APPLICATION_NEW='{"id":"","portal":"zz","portal_link":"","company":"","company_l
 	curl -X GET :8082/pieces/$(curl -X GET :8082/pieces | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["tags"] == "zz"'
 }
 
+@test "block detail - DELETE " {
+	curl -X DELETE :8082/pieces/$(curl -X GET :8082/pieces | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])')
+	curl -X GET :8082/pieces | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 0 )'
+}
+
+
 # Category
 
 @test "categories GET - empty" {
@@ -54,6 +60,11 @@ APPLICATION_NEW='{"id":"","portal":"zz","portal_link":"","company":"","company_l
 	curl -X GET :8082/categories/$(curl -X GET :8082/categories | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["description"] == "dd"'
 	curl -X PUT :8082/categories/$(curl -X GET :8082/categories | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') --data-ascii $CATEGORY_NEW
 	curl -X GET :8082/categories/$(curl -X GET :8082/categories | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["description"] == "zz"'
+}
+
+@test "categories detail - DELETE " {
+	curl -X DELETE :8082/categories/$(curl -X GET :8082/categories | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])')
+	curl -X GET :8082/categories | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 0 )'
 }
 
 
@@ -77,6 +88,11 @@ APPLICATION_NEW='{"id":"","portal":"zz","portal_link":"","company":"","company_l
 	curl -X GET :8082/covers/$(curl -X GET :8082/covers | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["content"] == "zz"'
 }
 
+@test "covers detail - DELETE " {
+	curl -X DELETE :8082/covers/$(curl -X GET :8082/covers | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])')
+	curl -X GET :8082/covers | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 0 )'
+}
+
 # Applications
 
 @test "applications GET - empty" {
@@ -97,6 +113,12 @@ APPLICATION_NEW='{"id":"","portal":"zz","portal_link":"","company":"","company_l
 	curl -X GET :8082/applications/$(curl -X GET :8082/applications | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])') | python -c 'import sys, json; json.load(sys.stdin)["portal"] == "zz"'
 }
 
+@test "applications detail - DELETE " {
+	curl -X DELETE :8082/applications/$(curl -X GET :8082/applications | python -c 'import sys, json; print(json.load(sys.stdin)[0]["id"])')
+	curl -X GET :8082/applications | python -c 'import sys, json; assert( len(json.load(sys.stdin)) == 0 )'
+}
+
+# Shutdown
 
 @test "shutting down server" {
 	killall yard_server

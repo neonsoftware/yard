@@ -411,6 +411,17 @@ func PiecesUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	w.Write(tj)
 }
 
+func ElementDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	err := db.Delete([]byte(ps.ByName("id")), nil)
+	if err != nil {
+		fmt.Println("Problems deleting !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+}
+
 func PiecesNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Stub an user to be populated from the body
 	t := Block{}
@@ -457,21 +468,25 @@ func main() {
 	router.POST("/pieces", PiecesNew)
 	router.GET("/pieces/:id", PiecesDetail)
 	router.PUT("/pieces/:id", PiecesUpdate)
+	router.DELETE("/pieces/:id", ElementDelete)
 
 	router.GET("/categories", Categories)
 	router.POST("/categories", CategoriesNew)
 	router.GET("/categories/:id", CategoriesDetail)
 	router.PUT("/categories/:id", CategoriesUpdate)
+	router.DELETE("/categories/:id", ElementDelete)
 
 	router.GET("/covers", Covers)
 	router.POST("/covers", CoversNew)
 	router.GET("/covers/:id", CoversDetail)
 	router.PUT("/covers/:id", CoversUpdate)
+	router.DELETE("/covers/:id", ElementDelete)
 
 	router.GET("/applications", Applications)
 	router.POST("/applications", ApplicationsNew)
 	router.GET("/applications/:id", ApplicationsDetail)
 	router.PUT("/applications/:id", ApplicationsUpdate)
+	router.DELETE("/applications/:id", ElementDelete)
 
 	router.GET("/documents", Pieces)
 	router.GET("/hello/:name", Hello)
