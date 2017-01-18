@@ -122,13 +122,46 @@ func Applications(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	w.Write(jData)
 }
 
+func ApplicationsDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	data, err := db.Get([]byte(ps.ByName("id")), nil)
+	if err != nil {
+		fmt.Println("Problems retrieving !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func ApplicationsUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	fmt.Println("update id ", ps.ByName("id"))
+	t := Application{}
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		log.Fatal("error decoding application")
+		w.WriteHeader(500)
+	}
+	t.Id = ps.ByName("id")
+	tj, _ := json.Marshal(t)
+
+	err = db.Put([]byte(ps.ByName("id")), tj, nil)
+	if err != nil {
+		fmt.Println("Problems retrieving !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(tj)
+}
+
 func ApplicationsNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Stub an user to be populated from the body
 	t := Application{}
 	fmt.Println("New is", t)
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
-		log.Fatal("error decoding piece")
+		log.Fatal("error decoding application")
 		w.WriteHeader(500)
 	}
 
@@ -173,6 +206,39 @@ func Covers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jData)
+}
+
+func CoversDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	data, err := db.Get([]byte(ps.ByName("id")), nil)
+	if err != nil {
+		fmt.Println("Problems retrieving !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func CoversUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	fmt.Println("update id ", ps.ByName("id"))
+	t := Cover{}
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		log.Fatal("error decoding cover")
+		w.WriteHeader(500)
+	}
+	t.Id = ps.ByName("id")
+	tj, _ := json.Marshal(t)
+
+	err = db.Put([]byte(ps.ByName("id")), tj, nil)
+	if err != nil {
+		fmt.Println("Problems retrieving !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(tj)
 }
 
 func CoversNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -227,6 +293,39 @@ func Categories(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Write(jData)
 }
 
+func CategoriesDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	data, err := db.Get([]byte(ps.ByName("id")), nil)
+	if err != nil {
+		fmt.Println("Problems retrieving !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func CategoriesUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	fmt.Println("update id ", ps.ByName("id"))
+	t := Category{}
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		log.Fatal("error decoding category")
+		w.WriteHeader(500)
+	}
+	t.Id = ps.ByName("id")
+	tj, _ := json.Marshal(t)
+
+	err = db.Put([]byte(ps.ByName("id")), tj, nil)
+	if err != nil {
+		fmt.Println("Problems retrieving !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(tj)
+}
+
 func CategoriesNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Stub an user to be populated from the body
 	t := Category{}
@@ -279,6 +378,39 @@ func Pieces(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Write(jData)
 }
 
+func PiecesDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	data, err := db.Get([]byte(ps.ByName("id")), nil)
+	if err != nil {
+		fmt.Println("Problems retrieving !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(data)
+}
+
+func PiecesUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	fmt.Println("update id ", ps.ByName("id"))
+	t := Block{}
+	err := json.NewDecoder(r.Body).Decode(&t)
+	if err != nil {
+		log.Fatal("error decoding piece")
+		w.WriteHeader(500)
+	}
+	t.Id = ps.ByName("id")
+	tj, _ := json.Marshal(t)
+
+	err = db.Put([]byte(ps.ByName("id")), tj, nil)
+	if err != nil {
+		fmt.Println("Problems retrieving !!!")
+		w.WriteHeader(500)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(tj)
+}
+
 func PiecesNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Stub an user to be populated from the body
 	t := Block{}
@@ -323,15 +455,23 @@ func main() {
 
 	router.GET("/pieces", Pieces)
 	router.POST("/pieces", PiecesNew)
+	router.GET("/pieces/:id", PiecesDetail)
+	router.PUT("/pieces/:id", PiecesUpdate)
 
 	router.GET("/categories", Categories)
 	router.POST("/categories", CategoriesNew)
+	router.GET("/categories/:id", CategoriesDetail)
+	router.PUT("/categories/:id", CategoriesUpdate)
 
 	router.GET("/covers", Covers)
 	router.POST("/covers", CoversNew)
+	router.GET("/covers/:id", CoversDetail)
+	router.PUT("/covers/:id", CoversUpdate)
 
 	router.GET("/applications", Applications)
 	router.POST("/applications", ApplicationsNew)
+	router.GET("/applications/:id", ApplicationsDetail)
+	router.PUT("/applications/:id", ApplicationsUpdate)
 
 	router.GET("/documents", Pieces)
 	router.GET("/hello/:name", Hello)
