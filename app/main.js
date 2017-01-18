@@ -7,9 +7,19 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 
-var spawn = require('child_process').spawn;
+var execFile = require('child_process').execFile;
 
-var child = spawn(path.join(__dirname, 'yard_server'), []);
+var fs = require('fs');
+fs.writeFile("/tmp/test", "Hey there: " + __dirname, function(err) {
+    if(err) {
+        return console.log(err);
+    }
+
+    console.log("The file was saved!");
+}); 
+
+//var child = execFile(path.join(__dirname, 'yard_server'), []);
+var child = execFile(path.join(__dirname, 'yard_server'), []);
 
 
 // Keep a global reference of the window object, if you don't, the window will

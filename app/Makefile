@@ -7,6 +7,8 @@ app: yard_server
 	mkdir -p $(tmp)/static
 	cp yard_server index.html package.json main.js $(tmp)
 	cp -r ../front-end $(tmp)/static/yard
+	cd $(tmp) && npm install
+	electron-packager $(tmp) yard --overwrite
 	
 yard_server: server.go
 	go build -o yard_server server.go

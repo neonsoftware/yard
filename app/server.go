@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 )
 
 var db *leveldb.DB
@@ -98,7 +99,7 @@ func Applications(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	t := Application{}
 	jt, _ := json.Marshal(t)
-	fmt.Println("New is", string(jt))
+	log.Println("New is", string(jt))
 
 	iter := db.NewIterator(util.BytesPrefix([]byte("a-")), nil)
 	for iter.Next() {
@@ -125,7 +126,7 @@ func Applications(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 func ApplicationsDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	data, err := db.Get([]byte(ps.ByName("id")), nil)
 	if err != nil {
-		fmt.Println("Problems retrieving !!!")
+		log.Println("Problems retrieving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -135,7 +136,7 @@ func ApplicationsDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 
 func ApplicationsUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	fmt.Println("update id ", ps.ByName("id"))
+	log.Println("update id ", ps.ByName("id"))
 	t := Application{}
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
@@ -147,7 +148,7 @@ func ApplicationsUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 
 	err = db.Put([]byte(ps.ByName("id")), tj, nil)
 	if err != nil {
-		fmt.Println("Problems retrieving !!!")
+		log.Println("Problems retrieving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -158,7 +159,7 @@ func ApplicationsUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Pa
 func ApplicationsNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	// Stub an user to be populated from the body
 	t := Application{}
-	fmt.Println("New is", t)
+	log.Println("New is", t)
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
 		log.Fatal("error decoding application")
@@ -174,7 +175,7 @@ func ApplicationsNew(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	tj, _ := json.Marshal(t)
 	err = db.Put([]byte(t.Id), tj, nil)
 	if err != nil {
-		fmt.Println("Problems saving !!!")
+		log.Println("Problems saving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -211,7 +212,7 @@ func Covers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func CoversDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	data, err := db.Get([]byte(ps.ByName("id")), nil)
 	if err != nil {
-		fmt.Println("Problems retrieving !!!")
+		log.Println("Problems retrieving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -221,7 +222,7 @@ func CoversDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func CoversUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	fmt.Println("update id ", ps.ByName("id"))
+	log.Println("update id ", ps.ByName("id"))
 	t := Cover{}
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
@@ -233,7 +234,7 @@ func CoversUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	err = db.Put([]byte(ps.ByName("id")), tj, nil)
 	if err != nil {
-		fmt.Println("Problems retrieving !!!")
+		log.Println("Problems retrieving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -259,7 +260,7 @@ func CoversNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	tj, _ := json.Marshal(t)
 	err = db.Put([]byte(t.Id), tj, nil)
 	if err != nil {
-		fmt.Println("Problems saving !!!")
+		log.Println("Problems saving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -296,7 +297,7 @@ func Categories(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func CategoriesDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	data, err := db.Get([]byte(ps.ByName("id")), nil)
 	if err != nil {
-		fmt.Println("Problems retrieving !!!")
+		log.Println("Problems retrieving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -306,7 +307,7 @@ func CategoriesDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 func CategoriesUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	fmt.Println("update id ", ps.ByName("id"))
+	log.Println("update id ", ps.ByName("id"))
 	t := Category{}
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
@@ -318,7 +319,7 @@ func CategoriesUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 	err = db.Put([]byte(ps.ByName("id")), tj, nil)
 	if err != nil {
-		fmt.Println("Problems retrieving !!!")
+		log.Println("Problems retrieving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -344,7 +345,7 @@ func CategoriesNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	tj, _ := json.Marshal(t)
 	err = db.Put([]byte(t.Id), tj, nil)
 	if err != nil {
-		fmt.Println("Problems saving !!!")
+		log.Println("Problems saving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -381,7 +382,7 @@ func Pieces(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 func PiecesDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	data, err := db.Get([]byte(ps.ByName("id")), nil)
 	if err != nil {
-		fmt.Println("Problems retrieving !!!")
+		log.Println("Problems retrieving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -391,7 +392,7 @@ func PiecesDetail(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func PiecesUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	fmt.Println("update id ", ps.ByName("id"))
+	log.Println("update id ", ps.ByName("id"))
 	t := Block{}
 	err := json.NewDecoder(r.Body).Decode(&t)
 	if err != nil {
@@ -403,7 +404,7 @@ func PiecesUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 	err = db.Put([]byte(ps.ByName("id")), tj, nil)
 	if err != nil {
-		fmt.Println("Problems retrieving !!!")
+		log.Println("Problems retrieving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -414,7 +415,7 @@ func PiecesUpdate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 func ElementDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	err := db.Delete([]byte(ps.ByName("id")), nil)
 	if err != nil {
-		fmt.Println("Problems deleting !!!")
+		log.Println("Problems deleting !!!")
 		w.WriteHeader(500)
 	}
 
@@ -440,7 +441,7 @@ func PiecesNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	tj, _ := json.Marshal(t)
 	err = db.Put([]byte(t.Id), tj, nil)
 	if err != nil {
-		fmt.Println("Problems saving !!!")
+		log.Println("Problems saving !!!")
 		w.WriteHeader(500)
 	}
 
@@ -451,15 +452,25 @@ func PiecesNew(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func main() {
 
+	f, err := os.OpenFile("/tmp/servy", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	defer f.Close()
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+
+	log.SetOutput(f)
+	log.Println("Start")
+
 	//var db
-	var err error
-	db, err = leveldb.OpenFile("./my.db", nil)
+	db, err = leveldb.OpenFile("/tmp/my.db", nil)
+	defer db.Close()
 	if err != nil {
 		log.Fatal("Could not open database")
 	}
-	defer db.Close()
 
 	_ = db.Put([]byte("key"), []byte("value"), nil)
+
+	log.Println("Starting to handling")
 
 	router := httprouter.New()
 	router.HandleMethodNotAllowed = false
@@ -491,7 +502,7 @@ func main() {
 	router.GET("/documents", Pieces)
 	router.GET("/hello/:name", Hello)
 
-	fmt.Println("Running build server at :8082")
+	log.Println("Running build server at :8082")
 	log.Fatal(http.ListenAndServe(":8082", router))
 }
 
