@@ -10,10 +10,14 @@
 <div ng-repeat="piece in pieces">
 	<div class="card" ng-show="isActive(piece)" style="width: 600px; margin: 10px 10px 10px 10px;">
 		<div class="card-section">
-			{{ piece.content }}
-			<div style="margin: 10px 10px 10px 10px;">
-				<a ng-click="delete(piece)" class="button">delete</a>
-				<a ng-click="edit(piece)" class="button">edit</a>
+			<div class="row">
+				<div class="small-10 large-10 columns">
+					{{ piece.content }}
+				</div>
+				<div class="small-2 large-2 columns">
+					<i class="step fi-x size-12" ng-click="delete(piece)"></i>
+					<i class="step fi-pencil size-12" ng-click="edit(piece)"></i>
+				</div>
 			</div>
 		</div>
 	</div>
