@@ -42,6 +42,8 @@ angular.module('niomApp')
 	
 	$scope.artifact = [];
 
+	console.log(">>> in the new template control");
+
 	$scope.current_template = Categories.get( {uuid : $routeParams.templateId }, function () {
 			console.log("Arrived ! appending."); 
 			$scope.artifact = angular.fromJson($scope.current_template.pieces);
@@ -58,8 +60,6 @@ angular.module('niomApp')
 					function() { alert('Target not created.' );}
 				);
 	};
-
-
 });
 
 angular.module('niomApp').filter('fillTemplate', function(){
@@ -69,6 +69,7 @@ angular.module('niomApp').filter('fillTemplate', function(){
 						
 			var fullSubstitute = "";
 			angular.forEach(scope.artifact, function(value, key) {
+				console.log("--- Adding : ");
 				fullSubstitute = fullSubstitute.concat( value.content );
 			});
 
@@ -76,6 +77,7 @@ angular.module('niomApp').filter('fillTemplate', function(){
 			angular.forEach(scope.artifact, function(value, key) {
 
 				angular.forEach(value.legend, function(v, k){
+					console.log("--> checking : ", v);
 					if (v.value.length > 0 )
 					{
 						console.log("--> Substituting : ", k, " with ", v.value);
