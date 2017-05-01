@@ -1,0 +1,17 @@
+<div class="card" ng-repeat="doc in documents" style="width: 600px; margin: 10px 10px 10px 10px;">
+  <div class="card-section">
+    <div class="row">
+      <div class="small-11 columns">
+        <h5>{{doc.name}}</h5>
+      </div>
+      <div class="small-1 columns">
+        <i class="step fi-x size-12" ng-click="delete(doc)"></i>
+        <i class="step fi-pencil size-12" ng-click="edit(doc)"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin: 10px 10px 10px 10px;">
+  <a ng-click="new()" class="button">new</a>
+</div>

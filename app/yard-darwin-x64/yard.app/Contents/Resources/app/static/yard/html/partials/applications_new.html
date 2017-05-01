@@ -1,0 +1,183 @@
+<div class="card" style="width: 600px; margin: 10px 10px 10px 10px;">
+	<div class="card-section">
+
+		<a ng-click="discard()" class="button">discard</a>
+		<a ng-click="update()" class="button">save</a>
+
+		<br>
+		<i class="step fi-check size-12"></i>
+		<span style="font-size:16px"><b>&nbsp;Company</b></span></h5><br>
+
+		<div style="padding-left :20px;">
+			<label>Company
+				<input id="appl-company" type="text" placeholder=".medium-6.columns" value="{{current_application.company}}" error="Company should have a name"></input>
+			</label>
+
+			<label>Company website
+				<input id="appl-company_link" type="text" placeholder=".medium-6.columns" value="{{current_application.company_link}}" error="Company should have a name"></input>
+			</label>
+
+			<label>Portal
+				<input id="appl-portal" type="text" placeholder=".medium-6.columns" value="{{current_application.portal}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Portal Website
+				<input id="appl-portal_link" type="text" placeholder=".medium-6.columns" value="{{current_application.portal_link}}" error="Portal should have a name"></input>
+			</label>
+		</div>
+		<br><br>
+
+		<br>
+		<i class="step fi-check size-12"></i>
+		<span style="font-size:16px"><b>&nbsp;Position</b></span></h5><br>
+
+		<div style="padding-left :20px;">
+			<label>Position
+				<input id="appl-position" type="text" placeholder=".medium-6.columns" value="{{current_application.position}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Position link
+				<input id="appl-position_link" type="text" placeholder=".medium-6.columns" value="{{current_application.position_link}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Skills
+				<input id="appl-skills" type="text" placeholder=".medium-6.columns" value="{{current_application.skills}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Salary
+				<input id="appl-salary" type="text" placeholder=".medium-6.columns" value="{{current_application.salary}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Contract
+				<input id="appl-contract" type="text" placeholder=".medium-6.columns" value="{{current_application.skills}}" error="Portal should have a name"></input>
+			</label>
+		</div>
+		<br><br>
+
+		<br>
+		<i class="step fi-check size-12"></i>
+		<span style="font-size:16px"><b>&nbsp;Status</b></span></h5><br>
+
+		<br>
+		<div style="padding-left :20px;">
+
+			<input id="appl-written" type="checkbox"></input>
+			&nbsp;&nbsp;&nbsp;<i class="step fi-check size-12"></i>&nbsp;&nbsp;Written<br><br>
+			<input id="appl-called" type="checkbox"></input>
+			&nbsp;&nbsp;&nbsp;<i class="step fi-check size-12"></i>&nbsp;&nbsp;Called<br><br>
+			<input id="appl-interviewed" type="checkbox"></input>
+			&nbsp;&nbsp;&nbsp;<i class="step fi-check size-12"></i>&nbsp;&nbsp;Interviewed <br><br>
+			<input id="appl-followup" type="checkbox"></input>
+			&nbsp;&nbsp;&nbsp;<i class="step fi-check size-12"></i>&nbsp;&nbsp;Followup<br><br>
+
+		</div>
+		<br><br>
+
+		<br>
+		<i class="step fi-check size-12"></i>
+		<span style="font-size:16px"><b>&nbsp;Notes</b></span></h5><br>
+
+		<div style="padding-left :20px;">
+
+			<label>Next
+				<textarea id="appl-notes" placeholder="None" value="{{current_application.next}}"></textarea>
+			</label>
+
+			<label>Notes
+				<textarea id="appl-next" placeholder="None" value="{{current_application.next}}"></textarea>
+			</label>
+
+			<label>Cover Letter
+				<textarea id="appl-cover" placeholder="None" value="{{current_application.next}}"></textarea>
+			</label>
+		</div>
+
+		<br>
+		<i class="step fi-marker size-12"></i>
+		<span style="font-size:16px"><b>&nbsp;Address</b></span></h5><br>
+
+		<div style="padding-left :20px;">
+
+			<label>Address 1
+				<input id="appl-address1" type="text" placeholder=".medium-6.columns" value="{{current_application.address1}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Address 2
+				<input id="appl-address2" type="text" placeholder=".medium-6.columns" value="{{current_application.address2}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Latitude
+				<input id="appl-latitude" type="text" placeholder=".medium-6.columns" value="{{current_application.latitude}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Longitude
+				<input id="appl-longitude" type="text" placeholder=".medium-6.columns" value="{{current_application.longitude}}" error="Portal should have a name"></input>
+			</label>
+		</div>
+
+		<br>
+
+
+		<br>
+		<i class="step fi-check size-12"></i>
+		<span style="font-size:16px"><b>&nbsp;Contact</b></span></h5><br>
+
+
+		<div style="padding-left :20px;">
+
+			<label>Name
+				<input id="appl-c1name" type="text" multiline value="{{current_application.c1name}}" error="Portal should have a name"></input> 
+			</label>
+
+			<label>Email
+				<input id="appl-c1mail" type="email" value="{{current_application.c1mail}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Phone
+				<input id="appl-c1phone" type="tel" value="{{current_application.c1phone}}" error="Portal should have a name"></input>
+			</label>
+			<br><br>
+
+			<label>Name
+				<input id="appl-c2name" type="text" multiline value="{{current_application.c2name}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Email 
+				<input id="appl-c2mail" type="email" value="{{current_application.c2mail}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Phone
+				<input id="appl-c2phone" type="tel" value="{{current_application.c2phone}}" error="Portal should have a name"></input>
+			</label>
+			<br><br>
+
+			<label>Name
+				<input id="appl-c3name" type="text" multiline value="{{current_application.c3name}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Email 
+				<input id="appl-c3mail" type="email" value="{{current_application.c3mail}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Phone
+				<input id="appl-c3phone" type="text"  type="tel" value="{{current_application.c3phone}}" error="Portal should have a name"></input>
+			</label>
+			<br><br>
+
+			<label>Name
+				<input id="appl-c4name" type="text" multiline value="{{current_application.c4name}}" error="Portal should have a name"></input>
+			</label>
+
+			<label>Email 
+				<input id="appl-c4mail" type="email" value="{{current_application.c4mail}}" error="Portal should have a name"></input>
+			</label>
+
+
+			<label>Phone
+				<input id="appl-c4phone" type="tel" value="{{current_application.c4phone}}" error="Portal should have a name"></input>
+			</label>
+
+		</div>
+
+	</div>
+</div>

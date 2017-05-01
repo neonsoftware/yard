@@ -1,0 +1,62 @@
+<div class="card" style="width: 600px; margin: 10px 10px 10px 10px;">
+	<div class="card-section">
+		<label>Name
+			<input id="temp-name" type="text" label="Name" floatingLabel=true value="{{current_template.name}}"></input>
+		</label>
+		<label>Description
+			<input id="temp-desc" type="text" label="Description" floatingLabel=true value="{{current_template.description}}"></input>
+		</label>
+		<label>Tags
+			<input id="temp-tags" type="text" label="Tags" floatingLabel=true value="{{current_template.tags}}"></input>
+		</label>
+	</div>
+</div>
+
+<div class="card" style="width: 600px; margin: 10px 10px 10px 10px;">
+	<div class="card-section">
+		<h5>Pieces</h5>
+		<br>
+		Language&nbsp;&nbsp;
+		<select id="temp-lang" ng-model="current_template.language" ng-options="lang for lang in languages">
+			<option value="">-- choose language --</option>
+		</select>
+
+		<h6>Tags</h6>
+		<span ng-repeat="tag in tags">
+			<input type="checkbox" value="Bike" ng-model="activeTags[tag]">&nbsp;&nbsp;{{tag}}<br>
+		</span>
+		<br><br>
+		<div ng-repeat="piece in pieces">
+			<div class="piece_list" ng-show="isActive(piece)">
+
+			<div class="row">
+				<div class="small-10 columns">{{ piece.content }}</div>
+				<div class="small-2 columns" ng-click="add(piece)">
+					<i class="step fi-plus size-12"></i>
+				</div>
+			</div>
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card" style="width: 600px; margin: 10px 10px 10px 10px;" ng-show="current_template.pieces.length >0">
+	<div class="card-section">
+		<h5>Order</h5>
+		<div class="piece_in" ng-repeat="piece in current_template.pieces">
+				<div class="row">
+					<div class="small-10 columns">{{ piece.content }}</div>
+					<div class="small-2 columns">
+						<i class="step fi-arrow-up size-12" ng-click="up($index)"></i>
+						<i class="step fi-arrow-down size-12" ng-click="down($index)"></i>
+						<i class="step fi-x size-12" ng-click="remove($index)"></i>
+					</div>
+				</div>
+		</div>
+	</div>
+</div>
+
+<div style="margin: 10px 10px 10px 10px;" ng-show="current_template.pieces.length >0">
+	<a ng-click="save()" class="button">save and fill</a>
+</div>

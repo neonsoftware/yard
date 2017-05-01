@@ -52,6 +52,15 @@ angular.module('niomApp')
 			});
 		});
 
+	$scope.txt = function() {
+		Documents.generate(
+					{ uuid: 1, command : "txt" }, 
+					{ "text" : document.getElementById('text-area-content').value },
+					function (res) { console.log( "hex file : ", res.path ) ; window.location.href= res.path ; },
+					function() { alert('Target not created.' );}
+				);
+	};
+
 	$scope.docx = function() {
 		Documents.generate(
 					{ uuid: 1, command : "docx" }, 

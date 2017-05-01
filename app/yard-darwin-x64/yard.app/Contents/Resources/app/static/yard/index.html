@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html ng-app="niomApp" class="no-js" lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title> Yard | Dashboard </title>
+        <link rel="stylesheet" href="static/yard/foundation-6.3.0/css/foundation.css">
+        <link rel="stylesheet" href="static/yard/foundation-icons/foundation-icons.css">
+    <body>
+
+<div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+  <button class="menu-icon" type="button" data-toggle="example-menu"></button>
+  <a href="#/"><div class="title-bar-title">Doctailor</a>
+
+  </div>
+    <ul class="menu">
+        <li><a href="#applications">A List</a></li>
+        <li><a href="#applications/cards">A Cards</a></li>
+        <li><a href="#applications/new">A New</a></li>
+        <li><a href="#pieces">B List</a></li>
+        <li><a href="#pieces/new">B New</a></li>
+        <li><a href="#categories">T List</a></li>
+        <li><a href="#categories/new">T New</a></li>
+        <li><a href="#documents">C List</a></li>
+        <li><a href="#documents/new">C New</a></li>
+    </ul>
+</div>
+
+<div ng-view></div>
+
+<!--         <core-scaffold id="mainscaffold">
+            <core-header-panel navigation flex>
+                <paper-toolbar id="navheader">
+                    <span>
+                    {{ username |capfirst}}
+                    </span>
+                </paper-toolbar>
+                <core-menu>
+
+                    {% if tmp %}
+                    <core-submenu icon="work" label="Applications">
+                        <paper-item icon="list" label="List">
+                            <a href="#applications"> </a>
+                        </paper-item>
+                       <paper-item icon="content-copy" label="Cards">
+                            <a href="#applications/cards"> </a>
+                        </paper-item>
+                        <paper-item icon="add" label="New">
+                            <a href="#applications/new"> </a>
+                        </paper-item>
+                    </core-submenu>
+                    {% endif %}
+
+
+
+
+                    {% if tmp %}
+                    <core-submenu icon="drive-document" label="Covers">
+                    {% else %}
+                    <core-submenu icon="drive-document" label="Documents">
+                    {% endif %}
+                        <paper-item icon="list" label="List">
+                            <a href="#documents"> </a>
+                        </paper-item>
+                        <paper-item icon="add" label="New">
+                            <a href="#documents/new"> </a>
+                        </paper-item>
+                    </core-submenu>
+
+                    <br>
+                    <core-item icon="exit-to-app" label="Logout">
+                            <a href="accounts/logout"></a>
+                    </core-item>
+
+                </core-menu>
+            </core-header-panel>
+            <span tool>
+            Yard
+            </span>
+            <div class="content" ng-view>
+            </div>
+        </core-scaffold> -->
+
+        <script src="static/yard/foundation-6.3.0/js/vendor/jquery.js"></script>
+        <script src="static/yard/foundation-6.3.0/js/vendor/what-input.js"></script>
+        <script src="static/yard/foundation-6.3.0/js/vendor/foundation.js"></script>
+
+        <script src="static/yard/bower_components/angular/angular.min.js"></script>
+        <script src="static/yard/bower_components/angular-resource/angular-resource.min.js"></script>
+        <script src="static/yard/bower_components/angular-route/angular-route.min.js"></script>
+        <script src="static/yard/bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+        <script src='static/yard/js/app.js' type="text/javascript"></script>
+        <script src='static/yard/js/controllers/utils.js' type="text/javascript"></script>
+        <script src='static/yard/js/controllers/applications.js' type="text/javascript"></script>
+        <script src='static/yard/js/controllers/skills.js' type="text/javascript"></script>
+        <script src='static/yard/js/controllers/pieces.js' type="text/javascript"></script>
+        <script src='static/yard/js/controllers/categories.js' type="text/javascript"></script>
+        <script src='static/yard/js/controllers/documents.js' type="text/javascript"></script>
+    </body>
+</html>

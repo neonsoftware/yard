@@ -1,0 +1,44 @@
+<div class="card" style="width: 800px; margin: 10px 10px 10px 10px;">
+	<div class="card-section">
+		<table>
+			<thead>
+				<tr>
+					<th>Position</th>
+					<th><i class="step fi-address-book size-12"></i></th>
+					<th><i class="step fi-telephone size-12"></i></th>
+					<th><i class="step fi-torso size-12"></i></th>
+					<th><i class="step fi-arrow-right size-12"></i></th>
+					<th>Next</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="application in applications" >
+					<td ng-click="open_detail(application)"> 
+						<span style="font-size: 12px;"><i>{{application.position}}</i></span><br>   
+						<span style="font-size: 11px;">{{application.company}}</span>
+						<span style="font-size: 9px; color: grey; ">&nbsp;&nbsp;via</span> 
+						<span style="font-size: 9px; color: grey; ">{{ application.portal }} </span>
+					</td>
+					<td ng-click="written(application)">
+						<i class="step fi-check size-12" ng-show="{{ application.written }}"></i>
+					</td>
+					<td ng-click="called(application)"> 
+						<i class="step fi-check size-12" ng-show="{{ application.called }}"></i>
+					</td>
+					<td ng-click="interviewed(application)"> 
+						<i class="step fi-check size-12" ng-show="{{ application.interviewed }}"></i>	
+					</td>
+					<td ng-click="followup(application)"> 
+						<i class="step fi-check size-12" ng-show="{{ application.followup }}"></i>	
+					</td>
+					<td ng-click="open_detail(application)"> {{ application.next }} </td>
+				</tr>
+			</tbody>
+		</table>
+
+	</div>
+</div>
+
+<div style="margin: 10px 10px 10px 10px;">
+	<a ng-click="new()" class="button">new</a>
+</div>
